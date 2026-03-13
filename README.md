@@ -1,6 +1,6 @@
 # OpenClaw 中文版 🦞
 
-> 你的个人 AI 助手。任何操作系统。任何平台。数字员工，企业级解决方案。
+> 你的个人 AI 助手。数字员工，企业级解决方案。任何操作系统，任何平台。
 
 [![GitHub Stars](https://img.shields.io/github/stars/jqjl/openclaw-cn)](https://github.com/jqjl/openclaw-cn/stargazers)
 [![License](https://img.shields.io/github/license/jqjl/openclaw-cn)](LICENSE)
