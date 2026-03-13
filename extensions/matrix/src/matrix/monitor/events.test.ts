@@ -28,6 +28,9 @@ function createHarness(params?: {
     otherUserId: string;
     updatedAt?: string;
     completed?: boolean;
+    pending?: boolean;
+    phase?: number;
+    phaseName?: string;
     sas?: {
       decimal?: [number, number, number];
       emoji?: Array<[string, string]>;
@@ -317,6 +320,117 @@ describe("registerMatrixMonitorEvents verification routing", () => {
       .map((call) => String(((call as unknown[])[1] as { body?: string } | undefined)?.body ?? ""))
       .filter((body) => body.includes("SAS emoji:"));
     expect(sasBodies).toHaveLength(1);
+  });
+
+  it("ignores cancelled verification flows when DM fallback resolves SAS notices", async () => {
+    const { sendMessage, roomEventListener } = createHarness({
+      joinedMembersByRoom: {
+        "!dm:example.org": ["@alice:example.org", "@bot:example.org"],
+      },
+      verifications: [
+        {
+          id: "verification-old-cancelled",
+          transactionId: "$old-flow",
+          otherUserId: "@alice:example.org",
+          updatedAt: new Date("2026-02-25T21:42:54.000Z").toISOString(),
+          phaseName: "cancelled",
+          phase: 4,
+          pending: false,
+          sas: {
+            decimal: [1111, 2222, 3333],
+            emoji: [
+              ["🚀", "Rocket"],
+              ["🦋", "Butterfly"],
+              ["📕", "Book"],
+            ],
+          },
+        },
+        {
+          id: "verification-new-active",
+          transactionId: "$different-flow-id",
+          otherUserId: "@alice:example.org",
+          updatedAt: new Date("2026-02-25T21:43:54.000Z").toISOString(),
+          phaseName: "started",
+          phase: 3,
+          pending: true,
+          sas: {
+            decimal: [6158, 1986, 3513],
+            emoji: [
+              ["🎁", "Gift"],
+              ["🌍", "Globe"],
+              ["🐴", "Horse"],
+            ],
+          },
+        },
+      ],
+    });
+
+    roomEventListener("!dm:example.org", {
+      event_id: "$start-active",
+      sender: "@alice:example.org",
+      type: "m.key.verification.start",
+      origin_server_ts: Date.now(),
+      content: {
+        "m.relates_to": { event_id: "$req-active" },
+      },
+    });
+
+    await vi.waitFor(() => {
+      const bodies = (sendMessage.mock.calls as unknown[][]).map((call) =>
+        String((call[1] as { body?: string } | undefined)?.body ?? ""),
+      );
+      expect(bodies.some((body) => body.includes("SAS decimal: 6158 1986 3513"))).toBe(true);
+    });
+    const bodies = (sendMessage.mock.calls as unknown[][]).map((call) =>
+      String((call[1] as { body?: string } | undefined)?.body ?? ""),
+    );
+    expect(bodies.some((body) => body.includes("SAS decimal: 1111 2222 3333"))).toBe(false);
+  });
+
+  it("does not emit SAS notices for cancelled verification events", async () => {
+    const { sendMessage, roomEventListener } = createHarness({
+      joinedMembersByRoom: {
+        "!dm:example.org": ["@alice:example.org", "@bot:example.org"],
+      },
+      verifications: [
+        {
+          id: "verification-cancelled",
+          transactionId: "$req-cancelled",
+          otherUserId: "@alice:example.org",
+          updatedAt: new Date("2026-02-25T21:42:54.000Z").toISOString(),
+          phaseName: "cancelled",
+          phase: 4,
+          pending: false,
+          sas: {
+            decimal: [1111, 2222, 3333],
+            emoji: [
+              ["🚀", "Rocket"],
+              ["🦋", "Butterfly"],
+              ["📕", "Book"],
+            ],
+          },
+        },
+      ],
+    });
+
+    roomEventListener("!dm:example.org", {
+      event_id: "$cancelled-1",
+      sender: "@alice:example.org",
+      type: "m.key.verification.cancel",
+      origin_server_ts: Date.now(),
+      content: {
+        code: "m.mismatched_sas",
+        reason: "The SAS did not match.",
+        "m.relates_to": { event_id: "$req-cancelled" },
+      },
+    });
+
+    await vi.waitFor(() => {
+      expect(sendMessage).toHaveBeenCalledTimes(1);
+    });
+    const body = getSentNoticeBody(sendMessage, 0);
+    expect(body).toContain("Matrix verification cancelled by @alice:example.org");
+    expect(body).not.toContain("SAS decimal:");
   });
 
   it("warns once when encrypted events arrive without Matrix encryption enabled", () => {

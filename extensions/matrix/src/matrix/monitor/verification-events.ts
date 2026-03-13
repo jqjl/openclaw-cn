@@ -18,6 +18,9 @@ type MatrixVerificationSummaryLike = {
   otherUserId: string;
   updatedAt?: string;
   completed?: boolean;
+  pending?: boolean;
+  phase?: number;
+  phaseName?: string;
   sas?: {
     decimal?: [number, number, number];
     emoji?: Array<[string, string]>;
@@ -162,6 +165,19 @@ function resolveSummaryRecency(summary: MatrixVerificationSummaryLike): number {
   return Number.isFinite(ts) ? ts : 0;
 }
 
+function isActiveVerificationSummary(summary: MatrixVerificationSummaryLike): boolean {
+  if (summary.completed === true) {
+    return false;
+  }
+  if (summary.phaseName === "cancelled" || summary.phaseName === "done") {
+    return false;
+  }
+  if (typeof summary.phase === "number" && summary.phase >= 4) {
+    return false;
+  }
+  return true;
+}
+
 async function resolveVerificationSummaryForSignal(
   client: MatrixClient,
   params: {
@@ -203,10 +219,10 @@ async function resolveVerificationSummaryForSignal(
   }
 
   // Fallback for DM flows where transaction IDs do not match room event IDs consistently.
-  const byUser = list
-    .filter((entry) => entry.otherUserId === params.senderId && entry.completed !== true)
-    .sort((a, b) => resolveSummaryRecency(b) - resolveSummaryRecency(a))[0];
-  return byUser ?? null;
+  const activeByUser = list
+    .filter((entry) => entry.otherUserId === params.senderId && isActiveVerificationSummary(entry))
+    .sort((a, b) => resolveSummaryRecency(b) - resolveSummaryRecency(a));
+  return activeByUser.length === 1 ? (activeByUser[0] ?? null) : null;
 }
 
 function trackBounded(set: Set<string>, value: string): boolean {
@@ -288,7 +304,10 @@ export function createMatrixVerificationEventRouter(params: {
         senderId,
         flowId,
       }).catch(() => null);
-      const sasNotice = summary ? formatVerificationSasNotice(summary) : null;
+      const sasNotice =
+        summary && isActiveVerificationSummary(summary)
+          ? formatVerificationSasNotice(summary)
+          : null;
 
       const notices: string[] = [];
       if (stageNotice) {
