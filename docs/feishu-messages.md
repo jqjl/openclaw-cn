@@ -75,7 +75,7 @@
             {"tag": "text", "text": "大家好！\n"}
           ],
           [
-            {"tag": "text", "text": "今天是 OpenClaw 中国版发布日！", "style": {"bold": true}}
+            {"tag": "text", "text": "今天是 OpenClaw 中文版发布日！", "style": {"bold": true}}
           ],
           [
             {"tag": "a", "text": "查看详情 →", "href": "https://github.com/jqjl/openclaw-cn"}
@@ -107,7 +107,7 @@
         "tag": "div",
         "text": {
           "tag": "plain_text",
-          "content": "这是 OpenClaw 中国版"
+          "content": "这是 OpenClaw 中文版"
         }
       }
     ]

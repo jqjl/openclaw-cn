@@ -1,6 +1,6 @@
-# OpenClaw 中国版 API 参考
+# OpenClaw 中文版 API 参考
 
-本文档列出 OpenClaw 中国版的核心 API 接口。
+本文档列出 OpenClaw 中文版的核心 API 接口。
 
 ## 📡 基础信息
 

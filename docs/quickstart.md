@@ -1,6 +1,6 @@
-# OpenClaw 中国版 - 快速入门
+# OpenClaw 中文版 - 快速入门
 
-本指南将帮助你在 5 分钟内快速启动 OpenClaw 中国版。
+本指南将帮助你在 5 分钟内快速启动 OpenClaw 中文版。
 
 ## 🚀 5分钟快速开始
 
@@ -54,7 +54,7 @@ npm run dev
 
 看到类似输出就成功了：
 ```
-🌊 OpenClaw 中国版已启动
+🌊 OpenClaw 中文版已启动
 📡 监听 http://localhost:8080
 ```
 

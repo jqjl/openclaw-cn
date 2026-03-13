@@ -1,6 +1,6 @@
 # OpenClaw 故障排除指南
 
-本文档帮助你解决使用 OpenClaw 中国版时遇到的常见问题。
+本文档帮助你解决使用 OpenClaw 中文版时遇到的常见问题。
 
 ## 🚦 服务启动问题
 
@@ -170,7 +170,7 @@ mysqladmin ping
 
 1. 使用国内模型（阿里云、MiniMax、智谱）
 2. 配置代理
-3. 使用 OpenClaw 中国版优化过的模型
+3. 使用 OpenClaw 中文版优化过的模型
 
 ```json
 {
