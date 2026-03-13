@@ -44,7 +44,10 @@ npm run dev
 | 文档 | 说明 |
 |------|------|
 | [安装指南](./docs/install.md) | 快速安装教程 |
-| [飞书集成](./docs/feishu.md) | 飞书机器人配置 |
+| [模型配置](./docs/models.md) | 国内模型 API 配置 |
+| [更新日志](./docs/changelog.md) | 官方最新更新 |
+
+## 🤖 支持的模型
 | [钉钉集成](./docs/dingtalk.md) | 钉钉机器人配置 |
 | [企业微信](./docs/wechat-work.md) | 企业微信配置 |
 | [模型配置](./docs/models.md) | 国内模型 API 配置 |
