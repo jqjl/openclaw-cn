@@ -5,7 +5,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/jqjl/openclaw-cn)](https://github.com/jqjl/openclaw-cn/stargazers)
 [![License](https://img.shields.io/github/license/jqjl/openclaw-cn)](LICENSE)
 
-## 🌏 中国特色功能
+## 🌍 中文特色功能
 
 本版本基于 [OpenClaw](https://github.com/openclaw/openclaw) 官方版，为中国用户定制开发：
 
