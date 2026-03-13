@@ -5,6 +5,20 @@
 [![GitHub Stars](https://img.shields.io/github/stars/jqjl/openclaw-cn)](https://github.com/jqjl/openclaw-cn/stargazers)
 [![License](https://img.shields.io/github/license/jqjl/openclaw-cn)](LICENSE)
 
+## ⚡ 一键安装
+
+```bash
+# 克隆并安装
+git clone https://github.com/jqjl/openclaw-cn.git
+cd openclaw-cn
+npm install
+npm run dev
+```
+
+**立即体验：** 访问 http://localhost:8080
+
+---
+
 ## 🌍 中文特色功能
 
 本版本基于 [OpenClaw](https://github.com/openclaw/openclaw) 官方版，为中国用户定制开发：
