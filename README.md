@@ -8,14 +8,45 @@
 ## ⚡ 一键安装
 
 ```bash
-# 克隆并安装
-git clone https://github.com/jqjl/openclaw-cn.git
-cd openclaw-cn
-npm install
-npm run dev
+# 一行命令自动安装（推荐）
+curl -sL https://raw.githubusercontent.com/jqjl/openclaw-cn/main/scripts/install.sh | bash
 ```
 
-**立即体验：** 访问 http://localhost:8080
+> 如果上述命令失败，请手动安装：
+> ```bash
+> git clone https://github.com/jqjl/openclaw-cn.git
+> cd openclaw-cn && npm install && npm run dev
+> ```
+
+**立即体验：** http://localhost:8080
+
+---
+
+## 📰 官方最新更新（每日同步）
+
+### v2026.3.13 (2026年3月13日)
+
+**✨ 新增功能：**
+- Control UI / Dashboard V2 全新升级（模块化仪表盘、命令面板、移动端优化）
+- OpenAI GPT-5.4 快速模式（会话级别快速切换）
+- Anthropic Claude 快速模式
+- Ollama / vLLM / SGLang 插件化
+- Agents/子Agent优化（sessions_yield）
+- Slack Agent Block Kit 消息支持
+- Kubernetes 部署支持
+
+**🔐 安全更新：**
+- Gateway/WebSocket 漏洞修复
+- 设备配对安全（短期 bootstrap tokens）
+- 20+ 项安全修复
+
+**🐛 问题修复：**
+- Kimi Coding 工具调用修复
+- TUI 聊天日志重复问题
+- Mattermost 块流修复
+- 30+ 项问题修复
+
+> 📝 完整更新日志查看：[更新日志](./docs/changelog.md)
 
 ---
 
@@ -60,39 +91,6 @@ npm run dev
 | [安装指南](./docs/install.md) | 快速安装教程 |
 | [模型配置](./docs/models.md) | 国内模型 API 配置 |
 | [更新日志](./docs/changelog.md) | 官方最新更新（每日更新） |
-
-## 📰 官方最新更新（每日同步）
-
-### v2026.3.13 (2026年3月13日)
-
-**✨ 新增功能：**
-- Control UI / Dashboard V2 全新升级（模块化仪表盘、命令面板、移动端优化）
-- OpenAI GPT-5.4 快速模式（会话级别快速切换）
-- Anthropic Claude 快速模式
-- Ollama / vLLM / SGLang 插件化
-- Agents/子Agent优化（sessions_yield）
-- Slack Agent Block Kit 消息支持
-- Kubernetes 部署支持
-
-**🔐 安全更新：**
-- Gateway/WebSocket 漏洞修复
-- 设备配对安全（短期 bootstrap tokens）
-- 20+ 项安全修复
-
-**🐛 问题修复：**
-- Kimi Coding 工具调用修复
-- TUI 聊天日志重复问题
-- Mattermost 块流修复
-- 30+ 项问题修复
-
-> 📝 完整更新日志查看：[更新日志](./docs/changelog.md)
-
----
-
-## 🤖 支持的模型
-| [钉钉集成](./docs/dingtalk.md) | 钉钉机器人配置 |
-| [企业微信](./docs/wechat-work.md) | 企业微信配置 |
-| [模型配置](./docs/models.md) | 国内模型 API 配置 |
 
 ## 🤖 支持的模型
 
