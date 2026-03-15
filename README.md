@@ -10,13 +10,13 @@
 ### 🍎 Mac / 🐧 Linux
 打开终端直接运行：
 ```bash
-curl -sL https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.sh | bash
+curl -sL https://raw.githubusercontent.com/jqjl/openclaw-cn/main/scripts/install.sh | sudo bash
 ```
 
 ### 🪟 Windows
-打开PowerShell直接运行：
+**以管理员身份打开PowerShell**直接运行：
 ```powershell
-iwr -useb https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/jqjl/openclaw-cn/main/scripts/install.ps1 | iex
 ```
 
 > 💡 安装完成后自动启动服务，访问 **http://localhost:8080** 即可使用
