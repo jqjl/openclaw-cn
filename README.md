@@ -25,6 +25,13 @@ iwr -useb https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.ps1 
 
 ---
 
+### 🔧 手动安装（开发者选项）
+```bash
+npm install -g openclaw@latest
+openclaw onboard --install-daemon
+```
+官方原版安装方式，适合有Node.js环境的用户。
+
 ## 📰 官方最新更新（每日同步）
 
 ### v2026.3.13 (2026年3月13日)
