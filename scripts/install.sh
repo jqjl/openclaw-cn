@@ -66,7 +66,14 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS 不需要全局root，Homebrew要求普通用户运行
     if [[ $EUID -eq 0 ]]; then
         log_warn "macOS系统请不要用sudo/root权限运行安装脚本，正在切换为普通用户..."
-        exec su "$SUDO_USER" "$0" "$@"
+        # 保存脚本到临时文件，重新执行
+        temp_script=$(mktemp)
+        curl -sL https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.sh > "$temp_script"
+        chmod +x "$temp_script"
+        su "$SUDO_USER" -c "$temp_script $*"
+        exit_code=$?
+        rm -f "$temp_script"
+        exit $exit_code
     fi
 else
     # Linux 需要root权限
@@ -248,7 +255,10 @@ log_success "OpenClaw安装成功：v$CLAW_VER"
 log_info "正在配置开机自启服务..."
 if [[ $OS_TYPE == "macos" ]]; then
     # macOS 服务配置需要sudo权限
-    sudo cat > /Library/LaunchDaemons/com.openclaw.agent.plist << EOF
+    log_info "正在配置开机自启服务，需要输入密码授权..."
+    # 创建临时plist文件
+    temp_plist=$(mktemp)
+    cat > "$temp_plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -274,6 +284,10 @@ if [[ $OS_TYPE == "macos" ]]; then
 </dict>
 </plist>
 EOF
+    # 移动到系统目录并加载
+    sudo mv "$temp_plist" /Library/LaunchDaemons/com.openclaw.agent.plist
+    sudo chown root:wheel /Library/LaunchDaemons/com.openclaw.agent.plist
+    sudo chmod 644 /Library/LaunchDaemons/com.openclaw.agent.plist
     sudo launchctl load /Library/LaunchDaemons/com.openclaw.agent.plist
 else
     cat > /etc/systemd/system/openclaw.service << EOF
