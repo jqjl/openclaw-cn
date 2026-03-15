@@ -7,8 +7,14 @@
 
 ## ⚡ 一键安装（全平台支持）
 
-### 🍎 Mac / 🐧 Linux
-打开终端直接运行：
+### 🍎 Mac
+打开终端直接运行（**不要加sudo**）：
+```bash
+curl -sL https://raw.githubusercontent.com/jqjl/openclaw-cn/main/scripts/install.sh | bash
+```
+
+### 🐧 Linux
+打开终端直接运行（需要sudo）：
 ```bash
 curl -sL https://raw.githubusercontent.com/jqjl/openclaw-cn/main/scripts/install.sh | sudo bash
 ```

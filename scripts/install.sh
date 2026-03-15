@@ -62,12 +62,21 @@ while [[ $# -gt 0 ]]; do
 done
 
 # 检测root权限
-if [[ $EUID -ne 0 ]]; then
-    if [[ $INSTALL_MODE == "interactive" ]]; then
-        log_warn "检测到未使用root权限，正在请求sudo提权..."
-        exec sudo "$0" "$@"
-    else
-        log_error "静默安装需要root权限，请使用sudo运行"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS 不需要全局root，Homebrew要求普通用户运行
+    if [[ $EUID -eq 0 ]]; then
+        log_warn "macOS系统请不要用sudo/root权限运行安装脚本，正在切换为普通用户..."
+        exec su "$SUDO_USER" "$0" "$@"
+    fi
+else
+    # Linux 需要root权限
+    if [[ $EUID -ne 0 ]]; then
+        if [[ $INSTALL_MODE == "interactive" ]]; then
+            log_warn "检测到未使用root权限，正在请求sudo提权..."
+            exec sudo "$0" "$@"
+        else
+            log_error "Linux静默安装需要root权限，请使用sudo运行"
+        fi
     fi
 fi
 
@@ -144,7 +153,7 @@ log_success "网络连接正常，使用国内镜像源加速"
 # ------------------------------
 log_info "正在安装系统依赖..."
 if [[ $OS_TYPE == "macos" ]]; then
-    # Homebrew 安装
+    # Homebrew 安装（普通用户权限）
     if ! command -v brew > /dev/null; then
         log_warn "未安装Homebrew，正在使用国内镜像自动安装..."
         /bin/bash -c "$(curl -fsSL https://gitee.com/ineo6/homebrew-install/raw/master/install.sh)"
@@ -238,7 +247,8 @@ log_success "OpenClaw安装成功：v$CLAW_VER"
 # ------------------------------
 log_info "正在配置开机自启服务..."
 if [[ $OS_TYPE == "macos" ]]; then
-    cat > /Library/LaunchDaemons/com.openclaw.agent.plist << EOF
+    # macOS 服务配置需要sudo权限
+    sudo cat > /Library/LaunchDaemons/com.openclaw.agent.plist << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -260,11 +270,11 @@ if [[ $OS_TYPE == "macos" ]]; then
     <key>StandardErrorPath</key>
     <string>/var/log/openclaw.log</string>
     <key>UserName</key>
-    <string>root</string>
+    <string>$USER</string>
 </dict>
 </plist>
 EOF
-    launchctl load /Library/LaunchDaemons/com.openclaw.agent.plist
+    sudo launchctl load /Library/LaunchDaemons/com.openclaw.agent.plist
 else
     cat > /etc/systemd/system/openclaw.service << EOF
 [Unit]
