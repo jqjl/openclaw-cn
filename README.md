@@ -5,20 +5,23 @@
 [![GitHub Stars](https://img.shields.io/github/stars/jqjl/openclaw-cn)](https://github.com/jqjl/openclaw-cn/stargazers)
 [![License](https://img.shields.io/github/license/jqjl/openclaw-cn)](LICENSE)
 
-## ⚡ 一键安装
+## ⚡ 一键安装（全平台支持）
 
+### 🍎 Mac / 🐧 Linux
+打开终端直接运行：
 ```bash
-# 一行命令自动安装（推荐）
-curl -sL https://raw.githubusercontent.com/jqjl/openclaw-cn/main/scripts/install.sh | bash
+curl -sL https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.sh | bash
 ```
 
-> 如果上述命令失败，请手动安装：
-> ```bash
-> git clone https://github.com/jqjl/openclaw-cn.git
-> cd openclaw-cn && npm install && npm run dev
-> ```
+### 🪟 Windows
+打开PowerShell直接运行：
+```powershell
+iwr -useb https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.ps1 | iex
+```
 
-**立即体验：** http://localhost:8080
+> 💡 安装完成后自动启动服务，访问 **http://localhost:8080** 即可使用
+> 
+> 手动下载脚本：[全平台脚本目录](https://github.com/jqjl/openclaw-cn/tree/main/scripts)
 
 ---
 
