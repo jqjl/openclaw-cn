@@ -10,22 +10,22 @@
 ### 🍎 Mac
 打开终端直接运行（**不要加sudo**）：
 ```bash
-curl -sL https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.sh | bash
+curl -sL https://gitee.com/houku/openclaw-cn/raw/main/scripts/install.sh | bash
 ```
 
 ### 🐧 Linux
 打开终端直接运行（需要sudo）：
 ```bash
-curl -sL https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.sh | sudo bash
+curl -sL https://gitee.com/houku/openclaw-cn/raw/main/scripts/install.sh | sudo bash
 ```
 
 ### 🪟 Windows
 **以管理员身份打开PowerShell**直接运行：
 ```powershell
-iwr -useb https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.ps1 | iex
+iwr -useb https://gitee.com/houku/openclaw-cn/raw/main/scripts/install.ps1 | iex
 ```
 
-> 💡 CDN加速，国内用户下载速度更快，平均1秒内完成下载
+> 💡 国内Gitee镜像加速，下载速度拉满，零延迟
 
 > 💡 安装完成后自动启动服务，访问 **http://localhost:8080** 即可使用
 > 
