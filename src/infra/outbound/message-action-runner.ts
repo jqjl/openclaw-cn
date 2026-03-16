@@ -20,6 +20,7 @@ import { buildChannelAccountBindings } from "../../routing/bindings.js";
 import { normalizeAgentId } from "../../routing/session-key.js";
 import { type GatewayClientMode, type GatewayClientName } from "../../utils/message-channel.js";
 import { throwIfAborted } from "./abort.js";
+import { resolveOutboundChannelPlugin } from "./channel-resolution.js";
 import {
   listConfiguredMessageChannels,
   resolveMessageChannelSelection,
@@ -33,6 +34,7 @@ import {
   parseButtonsParam,
   parseCardParam,
   parseComponentsParam,
+  parseInteractiveParam,
   readBooleanParam,
   resolveAttachmentMediaPolicy,
   resolveSlackAutoThreadId,
@@ -670,6 +672,11 @@ async function handlePluginAction(ctx: ResolvedActionContext): Promise<MessageAc
     };
   }
 
+  const plugin = resolveOutboundChannelPlugin({ channel, cfg });
+  if (!plugin?.actions?.handleAction) {
+    throw new Error(`Channel ${channel} is unavailable for message actions (plugin not loaded).`);
+  }
+
   const handled = await dispatchChannelMessageAction({
     channel,
     action,
@@ -708,6 +715,7 @@ export async function runMessageAction(
   parseButtonsParam(params);
   parseCardParam(params);
   parseComponentsParam(params);
+  parseInteractiveParam(params);
 
   const action = input.action;
   if (action === "broadcast") {
