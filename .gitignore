@@ -27,10 +27,21 @@ yarn-error.log*
 *~
 
 # 系统文件
+docker-compose.override.yml
+docker-compose.extra.yml
+dist
+dist-runtime
+pnpm-lock.yaml
+bun.lock
+bun.lockb
+coverage
+__pycache__/
+*.pyc
+.tsbuildinfo
+.pnpm-store
+.worktrees/
 .DS_Store
 Thumbs.db
 
 # OpenClaw 运行时
 .runtime/
-.data/
-cache/
