@@ -4,7 +4,91 @@
 
 ---
 
-## 🚀 v2026.3.13 最新更新 (2026年3月18日)
+## 🚀 v2026.3.14 最新更新 (2026年3月17日)
+
+### ✨ 新增功能
+
+#### 1. 命令增强 - /btw 边问边答
+- 新增 `/btw` 快速提问功能
+- 可以在当前会话中快速提问而不改变未来会话上下文
+- TUI 中提供可关闭的答案显示
+- 外部渠道支持显式 BTW 回复
+
+#### 2. Sandbox 可插拔后端
+- 新增可插拔沙箱后端架构
+- 推出 OpenShell 后端，支持 `mirror` 和 `remote` 工作区模式
+- Sandbox list/recreate/prune 现在支持多后端
+
+#### 3. SSH Sandbox
+- 新增核心 SSH 沙箱后端
+- 支持 secret-backed 密钥、证书和 known_hosts
+- 共享远程 exec/文件系统工具
+
+#### 4. Firecrawl 网络工具
+- 新增 Firecrawl 作为 onboard/配置的搜索提供商
+- 提供 `firecrawl_search` 和 `firecrawl_scrape` 工具
+- 与 web_fetch 回退行为对齐
+
+#### 5. 插件/Bundle 支持
+- 新增 Codex、Claude 和 Cursor bundle 发现/安装支持
+- Bundle skills 映射到 OpenClaw skills
+- 应用 Claude bundle settings.json 默认值
+
+#### 6. 插件市场
+- 新增 Claude marketplace 注册解析
+- 支持 `plugin@marketplace` 安装
+- marketplace 列表和更新支持
+
+#### 7. 飞书集成增强
+- ACP 当前会话和子 Agent 会话绑定
+- 结构化交互式审批卡
+- 快速操作启动器
+- 流式推理支持 (`onReasoningStream`)
+
+#### 8. Telegram 增强
+- 新增 `topic-edit` 支持论坛话题重命名和图标更新
+- 新增可选的静默错误回复设置
+
+---
+
+### 🔐 安全更新
+
+#### 1. 设备配对强化
+-  bootstrap 设置码改为一次性使用
+- 防止未授权的设备配对请求重放和扩大
+
+#### 2. Webhook 安全
+- 提前 auth 校验
+- 收紧 pre-auth body limits 和超时
+
+#### 3. 入站策略强化
+- 强化 Mattermost 和 Google Chat 的回调/webhook 校验
+- Nextcloud Talk 房间匹配优化
+- Twitch 空允许列表视为拒绝全部
+
+---
+
+### 🐛 问题修复
+
+| 问题 | 修复内容 |
+|------|---------|
+| Google Auth / Node 25 | 修复 gaxios 兼容性问题 |
+| Gateway 启动性能 | 从 dist/extensions 加载插件，修复冷启动慢 |
+| 插件上下文引擎 | 强化 owner-aware 注册 |
+| 远程 CDP | 严格遵守 SSRP 策略 |
+| Webhook 路由 | 固定到启动时注册表 |
+| 子 Agent 追踪 | 保持外部投递路由 |
+| 配置启动 | 修复 openclaw configure 启动stall |
+| 容器化测试 | 修复 Linux 下 pnpm test:docker:all |
+| Slack 交互 | 保留 blocks 到 live DM |
+| 飞书媒体 | 对齐所有消息类型的媒体处理 |
+| WhatsApp 重连 | 修复 protobuf Long timestamps |
+| Telegram 消息 | 保留强制文档发送 |
+| Z.AI Onboarding | 检测有效的默认模型 |
+
+---
+
+## 🚀 v2026.3.13 (2026年3月18日)
 
 ### ✨ 新增功能
 
