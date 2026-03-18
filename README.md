@@ -125,3 +125,11 @@ openclaw message --help
 ## 📄 许可证
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+## 🔗 官方链接
+
+- [OpenClaw 官网](https://openclaw.ai)
+- [官方文档](https://docs.openclaw.ai)
+- [GitHub 仓库](https://github.com/openclaw/openclaw)
