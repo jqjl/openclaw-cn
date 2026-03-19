@@ -4,6 +4,77 @@
 
 ---
 
+## 🚀 v2026.3.14-1 最新更新 (2026年3月18日)
+
+> ⚠️ 此版本为恢复版本，用于修复损坏的 v2026.3.13 标签/发布路径。npm 版本仍为 2026.3.13。
+
+### ✨ 新增功能
+
+#### 1. Android 聊天设置全新 UI
+- 重新设计聊天设置页面
+- 分组设备媒体设置
+- 刷新 Connect 和 Voice tab
+- 移动端布局优化
+
+#### 2. iOS 欢迎页
+- 新增首次运行欢迎页
+- 停止自动打开 QR 扫描器
+- 显示 /pair qr 连接说明
+
+#### 3. Docker 时区支持
+- 新增 `OPENCLAW_TZ` 环境变量支持
+- 自动同步宿主机时区到容器
+
+#### 4. macOS PortGuard 优化
+- 防止在远程模式下误杀 Docker Desktop
+
+#### 5. 插件系统增强
+- 插件/Bundle 支持 (Codex, Claude, Cursor)
+- 新增 Claude marketplace 注册解析
+- 支持 `plugin@marketplace` 安装
+
+---
+
+### 🔐 安全更新
+
+#### 1. Docker 安全
+- 防止 gateway token 泄露到 Docker build context
+
+#### 2. Discord 元数据处理
+- 处理 gateway 元数据获取失败
+
+#### 3. Telegram SSRF
+- 将 thread media transport policy 集成到 SSRF 检查
+
+---
+
+### 🐛 问题修复
+
+| 问题 | 修复内容 |
+|------|---------|
+| Web UI 聊天历史 | 防止 reload storm |
+| Chat context notice | 修复图标尺寸 |
+| Ollama | 隐藏原生 reasoning-only 输出 |
+| Session reset | 保留 lastAccountId 和 lastThreadId |
+| Windows | 抑制重启期间的控制台窗口 |
+| Cron | 防止 isolated cron 嵌套 lane 死锁 |
+| 内存压缩 | 使用完整 session token count 进行压缩后检查 |
+| Signal | 添加 groups 配置到 Signal channel schema |
+| 跨Agent子Agent | 解决目标 agent workspace 问题 |
+| Telegram | 重试 IPv4 回退下载入站媒体 |
+| 飞书 | 保留非 ASCII 文件名上传 |
+| macOS | 对齐最小 Node.js 版本 (22.16.0) |
+| 浏览器 | 强化现有 session driver 验证 |
+
+---
+
+### 🔧 性能优化
+
+#### 1. 构建优化
+- 去重 plugin-sdk chunks，修复 ~2x 内存回归
+
+---
+
 ## 🚀 v2026.3.14 最新更新 (2026年3月17日)
 
 ### ✨ 新增功能
