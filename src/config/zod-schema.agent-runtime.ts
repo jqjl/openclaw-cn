@@ -267,6 +267,57 @@ export const ToolsWebSearchSchema = z
     maxResults: z.number().int().positive().optional(),
     timeoutSeconds: z.number().int().positive().optional(),
     cacheTtlMinutes: z.number().nonnegative().optional(),
+    apiKey: SecretInputSchema.optional().register(sensitive),
+    brave: z
+      .object({
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        model: z.string().optional(),
+        mode: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    firecrawl: z
+      .object({
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        model: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    gemini: z
+      .object({
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        model: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    grok: z
+      .object({
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        model: z.string().optional(),
+        inlineCitations: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    kimi: z
+      .object({
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        model: z.string().optional(),
+      })
+      .strict()
+      .optional(),
+    perplexity: z
+      .object({
+        apiKey: SecretInputSchema.optional().register(sensitive),
+        baseUrl: z.string().optional(),
+        model: z.string().optional(),
+      })
+      .strict()
+      .optional(),
   })
   .strict()
   .optional();
@@ -372,6 +423,7 @@ const ToolExecBaseShape = {
   node: z.string().optional(),
   pathPrepend: z.array(z.string()).optional(),
   safeBins: z.array(z.string()).optional(),
+  strictInlineEval: z.boolean().optional(),
   safeBinTrustedDirs: z.array(z.string()).optional(),
   safeBinProfiles: z.record(z.string(), ToolExecSafeBinProfileSchema).optional(),
   backgroundMs: z.number().int().positive().optional(),
@@ -716,6 +768,11 @@ export const AgentEntrySchema = z
     workspace: z.string().optional(),
     agentDir: z.string().optional(),
     model: AgentModelSchema.optional(),
+    thinkingDefault: z
+      .enum(["off", "minimal", "low", "medium", "high", "xhigh", "adaptive"])
+      .optional(),
+    reasoningDefault: z.enum(["on", "off", "stream"]).optional(),
+    fastModeDefault: z.boolean().optional(),
     skills: z.array(z.string()).optional(),
     memorySearch: MemorySearchSchema,
     humanDelay: HumanDelaySchema.optional(),

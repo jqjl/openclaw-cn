@@ -163,7 +163,7 @@
 .config-mode-toggle__btn.active {
   background: var(--accent);
   color: white;
-  box-shadow: 0 1px 3px rgba(255, 92, 92, 0.2);
+  box-shadow: 0 1px 3px var(--accent-subtle);
 }
 
 /* ===========================================
@@ -715,6 +715,13 @@
   line-height: 1.55;
 }
 
+.config-raw-field .config-raw-toggle {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  min-width: 32px;
+}
+
 /* Loading State */
 .config-loading {
   display: flex;
@@ -1210,7 +1217,7 @@
 .cfg-segmented__btn.active {
   background: var(--accent);
   color: white;
-  box-shadow: 0 1px 3px rgba(255, 92, 92, 0.2);
+  box-shadow: 0 1px 3px var(--accent-subtle);
 }
 
 .cfg-segmented__btn:disabled {

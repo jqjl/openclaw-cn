@@ -1,5 +1,8 @@
 import { formatAllowFromLowercase } from "openclaw/plugin-sdk/allow-from";
-import { createScopedChannelConfigAdapter } from "openclaw/plugin-sdk/channel-config-helpers";
+import {
+  adaptScopedAccountAccessor,
+  createScopedChannelConfigAdapter,
+} from "openclaw/plugin-sdk/channel-config-helpers";
 import { createChannelPluginBase } from "openclaw/plugin-sdk/core";
 import {
   buildChannelConfigSchema,
@@ -8,7 +11,7 @@ import {
   TelegramConfigSchema,
   type ChannelPlugin,
   type OpenClawConfig,
-} from "openclaw/plugin-sdk/telegram-core";
+} from "../runtime-api.js";
 import { inspectTelegramAccount } from "./account-inspect.js";
 import {
   listTelegramAccountIds,
@@ -56,8 +59,8 @@ export function formatDuplicateTelegramTokenReason(params: {
 export const telegramConfigAdapter = createScopedChannelConfigAdapter<ResolvedTelegramAccount>({
   sectionKey: TELEGRAM_CHANNEL,
   listAccountIds: listTelegramAccountIds,
-  resolveAccount: (cfg, accountId) => resolveTelegramAccount({ cfg, accountId }),
-  inspectAccount: (cfg, accountId) => inspectTelegramAccount({ cfg, accountId }),
+  resolveAccount: adaptScopedAccountAccessor(resolveTelegramAccount),
+  inspectAccount: adaptScopedAccountAccessor(inspectTelegramAccount),
   defaultAccountId: resolveDefaultTelegramAccountId,
   clearBaseFields: ["botToken", "tokenFile", "name"],
   resolveAllowFrom: (account: ResolvedTelegramAccount) => account.config.allowFrom,
