@@ -25,31 +25,31 @@ iwr -useb https://cdn.jsdelivr.net/gh/jqjl/openclaw-cn@main/scripts/install.ps1 
 
 ---
 
-## 📰 官方最新更新（每日同步）
+## 📰 官方最新更新
 
-### v2026.3.13 (2026年3月13日)
+### v2026.3.24 (2026年3月24日)
 
 **✨ 新增功能：**
-- Control UI / Dashboard V2 全新升级（模块化仪表盘、命令面板、移动端优化）
-- OpenAI GPT-5.4 快速模式（会话级别快速切换）
-- Anthropic Claude 快速模式
-- Ollama / vLLM / SGLang 插件化
-- Agents/子Agent优化（sessions_yield）
-- Slack Agent Block Kit 消息支持
-- Kubernetes 部署支持
+- Gateway/OpenAI 兼容性：添加 /v1/models 和 /v1/embeddings，端到端支持更广泛的客户端和 RAG 兼容性
+- Agents/tools：/tools 显示当前代理实际可用的工具，新增"可用工具"实时展示
+- Microsoft Teams：迁移到官方 Teams SDK，新增 AI 代理最佳实践（流式回复、欢迎卡片、反馈、状态更新、输入指示器）
+- Skills/安装元数据：为内置技能添加一键安装配方
+- Control UI/Skills：新增状态过滤标签页（All/Ready/Needs Setup/Disabled）
+- CLI/containers：添加 --container 和 OPENCLAW_CONTAINER 在 Docker/Podman 容器内运行 openclaw 命令
+- Discord/auto threads：可选 autoThreadName: "generated" 自动生成线程名
 
 **🔐 安全更新：**
-- Gateway/WebSocket 漏洞修复
-- 设备配对安全（短期 bootstrap tokens）
-- 20+ 项安全修复
+- Telegram：节流重复的 webhook 身份验证猜测
+- Synology Chat：节流 webhook token 猜测
+- 安全/沙盒媒体调度：修复 mediaUrl/fileUrl 别名绕过
 
 **🐛 问题修复：**
-- Kimi Coding 工具调用修复
-- TUI 聊天日志重复问题
-- Mattermost 块流修复
+- Gateway/重启：重启后通过 heartbeat 唤醒中断的代理会话
+- Docker/设置：通过 openclaw-gateway 写入配置，避免网络循环问题
+- Gateway/channels：隔离通道启动失败，避免一个通道阻止后续通道启动
 - 30+ 项问题修复
 
-> 📝 完整更新日志查看：[更新日志](./docs/changelog.md)
+> 📝 完整更新日志查看：[更新日志](./CHANGELOG.md)
 
 ---
 
@@ -93,13 +93,13 @@ npm run dev
 |------|------|
 | [安装指南](./docs/install.md) | 快速安装教程 |
 | [模型配置](./docs/models.md) | 国内模型 API 配置 |
-| [更新日志](./docs/changelog.md) | 官方最新更新（每日更新） |
+| [更新日志](./CHANGELOG.md) | 官方最新更新 |
 
 ## 🤖 支持的模型
 
-- **阿里云百炼** - qwen-turbo, qwen-plus, qwen-max
-- **MiniMax** - abab6.5s-chat, abab6.5g-chat
-- **智谱AI** - glm-4, glm-4-flash, glm-4-plus
+- **阿里云百炼** - qwen-turbo, qwen-plus, qwen-max, qwen-coder-plus
+- **MiniMax** - abab6.5s-chat, abab6.5g-chat, abab6.5s-chat-long
+- **智谱AI** - glm-4, glm-4-flash, glm-4-plus, glm-5
 - **OpenAI** - GPT-4, GPT-3.5
 - **Anthropic** - Claude 3.5
 - **Ollama** - 本地模型
@@ -114,6 +114,8 @@ npm run dev
 | Telegram | ✅ 官方支持 | |
 | Discord | ✅ 官方支持 | |
 | Signal | ✅ 官方支持 | |
+| WhatsApp | ✅ 官方支持 | |
+| Slack | ✅ 官方支持 | |
 
 ## 📄 License
 
