@@ -4,6 +4,119 @@
 
 ---
 
+## 🚀 v2026.3.29 最新更新 (2026年3月29日)
+
+> 最新稳定版，872 个提交同步。
+
+### ⚠️ 重大变更
+
+#### 1. Qwen 提供商：移除旧版 OAuth 集成
+- 移除 portal.qwen.ai 的 qwen-portal-auth OAuth 集成
+- 迁移至 Model Studio，使用 `openclaw onboard --auth-choice modelstudio-api-key`
+
+#### 2. Config/Doctor：移除两个月以上的自动迁移
+- 旧版配置键不再自动迁移，将触发验证错误
+- 需使用 `openclaw doctor` 手动处理
+
+---
+
+### ✨ 新增功能
+
+#### 1. xAI / Grok 全面升级
+- xAI 提供商迁移至 Responses API
+- 新增 first-class `x_search` 支持
+- 自动启用 xAI 插件，Grok 搜索配置开箱即用
+- onboard 和 `openclaw configure --section web` 支持 x_search 配置向导
+
+#### 2. MiniMax 图像生成
+- 新增 MiniMax image-01 模型图像生成
+- 支持文生图和图生图编辑
+- 支持比例控制
+
+#### 3. 插件 Hooks：异步审批
+- `before_tool_call` hooks 支持异步 `requireApproval`
+- 插件可暂停工具执行，等待用户审批
+- 支持 Telegram 按钮、Discord interactions、/approve 命令
+
+#### 4. ACP/channels：当前对话绑定
+- Discord、BlueBubbles、iMessage 支持当前对话 ACP 绑定
+- `/acp spawn codex --bind here` 可直接绑定当前聊天
+
+#### 5. OpenAI apply_patch 默认启用
+- OpenAI 和 OpenAI Codex 模型默认启用 apply_patch
+- Sandbox 策略访问与写权限对齐
+
+#### 6. 插件 CLI backends 统一
+- Claude CLI、Codex CLI、Gemini CLI 统一到插件层
+- 新增 Gemini CLI 后端支持
+- `--claude-cli-logs` 替换为通用 `--cli-backend-logs`
+
+#### 7. Podman 简化
+- 简化 rootless 用户容器配置
+- launch helper 安装至 `~/.local/bin`
+- 文档更新为 host-CLI `openclaw --container ...` 工作流
+
+#### 8. Slack 上传文件
+- 新增 Slack `upload-file` action
+- 支持 filename/title/comment 覆盖
+
+#### 9. 统一文件发送
+- Teams、Google Chat 文件发送统一到 `upload-file`
+- BlueBubbles 文件发送通过 upload-file 暴露
+
+#### 10. Matrix TTS 升级
+- 自动 TTS 回复发送为原生 Matrix 语音气泡
+
+#### 11. Config schema CLI
+- `openclaw config schema` 打印 openclaw.json 的 JSON schema
+
+---
+
+### 🔐 安全修复
+
+- 扩展 web search key 审计，支持 Gemini、Grok/xAI、Kimi、Moonshot、OpenRouter
+- 修复 Control UI 敏感配置默认隐藏
+
+---
+
+### 🐛 问题修复
+
+| 问题 | 修复内容 |
+|------|---------|
+| WhatsApp 自聊循环 | 修复无限 echo loop |
+| Telegram HTML 分割 | 修复单词边界分割，避免 mid-word 截断 |
+| Telegram 空文本崩溃 | 跳过空白文本回复防止 GrammyError 400 |
+| Mistral API | 修复 422 错误 |
+| Control UI | 敏感配置默认隐藏，修复 [#55322](https://github.com/openclaw/openclaw/issues/55322) |
+| zsh 补全 | 延迟 compdef 注册直到 compinit 可用 |
+| BlueBubbles | 修复 debounce null text 问题 |
+| Discord 重连 | 修复 resume state 中毒导致的循环 |
+| iMessage | 停止 [[reply_to:...]] 标签泄露 |
+| CLI/plugins | 修复 bundled channels 自动加载 |
+| CLI/message send | 修复 delivery 写入 session transcript |
+
+---
+
+### 🔧 性能优化
+
+- provider policy 移至 plugins
+- provider transport hooks 泛化
+- 延长 CI 长测试超时
+
+---
+
+## 🚀 v2026.3.28-beta.1 (2026年3月28日)
+
+> 预发布版，核心功能同 v2026.3.29。
+
+### 主要新功能
+- xAI Responses API + x_search
+- MiniMax image-01 图像生成
+- 插件 hooks async requireApproval
+- ACP 当前对话绑定
+
+---
+
 ## 🚀 v2026.3.14-1 最新更新 (2026年3月18日)
 
 > ⚠️ 此版本为恢复版本，用于修复损坏的 v2026.3.13 标签/发布路径。npm 版本仍为 2026.3.13。
