@@ -4,7 +4,88 @@
 
 ---
 
-## 🚀 v2026.3.29 最新更新 (2026年3月29日)
+## 🚀 v2026.4.2 (2026年4月2日)
+
+> 最新稳定版，178 个新提交同步（相比 v2026.4.1）。
+
+### ✨ 新增功能
+
+#### 1. TaskFlow：托管子任务执行
+- 新增托管子任务 spawn 机制，支持 sticky cancel intent
+- 外部编排器可立即停止调度，让父 TaskFlow 平滑过渡到 `cancelled` 状态
+- 配合 TaskFlow 检查/恢复原语，持久化后台编排
+
+#### 2. TaskFlow：恢复托管基板
+- 恢复核心 TaskFlow 基板，支持 managed-vs-mirrored 同步模式
+- 持久化 flow 状态和修订版本追踪
+- `openclaw flows` 检查/恢复命令
+
+#### 3. Exec approvals：策略报告与操作统一
+- 统一有效策略报告与操作，提升 `openclaw doctor exec-approvals` 诊断能力
+- 修复策略源归属问题
+
+#### 4. TinyFish 浏览器自动化插件
+- 新增 TinyFish 作为捆绑浏览器自动化插件
+- 提供更强大的浏览器操控能力
+
+#### 5. Slack：Scoped prompts 和 mrkdwn hints
+- 新增 Slack 专用 scoped prompts
+- mrkdwn 格式提示，减少通用 Markdown 回退
+
+#### 6. Diffs：可配置 viewer base URL
+- 新增插件级 `viewerBaseUrl` 配置
+- viewer 链接可使用稳定的代理/公共源
+- 无需每次工具调用传递 `baseUrl`
+
+#### 7. 插件 Hook：`before_agent_reply`
+- 新增 `before_agent_reply` hook，支持合成回复短路 LLM
+- 可在内联动作后注入人工回复
+
+#### 8. Feishu：Drive 评论事件流
+- 新增专用 Drive comment-event flow
+- 评论线程上下文解析，线程内回复
+- `feishu_drive` 评论操作
+
+### 🔐 安全修复
+
+| 修复项 | 说明 |
+|--------|------|
+| 内联图片内存耗尽 | 防止 inline image decoding 内存耗尽攻击 |
+| ACP 会话初始化异常 | 修复本地捕获的 ACP 会话初始化异常导致的问题 |
+| Discord ID 类型 | 强制数字 Discord ID 转为字符串，避免拒绝有效配置 |
+
+### 🐛 问题修复
+
+| 问题 | 修复内容 |
+|------|---------|
+| Anthropic thinking 标签泄露 | 剥离 `antml:thinking` 块，防止内部独白泄露到用户可见回复 |
+| ACP reconnect prompts | 保持 ACP prompts 在 websocket 瞬断后存活 |
+| WhatsApp MIME | 添加 HTML/XML/CSS 到 MIME map，未知类型优雅降级 |
+| Matrix mentions | 发出符合规范的 `m.mentions` 元数据，修复 Element 等客户端通知 |
+| Kimi Coding 工具调用 | 规范化 Anthropic 工具载荷为 OpenAI 兼容格式 |
+| Feishu 评论线程 |硬化文档评论线程投递，延迟回复查找重试更可靠 |
+| MS Teams 流式超限 | 剥离已流式传输的文本，防止 4000+ 字符回复重复内容 |
+| Slack mrkdwn 格式 | 添加内置 Slack mrkdwn 指导，停止回退到通用 Markdown |
+| Gateway exec loopback | 恢复空配对设备 token map 的 legacy-role 回退 |
+| Podman launch 噪声 | 移除 `run-openclaw-podman.sh` 中的冗余容器输出 |
+| 图片工具路径 | 相对路径解析到 agent `workspaceDir` 而非 `process.cwd()` |
+
+### 🔧 性能优化
+
+- Matrix 客户端运行时依赖懒加载
+- Telegram 消息上下文运行时懒加载
+- Provider 请求配置重构，添加内部请求配置 seam
+- Provider 流请求头集中化管理
+
+### 🙏 致谢
+
+感谢所有贡献者！完整列表见 [GitHub v2026.4.2](https://github.com/openclaw/openclaw/compare/v2026.4.1...v2026.4.2)。
+
+---
+
+## 🚀 v2026.4.1 最新更新 (2026年4月1日)
+
+> 重要 bugfix 版本。
 
 > 最新稳定版，872 个提交同步。
 
