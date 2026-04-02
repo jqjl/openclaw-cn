@@ -13,8 +13,8 @@ const mocks = vi.hoisted(() => ({
   buildWorkspaceSkillStatus: vi.fn(),
   buildPluginStatusReport: vi.fn(),
   buildPluginCompatibilityWarnings: vi.fn(),
-  listFlowRecords: vi.fn(),
-  listTasksForFlowId: vi.fn(),
+  listFlowRecords: vi.fn<() => unknown[]>(() => []),
+  listTasksForFlowId: vi.fn<(flowId: string) => unknown[]>((_flowId: string) => []),
 }));
 
 vi.mock("../agents/agent-scope.js", () => ({
@@ -32,17 +32,21 @@ vi.mock("../plugins/status.js", () => ({
     mocks.buildPluginCompatibilityWarnings(...args),
 }));
 
-vi.mock("openclaw/plugin-sdk/tasks", () => ({
-  listFlowRecords: (...args: unknown[]) => mocks.listFlowRecords(...args),
+vi.mock("../tasks/flow-runtime-internal.js", () => ({
+  listFlowRecords: () => mocks.listFlowRecords(),
 }));
 
-vi.mock("openclaw/plugin-sdk/tasks", () => ({
-  listTasksForFlowId: (...args: unknown[]) => mocks.listTasksForFlowId(...args),
+vi.mock("../tasks/runtime-internal.js", () => ({
+  listTasksForFlowId: (flowId: string) => mocks.listTasksForFlowId(flowId),
 }));
 
 async function runNoteWorkspaceStatusForTest(
   loadResult: ReturnType<typeof createPluginLoadResult>,
   compatibilityWarnings: string[] = [],
+  opts?: {
+    flows?: unknown[];
+    tasksByFlowId?: (flowId: string) => unknown[];
+  },
 ) {
   mocks.resolveDefaultAgentId.mockReturnValue("default");
   mocks.resolveAgentWorkspaceDir.mockReturnValue("/workspace");
@@ -54,8 +58,10 @@ async function runNoteWorkspaceStatusForTest(
     ...loadResult,
   });
   mocks.buildPluginCompatibilityWarnings.mockReturnValue(compatibilityWarnings);
-  mocks.listFlowRecords.mockReturnValue([]);
-  mocks.listTasksForFlowId.mockReturnValue([]);
+  mocks.listFlowRecords.mockReturnValue(opts?.flows ?? []);
+  mocks.listTasksForFlowId.mockImplementation((flowId: string) =>
+    opts?.tasksByFlowId ? opts.tasksByFlowId(flowId) : [],
+  );
 
   const noteSpy = vi.spyOn(noteModule, "note").mockImplementation(() => {});
   noteWorkspaceStatus({});
@@ -172,51 +178,29 @@ describe("noteWorkspaceStatus", () => {
     }
   });
 
-  it("surfaces ClawFlow recovery guidance for suspicious linear flows", async () => {
-    const noteSpy = await runNoteWorkspaceStatusForTest(createPluginLoadResult({ plugins: [] }));
-    mocks.listFlowRecords.mockReturnValue([
-      {
-        flowId: "flow-orphaned",
-        shape: "linear",
-        ownerSessionKey: "agent:main:main",
-        status: "waiting",
-        notifyPolicy: "done_only",
-        goal: "Process PRs",
-        waitingOnTaskId: "task-wait-missing",
-        createdAt: 10,
-        updatedAt: 20,
-      },
-      {
-        flowId: "flow-blocked",
-        shape: "single_task",
-        ownerSessionKey: "agent:main:main",
-        status: "blocked",
-        notifyPolicy: "done_only",
-        goal: "Patch file",
-        blockedTaskId: "task-missing",
-        createdAt: 10,
-        updatedAt: 20,
-      },
-    ]);
-    mocks.listTasksForFlowId.mockImplementation((flowId: string) => {
-      if (flowId === "flow-blocked") {
-        return [{ taskId: "task-other" }];
-      }
-      return [];
+  it("adds TaskFlow recovery hints for broken blocked flows", async () => {
+    const noteSpy = await runNoteWorkspaceStatusForTest(createPluginLoadResult(), [], {
+      flows: [
+        {
+          flowId: "flow-123",
+          syncMode: "managed",
+          ownerKey: "agent:main:main",
+          revision: 0,
+          status: "blocked",
+          notifyPolicy: "done_only",
+          goal: "Investigate PR batch",
+          blockedTaskId: "task-missing",
+          createdAt: 100,
+          updatedAt: 100,
+        },
+      ],
+      tasksByFlowId: () => [],
     });
-
-    noteWorkspaceStatus({});
-
     try {
-      const recoveryCalls = noteSpy.mock.calls.filter(([, title]) => title === "ClawFlow recovery");
+      const recoveryCalls = noteSpy.mock.calls.filter(([, title]) => title === "TaskFlow recovery");
       expect(recoveryCalls).toHaveLength(1);
-      const body = String(recoveryCalls[0]?.[0]);
-      expect(body).toContain(
-        "flow-orphaned: waiting flow points at missing task task-wait-missing",
-      );
-      expect(body).toContain("flow-blocked: blocked flow points at missing task task-missing");
-      expect(body).toContain("openclaw flows show <flow-id>");
-      expect(body).toContain("openclaw flows cancel <flow-id>");
+      expect(String(recoveryCalls[0]?.[0])).toContain("flow-123");
+      expect(String(recoveryCalls[0]?.[0])).toContain("openclaw flows show <flow-id>");
     } finally {
       noteSpy.mockRestore();
     }

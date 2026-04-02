@@ -176,7 +176,6 @@ describe("installSkill code safety scanning", () => {
       expect(runCommandWithTimeoutMock).not.toHaveBeenCalled();
     });
   });
-
   it("surfaces plugin scanner findings from before_install", async () => {
     const handler = vi.fn().mockReturnValue({
       findings: [

@@ -1,10 +1,10 @@
-import { listFlowRecords } from "openclaw/plugin-sdk/tasks";
-import { listTasksForFlowId } from "openclaw/plugin-sdk/tasks";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { buildWorkspaceSkillStatus } from "../agents/skills-status.js";
 import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig } from "../config/config.js";
 import { buildPluginCompatibilityWarnings, buildPluginStatusReport } from "../plugins/status.js";
+import { listFlowRecords } from "../tasks/flow-runtime-internal.js";
+import { listTasksForFlowId } from "../tasks/runtime-internal.js";
 import { note } from "../terminal/note.js";
 import { detectLegacyWorkspaceDirs, formatLegacyWorkspaceWarning } from "./doctor-workspace.js";
 
@@ -12,34 +12,23 @@ function noteFlowRecoveryHints() {
   const suspicious = listFlowRecords().flatMap((flow) => {
     const tasks = listTasksForFlowId(flow.flowId);
     const findings: string[] = [];
-    const missingWaitingTask =
-      flow.shape === "linear" &&
-      flow.status === "waiting" &&
-      flow.waitingOnTaskId &&
-      !tasks.some((task) => task.taskId === flow.waitingOnTaskId);
-    const missingBlockedTask =
-      flow.status === "blocked" &&
-      flow.blockedTaskId &&
-      !tasks.some((task) => task.taskId === flow.blockedTaskId);
     if (
-      flow.shape === "linear" &&
-      (flow.status === "running" || flow.status === "waiting" || flow.status === "blocked") &&
+      flow.syncMode === "managed" &&
+      flow.status === "running" &&
       tasks.length === 0 &&
-      !missingWaitingTask &&
-      !missingBlockedTask
+      flow.waitJson === undefined
     ) {
       findings.push(
-        `${flow.flowId}: ${flow.status} linear flow has no linked tasks; inspect or cancel it manually.`,
+        `${flow.flowId}: running managed TaskFlow has no linked tasks or wait state; inspect or cancel it manually.`,
       );
     }
-    if (missingWaitingTask) {
+    if (
+      flow.status === "blocked" &&
+      flow.blockedTaskId &&
+      !tasks.some((task) => task.taskId === flow.blockedTaskId)
+    ) {
       findings.push(
-        `${flow.flowId}: waiting flow points at missing task ${flow.waitingOnTaskId}; inspect or cancel it manually.`,
-      );
-    }
-    if (missingBlockedTask) {
-      findings.push(
-        `${flow.flowId}: blocked flow points at missing task ${flow.blockedTaskId}; inspect before retrying.`,
+        `${flow.flowId}: blocked TaskFlow points at missing task ${flow.blockedTaskId}; inspect before retrying.`,
       );
     }
     return findings;
@@ -56,7 +45,7 @@ function noteFlowRecoveryHints() {
     ]
       .filter((line): line is string => Boolean(line))
       .join("\n"),
-    "ClawFlow recovery",
+    "TaskFlow recovery",
   );
 }
 
