@@ -4,6 +4,121 @@
 
 ---
 
+## 🚀 v2026.4.5 (2026年4月7日)
+
+> 最新稳定版，2718 个新提交同步（相比 v2026.4.2）。
+
+### ⚠️ 重大变更
+
+#### 1. Config：移除旧版配置别名
+- 移除 `talk.voiceId` / `talk.apiKey`、`agents.*.sandbox.perSession`、`browser.ssrfPolicy.allowPrivateNetwork`、`hooks.internal.handlers`、channel/group/room `allow` 等旧版配置别名
+- 迁移至规范化的公开配置路径
+- 支持 `openclaw doctor --fix` 自动迁移
+
+### ✨ 新增功能
+
+#### 1. 视频生成工具
+- 新增内置 `video_generate` 工具
+- 支持 xAI (grok-imagine-video)、Alibaba Model Studio Wan、Runway 视频提供商
+- Agent 可直接生成视频并嵌入回复
+
+#### 2. 音乐生成工具
+- 新增内置 `music_generate` 工具
+- 支持 Google Lyria、MiniMax、ComfyUI 工作流
+- 支持异步任务追踪和完成通知
+
+#### 3. ComfyUI 媒体插件
+- 新增捆绑 ComfyUI 工作流媒体插件
+- 支持本地 ComfyUI 和 Comfy Cloud
+- 集成 image_generate、video_generate、music_generate
+
+#### 4. 新增提供商
+- **Qwen**、**Fireworks AI**、**StepFun** 捆绑支持
+- **Amazon Bedrock Mantle** 支持
+- **MiniMax TTS**、**Ollama Web Search**、**MiniMax Search** 集成
+- **Arcee AI** 提供商插件
+
+#### 5. Memory/Dreaming 实验性功能
+- 新增加权短期记忆提升机制
+- 新增 `/dreaming` 命令和 Dreams UI
+- 多语言概念标签
+- 三个协作阶段：light、deep、REM
+- 新增 `dreams.md` 记录文件
+
+#### 6. Control UI 多语言支持
+- 新增简体中文、繁体中文、葡萄牙语、德语、西班牙语、日语、韩语、法语、土耳其语、印尼语、波兰语、乌克兰语界面
+
+#### 7. Control UI Skills 面板增强
+- 新增 ClawHub 搜索、详情和安装流程
+- 可直接在 Skills 面板中管理插件
+
+#### 8. ACPX 运行时内置
+- ACP 运行时直接嵌入 acpx 插件
+- 移除外部 ACP CLI 中转
+- 新增通用 `reply_dispatch` hook
+
+#### 9. Claude CLI MCP 桥接
+- 通过 loopback MCP 桥接将 OpenClaw 工具暴露给 Claude CLI 后台运行
+- 切换到 stdin + stream-json partial-message 流式传输
+
+#### 10. 提示词缓存优化
+- 改进 MCP 工具顺序确定性
+- 改进 compaction、embedded image history、normalized system-prompt fingerprints
+- 改进 `openclaw status --verbose` 缓存诊断
+
+#### 11. Sessions 持久化检查点
+- 新增持久化 compaction 检查点
+- Sessions UI 支持分支/恢复操作
+- 可检查和恢复压缩前的会话状态
+
+#### 12. Matrix 执行审批
+- 新增 Matrix 原生执行审批提示
+- 支持账户作用域审批人
+- 支持频道或 DM 投递
+
+#### 13. iOS/Watch 执行审批
+- 新增通用 APNs 审批通知
+- 支持 Apple Watch 审批和恢复
+
+### 🔐 安全修复
+
+| 修复项 | 说明 |
+|--------|------|
+| 插件工具白名单保护 | 保留限制性插件专用工具白名单 |
+| `/allowlist` 权限控制 | 添加/移除需要所有者访问权限 |
+| `before_tool_call` hook 安全 | hook 崩溃时 fail closed |
+| 浏览器 SSRF 重定向绕过 | 提前阻止 |
+| 非交互式 auth-choice 范围 | 限制为捆绑和可信插件 |
+
+### 🐛 问题修复
+
+| 问题 | 修复内容 |
+|------|---------|
+| OpenAI Codex OAuth | 修复 refresh_token_reused 导致卡住的问题 |
+| Agents/history 和 replies | 缓冲无阶段 OpenAI WS 文本直到真实 assistant 阶段到达 |
+| 插件加载稳定性 | 修复 Windows `file://` 和原生 Jiti 插件加载路径 |
+| 自动回复媒体 | 恢复 generated-media `MEDIA:` 路径投递 |
+| 运行时事件信任 | 标记背景 notifyOnExit、ACP parent-stream relay 为不受信任 |
+| Anthropic thinking blocks | 为 Claude Opus 4.5+、Sonnet 4.5+ 保留 thinking blocks |
+| Control UI 音频 | 在 webchat 中显示 `/tts` 音频回复 |
+| TUI 稳定性 | 修复 Kitty 键盘状态在退出时恢复 |
+| Sessions 模型选择 | 解析会话选择的模型与运行时回退解析分开 |
+| Apple Watch 审批 | 保持 iPhone 锁定或后台时仍可审批恢复 |
+| Agents/context overflow | 组合超大和聚合工具结果恢复 |
+| Browser 远程 CDP | 远程浏览器重启后重试 DevTools websocket |
+| Gateway 容器 | 在 Docker/Podman 环境中自动绑定 `0.0.0.0` |
+| Discord 引用消息 | 恢复引用的消息文本和附件 |
+| Slack 线程 | 修复遗留线程粘性 |
+| Memory 向量召回 | 当 sqlite-vec 不可用时显示警告 |
+| MS Teams 文件上传 | 验证文件 consent upload URL 防止 SSRF |
+| Tools/web_fetch | 修复 undici 8.0 启用 HTTP/2 导致的 TypeError |
+
+### 🙏 致谢
+
+感谢所有贡献者！完整列表见 [GitHub v2026.4.5](https://github.com/openclaw/openclaw/compare/v2026.4.2...v2026.4.5)。
+
+---
+
 ## 🚀 v2026.4.2 (2026年4月2日)
 
 > 最新稳定版，178 个新提交同步（相比 v2026.4.1）。
