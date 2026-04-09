@@ -3,16 +3,20 @@ import os from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { requireNodeSqlite } from "../infra/node-sqlite.js";
-import { createManagedFlow, resetFlowRegistryForTests } from "./flow-registry.js";
+import { createManagedTaskFlow, resetTaskFlowRegistryForTests } from "./task-flow-registry.js";
 import {
   createTaskRecord,
   deleteTaskRecordById,
   findTaskByRunId,
+  markTaskLostById,
   maybeDeliverTaskStateChangeUpdate,
   resetTaskRegistryForTests,
 } from "./task-registry.js";
 import { resolveTaskRegistryDir, resolveTaskRegistrySqlitePath } from "./task-registry.paths.js";
-import { configureTaskRegistryRuntime, type TaskRegistryHookEvent } from "./task-registry.store.js";
+import {
+  configureTaskRegistryRuntime,
+  type TaskRegistryObserverEvent,
+} from "./task-registry.store.js";
 import type { TaskRecord } from "./task-registry.types.js";
 
 function createStoredTask(): TaskRecord {
@@ -38,7 +42,7 @@ describe("task-registry store runtime", () => {
   afterEach(() => {
     delete process.env.OPENCLAW_STATE_DIR;
     resetTaskRegistryForTests();
-    resetFlowRegistryForTests({ persist: false });
+    resetTaskFlowRegistryForTests({ persist: false });
   });
 
   it("uses the configured task store for restore and save", () => {
@@ -80,8 +84,8 @@ describe("task-registry store runtime", () => {
     expect(latestSnapshot.tasks.get("task-restored")?.task).toBe("Restored task");
   });
 
-  it("emits incremental hook events for restore, mutation, and delete", () => {
-    const events: TaskRegistryHookEvent[] = [];
+  it("emits incremental observer events for restore, mutation, and delete", () => {
+    const events: TaskRegistryObserverEvent[] = [];
     configureTaskRegistryRuntime({
       store: {
         loadSnapshot: () => ({
@@ -90,7 +94,7 @@ describe("task-registry store runtime", () => {
         }),
         saveSnapshot: () => {},
       },
-      hooks: {
+      observers: {
         onEvent: (event) => {
           events.push(event);
         },
@@ -197,7 +201,7 @@ describe("task-registry store runtime", () => {
   });
 
   it("persists parentFlowId with task rows", () => {
-    const flow = createManagedFlow({
+    const flow = createManagedTaskFlow({
       ownerKey: "agent:main:main",
       controllerId: "tests/task-store-parent-flow",
       goal: "Persist linked tasks",
@@ -329,6 +333,90 @@ describe("task-registry store runtime", () => {
       scopeKind: "system",
       deliveryStatus: "not_applicable",
       notifyPolicy: "silent",
+    });
+  });
+
+  it("keeps legacy requester_session_key rows writable after restore", () => {
+    const stateDir = mkdtempSync(path.join(os.tmpdir(), "openclaw-task-store-legacy-write-"));
+    process.env.OPENCLAW_STATE_DIR = stateDir;
+    const sqlitePath = resolveTaskRegistrySqlitePath(process.env);
+    mkdirSync(path.dirname(sqlitePath), { recursive: true });
+    const { DatabaseSync } = requireNodeSqlite();
+    const db = new DatabaseSync(sqlitePath);
+    db.exec(`
+      CREATE TABLE task_runs (
+        task_id TEXT PRIMARY KEY,
+        runtime TEXT NOT NULL,
+        source_id TEXT,
+        requester_session_key TEXT NOT NULL,
+        child_session_key TEXT,
+        parent_task_id TEXT,
+        agent_id TEXT,
+        run_id TEXT,
+        label TEXT,
+        task TEXT NOT NULL,
+        status TEXT NOT NULL,
+        delivery_status TEXT NOT NULL,
+        notify_policy TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        started_at INTEGER,
+        ended_at INTEGER,
+        last_event_at INTEGER,
+        cleanup_after INTEGER,
+        error TEXT,
+        progress_summary TEXT,
+        terminal_summary TEXT,
+        terminal_outcome TEXT
+      );
+    `);
+    db.exec(`
+      CREATE TABLE task_delivery_state (
+        task_id TEXT PRIMARY KEY,
+        requester_origin_json TEXT,
+        last_notified_event_at INTEGER
+      );
+    `);
+    db.prepare(`
+      INSERT INTO task_runs (
+        task_id,
+        runtime,
+        requester_session_key,
+        run_id,
+        task,
+        status,
+        delivery_status,
+        notify_policy,
+        created_at,
+        last_event_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      "legacy-session-task",
+      "acp",
+      "agent:main:main",
+      "legacy-session-run",
+      "Legacy session task",
+      "running",
+      "pending",
+      "done_only",
+      100,
+      100,
+    );
+    db.close();
+
+    resetTaskRegistryForTests({ persist: false });
+
+    expect(() =>
+      markTaskLostById({
+        taskId: "legacy-session-task",
+        endedAt: 200,
+        lastEventAt: 200,
+        error: "session missing",
+      }),
+    ).not.toThrow();
+    expect(findTaskByRunId("legacy-session-run")).toMatchObject({
+      taskId: "legacy-session-task",
+      status: "lost",
+      error: "session missing",
     });
   });
 });

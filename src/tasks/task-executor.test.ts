@@ -1,11 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { withTempDir } from "../test-helpers/temp-dir.js";
-import {
-  createManagedFlow,
-  getFlowById,
-  listFlowRecords,
-  resetFlowRegistryForTests,
-} from "./flow-registry.js";
+import { resetAgentEventsForTest, resetAgentRunContextForTest } from "../infra/agent-events.js";
+import { resetHeartbeatWakeStateForTests } from "../infra/heartbeat-wake.js";
+import { resetSystemEventsForTest } from "../infra/system-events.js";
+import { withStateDirEnv } from "../test-helpers/state-dir-env.js";
 import {
   cancelFlowById,
   cancelFlowByIdForOwner,
@@ -22,9 +19,17 @@ import {
   startTaskRunByRunId,
 } from "./task-executor.js";
 import {
+  createManagedTaskFlow,
+  getTaskFlowById,
+  listTaskFlowRecords,
+  resetTaskFlowRegistryForTests,
+} from "./task-flow-registry.js";
+import {
+  setTaskRegistryDeliveryRuntimeForTests,
   getTaskById,
   findLatestTaskForFlowId,
   findTaskByRunId,
+  resetTaskRegistryDeliveryRuntimeForTests,
   resetTaskRegistryForTests,
 } from "./task-registry.js";
 
@@ -40,10 +45,6 @@ const hoisted = vi.hoisted(() => {
   };
 });
 
-vi.mock("./task-registry-delivery-runtime.js", () => ({
-  sendMessage: hoisted.sendMessageMock,
-}));
-
 vi.mock("../acp/control-plane/manager.js", () => ({
   getAcpSessionManager: () => ({
     cancelSession: hoisted.cancelSessionMock,
@@ -54,16 +55,28 @@ vi.mock("../agents/subagent-control.js", () => ({
   killSubagentRunAdmin: (params: unknown) => hoisted.killSubagentRunAdminMock(params),
 }));
 
-async function withTaskExecutorStateDir(run: (root: string) => Promise<void>): Promise<void> {
-  await withTempDir({ prefix: "openclaw-task-executor-" }, async (root) => {
-    process.env.OPENCLAW_STATE_DIR = root;
-    resetTaskRegistryForTests();
-    resetFlowRegistryForTests();
+async function withTaskExecutorStateDir(run: (stateDir: string) => Promise<void>): Promise<void> {
+  await withStateDirEnv("openclaw-task-executor-", async ({ stateDir }) => {
+    setTaskRegistryDeliveryRuntimeForTests({
+      sendMessage: hoisted.sendMessageMock,
+    });
+    resetSystemEventsForTest();
+    resetHeartbeatWakeStateForTests();
+    resetAgentEventsForTest();
+    resetTaskRegistryDeliveryRuntimeForTests();
+    resetAgentRunContextForTest();
+    resetTaskRegistryForTests({ persist: false });
+    resetTaskFlowRegistryForTests({ persist: false });
     try {
-      await run(root);
+      await run(stateDir);
     } finally {
-      resetTaskRegistryForTests();
-      resetFlowRegistryForTests();
+      resetSystemEventsForTest();
+      resetHeartbeatWakeStateForTests();
+      resetAgentEventsForTest();
+      resetTaskRegistryDeliveryRuntimeForTests();
+      resetAgentRunContextForTest();
+      resetTaskRegistryForTests({ persist: false });
+      resetTaskFlowRegistryForTests({ persist: false });
     }
   });
 }
@@ -75,8 +88,13 @@ describe("task-executor", () => {
     } else {
       process.env.OPENCLAW_STATE_DIR = ORIGINAL_STATE_DIR;
     }
-    resetTaskRegistryForTests();
-    resetFlowRegistryForTests();
+    resetSystemEventsForTest();
+    resetHeartbeatWakeStateForTests();
+    resetAgentEventsForTest();
+    resetTaskRegistryDeliveryRuntimeForTests();
+    resetAgentRunContextForTest();
+    resetTaskRegistryForTests({ persist: false });
+    resetTaskFlowRegistryForTests({ persist: false });
     hoisted.sendMessageMock.mockReset();
     hoisted.cancelSessionMock.mockReset();
     hoisted.killSubagentRunAdminMock.mockReset();
@@ -160,6 +178,33 @@ describe("task-executor", () => {
     });
   });
 
+  it("persists explicit task kind metadata on created runs", async () => {
+    await withTaskExecutorStateDir(async () => {
+      const created = createRunningTaskRun({
+        runtime: "cli",
+        taskKind: "video_generation",
+        sourceId: "video_generate:openai",
+        ownerKey: "agent:main:main",
+        scopeKind: "session",
+        childSessionKey: "agent:main:main",
+        runId: "run-executor-kind",
+        task: "Generate lobster video",
+        startedAt: 10,
+        deliveryStatus: "not_applicable",
+      });
+
+      expect(getTaskById(created.taskId)).toMatchObject({
+        taskId: created.taskId,
+        taskKind: "video_generation",
+        sourceId: "video_generate:openai",
+      });
+      expect(findTaskByRunId("run-executor-kind")).toMatchObject({
+        taskId: created.taskId,
+        taskKind: "video_generation",
+      });
+    });
+  });
+
   it("auto-creates a one-task flow and keeps it synced with task status", async () => {
     await withTaskExecutorStateDir(async () => {
       const created = createRunningTaskRun({
@@ -174,7 +219,7 @@ describe("task-executor", () => {
       });
 
       expect(created.parentFlowId).toEqual(expect.any(String));
-      expect(getFlowById(created.parentFlowId!)).toMatchObject({
+      expect(getTaskFlowById(created.parentFlowId!)).toMatchObject({
         flowId: created.parentFlowId,
         ownerKey: "agent:main:main",
         status: "running",
@@ -189,7 +234,7 @@ describe("task-executor", () => {
         terminalSummary: "Done.",
       });
 
-      expect(getFlowById(created.parentFlowId!)).toMatchObject({
+      expect(getTaskFlowById(created.parentFlowId!)).toMatchObject({
         flowId: created.parentFlowId,
         status: "succeeded",
         endedAt: 40,
@@ -213,7 +258,7 @@ describe("task-executor", () => {
       });
 
       expect(created.parentFlowId).toBeUndefined();
-      expect(listFlowRecords()).toEqual([]);
+      expect(listTaskFlowRecords()).toEqual([]);
     });
   });
 
@@ -248,7 +293,7 @@ describe("task-executor", () => {
         terminalOutcome: "blocked",
         terminalSummary: "Writable session required.",
       });
-      expect(getFlowById(created.parentFlowId!)).toMatchObject({
+      expect(getTaskFlowById(created.parentFlowId!)).toMatchObject({
         flowId: created.parentFlowId,
         status: "blocked",
         blockedTaskId: created.taskId,
@@ -275,7 +320,7 @@ describe("task-executor", () => {
           runId: "run-executor-retry",
         }),
       });
-      expect(getFlowById(created.parentFlowId!)).toMatchObject({
+      expect(getTaskFlowById(created.parentFlowId!)).toMatchObject({
         flowId: created.parentFlowId,
         status: "queued",
       });
@@ -295,10 +340,14 @@ describe("task-executor", () => {
     await withTaskExecutorStateDir(async () => {
       hoisted.cancelSessionMock.mockResolvedValue(undefined);
 
-      const flow = createManagedFlow({
+      const flow = createManagedTaskFlow({
         ownerKey: "agent:main:main",
         controllerId: "tests/managed-flow",
         goal: "Inspect PR batch",
+        requesterOrigin: {
+          channel: "telegram",
+          to: "telegram:123",
+        },
       });
       const child = createRunningTaskRun({
         runtime: "acp",
@@ -325,7 +374,7 @@ describe("task-executor", () => {
         taskId: child.taskId,
         status: "cancelled",
       });
-      expect(getFlowById(flow.flowId)).toMatchObject({
+      expect(getTaskFlowById(flow.flowId)).toMatchObject({
         flowId: flow.flowId,
         status: "cancelled",
       });
@@ -334,7 +383,7 @@ describe("task-executor", () => {
 
   it("runs child tasks under managed TaskFlows", async () => {
     await withTaskExecutorStateDir(async () => {
-      const flow = createManagedFlow({
+      const flow = createManagedTaskFlow({
         ownerKey: "agent:main:main",
         controllerId: "tests/managed-flow",
         goal: "Inspect PR batch",
@@ -376,7 +425,7 @@ describe("task-executor", () => {
 
   it("refuses to add child tasks once cancellation is requested on a managed TaskFlow", async () => {
     await withTaskExecutorStateDir(async () => {
-      const flow = createManagedFlow({
+      const flow = createManagedTaskFlow({
         ownerKey: "agent:main:main",
         controllerId: "tests/managed-flow",
         goal: "Protected flow",
@@ -412,7 +461,7 @@ describe("task-executor", () => {
     await withTaskExecutorStateDir(async () => {
       hoisted.cancelSessionMock.mockRejectedValue(new Error("still shutting down"));
 
-      const flow = createManagedFlow({
+      const flow = createManagedTaskFlow({
         ownerKey: "agent:main:main",
         controllerId: "tests/managed-flow",
         goal: "Long running batch",
@@ -456,7 +505,7 @@ describe("task-executor", () => {
         taskId: child.taskId,
         status: "cancelled",
       });
-      expect(getFlowById(flow.flowId)).toMatchObject({
+      expect(getTaskFlowById(flow.flowId)).toMatchObject({
         flowId: flow.flowId,
         cancelRequestedAt: expect.any(Number),
         status: "cancelled",
@@ -467,7 +516,7 @@ describe("task-executor", () => {
 
   it("denies cross-owner flow cancellation through the owner-scoped wrapper", async () => {
     await withTaskExecutorStateDir(async () => {
-      const flow = createManagedFlow({
+      const flow = createManagedTaskFlow({
         ownerKey: "agent:main:main",
         controllerId: "tests/managed-flow",
         goal: "Protected flow",
@@ -484,7 +533,7 @@ describe("task-executor", () => {
         cancelled: false,
         reason: "Flow not found.",
       });
-      expect(getFlowById(flow.flowId)).toMatchObject({
+      expect(getTaskFlowById(flow.flowId)).toMatchObject({
         flowId: flow.flowId,
         status: "queued",
       });
@@ -493,7 +542,7 @@ describe("task-executor", () => {
 
   it("denies cross-owner managed TaskFlow child spawning through the owner-scoped wrapper", async () => {
     await withTaskExecutorStateDir(async () => {
-      const flow = createManagedFlow({
+      const flow = createManagedTaskFlow({
         ownerKey: "agent:main:main",
         controllerId: "tests/managed-flow",
         goal: "Protected flow",
