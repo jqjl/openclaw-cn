@@ -640,3 +640,105 @@ OpenClaw 使用日期版本号：
 ---
 
 *本页面由 OpenClaw 中文版团队维护，持续同步官方更新。*
+
+---
+
+## 🚀 v2026.4.10 (2026年4月10日)
+
+> 上游最新版本，162 个新提交同步（相比 v2026.4.9）。
+
+### ✨ 新增功能
+
+#### 1. Active Memory recall 插件
+- 新增 Active Memory recall 插件（#63286），在主回复前运行专用记忆子 Agent
+- 支持 message/recent/full context 模式配置
+- 新增 `/verbose` 实时查看功能
+- 支持 transcript 持久化用于调试
+
+#### 2. macOS Talk Mode MLX 语音
+- 新增实验性本地 MLX 语音合成器
+- 支持显式 provider 选择和本地 utterance 播放
+- 支持中断处理和系统语音 fallback
+
+#### 3. 文档国际化增强
+- raw doc 翻译分块处理，拒绝截断输出
+- 避免歧义的 body-only wrapper 展开
+- 从 terminated Pi 翻译会话中恢复
+
+#### 4. QA 多跳测试
+- `openclaw qa suite` 新增 `--runner multipass` 模式
+- 支持在 disposable Linux VM 中运行 repo-backed QA 场景
+
+#### 5. Gateway 启动优化
+- 拆分启动和运行时边界，改进 lifecycle 排序和 reload 行为
+
+### 🔐 安全修复
+
+#### 1. 浏览器 SSRF 防护加固
+- 修复交互驱动的主帧导航后 SSRF 检查被绕过的问题（#63226）
+
+#### 2. dotenv 安全
+- 阻止不可信 workspace .env 文件中的运行时控制环境变量
+- 拒绝不安全的 URL 风格浏览器控制 override（#62660, #62663）
+
+#### 3. Node 远程执行事件
+- 将 node exec 事件标记为不可信系统事件，防止注入可信 `System:` 内容
+
+#### 4. 依赖安全审计
+- 强制 `basic-ftp` 升级至 5.2.1（CRLF 命令注入修复）
+- 升级 Hono 和 @hono/node-server
+
+#### 5. 插件认证隔离
+- 防止不可信 workspace 插件与捆绑 provider auth-choice id 冲突
+
+### 🐛 问题修复
+
+- **WhatsApp**：修复断连重连后消息丢失问题
+- **Matrix**：修复启动时 sync 就绪等待和 background handler 故障处理
+- **Slack**：修复 url_private_download 图片附件认证问题
+- **Android/Pairing**：修复 QR 扫描恢复可靠性
+- **iOS 版本锁定**：通过 CalVer 和 pnpm ios:version:pin 工作流稳定版本号
+- **Dreaming/cron**：修复时区配置和启动配置解析
+- **QQBot**：新增可配置流式输出模式（streaming.mode）
+- **Windows/exec**：修复 supervisor wait 导致的挂起和 SIGKILL 问题
+
+---
+
+## 🚀 v2026.4.9 (2026年4月9日)
+
+> 上游版本，重要安全修复和 Memory/Dreaming 功能增强。
+
+### ✨ 新增功能
+
+#### 1. Memory/Dreaming 重大升级
+- 新增 grounded REM backfill lane
+- 支持历史 `rem-harness --path` 和 diary commit/reset 流程
+- 新增 cleaner durable-fact extraction
+- 短期记忆提升集成
+
+#### 2. Control UI/Dreaming
+- 新增结构化 diary 视图，支持时间线导航
+- 新增 backfill/reset 控制和 grounded Scene lane
+- 安全 clear-grounded 操作
+
+#### 3. QA/lab 角色评估
+- 新增 character-vibes 评估报告
+- 支持模型选择和并行运行
+
+#### 4. Provider Auth Aliases
+- provider manifest 可声明 `providerAuthAliases`
+- provider 变体可共享环境变量和认证配置
+
+### 🔐 安全修复
+
+- 浏览器 SSRF 防护（#63226）
+- dotenv 安全（#62660, #62663）
+- Node 远程执行事件注入防护（#62659）
+- basic-ftp 5.2.1 升级
+
+### 🐛 问题修复
+
+- Android/Pairing 恢复可靠性
+- Matrix 启动和 background handler
+- Slack 图片附件认证
+- Discord/Telegram approval 路径对齐
