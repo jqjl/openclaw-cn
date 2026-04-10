@@ -111,46 +111,6 @@ Join every invite:
 }
 ```
 
-<Warning>
-`channels.matrix.autoJoin` defaults to `off`.
-
-If you leave it unset, the bot will not join invited rooms or fresh DM-style invites, so it will not appear in new groups or invited DMs unless you join manually first.
-
-Set `autoJoin: "allowlist"` together with `autoJoinAllowlist` to restrict which invites it accepts, or set `autoJoin: "always"` if you want it to join every invite.
-
-In `allowlist` mode, `autoJoinAllowlist` only accepts `!roomId:server`, `#alias:server`, or `*`.
-</Warning>
-
-Allowlist example:
-
-```json5
-{
-  channels: {
-    matrix: {
-      autoJoin: "allowlist",
-      autoJoinAllowlist: ["!ops:example.org", "#support:example.org"],
-      groups: {
-        "!ops:example.org": {
-          requireMention: true,
-        },
-      },
-    },
-  },
-}
-```
-
-Join every invite:
-
-```json5
-{
-  channels: {
-    matrix: {
-      autoJoin: "always",
-    },
-  },
-}
-```
-
 Minimal token-based setup:
 
 ```json5
