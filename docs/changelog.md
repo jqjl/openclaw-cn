@@ -643,6 +643,181 @@ OpenClaw 使用日期版本号：
 
 ---
 
+## 🚀 v2026.4.15-beta.1 (2026年4月15日)
+
+> 预发布版本，包含多个重要新功能和大量安全修复。
+
+### ✨ 新增功能
+
+#### 1. Model Auth 状态卡片
+- Control UI Overview 新增 Model Auth 状态卡片（#66211）
+- 显示 OAuth token 健康状态和提供商限速压力
+- 关注即将过期或已过期的 OAuth token
+
+#### 2. LanceDB 云存储支持
+- memory-lancedb 新增云存储支持（#63502）
+- 持久化内存索引可运行在远程对象存储上
+
+#### 3. GitHub Copilot 记忆搜索
+- 新增 GitHub Copilot embedding provider 用于记忆搜索（#61718）
+- 支持插件复用 transport 和 token 刷新
+
+#### 4. 本地模型轻量模式
+- 新增实验性 `agents.defaults.experimental.localModelLean: true`（#66495）
+- 移除 browser、cron、message 等重量级默认工具
+
+### 🔐 安全修复
+
+- **exec 审批提示**：Secrets 在 exec 审批提示中脱敏（#61077, #64790）
+- **QMD memory_get**：拒绝任意 workspace markdown 路径读取（#66026）
+- **Gateway/MCP loopback**：切换到 constant-time `safeEqualSecret` 比较（#66665）
+- **浏览器 SSRF**：在 snapshot、screenshot、tab 路由强制执行 SSRF 策略（#66040）
+- **Matrix 安全**：规范化沙箱 profile avatar 参数（#64701）
+- **Webchat 安全**：拒绝媒体嵌入路径中的远程主机 `file://` URL（#67293）
+- **Gateway 安全**：在 webchat 音频嵌入路径强制 `localRoots` 约束（#67298）
+
+### 🐛 问题修复
+
+- **CLI/configure**：写入后重新读取持久化 config hash，解决 stale-hash 竞争（#66528）
+- **CLI/update**：npm 升级后清理过时 dist chunks（#66959）
+- **Agent/compaction**：为小上下文本地模型（如 Ollama 16K）设置 compaction reserve-token 地板（#65671）
+- **Ollama/onboarding**：支持直接 `OLLAMA_API_KEY` 云端设置，无需本地守护进程（#67005）
+- **Telegram/documents**：清理二进制回复上下文，防止 .epub 和 .mobi 上传泄漏原始二进制到 prompt（#66877）
+- **Docker/build**：在 `node_modules` 下用 `find` 验证 `@matrix-org/matrix-sdk-crypto-nodejs` 原生绑定（#67143）
+- **音频/STT**：恢复自托管 STT 的 `allowPrivateNetwork` 设置（#66692）
+
+---
+
+## 🚀 v2026.4.14 (2026年4月14日)
+
+> 上游最新稳定版，大量安全修复和问题修复。
+
+### ✨ 新增功能
+
+#### 1. OpenAI Codex/gpt-5.4-pro 支持
+- 新增 `gpt-5.4-pro` 前向兼容支持（#66453）
+- 包含 Codex 定价和限流配置
+
+#### 2. Telegram 论坛话题名称
+- 在 agent context、prompt metadata、plugin hook metadata 中显示人类可读话题名称（#65973）
+- 从 Telegram 论坛服务消息中学习名称
+
+### 🔐 安全修复
+
+- **Agents/gateway-tool**：拒绝模型端 gateway tool 的 `config.patch/apply` 调用（#62006）
+- **Slack/interactions**：对 block-action 和 modal interactive 事件应用全局 `allowFrom` 白名单（#66028）
+- **媒体附件**：本地附件路径无法解析时 fail closed（#66022）
+- **Heartbeat/security**：强制对不可信 `hook:wake` 系统事件进行 owner downgrade（#66031）
+- **Config/redact**：在 `redactConfigSnapshot` 中清除 `sourceConfig` 和 `runtimeConfig`（#66030）
+- **Teams/security**：对 SSO signin 调用执行发件人白名单检查（#66033）
+
+### 🐛 问题修复
+
+- **Ollama**：正确转发配置的 embedded-run 超时到全局 undici stream 超时
+- **Models/Codex**：在代码提供商标目输出中包含 `apiKey`（#66180）
+- **UI/chat**：用 markdown-it 替换 marked.js，防止 ReDoS 攻击（#46707）
+- **WhatsApp/Baileys**：npm/postinstall 时等待加密媒体文件flush完毕再读回（#65896）
+- **Telegram/forum**：持久化话题名称到 session sidecar store，重启后可继续使用（#66107）
+- **Gateway/sessions**：阻止 heartbeat/cron/exec 事件覆盖共享会话路由元数据（#66073）
+- **Cron/scheduler**：修复无有效未来 slot 时的重试逻辑（#66019）
+- **Auto-reply/send policy**：`sendPolicy: "deny"` 不再阻塞入站消息处理（#65461）
+- **Feishu/allowlist**：规范化 allowlist 条目，防止 user/chat 命名空间交叉（#66021）
+- **Media/store**：遵守配置的 agent 媒体限制（#66229）
+- **Hook/session-memory**：传递解析后的 agent workspace 到 `/new` 和 `/reset` hook（#64735）
+
+---
+
+## 🚀 v2026.4.12 (2026年4月12日)
+
+> 上游版本，Active Memory 正式发布，QA 能力大幅增强。
+
+### ✨ 新增功能
+
+#### 1. Active Memory 插件正式版
+- 新增可选 Active Memory 插件（#63286）
+- 在主回复前运行专用记忆子 Agent
+- 支持 message/recent/full context 模式
+- 支持 `/verbose` 实时查看
+- 文档：https://docs.openclaw.ai/concepts/active-memory
+
+#### 2. macOS Talk Mode MLX 语音
+- 新增实验性本地 MLX 语音合成器（#63539）
+- 支持本地 utterance 播放和系统语音 fallback
+
+#### 3. CLI exec-policy 命令
+- 新增 `openclaw exec-policy` 命令（#64050）
+- 支持 `show`、`preset`、`set` 子命令
+
+#### 4. Gateway commands.list RPC
+- 新增 `commands.list` RPC（#62656）
+- 远程 gateway 客户端可发现运行时命令
+
+#### 5. LM Studio Provider
+- 新增捆绑 LM Studio provider（#53248）
+- 支持本地/自托管 OpenAI 兼容模型
+
+### 🔐 安全修复
+
+- 移除 busybox/toybox 解释器类似安全 bin（#65713）
+- 防止空审批人列表授予显式审批授权（#65714）
+- 扩大 shell-wrapper 检测并阻止 env-argv 赋值注入（#65717）
+- `.env.example` 中的示例凭证清空，启动时拒绝占位符 token（#64586）
+
+### 🐛 问题修复
+
+- **Gateway/startup**：延迟调度服务直到 sidecar 完成（#65365）
+- **Control UI/chat**：加载 live gateway slash-command 目录到 composer（#65620）
+- **CLI/update**：修复自更新后重新加载跟踪插件的入口点（#65471）
+- **Memory/active-memory**：改进 lexical fallback 排名（#65049）
+- **WhatsApp/outbound**：修复 `mediaUrl` 为空时回退到 `mediaUrls` 第一个条目（#64394）
+- **Discord/doctor**：防止 `doctor --fix` 重写 legacy streaming config（#65035）
+- **Agent/queueing**：在修复前将孤立 active-turn 用户文本带入下一 prompt（#65388）
+- **Gateway/keepalive**：停止将 WebSocket tick 广播标记为可丢弃（#65256）
+- **Telegram**：路由审批按钮回调查询到单独顺序通道（#64979）
+- **Memory/wiki**：保留 Unicode 字母、数字和组合标记在 wiki slugs 中（#64742）
+- **Dreaming**：正确使用时区，在 diary timestamps 中包含时区缩写（#65034）
+- **WhatsApp**：集中化每账户连接所有权（#65290）
+- **iMessage**：重试瞬态 `watch.subscribe` 启动失败（#65393）
+
+---
+
+## 🚀 v2026.4.11 (2026年4月11日)
+
+> 上游版本，Dreaming UI 增强，视频生成和 Feishu 改进。
+
+### ✨ 新增功能
+
+#### 1. Dreaming/Memory Wiki 导入
+- 新增 ChatGPT 导入 ingestion（#64505）
+- 新增 Imported Insights 和 Memory Palace diary 子标签页
+
+#### 2. Control UI/WebChat 富媒体
+- 渲染 assistant media/reply/voice 指令为结构化聊天气泡（#64104）
+- 新增 `[embed ...]` 富输出标签
+
+#### 3. 视频生成增强
+- 新增 URL-only 生成资源传递（#61987）
+- 支持自适应宽高比和更高图像输入上限
+
+#### 4. Feishu 文档评论
+- 改进文档评论会话的上下文解析（#63785）
+- 支持评论反应和打字反馈
+
+#### 5. Microsoft Teams 反应
+- 新增反应支持、Graph 分页（#51646）
+
+### 🐛 问题修复
+
+- **OpenAI/Codex OAuth**：停止重写 authorize URL scopes（#64713）
+- **音频转录**：仅为 OpenAI 兼容 multipart 请求禁用 pinned DNS（#64766）
+- **macOS/Talk Mode**：授予麦克风权限后继续启动（#62459）
+- **Google/Veo**：停止发送不支持的 `numberOfVideos` 请求字段（#64723）
+- **WhatsApp**：路由 `message react` 通过 gateway-owned action path（#53918）
+- **Telegram/sessions**：修复话题 scoped session 初始化（#64869）
+- **Agent/failover**：将回退分类范围限定为当前 attempt（#62907）
+
+---
+
 ## 🚀 v2026.4.10 (2026年4月10日)
 
 > 上游最新版本，162 个新提交同步（相比 v2026.4.9）。
