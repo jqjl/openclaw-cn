@@ -7,6 +7,8 @@ read_when:
   - Updating community project highlights
 ---
 
+<!-- markdownlint-disable MD033 -->
+
 # Showcase
 
 <div className="showcase-hero">
@@ -52,7 +54,7 @@ read_when:
   <a href="#submit-your-project">Submit a project</a>
 </div>
 
-## Videos
+<h2 id="videos">Videos</h2>
 
 <p className="showcase-section-intro">
   Start here if you want the shortest path from “what is this?” to “okay, I get it.”
@@ -105,7 +107,7 @@ read_when:
   </div>
 </div>
 
-## Fresh from Discord
+<h2 id="fresh-from-discord">Fresh from Discord</h2>
 
 <p className="showcase-section-intro">
   Recent standouts across coding, devtools, mobile, and chat-native product building.
@@ -232,9 +234,7 @@ Read, send, and archive messages via Beeper Desktop. Uses Beeper local MCP API s
 
 </CardGroup>
 
-<a id="automation-workflows"></a>
-
-## Automation & Workflows
+<h2 id="automation-workflows">Automation &amp; Workflows</h2>
 
 <p className="showcase-section-intro">
   Scheduling, browser control, support loops, and the “just do the task for me” side of the product.
@@ -316,9 +316,7 @@ Watches company Slack channel, responds helpfully, and forwards notifications to
 
 </CardGroup>
 
-<a id="knowledge-memory"></a>
-
-## Knowledge & Memory
+<h2 id="knowledge-memory">Knowledge &amp; Memory</h2>
 
 <p className="showcase-section-intro">
   Systems that index, search, remember, and reason over personal or team knowledge.
@@ -354,9 +352,7 @@ Watches company Slack channel, responds helpfully, and forwards notifications to
 
 </CardGroup>
 
-<a id="voice-phone"></a>
-
-## Voice & Phone
+<h2 id="voice-phone">Voice &amp; Phone</h2>
 
 <p className="showcase-section-intro">
   Speech-first entry points, phone bridges, and transcription-heavy workflows.
@@ -378,9 +374,7 @@ Multi-lingual audio transcription via OpenRouter (Gemini, etc). Available on Cla
 
 </CardGroup>
 
-<a id="infrastructure-deployment"></a>
-
-## Infrastructure & Deployment
+<h2 id="infrastructure-deployment">Infrastructure &amp; Deployment</h2>
 
 <p className="showcase-section-intro">
   Packaging, deployment, and integrations that make OpenClaw easier to run and extend.
@@ -414,9 +408,7 @@ Multi-lingual audio transcription via OpenRouter (Gemini, etc). Available on Cla
 
 </CardGroup>
 
-<a id="home-hardware"></a>
-
-## Home & Hardware
+<h2 id="home-hardware">Home &amp; Hardware</h2>
 
 <p className="showcase-section-intro">
   The physical-world side of OpenClaw: homes, sensors, cameras, vacuums, and other devices.
@@ -442,7 +434,7 @@ Multi-lingual audio transcription via OpenRouter (Gemini, etc). Available on Cla
 
 </CardGroup>
 
-## Community Projects
+<h2 id="community-projects">Community Projects</h2>
 
 <p className="showcase-section-intro">
   Things that grew beyond a single workflow into broader products or ecosystems.
@@ -460,7 +452,7 @@ Multi-lingual audio transcription via OpenRouter (Gemini, etc). Available on Cla
 
 ---
 
-## Submit Your Project
+<h2 id="submit-your-project">Submit Your Project</h2>
 
 <p className="showcase-section-intro">
   If you are building something interesting with OpenClaw, send it over. Strong screenshots and concrete outcomes help.

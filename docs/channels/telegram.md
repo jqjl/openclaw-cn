@@ -275,7 +275,6 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 
     - `channels.telegram.streaming` is `off | partial | block | progress` (default: `partial`)
     - `progress` maps to `partial` on Telegram (compat with cross-channel naming)
-    - `streaming.preview.toolProgress` controls whether tool/progress updates reuse the same edited preview message (default: `true`). Set `false` to keep separate tool/progress messages.
     - legacy `channels.telegram.streamMode` and boolean `streaming` values are auto-mapped
 
     For text-only replies:
@@ -513,11 +512,74 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 
     Each topic then has its own session key: `agent:zu:telegram:group:-1001234567890:topic:3`
 
-    **Persistent ACP topic binding**: Forum topics can pin ACP harness sessions through top-level typed ACP bindings (`bindings[]` with `type: "acp"` and `match.channel: "telegram"`, `peer.kind: "group"`, and a topic-qualified id like `-1001234567890:topic:42`). Currently scoped to forum topics in groups/supergroups. See [ACP Agents](/tools/acp-agents).
+    **Persistent ACP topic binding**: Forum topics can pin ACP harness sessions through top-level typed ACP bindings:
 
-    **Thread-bound ACP spawn from chat**: `/acp spawn <agent> --thread here|auto` binds the current topic to a new ACP session; follow-ups route there directly. OpenClaw pins the spawn confirmation in-topic. Requires `channels.telegram.threadBindings.spawnAcpSessions=true`.
+    - `bindings[]` with `type: "acp"` and `match.channel: "telegram"`
 
-    Template context exposes `MessageThreadId` and `IsForum`. DM chats with `message_thread_id` keep DM routing but use thread-aware session keys.
+    Example:
+
+    ```json5
+    {
+      agents: {
+        list: [
+          {
+            id: "codex",
+            runtime: {
+              type: "acp",
+              acp: {
+                agent: "codex",
+                backend: "acpx",
+                mode: "persistent",
+                cwd: "/workspace/openclaw",
+              },
+            },
+          },
+        ],
+      },
+      bindings: [
+        {
+          type: "acp",
+          agentId: "codex",
+          match: {
+            channel: "telegram",
+            accountId: "default",
+            peer: { kind: "group", id: "-1001234567890:topic:42" },
+          },
+        },
+      ],
+      channels: {
+        telegram: {
+          groups: {
+            "-1001234567890": {
+              topics: {
+                "42": {
+                  requireMention: false,
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+    ```
+
+    This is currently scoped to forum topics in groups and supergroups.
+
+    **Thread-bound ACP spawn from chat**:
+
+    - `/acp spawn <agent> --thread here|auto` can bind the current Telegram topic to a new ACP session.
+    - Follow-up topic messages route to the bound ACP session directly (no `/acp steer` required).
+    - OpenClaw pins the spawn confirmation message in-topic after a successful bind.
+    - Requires `channels.telegram.threadBindings.spawnAcpSessions=true`.
+
+    Template context includes:
+
+    - `MessageThreadId`
+    - `IsForum`
+
+    DM thread behavior:
+
+    - private chats with `message_thread_id` keep DM routing but use thread-aware session keys/reply targets.
 
   </Accordion>
 
@@ -683,9 +745,20 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
   </Accordion>
 
   <Accordion title="Long polling vs webhook">
-    Default is long polling. For webhook mode set `channels.telegram.webhookUrl` and `channels.telegram.webhookSecret`; optional `webhookPath`, `webhookHost`, `webhookPort` (defaults `/telegram-webhook`, `127.0.0.1`, `8787`).
+    Default: long polling.
 
-    The local listener binds to `127.0.0.1:8787`. For public ingress, either put a reverse proxy in front of the local port or set `webhookHost: "0.0.0.0"` intentionally.
+    Webhook mode:
+
+    - set `channels.telegram.webhookUrl`
+    - set `channels.telegram.webhookSecret` (required when webhook URL is set)
+    - optional `channels.telegram.webhookPath` (default `/telegram-webhook`)
+    - optional `channels.telegram.webhookHost` (default `127.0.0.1`)
+    - optional `channels.telegram.webhookPort` (default `8787`)
+
+    Default local listener for webhook mode binds to `127.0.0.1:8787`.
+
+    If your public endpoint differs, place a reverse proxy in front and point `webhookUrl` at the public URL.
+    Set `webhookHost` (for example `0.0.0.0`) when you intentionally need external ingress.
 
   </Accordion>
 
@@ -729,8 +802,7 @@ openclaw message poll --channel telegram --target -1001234567890:topic:42 \
 
     Telegram send also supports:
 
-    - `--presentation` with `buttons` blocks for inline keyboards when `channels.telegram.capabilities.inlineButtons` allows it
-    - `--pin` or `--delivery '{"pin":true}'` to request pinned delivery when the bot can pin in that chat
+    - `--buttons` for inline keyboards when `channels.telegram.capabilities.inlineButtons` allows it
     - `--force-document` to send outbound images and GIFs as documents instead of compressed photo or animated-media uploads
 
     Action gating:
@@ -741,20 +813,45 @@ openclaw message poll --channel telegram --target -1001234567890:topic:42 \
   </Accordion>
 
   <Accordion title="Exec approvals in Telegram">
-    Telegram supports exec approvals in approver DMs and can optionally post prompts in the originating chat or topic. Approvers must be numeric Telegram user IDs.
+    Telegram supports exec approvals in approver DMs and can optionally post approval prompts in the originating chat or topic.
 
     Config path:
 
-    - `channels.telegram.execApprovals.enabled` (auto-enables when at least one approver is resolvable)
-    - `channels.telegram.execApprovals.approvers` (falls back to numeric owner IDs from `allowFrom` / `defaultTo`)
-    - `channels.telegram.execApprovals.target`: `dm` (default) | `channel` | `both`
+    - `channels.telegram.execApprovals.enabled`
+    - `channels.telegram.execApprovals.approvers` (optional; falls back to numeric owner IDs inferred from `allowFrom` and direct `defaultTo` when possible)
+    - `channels.telegram.execApprovals.target` (`dm` | `channel` | `both`, default: `dm`)
     - `agentFilter`, `sessionFilter`
 
-    Channel delivery shows the command text in the chat; only enable `channel` or `both` in trusted groups/topics. When the prompt lands in a forum topic, OpenClaw preserves the topic for the approval prompt and the follow-up. Exec approvals expire after 30 minutes by default.
+    Approvers must be numeric Telegram user IDs. Telegram auto-enables native exec approvals when `enabled` is unset or `"auto"` and at least one approver can be resolved, either from `execApprovals.approvers` or from the account's numeric owner config (`allowFrom` and direct-message `defaultTo`). Set `enabled: false` to disable Telegram as a native approval client explicitly. Approval requests otherwise fall back to other configured approval routes or the exec approval fallback policy.
 
-    Inline approval buttons also require `channels.telegram.capabilities.inlineButtons` to allow the target surface (`dm`, `group`, or `all`). Approval IDs prefixed with `plugin:` resolve through plugin approvals; others resolve through exec approvals first.
+    Telegram also renders the shared approval buttons used by other chat channels. The native Telegram adapter mainly adds approver DM routing, channel/topic fanout, and typing hints before delivery.
+    When those buttons are present, they are the primary approval UX; OpenClaw
+    should only include a manual `/approve` command when the tool result says
+    chat approvals are unavailable or manual approval is the only path.
 
-    See [Exec approvals](/tools/exec-approvals).
+    Delivery rules:
+
+    - `target: "dm"` sends approval prompts only to resolved approver DMs
+    - `target: "channel"` sends the prompt back to the originating Telegram chat/topic
+    - `target: "both"` sends to approver DMs and the originating chat/topic
+
+    Only resolved approvers can approve or deny. Non-approvers cannot use `/approve` and cannot use Telegram approval buttons.
+
+    Approval resolution behavior:
+
+    - IDs prefixed with `plugin:` always resolve through plugin approvals.
+    - Other approval IDs try `exec.approval.resolve` first.
+    - If Telegram is also authorized for plugin approvals and the gateway says
+      the exec approval is unknown/expired, Telegram retries once through
+      `plugin.approval.resolve`.
+    - Real exec approval denials/errors do not silently fall through to plugin
+      approval resolution.
+
+    Channel delivery shows the command text in the chat, so only enable `channel` or `both` in trusted groups/topics. When the prompt lands in a forum topic, OpenClaw preserves the topic for both the approval prompt and the post-approval follow-up. Exec approvals expire after 30 minutes by default.
+
+    Inline approval buttons also depend on `channels.telegram.capabilities.inlineButtons` allowing the target surface (`dm`, `group`, or `all`).
+
+    Related docs: [Exec approvals](/tools/exec-approvals)
 
   </Accordion>
 </AccordionGroup>
@@ -931,7 +1028,6 @@ Primary reference:
 - `channels.telegram.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
 - `channels.telegram.linkPreview`: toggle link previews for outbound messages (default: true).
 - `channels.telegram.streaming`: `off | partial | block | progress` (live stream preview; default: `partial`; `progress` maps to `partial`; `block` is legacy preview mode compatibility). Telegram preview streaming uses a single preview message that is edited in place.
-- `channels.telegram.streaming.preview.toolProgress`: reuse the live preview message for tool/progress updates when preview streaming is active (default: `true`). Set `false` to keep separate tool/progress messages.
 - `channels.telegram.mediaMaxMb`: inbound/outbound Telegram media cap (MB, default: 100).
 - `channels.telegram.retry`: retry policy for Telegram send helpers (CLI/tools/actions) on recoverable outbound API errors (attempts, minDelayMs, maxDelayMs, jitter).
 - `channels.telegram.network.autoSelectFamily`: override Node autoSelectFamily (true=enable, false=disable). Defaults to enabled on Node 22+, with WSL2 defaulting to disabled.
@@ -961,7 +1057,7 @@ Telegram-specific high-signal fields:
 - exec approvals: `execApprovals`, `accounts.*.execApprovals`
 - command/menu: `commands.native`, `commands.nativeSkills`, `customCommands`
 - threading/replies: `replyToMode`
-- streaming: `streaming` (preview), `streaming.preview.toolProgress`, `blockStreaming`
+- streaming: `streaming` (preview), `blockStreaming`
 - formatting/delivery: `textChunkLimit`, `chunkMode`, `linkPreview`, `responsePrefix`
 - media/network: `mediaMaxMb`, `timeoutSeconds`, `pollingStallThresholdMs`, `retry`, `network.autoSelectFamily`, `network.dangerouslyAllowPrivateNetwork`, `proxy`
 - webhook: `webhookUrl`, `webhookSecret`, `webhookPath`, `webhookHost`

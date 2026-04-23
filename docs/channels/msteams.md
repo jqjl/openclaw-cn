@@ -9,6 +9,8 @@ title: "Microsoft Teams"
 
 > "Abandon all hope, ye who enter here."
 
+Updated: 2026-03-25
+
 Status: text + DM attachments are supported; channel/group file sending requires `sharePointSiteId` + Graph permissions (see [Sending files in group chats](#sending-files-in-group-chats)). Polls are sent via Adaptive Cards. Message actions expose explicit `upload-file` for file-first sends.
 
 ## Bundled plugin
@@ -189,8 +191,6 @@ Before configuring OpenClaw, you need to create an Azure Bot resource.
 1. In Azure Bot → **Channels**
 2. Click **Microsoft Teams** → Configure → Save
 3. Accept the Terms of Service
-
-<a id="federated-authentication-certificate--managed-identity"></a>
 
 ## Federated Authentication (Certificate + Managed Identity)
 
@@ -611,7 +611,7 @@ Teams markdown is more limited than Slack or Discord:
 
 - Basic formatting works: **bold**, _italic_, `code`, links
 - Complex markdown (tables, nested lists) may not render correctly
-- Adaptive Cards are supported for polls and semantic presentation sends (see below)
+- Adaptive Cards are supported for polls and arbitrary card sends (see below)
 
 ## Configuration
 
@@ -783,11 +783,11 @@ OpenClaw sends Teams polls as Adaptive Cards (there is no native Teams poll API)
 - The gateway must stay online to record votes.
 - Polls do not auto-post result summaries yet (inspect the store file if needed).
 
-## Presentation Cards
+## Adaptive Cards (arbitrary)
 
-Send semantic presentation payloads to Teams users or conversations using the `message` tool or CLI. OpenClaw renders them as Teams Adaptive Cards from the generic presentation contract.
+Send any Adaptive Card JSON to Teams users or conversations using the `message` tool or CLI.
 
-The `presentation` parameter accepts semantic blocks. When `presentation` is provided, the message text is optional.
+The `card` parameter accepts an Adaptive Card JSON object. When `card` is provided, the message text is optional.
 
 **Agent tool:**
 
@@ -796,9 +796,10 @@ The `presentation` parameter accepts semantic blocks. When `presentation` is pro
   action: "send",
   channel: "msteams",
   target: "user:<id>",
-  presentation: {
-    title: "Hello",
-    blocks: [{ type: "text", text: "Hello!" }],
+  card: {
+    type: "AdaptiveCard",
+    version: "1.5",
+    body: [{ type: "TextBlock", text: "Hello!" }],
   },
 }
 ```
@@ -808,10 +809,10 @@ The `presentation` parameter accepts semantic blocks. When `presentation` is pro
 ```bash
 openclaw message send --channel msteams \
   --target "conversation:19:abc...@thread.tacv2" \
-  --presentation '{"title":"Hello","blocks":[{"type":"text","text":"Hello!"}]}'
+  --card '{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Hello!"}]}'
 ```
 
-For target format details, see [Target formats](#target-formats) below.
+See [Adaptive Cards documentation](https://adaptivecards.io/) for card schema and examples. For target format details, see [Target formats](#target-formats) below.
 
 ## Target formats
 
@@ -836,9 +837,9 @@ openclaw message send --channel msteams --target "user:John Smith" --message "He
 # Send to a group chat or channel
 openclaw message send --channel msteams --target "conversation:19:abc...@thread.tacv2" --message "Hello"
 
-# Send a presentation card to a conversation
+# Send an Adaptive Card to a conversation
 openclaw message send --channel msteams --target "conversation:19:abc...@thread.tacv2" \
-  --presentation '{"title":"Hello","blocks":[{"type":"text","text":"Hello"}]}'
+  --card '{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Hello"}]}'
 ```
 
 **Agent tool examples:**
@@ -857,9 +858,10 @@ openclaw message send --channel msteams --target "conversation:19:abc...@thread.
   action: "send",
   channel: "msteams",
   target: "conversation:19:abc...@thread.tacv2",
-  presentation: {
-    title: "Hello",
-    blocks: [{ type: "text", text: "Hello" }],
+  card: {
+    type: "AdaptiveCard",
+    version: "1.5",
+    body: [{ type: "TextBlock", text: "Hello" }],
   },
 }
 ```
