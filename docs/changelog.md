@@ -2,6 +2,93 @@
 
 本文档记录 OpenClaw 官方版本的最新更新，实时同步。
 
+## 🚀 Unreleased
+
+### ✨ 新增功能与改进
+
+- Pi/models: 更新内置 pi 包至 `0.68.1`，并让 OpenCode Go 目录从 pi 获取而非插件维护的模型别名，新增 `opencode-go/kimi-k2.6`、Qwen、GLM、MiMo 和 MiniMax 条目。
+- CLI/doctor 插件: 延迟加载 doctor 插件路径，优先使用已安装插件 `dist/*` 运行时入口而非源码相邻的 JavaScript 回退，`doctor --non-interactive` 运行时测量缩短约 74%，同时在构建产物上保持冷启动 doctor 正常。 (#69840) 感谢 @gumadeiras。
+- WhatsApp/群组+私信: 将每个群组和私信的 `systemPrompt` 配置转发至入站上下文 `GroupSystemPrompt`，使配置的每个聊天行为指令在每次对话时注入。支持 `"*"` 通配符回退和 `channels.whatsapp.accounts.<id>.{groups,direct}` 下的账户级覆盖；账户映射完全替换根映射（无深度合并），与现有的 `requireMention` 模式一致。 (#59553) 感谢 @Bluetegu。
+- 插件/启动: 在支持的运行时上优先使用原生 Jiti 加载内置插件 dist 模块，内置插件加载时间缩短 82-90%，同时在转换路径上保留源码 TypeScript。 (#69925) 感谢 @aauren。
+- 插件 SDK/Pi 嵌入式运行: 新增内置插件嵌入式扩展工厂接口，使原生插件可通过异步运行时钩子（如 `tool_result` 处理）扩展 Pi 嵌入式运行，无需回退至旧版同步持久化路径。 (#69946) 感谢 @vincentkoc。
+- Tokenjuice: 新增内置原生 OpenClaw 支持 tokenjuice 作为可选插件，在 Pi 嵌入式运行中压缩嘈杂的 `exec` 和 `bash` 工具结果。 (#69946) 感谢 @vincentkoc。
+- Providers/Tencent: 新增内置腾讯云提供商插件，含 TokenHub 和 Token Plan 接入引导、文档、`hy3-preview` 模型目录条目及分层 Hy3 定价元数据。 (#68460) 感谢 @JuniperSling。
+- TUI: 新增本地嵌入式模式，无需 Gateway 即可运行终端聊天，同时保持插件审批门禁生效。 (#66767) 感谢 @fuller-stack-dev。
+- CLI/Claude: 在温暖的 stdio 会话上保持兼容的 `claude-cli` 运行，Gateway 重启或空闲退出后从存储的 Claude 会话恢复。 (#69679) 感谢 @obviyus。
+
+### 🐛 问题修复
+
+- Gateway/配对 webchat: 将 `/pair qr` 回复渲染为结构化媒体而非原始 markdown 文本，保留内联回复线程和静默控制处理，避免将敏感 QR 图像持久化至历史记录，并使本地 webchat 媒体嵌入置于内部信任标记之后。 (#70047) 感谢 @BunsDev。
+- Codex harness: 将 app-server 运行默认设为无链本地执行，使 OpenAI 心跳可使用网络和 shell 工具而不会在原生 Codex 审批或 workspace-write 沙箱后停滞。
+- OpenAI/Responses: 当 `models.providers.openai.baseUrl` 指向本地 mock 或其他非公共端点时，保持嵌入式 OpenAI Responses 运行在 HTTP 上，避免漂移至硬编码的公共 WebSocket 传输。 (#69815) 感谢 @vincentkoc。
+- 频道/配置: 在频道发送/操作/客户端辅助函数上要求已解析的运行时配置，阻止运行时辅助函数 `loadConfig()` 调用，使 SecretRefs 在启动/边界时解析而非在发送期间重新读取。
+- CLI/频道: 当加载的部分频道插件缺少元数据时保留内置设置升级元数据，使添加非默认账户仍将 Telegram `streaming` 等遗留单账户字段移至 `accounts.default`。
+- Telegram: 按配置的会话存储隔离发送消息所有权缓存，使自定义 `session.store` 路径下的自身消息反应过滤保持正确。
+- Ollama: 将 OpenClaw 思考控制转发为 `/api/chat` 请求的顶层 `think`，使 `/think off` 和 `openclaw agent --thinking off` 在 qwen3 等模型上抑制思考而非空闲至看门狗触发。 (#69967) 感谢 @WZH8898。
+- Memory-core/dreaming: 当 cron 服务仍在附加时抑制启动时特有的托管 dreaming cron 不可用警告，同时在 cron 确实持续不可用时保留运行时警告。 (#69941) 感谢 @Sanjays2402。
+- Mattermost: 抑制作为块引用 `> Reasoning:` 文本到达的纯思考内容负载，防止 `/reasoning on` 泄露思考至频道帖子。 (#69927) 感谢 @lawrence3699。
+- Discord: 在斜杠命令、反应和模型选择器路径中通过安全访问器读取 `channel.parentId`，使 `/new` 等命令在线程内运行时不再因部分 `GuildThreadChannel` 原型访问器抛出 "Cannot access rawData on partial Channel"。 (#69908) 感谢 @neeravmakwana。
+- Browser/Chrome MCP: `navigate_page` 调用超时时重置缓存的现有会话控制会话，避免一次卡住的导航毒害浏览器配置文件直至 Gateway 重启。 (#69733) 感谢 @ayeshakhalid192007-dev。
+- Browser/Chrome MCP: 将点击超时和中止信号传播至现有会话操作，使卡住的点击快速失败并重连，避免在 Gateway 重启前毒害浏览器工具。 (#63524) 感谢 @dongseok0。
+- Gateway/频道健康: 基于提供商证实的传输活动而非入站应用事件新鲜度恢复过时套接字，防止仅因无用户流量就重启安静的 Slack、Discord、Telegram、Matrix 和本地风格频道。 (#69833) 感谢 @bek91。
+- OpenCode Go: 将过时的内置 `opencode-go` 基础 URL 从 `/go` 或 `/go/v1` 规范化为 `/zen/go` 或 `/zen/go/v1`，避免旧生成的模型元数据继续访问 404 HTML 端点。 (#69898)
+- CLI/频道: 将 `channels.<id>.enabled=false` 作为硬性只读存在退出处理，使环境变量、清单环境变量或过时持久化认证状态不再使已禁用频道插件出现在状态、doctor 或仅设置发现中。
+- 频道/预览流: 集中化草稿预览终态化，使 Slack、Discord、Mattermost 和 Matrix 不再为空媒体/错误终态刷新临时预览消息，并保留正常回退投递的首回复线程。
+- Discord: 当命令配置了临时回复时保持斜杠命令后续块临时，使长 `/status` 输出不再向公共频道泄露回退模型或运行时细节。 (#69869) 感谢 @gumadeiras。
+- 插件/发现: 拒绝在显式运行时入口或推断的构建 JavaScript 同伴可用前逃离包目录的包插件源码入口。 (#69868) 感谢 @gumadeiras。
+- CLI/频道: 通过共享策略解析频道存在，使环境变量和过时持久化认证不再在状态、doctor、安全审计和 cron 投递验证中暴露已禁用内置插件，除非频道或插件已有效启用或显式配置。 (#69862) 感谢 @gumadeiras。
+- Control UI/配置: 在清除待处理更新时保留故意为空的原始配置快照，使重置恢复原始字节而非为空配置文件合成 JSON。 (#68178) 感谢 @BunsDev。
+- Memory-core/dreaming: 在 `openclaw memory status` 中显示 `Dreaming status: blocked`，当 dreaming 已启用但驱动托管 cron 的心跳未触发默认代理时，并在文档中添加故障排除部分，说明两个常见原因（每代理 `heartbeat` 块排除 `main`，以及 `heartbeat.every` 设为 `0`/空/无效），使 #69843 中描述的静默失败在状态表面可见。
+- Cron/运行日志: 当 `message` 工具发送匹配 cron 目标时，在已解析投递频道下报告，同时保留投递追踪的账户特定不匹配检查。 (#69940) 感谢 @davehappyminion。
+- Doctor/频道: 跨只读、已加载、设置和运行时插件发现合并配置频道 doctor 钩子，使部分适配器不再隐藏运行时兼容性修复或许可列表警告，保留已禁用频道退出并忽略格式错误的钩子值。 (#69919) 感谢 @gumadeiras。
+- Models/CLI: 在认证配置前在 `models list --all` 中显示提供商拥有的内置静态目录行，包括 Moonshot、OpenRouter 和 Vercel AI Gateway 的 Kimi K2.6 行，同时将本地和 workspace 插件目录路径隔离。 (#69909) 感谢 @shakkernerd。
+- Configure: 为 `openclaw configure` 跳过通用 CLI 启动引导并限定提示性 Gateway 探测，使 Gateway 不可用时接入 TUI 更快速到达首个提示符。 (#69984) 感谢 @obviyus。
+- Agents/harness: 直接显示选中插件 harness 失败而不通过嵌入式 PI 重放相同轮次，避免误导性的次级 PI 认证错误和重复副作用。
+- OpenAI Codex: 在浏览器 OAuth 旁新增 ChatGPT 设备代码认证选项，使无头或回调不友好的设置可无需依赖 localhost 浏览器回调即可登录。 (#69557) 感谢 @vincentkoc。
+- CLI 会话: 通过隐式每日过期保留提供商拥有的 CLI 会话同时保持显式重置行为，并在 Gateway 代理请求间保留 Claude CLI 绑定元数据。 (#70106) 感谢 @obviyus。
+- fix(config): 接受 truncateAfterCompaction (#68395)。感谢 @MonkeyLeeT
+
+## 🚀 v2026.4.21 (2026年4月22日)
+
+### ✨ 新增功能与改进
+
+- OpenAI/images: 将内置图像生成提供商和实时媒体冒烟测试默认设为 `gpt-image-2`，并在图像生成文档和工具元数据中宣传较新的 2K/4K OpenAI 尺寸提示。
+- 插件/技能: 新增技能工作坊插件，捕获可重用工作流修正为待处理或自动应用 workspace 技能，在更强完成偏差上运行基于阈值的审阅者传递，并在安全写入后刷新技能可用性。
+- 插件 SDK/频道: 新增演示和技能运行时契约，解耦频道演示渲染，记录消息演示卡片以便插件无需频道特定粘合代码即可拥有更丰富的交互表面。
+- Fireworks/模型: 在内置目录和实时模型优先级列表中新增 Kimi K2.6 (`fireworks/accounts/fireworks/models/kimi-k2p6`)，同时保持 Fireworks K2.6 请求禁用 Kimi 思考。
+- Onboard/wizard: 简化安全免责声明副本，将剩余带长动态选项列表的接入选择器切换为搜索自动补全（搜索提供商、插件配置和模型提供商过滤）。
+- 频道/预览流: 将工具进度更新流式传输至 Discord、Slack 和 Telegram 的实时预览编辑，使进行中回复在同一预览消息中显示增量工具状态直至终态化。 (#69611) 感谢 @thewilloftheshadow。
+- Ollama/接入: 从 `ollama.com/api/tags` 填充仅云模型列表，将发现列表上限设为 500，并在 ollama.com 不可用时回退至静态建议。 (#68463) 感谢 @BruceMacD。
+- QQBot: 提取自包含引擎架构，含二维码接入、`/bot-approve` 原生审批处理、每账户资源栈、凭证备份/恢复、共享媒体存储及统一 API/桥接/网关模块。 (#67960) 感谢 @cxyhhhhh。
+- Matrix/启动: 缩小 Matrix 运行时注册范围，延迟设置/doctor 表面使冷插件注册在 `setChannelRuntime` 中节省约 1.8 秒。 (#69782) 感谢 @gumadeiras。
+- Telegram/插件启动: 通过窄侧车和原生内置侧车加载加载 Telegram 内置运行时设置器，将测量设置运行时注册缩短约 14 秒，同时保留运行时 API 兼容性。 (#69786) 感谢 @gumadeiras。
+- Discord/插件启动: 延迟加载 Carbon UI 运行时并通过窄侧车加载 Discord 内置运行时设置器，将测量注册时间缩短约 98%，同时使打包安装的 Carbon 保持离线直至 Discord UI 表面需要。 (#69791) 感谢 @gumadeiras。
+
+### 🐛 问题修复
+
+- Agents/ACP: 父级向自身后台单次 ACP 子级发送时跳过 `sessions_send` A2A 乒乓流，防止父子回环同时为非父发送者保留正常 A2A 投递。 (#69817) 感谢 @scotthuang。
+- 图像生成: 在自动提供商回退前以 warn 级别记录失败的提供商/模型候选，使 OpenAI 图像失败即使后续提供商成功也在 Gateway 日志中可见。
+- Agents/子代理: 阻止终端失败子代理运行冻结或宣布捕获的回复文本，使耗尽故障转移的运行报告干净失败而非重放过时的助手/工具输出。
+- 安全/外部内容: 从包装的外部内容和元数据中剥离常见自托管 LLM 聊天模板特殊标记文字，包括 Qwen/ChatML、Llama、Gemma、Mistral、Phi 和 GPT-OSS 标记，防止针对保留用户文本特殊标记的 OpenAI 兼容后端的标记层角色边界欺骗。
+- npm/安装: 将 `node-domexception` 别名镜像至根 `package.json` `overrides`，使 npm 安装停止通过 Pi/Google 运行时依赖链显示已弃用的 `google-auth-library -> gaxios -> node-fetch -> fetch-blob -> node-domexception`。感谢 @vincentkoc。
+- 认证/命令: 要求所有者身份（所有者候选匹配或内部 `operator.admin`）执行所有者强制命令，而非将通配符频道 `allowFrom` 或空所有者候选列表视为充分，使非所有者发送者在 `enforceOwnerForCommands=true` 且 `commands.ownerAllowFrom` 未设置时不再通过宽松回退访问仅所有者命令。 (#69774) 感谢 @drobison00。
+- Control UI/CSP: 将 `img-src` 收窄至 `'self' data:`，并使 Control UI 头像辅助函数丢弃远程 `http(s)` 和协议相对 URL，使 UI 回退至内置 logo/徽章而非发起任意远程图像获取。同源头像路由（相对路径）和 `data:image/...` 头像仍正常渲染。 (#69773)
+- CLI/频道: 在 Telegram、Slack、Discord 或第三方频道插件配置时保持 `status`、`health`、`channels list` 和 `channels status` 只读频道元数据，避免在这些冷路径上全量导入内置插件运行时。修复 #69042。 (#69479) 感谢 @gumadeiras。
+- Synology Chat: 在转发至 NAS 前根据共享 SSRF 策略验证出站 webhook `file_url` 值，拒绝格式错误的 URL、非 `http(s)` 方案和私有/封锁网络目标，防止 NAS 被用作混淆代理获取内部地址。 (#69784) 感谢 @eleqtrizit。
+- LINE: 在提交至 LINE 前根据公共网络守卫验证出站媒体 URL，保留任意公共 HTTPS 媒体同时拒绝回环、链路本地和私有网络目标。
+- Gateway/Control UI: 在认证配置时要求 Control UI 头像路由（`GET /avatar/<agentId>` 和 `?meta=1` 元数据）的 Gateway 认证，匹配同级 assistant-media 路由，并通过 UI 头像获取传播现有 Gateway 令牌（承载令牌 + 认证 blob URL），使认证仪表盘仍可加载本地头像。 (#69775)
+- Google Chat/认证: 用限定 SSRF 守卫传输替换 Google 认证 `gaxios` 填充，根据可信 Google URL 验证服务账户认证端点，让插件拥有其暂存 `gaxios` 认证运行时而非修补进程级全局或根 CLI 启动路径。感谢 @vincentkoc。
+- Exec/许可列表: 在外壳审批分析期间拒绝未引用 heredocs 内部的 POSIX 参数展开形式如 `$VAR`、`$?`、`$$`、`$1` 和 `$@`，使这些 heredocs 不再作为纯文本通过许可列表审查。 (#69795) 感谢 @drobison00。
+- Gateway/MCP 回环: 从不同认证所有者与非所有者回环承载者而非调用者控制的所有者头派生仅所有者工具可见性，防止非所有者 MCP 子进程通过欺骗请求元数据恢复所有者访问。 (#69796)
+- GitHub Copilot: 在 GitHub 移除 4.6 Copilot 支持后，将默认 Opus 模型从 `claude-opus-4.6` 更新至 `claude-opus-4.7`。 (#69818) 感谢 @shakkernerd。
+- OpenShell: 将主机端沙箱写入固定在挂载根目录下，使符号链接父级重新绑定无法在本地镜像更新期间将 `writeFile` 重定向至 workspace 外。 (#69797) 感谢 @drobison00。
+- Ollama/媒体理解: 将 Ollama 注册为图像能力媒体理解提供商，使 `agents.defaults.imageModel.primary` 值如 `ollama/qwen2.5vl:7b` 通过 Ollama 插件路由而非作为未知模型失败。 (#69816) 感谢 @soloclz。
+- CLI/媒体理解: 使 `openclaw infer image describe --model <provider/model>` 执行显式图像模型而非在该模型支持原生视觉时跳过描述。
+- Usage/提供商: 当清单声明的提供商认证环境变量如 `MINIMAX_CODE_PLAN_KEY` 存在时保持插件拥有的使用认证启用，使 `/usage` 可通过提供商插件解析 MiniMax 计费凭证。
+- Tlon/上传: 将托管 Memex 上传目标和自定义 S3 预签名上传 URL 均通过共享 SSRF 守卫路由，使封锁的私有或回环目标在上载前失败，而公共上传 URL 继续通过现有托管上传流。 (#69794) 感谢 @drobison00。
+- 频道/线程路由: 通过跨内置插件共享的插件 SDK 线程感知路由构建器保持出站回复在现有 Slack、Mattermost、Matrix、Telegram、Discord 和 QA 频道线程会话中。
+- Agents/回放: 在提供商回放和提示提交前规范化恢复的助手文本内容，使遗留或修复会话不再在 `assistantMsg.content.flatMap` 上崩溃。 (#69850) 感谢 @fuller-stack-dev。
+
 ## 🚀 v2026.4.20 (2026年4月20日)
 
 ### ✨ 新增功能与改进
