@@ -2,6 +2,44 @@
 
 本文档记录 OpenClaw 官方版本的最新更新，实时同步。
 
+## 🚀 Unreleased
+
+### ✨ 新增功能与改进
+
+- Pi/models: 更新内置 pi 包至 `0.68.1`，并让 OpenCode Go 目录从 pi 获取而非插件维护的模型别名，新增 `opencode-go/kimi-k2.6`、Qwen、GLM、MiMo 和 MiniMax 条目。
+- CLI/doctor 插件: 延迟加载 doctor 插件路径，优先使用已安装插件 `dist/*` 运行时入口而非源码相邻的 JavaScript 回退，`doctor --non-interactive` 运行时测量缩短约 74%，同时在构建产物上保持冷启动 doctor 正常。 (#69840) 感谢 @gumadeiras。
+- WhatsApp/群组+私信: 将每个群组和私信的 `systemPrompt` 配置转发至入站上下文 `GroupSystemPrompt`，使配置的每个聊天行为指令在每次对话时注入。支持 `"*"` 通配符回退和 `channels.whatsapp.accounts.<id>.{groups,direct}` 下的账户级覆盖；账户映射完全替换根映射（无深度合并），与现有的 `requireMention` 模式一致。 (#59553) 感谢 @Bluetegu。
+- 插件/启动: 在支持的运行时上优先使用原生 Jiti 加载内置插件 dist 模块，内置插件加载时间缩短 82-90%，同时在转换路径上保留源码 TypeScript。 (#69925) 感谢 @aauren。
+- 插件 SDK/Pi 嵌入式运行: 新增内置插件嵌入式扩展工厂接口，使原生插件可通过异步运行时钩子（如 `tool_result` 处理）扩展 Pi 嵌入式运行，无需回退至旧版同步持久化路径。 (#69946) 感谢 @vincentkoc。
+- Tokenjuice: 新增内置原生 OpenClaw 支持 tokenjuice 作为可选插件，在 Pi 嵌入式运行中压缩嘈杂的 `exec` 和 `bash` 工具结果。 (#69946) 感谢 @vincentkoc。
+- Providers/Tencent: 新增内置腾讯云提供商插件，含 TokenHub 和 Token Plan 接入引导、文档、`hy3-preview` 模型目录条目及分层 Hy3 定价元数据。 (#68460) 感谢 @JuniperSling。
+- TUI: 新增本地嵌入式模式，无需 Gateway 即可运行终端聊天，同时保持插件审批门禁生效。 (#66767) 感谢 @fuller-stack-dev。
+- CLI/Claude: 在温暖的 stdio 会话上保持兼容的 `claude-cli` 运行，Gateway 重启或空闲退出后从存储的 Claude 会话恢复。 (#69679) 感谢 @obviyus。
+- Providers/xAI：新增图像生成、语音合成（TTS）和语音转文字（STT）支持，包括 `grok-imagine-image` / `grok-imagine-image-pro`、参考图编辑、六种实时 xAI 语音、MP3/WAV/PCM/G.711 TTS 格式、`grok-stt` 音频转录，以及 xAI 语音通话流式转录。 (#68694) 感谢 @KateWilkins
+- Providers/STT：为 Deepgram、ElevenLabs 和 Mistral 新增语音通话流式转录支持，与现有的 OpenAI 和 xAI 实时 STT 路径并存；ElevenLabs 另新增 Scribe v2 批量音频转录功能，用于入站媒体。
+- Onboarding：在设置过程中自动安装缺失的 provider 和 channel 插件，使首次运行配置无需手动恢复插件即可完成。
+- OpenAI/Responses：当启用网页搜索且未锁定托管搜索 provider 时，对直接的 OpenAI Responses 模型自动使用 OpenAI 原生的 `web_search` 工具；明确的 provider（如 Brave）则保留托管的 `web_search` 工具。
+- Models/commands：新增 `/models add <provider> <modelId>` 命令，可在聊天中注册模型而无需重启 Gateway；保留 `/models` 作为简洁的 provider 浏览器，同时添加更清晰的添加指引和便于复制使用的命令示例。 (#70211) 感谢 @Takhoffman
+- WhatsApp：新增可配置的原生回复引用功能，支持 WhatsApp 对话中的 replyToMode。 感谢 @mcaxtr
+- Agents/sessions：新增类似邮箱风格的 `sessions_list` 过滤器，支持按标签、agent 和搜索过滤，以及按可见范围派生的标题和最后消息预览。 (#69839) 感谢 @dangoZhang
+- Control UI/settings+chat：为操作者添加浏览器本地的个人身份标识（名称加本地安全的头像），将用户身份渲染路径接入 assistant 和 agent 界面共用的 chat/avatar 通道，并优化 Quick Settings、agent 后备标签和窄屏聊天布局，使个性化不再浪费空间或遮挡控件。 (#70362) 感谢 @BunsDev
+- Gateway/diagnostics：默认启用无负载的稳定性记录，并新增支持就绪的诊断导出功能，包含经清理的日志、状态、健康、配置和稳定性快照，用于错误报告。 (#70324) 感谢 @gumadeiras
+- Providers/Amazon Bedrock Mantle：通过 Mantle 的 Anthropic Messages 路由新增 Claude Opus 4.7 支持，采用 provider 自有的 bearer-auth 流式传输，使模型可真正被调用，而无需将 AWS bearer token 当作 Anthropic API key 处理。 感谢 @wirjo
+- Providers/GPT-5：将 GPT-5 prompt overlay 移入共享的 provider 运行时，使兼容的 GPT-5 模型通过 OpenAI、OpenRouter、OpenCode、Codex 等 GPT provider 获得相同的行为和心跳指引；新增 `agents.defaults.promptOverlays.gpt5.personality` 作为全局友好风格开关，同时保留 OpenAI 插件设置作为后备。
+- Providers/OpenAI Codex：从 onboarding 和 provider 发现中移除 Codex CLI 认证导入路径，使 OpenClaw 不再将 `~/.codex` OAuth 材料复制到 agent 认证存储；改用浏览器登录或设备配对。 (#70390) 感谢 @pashpashpash
+- CLI/Claude：`claude-cli` 默认以热 stdio 会话运行，包括省略传输字段的自定义配置，并在 Gateway 重启或空闲退出后从存储的 Claude 会话恢复。 (#69679) 感谢 @obviyus
+- ACPX：新增显式的 `openClawToolsMcpBridge` 选项，注入一个核心 OpenClaw MCP 服务器以提供选定的内置工具，从 `cron` 开始。
+- CLI/debugging：新增可选的临时调试计时辅助工具，用于本地 CLI 性能调查，包含可读的 stderr 输出、JSONL 捕获，以及在提交修复前移除探测器的文档说明。 (#70469) 感谢 @shakkernerd
+- Docs/i18n：为文档站新增泰语翻译支持。
+- Providers/OpenAI-compatible：将 vLLM、SGLang、llama.cpp、LM Studio、LocalAI、Jan、TabbyAPI 和 text-generation-webui 等已知本地后端标记为流式使用兼容，使它们的 token 统计不再降级为未知/陈旧的总计。 (#68711) 感谢 @gaineyllc
+- Providers/OpenAI-compatible：从 llama.cpp 风格的 `timings.prompt_n` / `timings.predicted_n` 元数据中恢复流式 token 使用量，并在累积前清理使用计数，修复兼容服务器未发出 OpenAI 格式 `usage` 对象时导致的未知或陈旧总计问题。 (#41056) 感谢 @xaeon2026
+- Plugin SDK/STT：在捆绑的 STT provider 之间共享实时转录 WebSocket 传输和分段批量转录表单辅助工具，减少 provider 插件的样板代码，同时保留代理捕获、重连、音频排队、关闭刷新、上传文件名规范化和就绪握手等功能。
+- Codex harness/hooks：将原生 Codex app-server 轮次通过 `before_prompt_build` 路由，并为原生压缩项发出 `before_compaction` / `after_compaction`，使 prompt 和压缩钩子不再与 Pi 偏离。 感谢 @vincentkoc
+- Codex harness/plugins：为异步 `tool_result` 中间件添加捆绑插件 Codex app-server 扩展接口，为 Codex 工具运行触发 `after_tool_call`，并通过 `before_message_write` 路由镜像的 Codex 转录写入，使工具集成不再与 Pi 偏离。 感谢 @vincentkoc
+- Codex harness/hooks：为原生 Codex app-server 轮次触发 `llm_input`、`llm_output` 和 `agent_end`，使生命周期钩子不再与 Pi 偏离。 感谢 @vincentkoc
+- QA/Telegram：在实时 Telegram QA 报告和摘要中记录每个场景的回复 RTT，从金丝雀响应开始。 (#70550) 感谢 @obviyus
+- Status：在 `/status` 中新增显式的 `Runner:` 字段，使会话现在可以报告其运行在嵌入式 Pi、CLI 后端 provider，还是 ACP harness agent/backend（如 `codex (acp/acpx)` 或 `gemini (acp/acpx)`）。 (#70595)
+
 ## 🚀 v2026.4.22 (2026年4月23日)
 
 > 上游官方版本，包含大量新功能和问题修复。以下为英文原文，中文翻译持续更新中。
@@ -196,6 +234,7 @@
 - Gateway/Control UI: require authenticated Control UI read access before serving `/__openclaw/control-ui-config.json` when `gateway.auth` is enabled, so unauthenticated callers can no longer read bootstrap metadata. (#70247) Thanks @drobison00.
 - Gateway/restart: default session-scoped restart sentinels to a one-shot agent continuation, so chat-initiated Gateway restarts acknowledge successful boot automatically. (#70269) Thanks @obviyus.
 - Build/npm publish: fail postpublish verification when root `dist/*` files import bundled plugin runtime dependencies without mirroring them in the root package manifest, so Slack-style plugin deps cannot silently ship on the wrong module-resolution path again. (#60112) thanks @medns.
+
 
 
 ## 🚀 v2026.4.21 (2026年4月22日)
