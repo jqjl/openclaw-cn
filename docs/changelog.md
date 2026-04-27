@@ -40,6 +40,769 @@
 - QA/Telegram：在实时 Telegram QA 报告和摘要中记录每个场景的回复 RTT，从金丝雀响应开始。 (#70550) 感谢 @obviyus
 - Status：在 `/status` 中新增显式的 `Runner:` 字段，使会话现在可以报告其运行在嵌入式 Pi、CLI 后端 provider，还是 ACP harness agent/backend（如 `codex (acp/acpx)` 或 `gemini (acp/acpx)`）。 (#70595)
 
+### 🐛 问题修复
+
+- 插件/启动：在 Gateway 启动时允许的情况下加载默认的 `memory-core` 插槽，使活动内存召回可以调用 `memory_search` 和 `memory_get` 而无需显式的 `plugins.slots.memory` 条目，同时保留 `plugins.slots.memory: "none"`。感谢 @codex。
+- 插件/CLI：对编译打包的插件 JavaScript 优先使用原生 require 而不是 jiti，使只读的 config、status、device 和 node 命令在慢速主机上避免不必要的转换开销。修复 #62842。感谢 @Effet。
+- 插件/兼容：为旧版 extension-api、内存注册、provider hook/type 别名、运行时别名、channel SDK 辅助函数和 approval/test 工具填充缺失的兼容性记录。感谢 @vincentkoc。
+- 插件/CLI：在托管插件文件被移除后刷新持久化注册表，避免 ClawHub 卸载后 `plugins list` 中留下陈旧条目。感谢 @codex。
+- 插件/CLI：使插件安装和卸载的配置写入支持冲突检测，在显式重新安装/移除时清除陈旧的 denylist 条目，仅在 config/index 提交成功后才删除托管插件文件。感谢 @codex。
+- 插件：当跟踪的插件或 hook 更新报错时让 `plugins update` 失败，将捆绑的运行时依赖修复限制在严格的 allowlist 之后，拒绝包含无法加载 extension 条目的包安装。感谢 @codex。
+- Gateway/chat：保持重复附件支持的 `chat.send` 重试使用相同幂等性键走文档化的在途路径，使中止仍指向真正的活动运行。修复 #70139。感谢 @Feelw00。
+- 插件：在安装和发现之间共享包入口点解析，拒绝不匹配的 `runtimeExtensions`，在扫描期间缓存捆绑的运行时依赖清单读取。感谢 @codex。
+
+## 🚀 v2026.4.26 Unreleased
+
+### 🐛 问题修复
+
+- Gateway/Bonjour：通过作用域进程处理程序抑制已知的 @homebridge/ciao 取消和网络断言失败，使格式错误的 mDNS 数据包或受限的 VPS 网络禁用/重启 Bonjour 而不是导致网关崩溃。修复 #67578。感谢 @zenassist26-create。
+- Discord：当 elevated 模式自动解析请求时，对已解决执行审批按钮的后续点击保持静默，同时仍然显示真正的审批提交失败。修复 #66906。感谢 @rlerikse。
+
+## 🚀 v2026.4.25 (2026年4月26日)
+
+### 亮点
+
+- 语音回复获得全面TTS升级：`/tts latest`、会话级别的自动TTS控制、语音人格、按代理/账户覆盖，以及新增Azure Speech、Xiaomi、Local CLI、Inworld、Volcengine和ElevenLabs v3提供商支持。感谢 @leonchui、@zoujiejun、@solar2ain、@cshape、@xuruiray、@itsuzef 和 @barronlroth。
+- 插件启动和安装路径移至冷持久化注册表，减少广泛的清单扫描，同时使插件更新、修复、提供商发现和安装元数据更具确定性。感谢 @vincentkoc 和 @shakkernerd。
+- OpenTelemetry覆盖扩展到模型调用、token使用、工具循环、harness运行、exec进程、出站传递、上下文组装和内存压力，提供有限低基数属性。感谢 @vincentkoc、@jlapenna、@Lidang-Jiang 和 @oc-factus。
+- 浏览器自动化获得更安全的标签页URL、支持iframe的角色快照、CDP就绪调优、无头一次性启动，以及针对慢速主机的更深层浏览器诊断探测。感谢 @beat843796 和 @BenediktSchackenberg。
+- 控制UI和设置流程添加PWA/Web Push支持、Crestodian首次运行修复、TUI设置、上下文模式选择和更短的启动问候语。感谢 @eduardocruz、@SebTardif 和 @kevinlin-openai。
+- 安装/更新加固覆盖Windows、macOS、Linux、Docker、捆绑插件运行时依赖、Node服务重启、LaunchAgent令牌轮换和混合版本网关验证。感谢 @Kobevictor、@igormf、@abhinas90、@jsompis、@Solvely-Colin 和 @gucasbrg。
+
+### ✨ 新增功能与改进
+
+- TTS/WhatsApp：添加 `/tts latest` 朗读支持，带重复抑制和 `/tts chat on|off|default` 会话级自动TTS覆盖，完成当前聊天回复的点播语音笔记UX。修复 #66032。
+- TTS/channels：通用解析渠道和账户TTS覆盖，使飞书和QQBot账户能够深度合并 `channels.<channel>.accounts.<id>.tts` 配置，覆盖全局和按代理的TTS设置。感谢 @sahilsatralkar。
+- TTS/agents：允许 `agents.list[].tts` 覆盖全局 `messages.tts` 以实现按代理语音，并让 `/tts audio`、`/tts status` 和 `tts` 代理工具遵循活动语音/提供商覆盖，同时在现有TTS配置面上保留共享提供商凭证和偏好。
+- Providers/Azure Speech：添加Azure Speech作为捆绑TTS提供商，支持Speech资源认证、语音列表、SSML转义、原生Ogg/Opus语音笔记输出和电话输出。（#51776）感谢 @leonchui。
+- Google Meet：添加日历支持的出席导出工作流、导出清单、空运行预览和会议记录工具对等。
+- Control UI：添加PWA安装支持和网关聊天的Web Push通知。（#44590）感谢 @eduardocruz。
+- 浏览器自动化：在代理响应中添加安全标签页URL，以及带iframe感知引用的CDP原生角色快照回退、光标可点击检测、目标附加准备和 `openclaw browser doctor --deep` 实时快照探测。
+- CLI/图像生成：在 `openclaw infer image generate` 和 `openclaw infer image edit` 上公开通用 `--background`，保留 `--openai-background` 作为OpenAI别名，并让fal图像生成支持 `--output-format png|jpeg`。
+- Browser/config：允许本地托管Chrome启动发现和后启动CDP就绪超时针对慢速主机（如Raspberry Pi）提高。修复 #66803。感谢 @beat843796。
+- Discord：允许 `channels.discord.voice.model` 覆盖用于语音频道响应的LLM，同时保持STT和TTS在其现有媒体设置上。（#64368）感谢 @mrdavey。
+- Browser/CLI：添加 `openclaw browser start --headless` 作为一次性本地托管浏览器启动覆盖，无需重写持久化浏览器配置。感谢 @BenediktSchackenberg。
+- CLI/Crestodian/TUI：添加首次运行设置助手、本地规划器回退、全TUI交互式Crestodian、启动进度指示器、上下文模式选择器和更短的启动问候语。（#71720、#71760）感谢 @SebTardif 和 @kevinlin-openai。
+- Plugins：软件包安装/更新期间自动迁移本地插件注册表，将安装元数据保存在插件索引中，同时为新的冷注册表路径索引现有插件清单。感谢 @vincentkoc 和 @shakkernerd。
+- Plugins/doctor：使 `openclaw doctor --fix` 在需要时刷新插件索引和冷注册表索引，不将插件安装记录视为已编写配置。感谢 @vincentkoc 和 @shakkernerd。
+- Plugins/hooks：添加 before-agent-finalize hooks、cron `jobId` hook上下文、有界原生权限指纹和Codex MCP hook中继支持。（#71765、#71758、#71707）感谢 @vincentkoc 和 @pashpashpash。
+- Plugins/tokenjuice：将捆绑的tokenjuice运行时升级到0.6.3。感谢 @vincentkoc。
+- Diagnostics/OTEL：将模型调用GenAI span属性与OpenTelemetry稳定性opt-in语义对齐，默认保留遗留 `gen_ai.system`，同时在 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` 下发出 `gen_ai.provider.name`。感谢 @vincentkoc。
+- Diagnostics/OTEL：支持通过配置或标准OTEL环境变量对traces、metrics和logs进行信号特定的OTLP端点覆盖。感谢 @vincentkoc。
+- Diagnostics/OTEL：在启动和日志导出失败时发出有界遥测导出器健康诊断，不导出原始错误文本。感谢 @vincentkoc。
+- Diagnostics/OTEL：将代理harness生命周期遥测导出为有界 `openclaw.harness.run` spans和 `openclaw.harness.duration_ms` metrics，使QA实验室、Codex和未来harness共享一种trace形状。感谢 @vincentkoc。
+- Diagnostics/trace：从可信模型调用trace上下文传播W3C `traceparent`头到提供商传输，同时替换调用者提供的traceparent值。感谢 @vincentkoc。
+- Diagnostics/Prometheus：添加捆绑的 `diagnostics-prometheus` 插件，带受保护的网关抓取路由用于低基数诊断metrics。感谢 @vincentkoc。
+- Plugins/CLI：添加 `openclaw plugins registry` 用于显式持久化注册表检查和 `--refresh` 修复，不会在正常启动时重新扫描插件位置。感谢 @vincentkoc。
+- Plugins/CLI：使 `openclaw plugins list` 默认读取冷持久化注册表快照，将模块感知诊断留给 `plugins doctor` 和 `plugins inspect`。感谢 @vincentkoc。
+- Plugins/启动：将网关启动插件规划移至版本化冷注册表索引，并为早于启动元数据的旧注册表文件提供安装后修复。感谢 @vincentkoc。
+- Plugins/启动：通过注册表别名规范化启动和提供商插件启用，使引导路径不需要遗留清单别名扫描。感谢 @vincentkoc。
+- Providers/plugins：从冷插件注册表解析提供商所有权、提供商发现范围和目录hook提供商ID，而不是在这些路径上重新扫描清单。感谢 @vincentkoc。
+- Plugins/registry：让已安装插件索引记录专注于安装/状态/加载路径，并从索引插件范围内的清单解析插件能力。感谢 @shakkernerd。
+- Plugins/registry：通过已安装插件索引路由冷清单和能力查找，使设置、渠道、配置、secrets、doctor和提供商元数据路径在运行时执行前避免广泛的插件根扫描。感谢 @shakkernerd。
+- CLI/models：通过已安装插件索引加载目录行，加快静态清单支持的提供商的 `models list --all --provider <id>`，而不是广泛清单扫描或运行时抑制hooks。感谢 @shakkernerd。
+- CLI/models：使用OpenClaw Provider Index预览行作为可安装提供商的最终冷回退，同时在提供商索引元数据之上保持用户配置、已安装清单和刷新缓存行。感谢 @vincentkoc。
+- Providers/plugins：保持 onboarding 和 auth-choice 设置列表基于冷清单/安装元数据，并为尚未安装的提供商插件添加Provider Index安装元数据。感谢 @vincentkoc。
+- Providers/plugins：基于冷清单元数据保持提供商设置指导和配置auth导入，对静态提供商运行时导入设置/配置列表路径进行回归保护。感谢 @vincentkoc。
+- CLI/capabilities：保持能力命令注册，直到 `model auth login` 实际运行才导入models auth运行时。感谢 @vincentkoc。
+- CLI/configure：保持web-search配置提示基于冷插件注册表元数据，直到用户选择托管搜索设置。感谢 @vincentkoc。
+- Plugins/聊天命令：在 `/plugins enable` 和 `/plugins disable` 后刷新持久化插件注册表，与CLI变更路径匹配。感谢 @vincentkoc。
+- Plugins/兼容：将 `OPENCLAW_DISABLE_PERSISTED_PLUGIN_REGISTRY` 标记为已弃用的紧急开关，引导操作员使用注册表修复。感谢 @vincentkoc。
+- Plugins/兼容：扩展中心兼容性注册表，添加日期所有者、替换项和最长三个月移除目标，用于遗留SDK、清单、设置、注册表迁移和代理运行时面。感谢 @vincentkoc。
+- Plugins/registry：当插件策略不再匹配当前配置时忽略过时的持久化注册表读取，并在生成的注册表文件中标注请勿编辑警告。感谢 @vincentkoc。
+- Config/plugins：保持插件命令别名验证基于冷清单元数据，而不是导入运行时别名解析器。感谢 @vincentkoc。
+- Security/plugins：保持web-search凭证存在检查基于冷配置、环境和清单元数据，而不是导入web-search提供商运行时。感谢 @vincentkoc。
+- Diagnostics/OTEL：将提供商请求标识符作为有界哈希显示在模型调用诊断和span事件上，不导出原始请求ID或metrics标签。感谢 @Lidang-Jiang 和 @vincentkoc。
+- Plugins/诊断：添加仅元数据的 `model_call_started` 和 `model_call_ended` hooks，用于提供商/模型调用遥测，不暴露prompts、响应、头、请求体或原始提供商请求ID。感谢 @vincentkoc。
+- Diagnostics/OTEL：发出有界上下文组装诊断并导出 `openclaw.context.assembled` spans，包含prompt/历史大小，但不包含prompt、历史、响应或会话密钥内容。感谢 @vincentkoc。
+- Diagnostics/OTEL：将现有工具循环诊断导出为 `openclaw.tool.loop` 计数器和spans，不包含循环消息、会话标识符、参数或工具输出。感谢 @vincentkoc。
+- Diagnostics/OTEL：导出诊断内存样本和压力为有界内存直方图、计数器和压力spans，帮助发现泄漏回归，不包含会话或有效载荷数据。感谢 @vincentkoc。
+- Diagnostics/OTEL：添加GenAI `gen_ai.client.token.usage` 直方图用于输入/输出模型使用，同时将会话标识符和聚合缓存计数器排除在语义metric之外。感谢 @vincentkoc。
+- Diagnostics/OTEL：添加有界 `openclaw.agent` 标签到OpenClaw token metrics，使per-agent Grafana仪表板可以分组使用，而不导出会话标识符。感谢 @oc-factus。
+- Plugins/安装：将托管插件安装元数据合并到状态管理的插件索引 `plugins/installs.json`，替换临时 `plugins/installed-index.json` 路径，并移除 `plugins.installs` 作为已编写配置面。感谢 @vincentkoc 和 @shakkernerd。
+- Diagnostics/OTEL：添加GenAI `gen_ai.client.operation.duration` 直方图用于模型调用延迟（秒），包含有界provider/model/API和错误属性。感谢 @vincentkoc。
+- Diagnostics/OTEL：将GenAI使用token属性添加到模型使用spans，包括缓存读取/写入输入token计数，但不包含会话标识符或prompt/响应内容。感谢 @vincentkoc。
+- Diagnostics/OTEL：在模型使用spans上包含有界GenAI操作、提供商和请求模型属性，使token使用保持自描述而不包含诊断标识符。感谢 @vincentkoc。
+- Diagnostics/OTEL：保持模型使用span GenAI提供商属性与现有语义约定opt-in策略对齐，除非启用最新实验性GenAI约定，否则使用遗留 `gen_ai.system`。感谢 @vincentkoc。
+- Diagnostics/OTEL：保持 `gen_ai.request.model` 存在于GenAI token使用metrics中，当模型使用事件不包含模型时使用有界 `unknown` 回退。感谢 @vincentkoc。
+- Docs/OTEL：记录GenAI token和模型调用持续时间metrics、模型使用span属性以及 `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental` 提供商属性行为。感谢 @vincentkoc。
+- Docs：刷新MCP、模型提供商、doctor、故障排除、BlueBubbles、媒体生成、TTS、子代理、skills、cron/任务、exec审批和语音通话指南，包含结构化步骤、标签页和折叠内容。
+- Diagnostics/trace：添加内部traceparent传播辅助函数，仅格式化可信调度程序元数据，默认将插件发出的诊断traces排除在出站传播之外。感谢 @vincentkoc。
+- Diagnostics/OTEL：添加有界出站消息传递生命周期诊断并将其导出为低基数传递spans/metrics，不包含消息体、收件人、房间或媒体路径数据。（#71471）感谢 @vincentkoc 和 @jlapenna。
+- Diagnostics/OTEL：发出有界exec进程诊断并将其导出为 `openclaw.exec` spans，不暴露命令文本、工作目录或容器标识符。（#71451）感谢 @vincentkoc 和 @jlapenna。
+- Diagnostics/OTEL：支持 `OPENCLAW_OTEL_PRELOADED=1`，以便插件可以重用已注册的OpenTelemetry SDK，同时保持OpenClaw诊断监听器连接。（#71450）感谢 @vincentkoc 和 @jlapenna。
+- Providers/Xiaomi：添加MiMo TTS作为捆绑语音提供商，支持MP3/WAV输出和语音笔记Opus转码。修复 #52376。（#55614）感谢 @zoujiejun。
+- Providers/ElevenLabs：在捆绑TTS模型目录中包含 `eleven_v3`，以便模型选择界面可以提供ElevenLabs v3。（#68321）感谢 @itsuzef。
+- Providers/Local CLI TTS：添加捆绑的本地命令语音提供商，支持文件/stdout输入、语音笔记Opus转换和电话PCM输出。（#56239）感谢 @solar2ain。
+- Providers/Inworld：添加Inworld作为捆绑语音提供商，支持流式TTS合成、语音列表、语音笔记输出和PCM电话输出。（#55972）感谢 @cshape。
+- Providers/Volcengine：添加Volcengine/BytePlus Seed Speech作为捆绑TTS提供商，支持API密钥认证、原生Ogg/Opus语音笔记输出和MP3音频文件输出。（#55641）感谢 @xuruiray。
+- Android/对话模式：在语音标签页中公开对话模式，提供运行时拥有的语音捕获模式和麦克风前台服务升级。感谢 @alex-latitude。
+- Providers/LiteLLM：注册 `litellm` 作为图像生成提供商，以便 `image_generate model=litellm/...` 调用和 `agents.defaults.imageGenerationModel.fallbacks` 条目通过LiteLLM代理解析。感谢 @zqchris。
+- Providers/fal：添加Seedance 2.0参考转视频模型，支持多图像、视频和音频参考输入映射，以及 `video_generate` 的模型特定能力限制。感谢 @shivanker。
+- Codex harness：要求Codex app-server `0.125.0` 或更高版本，并通过OpenClaw hook中继覆盖原生MCP `PreToolUse`、`PostToolUse` 和 `PermissionRequest` 有效载荷。
+- Agents/Codex：教prompts和 `agents_list` 显示原生Codex app-server可用性，使代理优先使用 `/codex ...` 而不是Codex ACP，除非明确指定ACP/acpx。感谢 @vincentkoc。
+- ACPX/Droid：在实时ACP绑定Docker矩阵中添加Factory Droid，包括 `.factory` 设置暂存、`FACTORY_API_KEY` 转发和单代理 `test:docker:live-acp-bind:droid` 配方。
+- TTS/personas：添加提供商感知的TTS人格，具有确定性提供商绑定合并、`/tts persona` 控制、网关/CLI人格状态、Google Gemini `audio-profile-v1` prompt包装和OpenAI指令映射。（#70748）感谢 @barronlroth。
+- 语音唤醒：添加基于触发器的路由，使macOS语音唤醒短语可以选择的配置代理或会话目标，具有网关路由API和节点更新事件。（#30354）感谢 @longbiaochen。
+
+### 🐛 问题修复
+
+- Agents/子代理：通过直接回退将已完成的yielded子代理结果传回无线程请求者路由，当休眠父公告轮次产生无可见回复时，并添加该回归的QA-lab覆盖。感谢 @vincentkoc。
+- Gateway/Tailscale：让带有浏览器设备身份的Tailscale认证Control UI操作员会话跳过设备配对往返，同时仍拒绝无设备和节点角色连接。引用 #71986。感谢 @jokedul。
+- Doctor：遵守 `OPENCLAW_SERVICE_REPAIR_POLICY=external`，报告网关服务健康状况，同时跳过外部管理环境的安装/启动/重启/引导、监督重写和遗留服务清理。感谢 @shakkernerd。
+- CLI/更新：使用 `--fix` 运行软件包更新后doctor，以便软件包更新在重启前修复配置迁移。感谢 @shakkernerd。
+- CLI/更新：使用 `--omit=optional` 重试失败的npm全局更新，并在回退成功时忽略超出的首次失败。感谢 @shakkernerd。
+- Plugins/卸载：当插件ID更改或选定的插件被移除时，随内存槽一起迁移和重置 `plugins.slots.contextEngine`。感谢 @shakkernerd。
+- Agents/Discord：将原始 `Agent failed before reply` 运行器故障保留在Discord群组/频道聊天之外，仅在启用 `/verbose` 时在直接消息中显示详细运行器错误。感谢 @codex。
+- UI/Windows：在生成UI安装/构建/测试命令之前引用已解析的pnpm `.cmd` 启动器路径，使Node安装在 `C:\Program Files` 下不再因 `C:\Program` 而失败。修复 #45275。感谢 @Kobevictor、@stoppieboy 和 @iubns。
+- Codex/agent：在请求构建时将 `--thinking minimal` 翻译为现代Codex模型（gpt-5.5、gpt-5.4、gpt-5.4-mini、gpt-5.2）的 `low`，使第一轮被接受而不是支付浪费的调用+重试与低回退。较旧的Codex模型仍直接接收 `minimal`。修复 #71946。感谢 @hclsys。
+- Plugins/卸载：当当前状态目录指向其他位置时，从记录的托管扩展根中移除跟踪的插件文件，以便 `openclaw plugins uninstall --force` 不会使插件可被发现。感谢 @shakkernerd。
+- Agents/运行时：添加 `agentRuntime.id` 作为规范配置密钥，使用 `openclaw doctor --fix` 迁移遗留运行时策略配置，通过 `claude-cli` 路由规范Anthropic模型，而不将CLI后端别名传递给嵌入式harness选择，并在渠道启动前加载CLI后端所有者插件。修复 #71957。感谢 @WolvenRA。
+- CLI/更新：通过状态和超时守卫Windows计划任务停止，以便自动更新重启不会在 `schtasks /End` 上的陈旧监听器清理上无限挂起。修复 #69970。感谢 @yangswld 和 @sherlock-huang。
+- Windows安装/Lobster：当 `npm_execpath` 指向原生pnpm二进制文件时直接执行 `pnpm.exe`，为Lobster嵌入式运行时添加已安装包回退，并在Windows CI中包含Lobster运行器回归测试。修复 #69456。感谢 @igormf。
+- Gateway/安装：当当前服务嵌入陈旧网关auth而不是返回已安装时，刷新已加载的网关服务安装，避免令牌轮换后LaunchAgent令牌不匹配循环。修复 #70752。感谢 @hyspacex。
+- 更新：在全局安装验证和打包dist修剪期间忽略捆绑插件 `.openclaw-install-stage` 目录，使遗留运行时依赖暂存文件不会将成功更新转为"意外的打包dist文件"故障。修复 #71752。感谢 @waynegault。
+- CLI/更新：当更新后插件同步失败时使软件包更新失败，并在信任未更改的工件前刷新遗留npm插件安装记录，防止成功更新以陈旧或失败插件状态重启。感谢 @vincentkoc 和 @shakkernerd。
+- Release/更新：在软件包清单生成之前拒绝预填充的捆绑插件 `.openclaw-install-stage` 目录，包括混合大小写路径变体，使发布tarball无法发送中毒的运行时依赖暂存碎片。修复 #71752。感谢 @hclsys。
+- Node运行时：在网关重启后保持节点主机重试计时器活动，并在终端凭证暂停时退出，使受监管节点不会成为静默僵尸。修复 #69800。感谢 @meroli28。
+- Gateway/插件：阻止持久化WhatsApp auth状态在启动期间激活捆绑渠道运行时依赖修复当 `channels.whatsapp` 不存在时，避免npm/git在打包Linux安装上stall。修复 #71994。感谢 @xiao398008。
+- Gateway/设备令牌：在令牌轮换和撤销内执行调用者范围containment，以便仅配对会话无法更改更高范围的operator令牌。修复 #71990。感谢 @coygeek。
+- Plugins/渠道：保持安全检查、线程绑定放置、提供商摘要、健康格式化和消息操作标签在只读或已加载渠道元数据上，而不是导入完整渠道运行时。感谢 @shakkernerd。
+- Plugins/状态：保持仅配置渠道标签和状态安全摘要，而不导入插件运行时模块来渲染元数据。感谢 @shakkernerd。
+- Sessions/渠道：阻止组会话元数据加载捆绑渠道运行时来分类 `#channel` 主题，仅使用已加载渠道能力在该路径上。感谢 @shakkernerd。
+- Plugins/渠道：保持原生命令和原生技能 `auto` 默认值在静态渠道元数据上，以便配置、审计和命令列表检查不在仅读取这些默认值时加载渠道运行时。感谢 @shakkernerd。
+- CLI/渠道：保持渠道移除选择和全渠道能力摘要在只读插件元数据上，仅对选定的变更路径加载渠道运行时。感谢 @shakkernerd。
+- CLI/models：当所有权提供程序插件被禁用时，将Provider Index预览行保留在 `models list --all --provider <id>` 之外，保留冷目录回退的配置权威。感谢 @shakkernerd。
+- CLI/模型运行：将 `openclaw infer model run` 保持在显式OpenRouter模型上，不加载完整提供商目录或继承聊天代理静默回复策略，恢复非空一次性探测输出。修复 #68791。感谢 @limpredator。
+- 安装程序/macOS：当发生原始模式ioctl失败时，不使用gum spinner重新运行Homebrew安装步骤，避免声称 `node@24` 已安装而Homebrew keg二进制文件缺失。修复 #70411。感谢 @1fanwang 和 @dad-io。
+- 安装程序：在Node.js检测之前加载nvm，以便 `curl | bash` 安装尊重nvm管理的Node而不是陈旧系统Node。修复 #49556。感谢 @heavenlxj。
+- 安装程序/Windows：通过顶级处理程序路由PowerShell安装失败，以便 `iwr ... | iex` 将控制权返回给当前shell，而直接脚本文件运行仍以非零退出。修复 #38054。感谢 @PwrSrg。
+- CLI/Volta：当当前Node可执行文件解析为 `volta-shim` 时，通过命名的 `node` shim重新生成原始 `openclaw` CLI运行，避免在非交互式shell中直接shim执行失败。修复 #68672。感谢 @sanchezm86。
+- 安装程序：当多个npm全局根包含OpenClaw安装时发出警告，显示活动Node/npm/openclaw以及每个安装路径和版本，使陈旧版本管理器安装可见。修复 #40839。感谢 @zhixianio。
+- Cron/任务：从持久运行日志和作业状态恢复已完成的cron任务账本记录，然后在将其标记为"丢失"之前减少隔离cron运行的虚假"支持会话缺失"审计错误，并保持离线CLI审计不将其空的本地cron活动作业集视为权威。修复 #71963。
+- Docker：将修补的依赖文件复制到运行时镜像，以便下游 `pnpm install` 层继续工作。修复 #69224。感谢 @gucasbrg。
+- 软件包：在已发布的npm软件包中包含修补的依赖文件，以便下游安装可以解析 `patchedDependencies`。（#69224）感谢 @gucasbrg 和 @vincentkoc。
+- Plugins/渠道：将有缺陷的捆绑渠道插件加载器（返回 `undefined`）视为不可用，而不是崩溃配置和帮助路径。修复 #69044。感谢 @frankhli843 和 @vincentkoc。
+- Scripts/watch：当 `gateway:watch` 在watcher启动期间失败时，显示损坏的依赖包配置恢复指导，不重复记录无关的导入失败。（#58780）感谢 @roytong9 和 @vincentkoc。
+- Signal：通过Node的HTTP客户端读取signal-cli RPC、健康检查和SSE事件，以便Node 24/25 fetch回归不会破坏Signal发送或入站事件。修复 #51716 和 #53040。感谢 @Barukimang、@minupla 和 @vincentkoc。
+- Skills/Docker：使用OpenClaw管理的用户前缀运行npm支持技能依赖安装，使非root Docker镜像不写入 `/usr/local`。修复 #59601。感谢 @chanjarster 和 @vincentkoc。
+- Agents/运行时：将心跳、cron和exec唤醒作为瞬态运行时上下文提交，而不是可见用户prompts，使合成系统工作远离聊天记录。修复 #66496 和 #66814。感谢 @jeades 和 @mandomaker。
+- Telegram：自动为线程回复和回复标签包含原生引用摘录，当原始Telegram文本可用时不添加另一个配置旋钮。修复 #6975。感谢 @rex05ai。
+- Node/Linux：使 `openclaw node install` 启用并重启节点专用VM上的 `openclaw-node` systemd单元而不是网关单元。修复 #68287。感谢 @dlebee-agent。
+- Browser/CDP：在发送任何浏览器命令之前重试瞬态原始CDP WebSocket握手失败，并重新连接陈旧的持久化Playwright CDP会话以安全读取标签页列表，而不重放变更浏览器操作。修复 #67728。
+- Gateway/Linux：当 freshly written 网关单元在迁移的systemd安装上尚不可见时，在第二次守护进程重载后重试 `systemctl --user enable`。修复 #65184。感谢 @liushuaiiu。
+- Telegram：发送原生引用回复时保留精确的选择引用文本，如果Telegram拒绝引用参数则使用遗留回复重试。（#71952）感谢 @rubencu。
+- Plugins/CLI：在冷 `openclaw plugins list` 输出中保留清单名称、描述、格式和源元数据，不导入插件运行时。感谢 @shakkernerd。
+- Security/审计：从只读插件索引元数据读取渠道暴露和插件allowlist所有权，以便冷审计不依赖已加载渠道运行时。感谢 @shakkernerd。
+- Plugins/聊天：保持 `/plugins list`、`/plugins enable` 和 `/plugins disable` 在持久化插件索引路径上，以便聊天插件管理不在执行前加载诊断/运行时插件注册表。感谢 @shakkernerd。
+- Plugins/doctor：通过已安装索引清单元数据读取工作区插件状态和遗留web-search所有权，而不是广泛的清单注册表扫描。感谢 @shakkernerd。
+- CLI/agents：文本 `agents list` 输出的渠道提供商状态从只读插件索引元数据读取，而不是从已加载渠道注册表读取。感谢 @shakkernerd。
+- 日志记录：在控制台和文件日志sink出口处对配置的secret模式进行redact，以便到达日志的凭证在终端显示或JSONL持久化之前被屏蔽。修复 #67953。感谢 @Ziy1-Tan。
+- Gateway/服务：当配置由更新版本编写时，拒绝来自较旧OpenClaw二进制文件的进程和服务变更，防止split-brain安装停止或重写更新网关服务。修复 #57079。
+- Gateway：保留 `/healthz` 和 `/readyz` 在插件、canvas和Control UI HTTP阶段之前，以便当后续路由处理器stall时liveness/readiness探针仍能响应。修复 #69674。感谢 @Xike-Creek。
+- 日志记录：在捆绑运行时直接从活动OpenClaw配置路径加载 `logging.file` 和redaction设置，以便打包网关停止回退到 `/tmp/openclaw`。修复 #59370、#67168 和 #61295。感谢 @KeaneYan、@Pan9hu 和 @zsjlovelike。
+- 日志记录：在 `logging.maxFileBytes` 处轮换文件日志，保持有限编号归档，并使长期运行的滚动日志记录器跟随当前日期文件，而不是抑制诊断或写入陈旧日期文件。修复 #58583 和 #62381。感谢 @jpeghead 和 @zhaoleink。
+- Agents/组：仅对允许静默回复的始终在线组将干净的空助手停止视为静默 `NO_REPLY`，同时保持直接和提及门控会话在 incomplete-turn 重试路径上。感谢 @MagnaAI。
+- macOS/Node：保持原生远程应用节点不广告 `browser.proxy`，通过恢复的 `openclaw node start` 命令启动支持浏览器的CLI节点服务，并在本地控制服务缺失时显示可操作的浏览器控制错误。修复 #66637。
+- Gateway/更新：当重启的托管网关报告错误版本时使软件包更新失败，包括回退重启和JSON模式，避免macOS LaunchAgent更新后false-success混合版本重启。修复 #71835。感谢 @abhinas90 和 @jsompis。
+- Gateway/更新：在目标卷看起来磁盘空间不足时，在软件包更新和捆绑插件运行时依赖修复之前发出警告，不在尽力而为文件系统检查上阻止安装。修复 #71835。感谢 @abhinas90 和 @jsompis。
+- Plugins/运行时依赖：在健康状况中显示激活插件加载失败，并在捆绑运行时依赖仍无法加载时使软件包更新重启验证或doctor修复失败，避免false-success修复。（#71883）感谢 @Solvely-Colin。
+- Gateway/Linux：在生成的服务PATH中包含 fnm `aliases/default/bin`，并让doctor接受现代fnm别名或遗留 `current/bin` 符号链接，避免false PATH修复提示。修复 #68169。感谢 @richard-scott。
+- 安装程序/Linux：使用noninteractive dpkg和needrestart设置运行apt安装，使新的Ubuntu 24.04 `curl | bash` 安装在安装Node.js、Git或构建工具时不会挂起。修复 #41146。感谢 @iht76、@alexcarv318、@cs3gallery、@firofame 和 @cgdusek。
+- Providers/Bedrock：延迟AWS SDK导入直到Bedrock发现实际运行，以便插件注册和设置在冷启动时保持轻量。修复 #71690。感谢 @jarvis-ai-gregmoser。
+- 安装程序/macOS：当Homebrew `node@24` 安装失败时立即停止，避免为缺失的Homebrew Node安装打印PATH建议。修复 #70411。感谢 @1fanwang。
+- WhatsApp：当 `messages.removeAckAfterReply` 启用时，在可见回复后移除ack reactions，与其他支持reaction的渠道匹配。修复 #26183。感谢 @MrUnforsaken。
+- Providers/Z.AI：将OpenClaw thinking控件映射到Z.AI的 `thinking` 有效载荷，并通过 `params.preserveThinking` 添加可选保留thinking重放，以便GLM 5.x可以在请求时保留先前的 `reasoning_content`。修复 #58680。感谢 @xuanmingguo。
+- Channels/状态：默认将只读渠道列表保留在清单和包元数据上，仅对显式回退调用者加载设置运行时。感谢 @shakkernerd。
+- Plugins：将设置和web-provider元数据清单读取范围限定为显式插件ID，当调用者已经知道所有权插件集时。感谢 @vincentkoc。
+- Plugins/onboarding：推迟onboarding安装记录索引写入直到受保护的配置提交，以便设置失败不会将插件索引超前于 `openclaw.json`。感谢 @shakkernerd。
+- Plugins/registry：从已安装插件索引解析web provider所有权，而不是在secret、tool和定价路径上进行广泛清单扫描。感谢 @vincentkoc。
+- Config/providers：接受配置模型 `input` 值中的 `video` 和 `audio`，并在提供商目录条目中保留它们。修复 #20721。感谢 @alvinttang。
+- Models/auth：遵守auth写入命令（`add`、`login`、`setup-token`、`paste-token` 和GitHub Copilot快捷方式）的父 `--agent` 标志，以便OAuth/API-key/token结果写入请求的代理存储而不是默认代理。修复 #71864。（#71933）感谢 @balric-seo。
+- TTS：从流式块文本中剥离模型发出的TTS指令后再进行渠道传递，包括跨相邻块分割的指令，同时保留累积的原始回复用于最终模式合成。修复 #38937。
+- TTS：将显式 `provider=...` 指令密钥限制在该提供商的范围内，并对不支持的密钥发出警告，而不是让另一个语音提供商使用重叠密钥。修复 #60131。
+- TTS/飞书：在传递前规范化最终模式流式TTS纯音频，以便生成的语音笔记文件使用与正常最终回复相同的安全媒体路径和原生语音路由。修复 #71920。
+- 飞书：在代理分派前使用共享媒体音频路径转录入站语音笔记音频，并将原始飞书 `file_key` 有效载荷排除在消息文本之外。修复 #67120 和 #61876。
+- 任务：从网关运行结果中终止async网关代理任务记录，同时保留aborted、failed和cancelled结果，而不是让完成的运行保持active或lost状态。（#71905）感谢 @likewen-tech。
+- WhatsApp：让授权群组语音笔记transcripts在回复分派前满足提及门控，同时将未提及的transcripts保留在待处理群组历史中。修复 #44908。
+- 媒体理解：将渠道语音笔记preflight状态携带到附件选择中，以便WhatsApp、飞书、Telegram和Discord不会重复转录同一入站音频。修复 #70580。
+- TTS/BlueBubbles：将兼容自动TTS音频作为iMessage语音备忘录气泡传递，而不是普通MP3/CAF文件附件。修复 #16848。
+- TTS：根据渠道插件能力解析语音笔记和语音备忘录路由，而不是语音核心拥有的渠道ID列表。
+- ACP：将子代理和async-task完成唤醒作为普通prompts发送到外部ACP harnesses，而不是OpenClaw内部运行时上下文信封，同时将这些信封排除在ACP记录之外。
+- TTS/状态：在 `/status` 中显示配置的TTS模型、语音和清理的自定义端点，在自定义端点上保留OpenAI兼容TTS指令，空Microsoft/Edge TTS输出重试一次。解决 #46602、#47232 和 #43936。感谢 @leekuangtao、@Huntterxx 和 @rex993。
+- Agents/Gateway：通过owner-only `gateway` 工具引导代理驱动的配置编辑和重启，将 `config.schema.lookup` 记录为字段文档来源，并警告不要在macOS上使用 `gateway stop && gateway start` 作为重启替代。修复 #71929。感谢 @ygc3817922006-sketch。
+- 媒体理解/audio：为太小的语音笔记注入确定性transcript占位符，以防止代理产生transcription或提供商故障的幻觉。修复 #48944。感谢 @eulicesl。
+- Providers/vLLM：当thinking关闭时发送Nemotron 3 chat-template kwargs，并为OpenAI兼容completions遵守配置的 `params.chat_template_kwargs`，使vLLM/Nemotron回复保持可见而不是仅成为thinking。修复 #71891。感谢 @jmystaki-create 和 @dennis-lynch。
+- Channels/回复：从面向用户的助手回复和模型重放历史中剥离复制的入站元数据块，使Discord/vLLM会话在模型回显后不会泄漏 `Conversation info` / `UNTRUSTED ... message body`信封。修复 #71847。感谢 @jmystaki-create。
+- Matrix/cron：在创建隐式公告提醒作业时保留实时Matrix传递目标，使混合大小写的room ID不会从小写会话密钥重新构建。修复 #71798。
+- 飞书：接受Schema 2.0卡片动作回调，报告 `context.open_chat_id` 而不是遗留 `context.chat_id`，使按钮回调不再因格式错误而丢弃。修复 #71670。感谢 @eddy1068。
+- 飞书：将合成卡片动作和机器人菜单ID排除在平台回复目标之外，当飞书提供时使用真实卡片回调消息ID，否则使用纯文本发送。修复 #71673。感谢 @eddy1068。
+- Plugins/QQ Bot：优先使用声明替换捆绑 `qqbot` 渠道的已安装QQ Bot插件，防止重复的 `qqbot_channel_api` 和 `qqbot_remind` 工具注册噪音。修复 #63102。
+- 浏览器自动化：在Chromium在表单提交或其他操作触发的导航后替换原始目标时保持稳定的标签页ID和标签，并在匹配可验证时从 `/act` 返回替换的 `targetId`。修复 #46137。
+- QQ Bot：使 `qqbot_remind` 直接为授权发送者安排、列出和移除网关cron作业，而不是返回 `cronParams` 并依赖后续通用 `cron` 工具调用。修复 #70865。（#70937）感谢 @GaosCode。
+- Agents/ACP：除非加载了ACP后端，否则隐藏 `sessions_spawn` ACP运行时选项，并让 `/acp doctor` 指出阻止捆绑 `acpx` 的 `plugins.allow`。感谢 @vincentkoc。
+- Agents/Codex：除非ACP运行时后端可用，否则保持ACP prompt/skill路由隐藏，并在doctor中警告已启用Codex插件配置仍然通过PI路由 `openai-codex/*` 模型。感谢 @vincentkoc。
+- 媒体传递：当助手回复已包含同一轮次的显式 `MEDIA:` 行时，避免重复发送生成的图像附件，并在传递前拒绝不安全的远程 `MEDIA:` URL。感谢 @pashpashpash。
+- Codex harness：在Codex恢复后忽略可重试的app-server错误通知，并为终端app-server失败保留真实嵌套错误消息，而不是将其替换为通用失败。感谢 @pashpashpash。
+- Agents/Codex：准备原生Codex子代理会话元数据，不使用嵌套网关会话补丁，并为app-server子代理路径添加专注的Docker smoke测试。感谢 @vincentkoc。
+- Agents/子代理：仅当请求者没有外部渠道目标时保持排队的子代理公告为会话级别，避免歧义多渠道传递失败。修复 #59201。感谢 @larrylhollan。
+- 图像理解：当调用者请求不带提供商前缀的模型时，保留配置的前缀视觉模型元数据，使自定义图像模型保持其 `input: ["text", "image"]` 能力。修复 #33185。感谢 @Kobe9312 和 @vincentkoc。
+- Plugins/安装：如果并发配置写入冲突中断安装、更新或卸载元数据提交，则恢复之前的插件索引记录。感谢 @shakkernerd。
+- Plugins/安装：拒绝不包含有效 `openclaw.plugin.json` 的原生插件归档，防止无清单归档写入安装记录，以免日后显示缺失清单诊断。感谢 @shakkernerd。
+- Plugins/卸载：移除跟踪的托管插件安装目录，即使持久化安装路径与默认ID派生目标不同，同时仍拒绝在托管扩展根之外删除。感谢 @shakkernerd。
+- Plugins/更新：如果核心更新或渠道设置在插件元数据更改后遇到并发配置写入冲突，则恢复之前的插件索引记录。感谢 @shakkernerd。
+- Plugins/onboarding：将渠道/提供商插件安装记录推迟到所属配置写入提交，以保持设置失败不会将插件索引超前于 `openclaw.json`。感谢 @shakkernerd。
+- Plugins/config：使用插件索引提交辅助函数路由带待处理插件安装记录的configure和代理设置写入，以免提供商onboarding元数据被普通配置写入剥离。感谢 @shakkernerd。
+- Plugins/渠道：在配置写入之前将待处理渠道插件安装记录与现有插件索引合并，在渠道设置、解析、移除和能力修复流程中保留无关跟踪安装。感谢 @shakkernerd。
+- Plugins/config：将已交付的 `plugins.installs` 索引迁移推迟到配置写入期间，直到受保护的配置提交窗口，并在配置写入在提交前失败时回滚。感谢 @shakkernerd。
+- Sessions：通过作为隐藏的下一轮自定义消息发送来保持嵌入式运行时上下文不在可见用户prompt中，并教doctor修复受影响的2026.4.24记录（包含重复的prompt-rewrite分支）。修复 #71761。
+- Gateway/子代理：通过共享网关令牌/密码保持直接loopback后端RPC通过陈旧CLI配对设备范围基线进行身份验证，使内部调用不再触发 `scope-upgrade` 配对提示，而远程、浏览器、节点、设备令牌和显式设备路径仍需要正常配对批准。修复 #63548。
+- Providers/Azure OpenAI：为部署范围的图像生成请求提供更长的600s默认超时，使慢速 `gpt-image-2` 生成可以完成而不需要每调用 `timeoutMs`。修复 #71705。感谢 @voytas75。
+- Gateway/plugins：链接source-checkout捆绑运行时依赖缓存，而不是在网关主线程上递归复制 `node_modules`，防止本地状态、节点和技能探测在启动缓存恢复期间超时。
+- Skills/远程节点：仅为已连接节点公开远程macOS技能bin，当节点探测失败时清除陈旧的bin匹配，并在超时日志中包含探测命令、超时、bin计数和连接状态。
+- Skills/远程节点：在探测已连接macOS节点时识别 `system.which` 对象映射响应，以便Linux网关可以公开macOS专用技能（如Apple Notes），当远程安装了所需二进制文件时。修复 #71877。感谢 @miguelarios。
+- CLI/gateway：保持诊断探测不创建首次只读设备配对，同时仍为详细读取探测重用缓存的设备令牌。修复 #71766。感谢 @SunboZ。
+- CLI/plugins：保持 `message` 启动、`channels logs`、`agents delete` 和 `agents set-identity` 远离广泛插件预加载；消息传递在实际运行操作时仍加载插件。
+- 图像理解：在发现注册表未注册该提供商时，报告 `Unknown model` 之前解析配置的图像模型（如本地LM Studio视觉条目）。修复 #66486。感谢 @zhanggpcsu。
+- QQ Bot：使用出站ref-index标记忽略回显的机器人消息，防止镜像回复重新进入代理循环，同时仍允许用户引用机器人回复。修复 #71912。感谢 @wangyc6003。
+- Sessions：将重置新鲜度与会话存储 `updatedAt` 分离，使心跳、cron、exec和网关记账不再阻止配置的每日/空闲重置来滚动长期运行渠道会话。修复 #68315、#63732、#63820 和 #69083。感谢 @maxatv、@longhairedsi、@bradfreels 和 @akessel56。
+- Sessions：在 `/new`、`/reset`、网关 `sessions.reset` 和每日/空闲滚动期间清除排队的系统事件通知，使陈旧后台更新无法泄漏到新会话的第一个prompt中。修复 #66864。感谢 @opeyio、@Magicray1217 和 @cedillarack。
+- CLI/agents：保持 `agents bind`、`agents unbind` 和 `agents bindings` 在设置安全渠道元数据路径上，以免预加载捆绑插件运行时或暂存运行时依赖。修复 #71743。
+- Plugins/registry：在注册表迁移期间保留显式禁用插件记录，而不持久化在磁盘上发现的每个未使用捆绑插件。感谢 @shakkernerd。
+- Windows/原生：让CLI启动和捆绑提供商插件加载远离Windows ESM raw-path故障路径，修复Node 24上的原生onboarding/install smoke。
+- Plugins/doctor：通过与插件加载使用的相同打包插件目录解析器读取捆绑渠道doctor能力，使已发布安装保持Matrix DM allowlist修复 `channels.matrix.dm.*`，而不是写入无效的顶级 `dmPolicy` 键。修复 #71757。
+- Plugins/Windows：让捆绑插件Jiti加载器在Windows上远离原生导入路径，以免Telegram等渠道插件不再因 `C:\...` 路径上的 `ERR_UNSUPPORTED_ESM_URL_SCHEME` 而崩溃。修复 #71749。感谢 @smeyer9。
+- Providers/Ollama：使用Ollama当前的 `/api/web_search` 端点，并遵守Ollama Web Search的 `https://ollama.com` 模型提供商基础URL。修复 #71741。感谢 @madhvidua。
+- Memory/Ollama：序列化Ollama内存嵌入批次并添加内联批次超时覆盖，为本地/自托管嵌入提供商使用更长的默认值。
+- Sessions/usage：从使用总量和会话发现中排除压缩检查点记录快照，同时保持旧检查点文件可移除。
+- CLI/agents：默认保持 `openclaw agents list --json` 在仅配置路径上，除非调用者请求 `--bindings`，否则避免捆绑插件加载。修复 #71739。感谢 @kaloster。
+- Plugins/安装：强制插件依赖安装保持项目本地，即使继承的npm配置请求全局安装，使成功安装仍能物化插件暂存的 `node_modules`。
+- Providers/Google：将Gemini TTS PCM转码为Opus用于语音笔记目标，使WhatsApp和其他原生语音笔记回复可以作为语音消息播放。
+- TTS/WhatsApp：将非Opus提供商输出标记为语音笔记意图，使渠道传递将MP3/WebM回复转码为Ogg/Opus PTT音频。
+- Plugins/运行时依赖：当再次检查镜像插件根时重用现有外部捆绑插件stage根，避免第二代 `openclaw-unknown-*` stage和重复的首轮restaging。修复 #71599。
+- iOS/macOS对话模式：允许 `talk.speechLocale` 设置非英语语音对话的语音识别区域设置。修复 #44688。
+- Plugins/提供商：遵守显式插件候选列表，而不是从本地状态读取持久化注册表快照，保持候选范围的提供商发现 hermetic。
+- Plugins/doctor：即使用户npm prefix/全局配置将npm指向 `$HOME/node_modules`，也让捆绑插件运行时依赖修复保持在托管OpenClaw stage内。修复 #71730。
+- ACP/sessions_spawn：当调用者明确请求 `runtime="acp"` 时拒绝普通OpenClaw配置代理ID，同时允许配置了 `runtime.type="acp"` 的代理解析到其ACP harness id。修复 #63914。
+- ACP/sessions_spawn：将 `runTimeoutSeconds` 应用于ACP子轮次，并在后台子代理通道上分派这些轮次，使配额停滞的ACP harness不会无限期占用主代理通道。修复 #68823。
+- ACP/oneshot：在关闭已完成的oneshot ACP运行之前协调运行时会话身份，使完成的 `sessions.json` 条目不会以 `acp.identity.state="pending"` 卡住。
+- ACPX：捆绑 `acpx@0.6.1`，使不支持的通用模型覆盖明确失败，而不是静默回退到目标适配器默认值。
+- ACP/models：记录非Codex ACP模型覆盖需要适配器支持ACP `models` 加上 `session/set_model`，使不支持的harness明确失败，而不是静默回退到其默认值。
+- Plugins/语音通话：在网关启动期间将缺失提供商凭证视为设置不完整，并将缺失密钥作为警告记录而不是运行时启动错误，同时在使用时保持显式命令/工具错误。
+- Android/对话模式：当对话模式等待自己的响应时，防止快速或重复的最终聊天事件到达时重复TTS播放。修复 #46546。
+- 工具/check:changed：将父heavy-check锁标记传递给lint通道，使 `pnpm check:changed` 不再等待自己的 `lint:extensions` 子进程。
+- CLI/completion：在注册 `openclaw onboard` 选项之前对提供商auth标志进行去重，以免更新期间完成缓存刷新因陈旧核心回退标志与插件清单标志重叠而失败。修复 #71667。
+- Diagnostics/trace：从当前prompt快照报告实时上下文使用情况，而不是提供商轮次总数，避免缓存或工具密集型运行上的虚假接近满上下文峰值。
+- Providers/Google：为Gemini TTS和电话TTS遵守 `models.providers.google.request.allowPrivateNetwork`，与Google图像生成和媒体理解匹配。（#71723）感谢 @ro-hansolo。
+- Providers/MiniMax：为音乐和视频生成注册 `minimax-portal`，在共享 `music_generate` 和 `video_generate` 工具中保留OAuth auth和区域MiniMax基础URL。（#63241）感谢 @tars90percent。
+- Providers/onboarding：通过将其视频生成auth选择限定在媒体设置流程中，使Runway和Alibaba Model Studio保持在文本推理设置选择器之外。（#65856）感谢 @Jah-yee。
+- Plugins/Bonjour：当mDNS看门狗取消卡住的探测时，阻止网关崩溃循环 `CIAO PROBING CANCELLED`。恢复在bonjour插件迁移期间丢弃的rejection-handler布线，并在模块实例间共享unhandled-rejection状态，使插件暂存的 `openclaw/plugin-sdk/runtime` 副本注册到主机咨询的同一处理程序集。特别影响macOS上的Docker，mDNS探测会可靠地命中看门狗。感谢 @troyhitch。
+- Google Meet：在设置/加入诊断中报告固定Chrome节点为离线或缺失能力，保持无法访问的节点不在自动选择中，并在代理尝试本地Chrome之前预检本地BlackHole/SoX要求。
+- Providers/MiniMax：将 `image-01` 请求路由到专用图像生成端点，同时保留CN端点选择。修复 #61149。感谢 @mushuiyu886。
+- Plugins/启动：在短宽限期后移除无所有者的捆绑运行时依赖安装锁，并在启动超时等待插件运行时依赖锁时包含锁所有者详细信息。
+- Plugins/安装：用OpenClaw拥有的包清单锚定捆绑运行时依赖npm安装，使Linux更新不能意外写入父 `$HOME/node_modules` 树。修复 #71730。
+- Plugins/安装：将onboarding插件配置传递到插件索引写入，以便在默认发现根之外的本地插件安装保持其安装记录。感谢 @shakkernerd。
+- Plugins/安装：将已交付的 `plugins.installs` 配置记录迁移到插件索引，同时从运行时配置和未来写入中剥离它们。感谢 @shakkernerd。
+- Plugins/安装：在其记录复制到插件索引后，从 `openclaw.json` 中持久化移除已交付的 `plugins.installs`，如果配置清理失败则回滚索引写入。感谢 @shakkernerd。
+- Plugins/安装：即使插件清单缺失或无效，也在插件索引中保留迁移的插件安装记录，以便更新、卸载、检查和审计仍能恢复损坏的安装。感谢 @shakkernerd。
+- Plugins/安全：保持插件审计JSON检查ID稳定，同时用更新措辞报告插件索引安装记录发现。感谢 @shakkernerd。
+- CLI/config：拒绝直接编辑 `plugins.installs`，指导使用 `openclaw plugins install`、`openclaw plugins update` 或 `openclaw plugins uninstall`。感谢 @shakkernerd。
+- 实时测试/语音：接受OpenClaw和ElevenLabs品牌名称的常见STT变体，使提供商smoke测试在真实回归上失败，而不是等效transcripts。
+- Agents/回复：在外部渠道上转发清理后的底层代理失败详情，而不是用通用重试消息替换未知失败。
+- CLI/MCP：将OpenClaw `mcp.servers.*.transport` 条目转换为Claude/Gemini CLI `type` 字段，使流式HTTP MCP服务器可以在CLI后端会话中加载。（#71724）感谢 @Blockchain-Oracle。
+- Browser/CDP：在通过原始CDP或 `/json/new` 回退打开标签页时遵守配置的远程和 `attachOnly` CDP HTTP/WebSocket超时。（#54238）感谢 @FuncWei。
+- WhatsApp/TTS：可见文本与PTT语音笔记音频分开发送，而不是依赖隐藏语音笔记字幕。修复 #51081。
+- Browser/client：避免告诉代理在外部浏览器配置文件（如 `attachOnly`、远程CDP和existing-session）上因调度程序超时而重启OpenClaw。（#40815）感谢 @0xsline。
+- Agents/TTS：在可信文本工具结果 `MEDIA:` 有效载荷上保留 `[[audio_as_voice]]` 指令，使生成的音频仍作为语音笔记传递。（#46535）感谢 @azade-c。
+- Agents/TTS：当助手在非块传递路径上以 `NO_REPLY` 结束时保留排队的工具媒体，使仅媒体的生成音频回复仍能发送。（#60025）感谢 @bradlind1。
+- Telegram/STT：在代理上下文中将入站语音笔记transcripts框定为机器生成的不受信任文本，同时保留原始transcript提及检测。关闭 #33360。感谢 @smartchainark。
+- 子代理/浏览器：当浏览器自动化已配置但被活动工具配置文件过滤掉时，显示可操作的 `/tools` 通知，并记录编码配置文件代理应使用 `tools.alsoAllow: ["browser"]` 而不是仅依赖子代理allowlists。
+- Control UI/快速设置：将助手头像覆盖持久化到浏览器本地存储（镜像用户头像），以便上传的图像data URL不再因"太大：预期字符串最多200个字符"而失败配置验证。同时提升网关端 `ui.assistant.avatar` 长度限制以匹配用户头像大小预算，用于直接写入字段的非UI客户端。感谢 @BunsDev。
+- 插件SDK：在重复源/分发模块图之间共享诊断事件订阅，使遗留根SDK导入仍能接收运行时诊断事件。
+- Agents/Bedrock：通过持久化、修复和重放非空回退块，防止空助手stream-error轮次毒害Converse重放。修复 #71572。（#71627）感谢 @openperf。
+- Agents/Anthropic/Bedrock：在提供商转换前剥离缺失、空或空白重放签名的thinking块，必要时回退到非空omitted-reasoning文本，使损坏的signed-thinking历史不再毒害后续轮次。修复 #45010。（#70054）感谢 @castaples。
+- Agents/Anthropic/Bedrock：保留剥离的仅thinking助手重放轮次（带有非空omitted-reasoning文本），以便提供商适配器保持严格用户/助手轮次形状。感谢 @wujiaming88。
+- ACP/Codex：将 `sessions_spawn(runtime="acp")` 模型和thinking覆盖传递到Codex ACP启动，规范 `openai-codex/*` 引用和slash reasoning后缀，并识别托管Codex ACP包装器命令，而不阻止当前 `gpt-5.5` 会话。修复 #40393。（#71643）感谢 @91wan。
+- Browser/CDP：使就绪诊断对裸 `ws://` Browserless和Browserbase CDP URL使用与可达性相同的discovery-first回退。修复 #69532。
+- Browser/CDP：解释loopback Browserless或其他外部托管CDP服务在报告本地端口所有权冲突时需要 `attachOnly: true` 和匹配的Browserless `EXTERNAL` 端点，并在发现的Browserless端点拒绝CDP时回退到配置的裸WebSocket根。修复 #49815。
+- Gateway/reload：保持 `gateway.reload.deferralTimeoutMs: 0` 语义的无限性用于渠道热重载延迟，使活动代理运行不会被强制渠道重启中断。（#71637）感谢 @Poo-Squirry。
+- Agents/工具结果：在提供商转换前限制持久化Pi工具结果详情并剥离隐藏诊断，防止大型调试有效载荷膨胀会话记录。（#71637）感谢 @Poo-Squirry。
+- ACP/OpenCode：将捆绑的acpx运行时更新到0.6.0，并在Docker实时测试中覆盖OpenCode ACP绑定路径。
+- Providers/OpenCode Go：在Go目录中添加DeepSeek V4 Pro和DeepSeek V4 Flash，同时等待捆绑的Pi注册表跟上。修复 #71587。
+- Providers/OpenCode Go：通过OpenAI兼容Go端点路由DeepSeek V4 Pro/Flash，并抑制无效 `reasoning_effort: "off"` 有效载荷，修复 `opencode-go/deepseek-v4-flash` 的工具启用请求。修复 #71683。
+- Plugins/模型默认值：当hook上下文缺少模型元数据时，在配置的代理默认模型上运行Skill Workshop review、Active Memory recall和会话内存slug生成，而不是硬编码OpenAI SDK回退。修复 #71659。
+- Providers/Venice：为 `venice/deepseek-v4-pro` 和 `venice/deepseek-v4-flash` 重放轮次填充所需的DeepSeek V4 `reasoning_content` 占位符，而不发送Venice拒绝的原生DeepSeek `thinking` 控件。修复 #71628。
+- Browser/现有会话：支持per-profile Chrome MCP命令/参数，将 `cdpUrl` 映射到 `--browserUrl` 或 `--wsEndpoint`，并避免将端点标志与 `--userDataDir` 结合使用。修复 #47879、#48037 和 #62706。感谢 @puneet1409、@zhehao 和 @madkow1001。
+- 媒体/插件：在将不受信任的文件交给 `file-type` 或 `jszip` 之前限制MIME嗅探和ZIP归档preflight，减少附件和ClawHub插件归档的解析器CPU和内存暴露。感谢 @vincentkoc。
+- Memory-host SDK：仅当Undici将代理该目标时，对远程嵌入和批量HTTP调用使用可信env-proxy模式，为 `ALL_PROXY`-only和 `NO_PROXY` 绕过情况保留SSRF DNS pinning。修复 #52162。（#71506）感谢 @DhtIsCoding。
+- Gateway/仪表板：当 `gateway.tls.enabled=true` 时，使用 `https://`/`wss://` 渲染Control UI和WebSocket链接，包括 `openclaw gateway status`。修复 #71494。（#71499）感谢 @deepkilo。
+- Agents/OpenAI兼容：当存在工具时，将代理/本地completions工具请求默认为 `tool_choice: "auto"`，使提供商进入原生工具调用模式，而不是用纯文本工具指令回复。（#71472）感谢 @Speed-maker。
+- OpenAI图像生成：对Codex OAuth响应传输使用 `gpt-5.5` 而不是已停用的 `gpt-5.4` 模型，修复ChatGPT Codex图像生成的500错误。修复 #71513。感谢 @baolongl。
+- OpenAI图像生成：将透明背景默认模型请求路由到 `gpt-image-1.5`，记录预期的 `image_generate` 调用格式，并保持Azure/自定义OpenAI兼容部署名称不变。
+- Google视频生成：直接下载MLDev Veo `video.uri` 结果，而不是通过Files API路径传递，修复成功生成/轮询后的404错误。修复 #71200。感谢 @panhaishan。
+- Google视频生成：为纯文本SDK 404回退到REST `predictLongRunning` Veo端点，同时将参考图像/视频生成保持在SDK路径上。修复 #62309 和 #63008。（#62343）感谢 @leoleedev。
+- MiniMax音乐生成：将捆绑默认模型从不支持的 `music-2.5+` ID切换到当前 `music-2.6` API模型。修复 #64870，并解决 #62315中的音乐默认值。感谢 @noahclanman 和 @edwardzheng1。
+- Cron：将因网关重启而中断的作业记录为其原始 `runningAtMs` 的失败状态，跳过不安全的启动重放，并禁用中断的一次性作业，使其显示可见失败而不是静默消失或重复工作。修复 #59056、#61343、#63657 和 #59301。感谢 @ponchoooPenguin、@daemic24、@myradon 和 @hikiwibot。
+- Cron工具：在网关验证之前恢复扁平顶级计划简写（如 `cron`、`tz` 和 `staggerMs`），使模型生成的cron add/update调用保留cron抖动设置。感谢 @tyxben。
+- Cron：在启动重新计算运行时间之前，将带有顶级 `cron`、`tz`、`session` 和 `message` 字段的扁平遗留作业行充实为规范schedule、target和payload对象。修复 #43351。
+- Agents/回复：让待处理群聊历史触发裸提及轮次，而不将仅元数据入站上下文视为用户输入。修复 #71489。（#71520）感谢 @SymbolStar。
+- Google媒体生成：在调用Google GenAI SDK之前，从Google音乐/视频提供商基础URL中剥离配置的尾部 `/v1beta`，防止双 `/v1beta/v1beta` 路径。修复 #63240。（#63258）感谢 @Hybirdss。
+- Discord：恢复直接消息语音笔记preflight转录，并将仅URL的Ogg/Opus语音附件分类为音频，同时跳过没有可用URL的部分附件。修复 #61314 和 #64803。
+- Plugins/构建：将捆绑插件技能树复制到 `dist-runtime`，扩大Windows符号链接复制回退，并从 `lstat` 指纹识别运行时依赖，使符号链接式目录条目无法使staging崩溃。
+- Google Chat：当打字指示器消息被删除或无法再更新时保留回复文本，使媒体标题和第一个文本块重新发送而不是静默消失。（#71498）感谢 @colin-lgtm。
+- Cron：在启动、主会话系统事件有效载荷和人类可读的 `cron list` 输出中容忍格式错误的遗留作业行，使缺失 `state`、`payload.text` 或显示字段不再使调度器或CLI崩溃。修复 #66016、#65916、#64137、#57872、#59968、#63813、#52804 和 #43163。（#71509）感谢 @vincentkoc。
+- CLI/models：使 `openclaw models scan` 在未配置 `OPENROUTER_API_KEY` 时回退到公共OpenRouter免费模型元数据，避免对显式 `--no-probe` 扫描的配置secret解析，并将扫描超时应用于OpenRouter目录请求。
+- 飞书：将流式卡片保持为每轮一个，在有意义的文本边界后刷新节流卡片编辑，并跳过精确块/部分重复，使工具密集型回复不重复卡片输出。感谢 @allan0509。
+- 飞书：通过剥离泄漏的reasoning标签、保留跨块部分快照、启用主题线程流式卡片、省略通用 `main` 卡片标题、表面瞬态工具/压缩状态以及在关闭失败后清理流状态来完成流式卡片重复关闭。感谢 @sesame437、@Vicky-v7、@maoku-family、@Pengxiao-Wang 和 @Maple778。
+- Telegram：当模糊的最终编辑失败否则保留答案的严格前缀时，通过回退到最终发送来恢复不完整的部分流预览。修复 #71525。（#71554）感谢 @sahilsatralkar。
+- Control UI/聊天：将助手token/模型上下文详情折叠在显式Context披露后面，在消息页脚中显示完整日期，使历史记录时间线清晰而不产生嘈杂的默认元数据。（#71337）感谢 @BunsDev。
+- OpenAI/Codex OAuth：用代理/区域提示解释 `unsupported_country_region_territory` 令牌交换失败，而不是显示通用OAuth错误。修复 #51175。（#71501）感谢 @vincentkoc 和 @wulala-xjj。
+- Browser/Linux：在没有显示服务器的主机上对本地托管配置文件回退到无头模式，同时保留显式per-profile headed覆盖并报告无头来源。（#60953）感谢 @rrpsantos。
+- Telegram：移除启动时持久化偏移 `getUpdates` preflight，使轮询重启在运行器启动之前不会自我冲突。修复 #69304。（#69779）感谢 @chinar-amrutkar。
+- Telegram：即使grammy报告运行器未运行而其任务仍挂起时，也保持轮询stall看门狗活动，使重建的传输不能使 `getUpdates` 静默直到手动网关重启。修复 #69064。感谢 @LDLoeb。
+- 子代理：当父公告轮次在没有可见有效载荷的情况下完成时，回退到直接完成传递，使子结果仍能到达支持渠道的请求者会话。
+- 子代理：告诉父代理在等待子完成事件时使用 `sessions_yield`，防止GPT-5快速运行在生成workers后静默结束。
+- Browser/Playwright：在保护导航期间忽略良性的已处理路由竞争，使浏览器页面任务在Playwright中途拆除路由时不再失败。（#68708）感谢 @Steady-ai。
+- Browser/CLI：延迟加载浏览器命令组和插件运行时服务，使 `openclaw browser --help` 可以在不加载完整浏览器自动化堆栈的情况下呈现。修复 #65400。（#65460、#66640）感谢 @pandego 和 @Tianworld。
+- Browser/CLI：从CLI启动元数据提供预计算的 `openclaw browser --help` 文本，避免常见帮助调用时的完整插件/配置启动路径。
+- Browser/下载：用OpenClaw下载偏好填充托管Chrome配置文件，并在保护下载目录下捕获非托管点击触发的下载，而明确的下载waiters仍拥有其目标文件。（#64558）感谢 @Pearcekieser。
+- Browser/Chrome：当 `browser.noSandbox` 启用时停止传递冗余 `--disable-setuid-sandbox`；`--no-sandbox` 仍是有效的沙箱选择退出。（#67939）感谢 @sebykrueger。
+- Browser/client：停止在瞬态超时或取消失败后告诉代理永久避免浏览器；仅为持续不可用/速率限制情况保持no-retry提示。（#46505）感谢 @jriff。
+- Browser/aria快照：当Playwright可用时，通过后端DOM ID将 `format=aria` `axN` 引用绑定到实时DOM节点，使后续浏览器操作可以使用这些引用而不会超时。（#62434）感谢 @MrKipler。
+- Telegram：防止同一bot令牌的重复进程内long pollers，并为外部重复pollers添加更清晰的 `getUpdates` 冲突诊断。修复 #56230。感谢 @Co-Messi。
+- Browser/Linux：在要求用户设置 `browser.executablePath` 之前，检测 `/opt/google`、`/opt/brave.com`、`/usr/lib/chromium` 和 `/usr/lib/chromium-browser` 下的Chromium-based安装。（#48563）感谢 @lupuletic。
+- Sessions/浏览器：当空闲、每日、`/new` 或 `/reset` 会话滚动存档上一个记录时，关闭跟踪的浏览器标签页，防止标签页泄漏到旧会话之外。感谢 @jakozloski。
+- Sessions/分叉：当缓存总数陈旧或缺失时，回退到transcript估算的父token计数，使超尺寸线程分叉开始fresh而不是克隆完整父记录。感谢 @jalehman。
+- OpenAI/Codex：通过顶级 `instructions` 发送Codex Responses系统提示，同时保留现有原生Codex有效载荷控件。
+- MCP/CLI：在一次性 `openclaw agent` 和 `openclaw infer model run` 网关/本地执行结束时退役捆绑MCP运行时，使重复脚本运行不会累积stdio MCP子进程。修复 #71457。感谢 @spartoviMD。
+- OpenAI/Codex图像生成：在调用 `gpt-image-2` 之前将遗留 `openai-codex.baseUrl` 值（如 `https://chatgpt.com/backend-api`）规范化为Codex Responses后端，与聊天传输匹配。修复 #71460。感谢 @GodsBoy。
+- Control UI：使 `/usage` 使用新鲜上下文快照来计算上下文百分比，并在使用概述缓存命中率分母中包含缓存写入token。修复 #47885。感谢 @imwyvern 和 @Ante042。
+- GitHub Copilot：在重放期间保留加密的Responses reasoning item ID，使Copilot可以跨请求验证加密的reasoning有效载荷。（#71448）感谢 @a410979729-sys。
+- GitHub Copilot：无论 `encrypted_content` 是否存在都不重写连接绑定reasoning item ID，修复 `gpt-5.3-codex` 和未来Codex模型的400"加密内容item_id不匹配"错误，这些模型通过 `reasoning: false` 的前向兼容catch-all回落。同时识别Codex命名的模型为reasoning-capable，使它们继承正确的能力标志。引用 #68735。感谢 @InvalidPandaa。
+- Agents/回复：当流式助手块仅包含空白时恢复最终答案文本，防止完成轮次显示为空有效载荷错误。修复 #71454。（#71467）感谢 @Sanjays2402。
+- 飞书/TTS：在发送原生飞书音频气泡之前将语音意图MP3和其他音频回复转码为Ogg/Opus，同时将普通MP3附件保留为文件。修复 #61249 和 #37868。感谢 @sg1416-zg 和 @ycjlb2023-peteryi。
+- WhatsApp/TTS：在发送PTT语音笔记之前将MP3/WebM音频（包括Microsoft Edge TTS输出）转码为Ogg/Opus。
+- QQBot/TTS：通过将TTS合成为原生QQ语音消息来遵守纯 `audioAsVoice` 回复，并将入站纯语音消息标记为音频媒体，而不向通用媒体上下文暴露原始语音路径。
+- Providers/SenseAudio：通过 `tools.media.audio` 添加捆绑SenseAudio批量音频转录，支持 `SENSEAUDIO_API_KEY` 认证。（#66943）感谢 @Fl0rencess720。
+- Providers/MiniMax：让TTS在回退到 `MINIMAX_API_KEY` 之前使用MiniMax portal OAuth和Token Plan凭证，并包含当前TTS HD模型ID。修复 #55017。感谢 @zx15210404690-hash。
+- Telegram/webhook：在运行bot中间件之前确认已验证的webhook更新，使慢速代理轮次不会触发Telegram传递重试，同时保持per-chat处理通道。修复 #71392。感谢 @joelforsberg46-source。
+- MCP/配置重载：通过处置缓存会话MCP运行时热应用 `mcp.*` 更改，并在网关关闭期间处置捆绑MCP运行时，使移除的 `mcp.servers` 条目立即回收子进程。修复 #60656。感谢 @xieyuanqing。
+- Active Memory：保持静默recall子代理计费/授权失败不在共享auth-profile冷却状态之外，使Claude CLI额外使用拒绝不会禁用正常Claude支持的轮次。修复 #71284。（#71539）感谢 @vishutdhar 和 @obviyus。
+- Auth/Claude CLI：将刷新的Claude CLI OAuth凭证同步到托管auth配置文件，使长期运行的Claude CLI运行停止回退到陈旧OpenClaw快照。（#70902）感谢 @starvex。
+- Sessions：在当前渠道无法绑定子代理线程时，让 `sessions_spawn(mode="session")` 错误命名可用替代方案。修复 #67400。（#67790）感谢 @stainlu。
+- Agents/Claude CLI：通过Claude的prompt-file标志传递OpenClaw系统提示，使Windows运行避免argv长度失败而不改变系统提示语义。修复 #69158。（#69211）感谢 @skylee-01、@cassioanorte、@Syu0 和 @Stache73。
+- Agents/CLI会话：将 `google-gemini-cli` 会话auth-epoch绑定到 `~/.gemini/oauth_creds.json` 中的Google账户身份，使Gemini支持的代理在网关重启后恢复对话而不是生成新会话，并在已认证Google账户更改时使陈旧绑定失效。修复 #70973。（#71076）感谢 @openperf。
+- Slack：停止将助手编写消息编辑块中的用户提及视为发送者属性，防止编辑的机器人消息欺骗被提及的DM用户。（#71700）感谢 @vincentkoc。
+- Codex：在未经授权的绑定对话入站声明能够传递到其他声明处理程序或进入Codex轮次之前消耗它们。（#71702）感谢 @vincentkoc。
+- Codex媒体理解：为有界图像worker需要批准检查的app-server图像轮次，同时明确拒绝工具、文件、权限和elicitation批准请求。（#71703）感谢 @vincentkoc。
+- Agents/Claude CLI：允许大型实时 `stream-json` JSONL行达到现有每轮原始限制，防止大型Telegram、WebChat、MCP和图像轮次在旧stdout缓冲区上限上中止。修复 #71793、#71080 和 #70766。（#71897）感谢 @chacher86、@shivamgrover21 和 @tpjordan。
+- Agents/Claude CLI：在CLI JSON输出中展开嵌套Claude结果信封，使委托代理响应显示为最终文本而不是原始结果JSON。（#66819）感谢 @mraleko。
+- Agents/Claude CLI：当启用 `context1m` 时，将配置的1M上下文窗口覆盖应用于符合条件的Claude CLI Opus和Sonnet模型。（#70863）感谢 @bidadh。
+- Models/status：报告新鲜的Claude CLI原生auth，而不是本地凭证最新时陈旧存储的 `anthropic:claude-cli` profile过期。修复 #71256。（#71332）感谢 @matthiasjanke 和 @neeravmakwana。
+- CLI后端：在超预算CLI轮次后压缩OpenClaw记录，并从压缩记录而不是陈旧外部恢复状态重新种子新鲜CLI会话。修复 #68329。（#71916）感谢 @obviyus。
+- Telegram：当答案预览流被禁用时保持默认工具进度消息可见。（#71825）感谢 @VACInc。
+- Configure/models：在更新模型选择器allowlist时清除取消选择的模型回退，包括提供商范围的设置流程。（#71596）感谢 @rubencu。
+- Agents/流式传输：在发出面向用户的文本之前，从流式助手回复中剥离命名空间 `<antml:thinking>` reasoning标签。（#69288）感谢 @xialonglee。
+- Agents/流式传输：当流式助手块仅包含空白时恢复最终答案文本，防止已完成的轮次显示为空负载错误。修复 #71454。（#71467）感谢 @Sanjays2402。
+- Feishu/TTS：在发送原生 Feishu 音频气泡之前将语音意图 MP3 和其他音频回复转码为 Ogg/Opus，同时将普通 MP3 附件保留为文件。修复 #61249 和 #37868。感谢 @sg1416-zg 和 @ycjlb2023-peteryi。
+- WhatsApp/TTS：将 MP3/WebM 音频（包括 Microsoft Edge TTS 输出）转码为 Ogg/Opus，然后再发送 PTT 语音笔记。
+- QQBot/TTS：通过合成 TTS 到原生 QQ 语音消息来支持纯 `audioAsVoice` 回复，并将入站纯语音消息标记为音频媒体，而不向通用媒体上下文暴露原始语音路径。
+- Providers/SenseAudio：通过 `tools.media.audio` 添加捆绑的 SenseAudio 批量音频转录，支持 `SENSEAUDIO_API_KEY` 认证。（#66943）感谢 @Fl0rencess720。
+- Providers/MiniMax：让 TTS 在回退到 `MINIMAX_API_KEY` 之前优先使用 MiniMax portal OAuth 和 Token Plan 凭证，并包含当前 TTS HD 模型 ID。修复 #55017。感谢 @zx15210404690-hash。
+- Telegram/webhook：在运行 bot 中间件之前确认已验证的 webhook 更新，使慢速 agent 轮次不会在 Telegram 传递重试时翻车，同时保留每聊天处理通道。修复 #71392。感谢 @joelforsberg46-source。
+- MCP/config reload：通过处置缓存的会话 MCP runtime 来热应用 `mcp.*` 更改，并在网关关闭期间处置捆绑的 MCP runtime，使移除的 `mcp.servers` 条目能够及时回收子进程。修复 #60656。感谢 @xieyuanqing。
+- Active Memory：将静默召回子代理计费/认证失败排除在共享认证配置冷却状态之外，使 Claude CLI 额外使用拒绝不会禁用正常的 Claude 支持轮次。修复 #71284。（#71539）感谢 @vishutdhar 和 @obviyus。
+- Auth/Claude CLI：将刷新的 Claude CLI OAuth 凭证同步到托管认证配置，使长时间运行的 Claude CLI 运行停止回退到过时的 OpenClaw 快照。（#70902）感谢 @starvex。
+- Sessions：使 `sessions_spawn(mode="session")` 错误在当前通道无法绑定子代理线程时命名可用的替代方案。修复 #67400。（#67790）感谢 @stainlu。
+- Agents/Claude CLI：通过 Claude 的 prompt-file 标志传递 OpenClaw 系统提示，使 Windows 运行避免 argv 长度失败而不改变系统提示语义。修复 #69158。（#69211）感谢 @skylee-01、@cassioanorte、@Syu0 和 @Stache73。
+- Agents/CLI sessions：将 `google-gemini-cli` 会话 auth-epoch 绑定到 `~/.gemini/oauth_creds.json` 中的 Google 账户身份，使 Gemini 支持的 agent 在网关重启后恢复对话，而不是创建新的会话，并在认证的 Google 账户更改时使过时的绑定失效。修复 #70973。（#71076）感谢 @openperf。
+- Slack：停止将 assistant 编写的消息编辑块中的用户提及视为发送者属性，防止编辑的 bot 消息欺骗被提及的 DM 用户。（#71700）感谢 @vincentkoc。
+- Codex：在未经授权的绑定对话入站声明能够传递到其他声明处理程序或入队 Codex 轮次之前消耗它们。（#71702）感谢 @vincentkoc。
+- Codex 媒体理解：在为有界图像 worker 明确拒绝工具、文件、权限和询问批准请求的同时，需要批准检查的 app-server 图像轮次。（#71703）感谢 @vincentkoc。
+- Agents/Claude CLI：允许高达现有每轮原始限制的大型实时 `stream-json` JSONL 行，防止大型 Telegram、WebChat、MCP 和图像轮次在旧 stdout 缓冲区上限时中止。修复 #71793、#71080 和 #70766。（#71897）感谢 @chacher86、@shivamgrover21 和 @tpjordan。
+- Agents/Claude CLI：在 CLI JSON 输出中展开嵌套的 Claude 结果信封，使委托的 agent 回复显示为最终文本而不是原始结果 JSON。（#66819）感谢 @mraleko。
+- Agents/Claude CLI：当启用 `context1m` 时，将配置的 1M 上下文窗口覆盖应用于符合条件的 Claude CLI Opus 和 Sonnet 模型。（#70863）感谢 @bidadh。
+- Models/status：报告新鲜的 Claude CLI 原生认证，而不是在本地凭证最新时报告过时的存储 `anthropic:claude-cli` profile 过期。修复 #71256。（#71332）感谢 @matthiasjanke 和 @neeravmakwana。
+- CLI 后端：在超出预算的 CLI 轮次后压缩 OpenClaw 记录，并从压缩记录而不是过时的外部恢复状态重新种子新鲜的 CLI 会话。修复 #68329。（#71916）感谢 @obviyus。
+- Telegram：当答案预览流被禁用时保持默认工具进度消息可见。（#71825）感谢 @VACInc。
+- Configure/models：在更新模型选择器允许列表时清除取消选择的模型回退，包括提供商范围的设置流程。（#71596）感谢 @rubencu。
+- Agents/流式传输：在发出面向用户的文本之前，从流式 assistant 回复中剥离带命名空间的 `<antml:thinking>` reasoning 标签。（#69288）感谢 @xialonglee。
+
+## 🚀 v2026.4.24 (2026年4月25日)
+
+### 亮点
+
+- Google Meet 作为捆绑的参与者在插件加入 OpenClaw，支持个人 Google 认证、Chrome/Twilio 实时会话、配对节点 Chrome 支持、工件/出席记录导出，以及对已打开的 Meet 标签页的恢复工具。
+- DeepSeek V4 Flash 和 V4 Pro 已加入捆绑目录，V4 Flash 为默认 onboarding 模型，DeepSeek thinking/replay 行为已修复，可用于后续工具调用轮次。
+- Talk、Voice Call 和 Google Meet 可使用实时语音循环，该循环会咨询完整的 OpenClaw agent 以获得更深入的工具有支撑的回答。
+- 浏览器自动化新增坐标点击、更长的默认操作预算、每个配置文件的 headless 覆盖，以及更稳定的标签页复用/恢复。
+- 插件和模型基础设施在启动时更轻量：静态模型目录、manifest 驱动的模型行、延迟的 provider 依赖，以及打包安装的外部运行时依赖修复。
+
+### ⚠️ Breaking Changes
+
+- 插件 SDK/工具结果转换：移除 Pi 专用的 `api.registerEmbeddedExtensionFactory(...)` 兼容性路径。捆绑的工具结果重写必须使用 `api.registerAgentToolResultMiddleware(...)` 与 `contracts.agentToolResultMiddleware` 声明目标 harness，使转换在 Pi 和 Codex app-server 动态工具中运行一致。感谢 @vincentkoc。
+
+### ✨ 新增功能与改进
+
+- Control UI/Talk：新增基于 OpenAI Realtime 的浏览器 WebRTC 实时语音会话，由 Gateway 签发的临时客户端密钥和 `openclaw_agent_consult` 移交给完整的 OpenClaw agent 提供支持。
+- 插件/Google Meet：新增捆绑的参与者插件，支持个人 Google 认证、显式会议 URL 加入、Chrome 和 Twilio 实时传输、配对节点 `chrome-node` 支持（适用于 Parallels 风格的 Chrome/BlackHole/SoX 主机），以及在实时语音会话内进行全 agent 咨询。（#70765）
+- 插件/Google Meet：新增会议记录、录制、转录、智能笔记和参与者会话的工件和出席工作流，包括 markdown/文件输出、最新记录查找和 `--all-conference-records` 历史扫描。
+- 插件/Google Meet：新增 OAuth 和浏览器状态 doctor/恢复流程，包括 `googlemeet doctor --oauth` 和 `recover_current_tab`/`recover-tab`，使 agent 可以检查已打开的 Meet 标签页而不会重复打开。
+- 插件/Voice Call：暴露共享的 `openclaw_agent_consult` 实时工具，使实时电话可以向完整的 OpenClaw agent 请求更深入/工具有支撑的回答。
+- 插件/Voice Call：新增 `voicecall setup` 和默认 dry-run 的 `voicecall smoke` 命令，以便在拨打实际测试电话前检查 Twilio/provider 的就绪状态。
+- Providers/Google：新增 Gemini Live 实时语音 provider，用于后端 Voice Call 和 Google Meet 音频桥接，支持双向音频和函数调用。
+- Providers/Google：让 Gemini TTS 在配置的 `audioProfile` 和 `speakerName` 提示文本前添加，以实现可复用的语音风格控制。感谢 @tdack。
+- Gateway/VoiceClaw：新增由 Gemini Live 支撑的实时 brain WebSocket 端点，具有所有者认证门控和异步 OpenClaw 工具移交。（#70938）感谢 @yagudaev。
+- Control UI：优化 agent 工具访问面板，包含紧凑的实时工具芯片、可折叠的工具分组、直接的逐工具开关，以及更清晰的运行时/来源归属。（#71405）感谢 @BunsDev。
+- Control UI/聊天：在排队消息上新增 Steer 操作，以便浏览器后续操作可以注入到活跃运行中而无需重新输入。
+- 浏览器：新增视口坐标点击，用于托管和现有会话自动化，以及 `openclaw browser click-coords` 供 CLI 使用。（#54452）感谢 @dluttz。
+- 浏览器：新增 `browser.actionTimeoutMs` 并使用 60 秒默认操作预算，使健康的长时间浏览器等待不会在客户端传输边界失败。（#62589）感谢 @andyylin。
+- 浏览器/配置：支持每个配置文件 `browser.profiles.<name>.headless` 覆盖，用于本地启动的浏览器配置文件，这样一个配置文件可以 headless 运行而不会强制所有浏览器配置文件都 headless。感谢 @nakamotoliu。
+- Matrix：要求完整的交叉签名身份信任以进行自我设备验证，并新增 `openclaw matrix verify self`，使操作员可以从 CLI 建立该信任。（#70401）感谢 @gumadeiras。
+- Gradium：新增捆绑的文本转语音 provider，支持语音笔记和电话输出。（#64958）感谢 @LaurentMazare。
+- Memory-core/混合搜索：在混合内存搜索结果上与组合 `score` 并列暴露原始 `vectorScore` 和 `textScore`，使调用者可以在时间衰减或 MMR 重新排序前检查向量与文本检索的贡献。修复 #68166。（#68286）感谢 @ajfonthemove。
+- 依赖项/memory：默认不再安装 `node-llama-cpp`；本地嵌入现在仅在操作员安装可选运行时包时才加载它。感谢 @vincentkoc。
+- Providers/DeepSeek：在捆绑目录中新增 DeepSeek V4 Flash 和 V4 Pro，并使 V4 Flash 成为 onboarding 默认模型。感谢 @lsdsjy。
+- 依赖项/Pi：将捆绑的 Pi 包更新至 `0.70.2`，使用 Pi 上游的 `gpt-5.5` 和 DeepSeek V4 目录元数据，并仅保留本地 `gpt-5.5-pro` 前向兼容处理。感谢 @lsdsjy。
+- Models/CLI：使用捆绑 provider 的安全静态目录加速模型列表收窄行源编排，并为默认 `openclaw models list` 减少广泛注册表枚举。（#70632、#70883、#70867）感谢 @shakkernerd。
+- Models/命令：弃用 `/models add`，使聊天尝试现在返回弃用消息而非写入模型配置，并从 `/models` provider 菜单中移除 add 操作。（#71175）感谢 @Takhoffman。
+- Models/目录：新增 manifest 源模型行、重复 provider/model 冲突报告，以及共享的 `src/model-catalog` 规范化，用于 provider 索引、缓存、onboarding 和列表消费者而无需加载 provider 运行时。（#71368、#71360）感谢 @shakkernerd。
+- Codex harness/上下文引擎：在 Codex app-server 会话中运行上下文引擎引导、组装、轮次后维护和引擎拥有的压缩，同时保持原生 Codex 线程状态和压缩可审计。（#70809）感谢 @jalehman。
+- Codex 运行时计划：整合 contract-first Pi/Codex 对等覆盖，并在 app-server 配置文件登录和刷新路径中接受遗留的 Codex auth-provider 别名。（#71096）感谢 @100yenadmin。
+- Codex harness：将 Codex 原生工具钩子桥接到 OpenClaw 插件钩子和审批中，具有有限的中继有效载荷和审批防刷保护。（#71008）感谢 @pashpashpash。
+- 插件 SDK/Codex harness：新增 provider 自有的传输/认证/后续接缝和 harness 结果分类，使 Codex 风格的运行时可以参与回退策略而无需核心特殊处理。（#70772）感谢 @100yenadmin。
+- Gateway/nodes：新增默认禁用的 `gateway.nodes.pairing.autoApproveCidrs`，用于来自明确可信 CIDR 的首次节点配对，同时保持操作员/浏览器配对和所有升级流程手动。感谢 @sahilsatralkar。
+- WebChat/会话：将仅运行时的提示上下文排除在可见的会话历史记录外，并从会话历史记录界面清除遗留包装器。感谢 @91wan。
+- Agents/bootstrap：新增 `agents.defaults.contextInjection: "never"`，用于禁用工作区引导文件注入，适用于完全拥有自身提示生命周期的 agent。（#65006）感谢 @xDarkicex。
+- 插件/manifest：新增 `modelCatalog` contract，用于 provider 自有的模型行、别名、抑制规则和发现模式元数据，而无需加载插件运行时。（#71342）感谢 @shakkernerd。
+- 插件/setup：遵守显式的 `setup.requiresRuntime: false` 作为仅描述符的 setup contract，同时将省略值保持在遗留 setup-api 回退路径上。感谢 @vincentkoc。
+- 插件/setup：当 setup-api 注册与 `setup.providers` 或 `setup.cliBackends` 不一致时，报告描述符/运行时漂移，而不拒绝遗留 setup 插件。感谢 @vincentkoc。
+- 插件/setup：在通用 provider auth/env 查找中包含 `setup.providers[].envVars`，并警告仍依赖已弃用 `providerAuthEnvVars` 兼容性元数据的非捆绑插件。感谢 @vincentkoc。
+- 插件/setup：在回退到 setup 运行时前，从描述符安全的 `setup.providers[].authMethods` 派生通用 provider setup 选择。感谢 @vincentkoc。
+- 插件/setup：在回退到 setup 运行时或安装目录选择前，直接在 provider setup 流程中显示 manifest provider auth 选择。感谢 @vincentkoc。
+- 插件/setup：当描述符-only setup 插件仍包含被忽略的 setup 运行时条目时发出警告，保持 `setup.requiresRuntime: false` 语义明确而不破坏现有元数据。感谢 @vincentkoc。
+- 插件/channels：当没有 setup 条目可用或 setup 描述符声明运行时不必要时，使用 manifest `channelConfigs` 进行只读外部渠道发现。感谢 @vincentkoc。
+- 插件钩子：在消息钩子上下文和运行生命周期事件上暴露一级的运行、消息、发送者、会话和跟踪关联字段。感谢 @vincentkoc。
+- 插件/PDF：将本地 PDF 提取移入捆绑的 `document-extract` 插件，使核心不再拥有 `pdfjs-dist` 或 PDF 图像渲染依赖。感谢 @vincentkoc。
+- Providers/Anthropic Vertex：将 Vertex SDK 运行时移至捆绑的 provider 插件后，使核心不再拥有该 provider 特定依赖。感谢 @vincentkoc。
+- 插件/激活：暴露激活计划原因和更丰富的计划 API，使调用者可以检查为何选择了某个插件，同时保留现有的 id-list 激活行为。（#70943）感谢 @vincentkoc。
+- 插件/源元数据：在 provider 和 channel 目录上暴露规范化的安装源信息，使 onboarding 可以在运行时加载前解释 npm 固定、本地可用性状态和本地可用性。（#70951）感谢 @vincentkoc。
+- 插件/目录：将官方外部 WeCom 渠道源固定到精确的 npm 发布版本加 dist 完整性，并设置保护以使官方外部源保持完整性固定。（#70997）感谢 @vincentkoc。
+- 插件/源元数据：当 `openclaw.install.defaultChoice` 无效或指向缺失的源时发出警告，保持目录诊断明确而不破坏现有插件。感谢 @vincentkoc。
+- 插件/源元数据：当 `openclaw.install.expectedIntegrity` 存在但没有有效 npm 源时发出警告，保持孤立的完整性元数据可见而不拒绝现有插件。感谢 @vincentkoc。
+- 插件/源元数据：当 provider 或 channel 目录包身份与 `openclaw.install.npmSpec` 漂移时发出警告，保持诊断可见而不拒绝兼容的外部目录。感谢 @vincentkoc。
+- 插件/Bonjour：将 LAN Gateway 发现广播移入默认启用的捆绑插件，拥有自己的 `@homebridge/ciao` 依赖户以使用户可以在不切断广域网发现的情况下禁用 Bonjour。感谢 @vincentkoc。
+- 插件/兼容性：新增插件兼容性注册表和 SDK/配置/setup/运行时弃用记录文档，包括遗留 harness 命名和其他插件面向别名的带日期迁移元数据。感谢 @vincentkoc。
+- TUI/依赖项：从 OpenClaw TUI 代码块渲染器中移除直接 `cli-highlight` 使用，保持主题化代码着色而无需额外根依赖。感谢 @vincentkoc。
+- 依赖项/SBOM：新增基于所有权的依赖风险报告，覆盖根闭包大小、本机/构建风险包和缺失所有者记录。感谢 @vincentkoc。
+- 诊断/OTEL：将运行、模型调用和工具执行诊断生命周期事件导出为 OTEL 跨度，而不保留活跃跨度状态。感谢 @vincentkoc。
+- 诊断/OTEL：接受 opt-in `diagnostics.otel.captureContent` 控制，用于未来的模型/工具内容跨度属性，同时默认禁用原始内容导出。感谢 @vincentkoc。
+- 诊断/OTEL：新增轻量级诊断 trace-context 载体，用于未来跨度关联而不向核心添加 OTEL SDK 状态。感谢 @vincentkoc。
+- 诊断/OTEL：将诊断跟踪上下文附加到导出的 OTEL 日志中，使日志记录可以与未来跨度关联而不添加保留的处理状态。感谢 @vincentkoc。
+- 诊断/OTEL：通过验证的上下文将不可变的每运行诊断 trace-context 传递到 agent 和工具钩子上下文，并让导出的诊断跨度以之为主父，而不保留全局跟踪状态。感谢 @vincentkoc。
+- 诊断/OTEL：使 exporter 启动重启安全，使配置重载不会保留过时的 SDK、日志传输或诊断事件监听器。感谢 @vincentkoc。
+- 诊断/OTEL：发出有界的 exec-process 诊断并将其导出为 `openclaw.exec` 跨度，而不暴露命令文本、工作目录或容器标识符。（#70424）感谢 @jlapenna。
+- 诊断/OTEL：支持 `OPENCLAW_OTEL_PRELOADED=1`，使插件可以重用已注册的 OpenTelemetry SDK，同时保持 OpenClaw 诊断监听器连接。（#70424）感谢 @jlapenna。
+- 诊断：发出具有跟踪上下文、计时和去敏错误元数据的结构化工具执行诊断事件。感谢 @vincentkoc。
+- 诊断：发出具有跟踪上下文、持续时间和非消息错误元数据的结构化运行和模型调用诊断事件。感谢 @vincentkoc。
+- CLI/Gateway：通过在只读状态路径上跳过插件加载，使 `gateway status` 启动更快。（#71364）感谢 @andyylin。
+
+### 🐛 问题修复
+
+- 打包安装：当捆绑插件运行时镜像回退到复制共享块时，保留包根运行时依赖及其导出的子路径，修复 Windows npm 更新可能无法加载复制的 `dist` 模块的问题。
+- 心跳：通过共享的安全定时器帮助程序限制超大的调度器延迟，防止 `every` 值超过 Node 超时上限而变为 1 毫秒崩溃循环。修复 #71414。（#71478）感谢 @hclsys。
+- Agents/心跳：停止向非心跳运行注入心跳系统提示，防止普通用户回复被抑制为 `HEARTBEAT_OK` 确认。修复 #69079。（#69278）感谢 @stainlu。
+- MCP：在运行结束时退役一次性嵌入式捆绑 MCP 运行时；当运行时工具允许列表无法触及 bundle-MCP 工具时跳过 bundle-MCP 启动；新增 `mcp.sessionIdleTtlMs` 空闲驱逐用于泄漏会话运行时。修复 #71106、#71110、#70389 和 #70808。
+- Gateway/重启延续：在删除重启标记前将重启延续持久化地移交给会话传递队列；在崩溃重启后恢复排队的延续工作；当没有通道路由在重启后存活时回退到仅会话唤醒。（#70780）感谢 @fuller-stack-dev。
+- Agents/工具结果修剪：加强工具结果字符估算器和上下文修剪循环，抵御由 void 或未定义工具处理程序结果创建的非标准 `{ type: "text" }` 块，将非字符串文本有效载荷序列化以进行大小计算，使它们不会以零大小绕过修剪。修复 #34979。（#51267）感谢 @cgdusek。
+- Daemon/service-env：将 Nix Home Manager 配置 bin 目录添加到 macOS 和 Linux 上生成的 gateway service PATH，遵守从右到左的 `NIX_PROFILES` 优先级，并在未设置时回退到 `~/.nix-profile/bin`。修复 #44402。（#59935）感谢 @jerome-benoit。
+- 飞书：在 HTTP 400 启动失败后回退流式卡片创建，使不支持的卡片设置回退而不延迟每条消息。修复 #56981。感谢 @JinnanDuan。
+- 飞书/主题群组：通过 `thread_id` 对原生飞书/Lark 主题群会话进行键控，使起始消息和具有不同 `root_id` 格式的回复保持在同一个 `group_topic` 对话中。修复 #71438。感谢 @1335848090。
+- 飞书：当空闲在最终有效载荷到达前关闭流式卡片时，抑制重复的最终卡片传递。（#68491）感谢 @MoerAI。
+- Signal：保留发送者附件文件名并从这些文件名解析缺失的 MIME 类型，使没有 `contentType` 的 Linux `signal-cli` 语音笔记仍能进入音频转录。修复 #48614。感谢 @mindfury。
+- Telegram/agents：在回复已通过消息工具提交后，抑制幻影"Agent 无法生成回复"回退。（#70623）感谢 @chinar-amrutkar。
+- Models/CLI：在 `openclaw models list` 中在原生 `contextWindow` 旁显示 provider 运行时 `contextTokens`，并将 `openai-codex/gpt-5.5` 与 Codex 的 272K 运行时上限和 400K 原生窗口对齐。修复 #71403。
+- 仪表板/安全：避免将令牌化的 Control UI URL 或 SSH 提示写入运行时日志，使 gateway bearer 片段不会出现在可通过 `logs.tail` 读取的控制台捕获日志中。（#70029）感谢 @Ziy1-Tan。
+- Providers/OpenRouter：将 DeepSeek refs 视为符合缓存 TTL 条件而不注入 Anthropic 缓存控制标记，使上下文修剪与 OpenRouter 管理的提示缓存对齐。（#51983）感谢 @QuinnH496。
+- Control UI/浏览器：延迟 Node-only 临时目录解析运行后才访问临时目录访问模式常量，防止浏览器包在 `node:fs` 常量被存根时崩溃。（#48930）感谢 @Valentinws。
+- Discord/cron：从规范最终助手文本一次性传递仅文本的隔离 cron 和心跳 announce 输出，避免当流式块有效载荷和最终答案包含相同内容时出现重复的 Discord 帖子。修复 #71406。感谢 @alexgross21。
+- macOS Gateway：在引导修复回退前等待 launchd 重新加载已退出的 Gateway LaunchAgent，防止配置触发的重启使服务未加载。修复 #45178。感谢 @vincentkoc。
+- macOS Gateway：容忍 launchctl bootstrap 在重启回退期间已加载退出，并在 bootstrap 后使用非杀死 kickstart，避免可能卸载 LaunchAgent 的第二次竞争。修复 #41934。感谢 @zerone0x。
+- macOS Gateway：在重启回退 bootstrap 前重写过时的 LaunchAgent plist，在 `gateway restart` 必须重新注册 launchd 时匹配安装修复行为。感谢 @maybegeeker。
+- TTS/钩子：为 `message_sending` 和 `message_sent` 钩子保留仅音频 TTS 转录本，而不将转录本渲染为媒体字幕。感谢 @zqchris。
+- WhatsApp/TTS：在共享媒体有效载荷发送和 WhatsApp 出站适配器中保留 `audioAsVoice`，使 `[[audio_as_voice]]` 回复有效载荷在通过 `sendPayload` 路由时保持语音笔记意图。修复 #66053。感谢 @masatohoshino。
+- Control UI/WebChat：从可见聊天历史中隐藏心跳提示、`HEARTBEAT_OK` 确认和仅内部运行时上下文轮次，同时保持底层会话记录完整。修复 #71381。感谢 @gerald1950ggg-ai。
+- Control UI/聊天：当最终历史刷新短暂返回较旧快照时，保持乐观的用户和助手尾消息可见，防止消息卡片在下次刷新前闪烁消失。修复 #71371。感谢 @WolvenRA。
+- Talk/TTS：从活跃运行时注册表而非 provider-list 发现中解析配置的扩展语音 provider，使 Talk 模式不再将有效插件语音 provider 拒绝为不支持。
+- 会话/子代理：停止让过时的已结束运行和旧的仅存储子反向链接在 `childSessions` 中重新出现，同时保持活跃后代和最近结束的子项可见。修复 #57920。
+- 子代理：在可恢复的等待传输失败后恢复子会话，而不暴露额外的等待状态，并保持终端生命周期计时器顺序确定性。（#71423）感谢 @ZiPengWei。
+- 子代理：停止让过时的未结束运行永远计为活跃或待处理，同时为可恢复的子会话保留 restart-aborted 恢复。修复 #71252。感谢 @hclsys。
+- Gateway/工具：允许 `POST /tools/invoke` 到达插件支撑的目录工具（如 `browser`），当没有核心实现存在时，同时仍优先为真实核心名称使用内置工具。感谢 @chat2way。
+- 浏览器/安全：对 `browser.request` gateway 方法要求 `operator.admin`，与该路由暴露的主机/浏览器节点控制权限匹配。感谢 @RichardCao。
+- 浏览器/配置文件：允许本地托管配置文件覆盖 `browser.executablePath`，使不同配置文件可以启动不同的基于 Chromium 的浏览器。感谢 @nobrainer-tech。
+- Agents/replay：在严格 provider replay 前修复移位或缺失的工具结果，为 OpenAI Responses 历史使用 Codex 兼容的 `aborted` 输出，并在重试前丢弃部分 abort/error 传输轮次。
+- 浏览器/启动：对每个配置文件对并发延迟启动调用进行去重，使同时的浏览器工具请求不再竞争导致重复的 Chrome 启动和 `PortInUseError`。（#61772）感谢 @sukhdeepjohar。
+- 浏览器/配置文件：通过清除已死/外来锁并重试一次启动来从崩溃或主机迁移后的过时 Chromium `Singleton*` 配置文件锁中恢复。感谢 @seanc-dev。
+- 浏览器/现有会话：保持 Chrome MCP 状态探测仅传输且短暂，并将过时缓存的 Playwright 附加重试一次，使空闲配置文件检查不再污染下一次真实附加。（#57245）感谢 @josephbergvinson。
+- Cron/exec：仅为具有 `delivery.mode="none"` 的静默 cron 作业抑制自动后台 exec 完成唤醒，同时保持 webhook 和 announce 运行可观察。（#71391）感谢 @goldmar。
+- 回复媒体：允许沙盒化回复传递 OpenClaw 托管的 `media/outbound` 和 `media/tool-*` 附件，而不将其视为沙盒转义，同时在托管媒体根上保持别名转义检查。修复 #71138。感谢 @mayor686、@truffle-dev 和 @neeravmakwana。
+- CLI/agent：保留 `openclaw agent --json` stdout 用于 JSON 响应，在执行开始前将 gateway、插件和嵌入式回退诊断路由到 stderr。修复 #71319。
+- Agents/Gemini：重试仅推理、空和仅计划的 Gemini 轮次，而非让会话静默停滞。修复 #71074。（#71362）感谢 @neeravmakwana。
+- Providers/DeepSeek：为 DeepSeek V4 thinking 启用时，重放的助手工具调用轮次添加缺失的 `reasoning_content` 占位符，使将现有会话切换到 `deepseek-v4-flash` 或 `deepseek-v4-pro` 不再触发 provider 的 400 重放检查。修复 #71372。感谢 @yangyang1719。
+- Exec 审批：允许裸命令名允许列表模式匹配 PATH 解析的可执行文件名，而不信赖 `./tool` 或绝对路径选择的二进制文件。修复 #71315。感谢 @chen-zhang-cs-code 和 @dengluozhang。
+- 配置/恢复：当无效性仅作用域 `plugins.entries.*` 时跳过整文件最后已知良好回滚，在插件模式或主机版本偏斜期间保留不相关的用户设置。修复 #71289。感谢 @jalehman。
+- Agents/工具：保持解析后的回复运行配置不被过时的运行时快照覆盖，并让空的 Web 运行时元数据回退到配置的 provider 自动检测，使标准和排队轮次暴露相同的工具集。修复 #71355。感谢 @c-g14。
+- Agents/TTS：将解析后的共享配置传递到 `tts` 工具中，使工具触发的语音使用配置的 provider 和语音，而非回退到新的配置加载。
+- 回复媒体：当同一媒体已通过块流发送时，从最终回复中剥离 `MEDIA:` 附件，防止重复的 Telegram 语音笔记和文件。修复 #65468。感谢 @aurora-openclaw。
+- Agents/TTS：当工具生成的回复与精确的 `NO_REPLY` 标记配对时保留语音媒体，剥离标记文本而非丢弃音频有效载荷。修复 #66092。
+- 压缩：为手动 `/compact` 遵守显式的 `agents.defaults.compaction.keepRecentTokens`，重新提取安全摘要而非累积先前摘要，并默认启用安全摘要质量检查。修复 #71357。感谢 @WhiteGiverMa。
+- 会话：在负载时维护期间遵守配置的 `session.maintenance` 设置，而非回退到默认条目上限。修复 #71356。感谢 @comolago。
+- 浏览器/沙盒：将解析后的 `browser.ssrfPolicy` 传递到沙盒浏览器网桥，并在有效策略更改时刷新缓存的网桥，使沙盒化浏览器导航遵守私有网络 opt-in。修复 #45178。感谢 @jzakirov、@zuoanCo 和 @kybrcore。
+- 浏览器/代理：保持 Gateway/provider 代理环境变量不代理 OpenClaw 托管的浏览器，使 `HTTP_PROXY` 和 `HTTPS_PROXY` 不再阻止普通浏览器导航。修复 #71358。感谢 @Sanjays2402。
+- Agents/MCP：使用支持 draft-2020-12 的 bundle-MCP 客户端验证器验证 draft-2020-12 MCP 工具输出模式，使外部 MCP 服务器不再因缺失模式引用而无法执行目录/工具。修复 #68772 和 #70196。感谢 @mwiesen。
+- 仪表板/Windows：通过系统 URL 处理程序打开 Control UI 和 OAuth URL，而无需通过 `cmd.exe` 解析或基于 PATH 的 `rundll32` 查找，并拒绝非 HTTP 浏览器打开输入。修复 #71098。感谢 @Sanjays2402。
+- 配置/doctor：拒绝 SecretRef 凭证路径上遗留的 `secretref-env:<ENV_VAR>` 标记字符串，并将有效标记迁移到带 `openclaw doctor --fix` 的结构化 env SecretRefs。修复 #51794。感谢 @halointellicore。
+- 插件 SDK/浏览器：通过浏览器配置文件外观导出解析后的浏览器标签清理配置类型，保持 SDK 子路径合约对齐。
+- Providers/OpenAI：分离 API 密钥和 Codex 登录 onboarding 组，并在模型路由切换后避免重放过时的 OpenAI Responses 推理块。
+- Providers/OpenAI-compatible：仅对用 `compat.supportsPromptCacheKey` opt-in 的 provider 在 Completions 请求上转发 `prompt_cache_key`，保持默认代理有效载荷不变。修复 #69272。
+- Providers/OpenAI-compatible：从自定义 provider 跳过空或非对象流式块，而非在部分输出后使轮次失败。修复 #51112。
+- Providers/OpenAI-compatible：将单一的 MLX 风格 `finish_reason: "tool_call"` 视为工具使用而非 provider 错误。修复 #61499。
+- 文档/TTS：澄清遗留平面 TTS provider 配置块由 `openclaw doctor --fix` 修复，而非在加载时被严格运行时模式接受。修复 #56220。
+- 插件/OpenCode：为 OpenCode 图像理解去除不支持的已禁用 Responses 推理有效载荷。修复 #70252。
+- 插件/OpenCode/OpenCode Go：注册图像理解元数据，使图像工具可用于具有视觉支持的 OpenCode 目录模型。修复 #70482 和 #61789。
+- 插件/OpenCode Go：将默认 Go 目录模型更新为 `opencode-go/kimi-k2.6`。感谢 @masrlinu。
+- Providers/ElevenLabs：为 PCM 电话合成省略 MP3 专用 `Accept` 头，使 Voice Call 对 `pcm_22050` 的请求不再接收 MP3 音频。修复 #67340。感谢 @marcchabot。
+- Providers/MiniMax TTS：在发送 T2A 请求前截断小数部分音调覆盖，与 MiniMax 的整数音调合约匹配，同时保留小数速度和音量。修复 #62144。
+- Providers/MiniMax TTS：将语音笔记目标转码为 Opus，使飞书/Telegram 接收原生语音消息而非 MP3 文件附件。修复 #63540、#64134 和 #70445。
+- Providers/Microsoft TTS：即使另一个语音插件已注册，仍使允许列表中的捆绑语音 provider 可被发现，使 Edge/Microsoft TTS 可与 OpenAI 并存。修复 #62117 和 #66850。
+- Providers/Microsoft TTS：在将 Edge TTS 规范化为 Microsoft provider 后遵守遗留 `messages.tts.providers.edge` 语音设置。修复 #64153。
+- Providers/OpenRouter：新增使用 OpenAI 兼容 `/audio/speech` 端点和 `OPENROUTER_API_KEY` 的 OpenRouter TTS provider。修复 #71268。
+- macOS Talk 模式：在回退到系统语音前通过 gateway `talk.speak` 重试失败的本地 ElevenLabs 流播放，使配置的 ElevenLabs 语音在流播放失败时仍能播放。修复 #65662。
+- 插件/Voice Call：默认回收过时的预应答呼叫，遵守配置的 TTS 超时用于 Twilio 媒体流播放，并将空电话音频失败而非完成为静音。修复 #42071；超越 #60957。感谢 @Ryce 和 @sliekens。
+- 插件/Voice Call：当 Twilio、Telnyx 或 Plivo 将回退到 loopback/私有 webhook URL 时快速失败，使呼叫不会以不可达的回调端点开始。感谢 @artemgetmann。
+- 插件/Voice Call：当 barge-in 或流拆解清除播放队列时解析排队但尚未播放的 Twilio TTS 条目，使等待 `queueTts()` 的呼叫者不再挂起。感谢 @kevinWangSheng。
+- 插件/Voice Call：用 provider 终止过期的已恢复呼叫会话，并仅用剩余持续时间重启已恢复的最大持续时间计时器，防止 Gateway 重启后出现过时的出站重试循环。修复 #48739。感谢 @mira-solari。
+- 插件/Voice Call：在 Telnyx 出站对话问候语后启动 provider STT，并将配置的 Telnyx 语音 ID 传递到 speak 操作。修复 #56091。感谢 @Roshan。
+- 技能：当 `metadata.openclaw` 缺失时遵守遗留 `metadata.clawdbot` 要求和安装程序提示，使较旧的技能在缺失必需二进制文件时不再显示为就绪。修复 #71323。感谢 @chen-zhang-cs-code。
+- 浏览器/配置：在 Chromium 启动前展开 `browser.executablePath` 中的 `~`，使 home-relative 自定义浏览器路径不再因 `ENOENT` 而失败。修复 #67264。感谢 @Quratulain-bilal。
+- 渠道/流式传输：默认保持 Telegram 工具进度预览更新启用以匹配已发布行为，记录 `streaming.preview.toolProgress: false` 仅用于禁用那些状态行，并防止预览进度文本触发 Telegram Markdown 链接、Discord 提及或 Slack mrkdwn 提及。修复 #71320。感谢 @neeravmakwana。
+- Gateway/会话：在原子重写前将超大的 `sessions.json` 复制到轮换备份而非将实时存储重命名离开，使轮换期间崩溃时现有会话到转录映射仍具有权威性。修复 #68229。感谢 @jjjojoj。
+- Providers/OpenAI-compatible：从代理有效载荷中剥离仅 OpenAI Completions 的 `store`，并允许 `extra_body`/`extraBody` passthrough 参数用于 provider 特定请求字段。修复 #61826 和 #69717。
+- Discord/子代理：通过保持请求者-agent announce 路径为主要并仅在 announce 产生无可见输出时回退到直接线程发送来保留线程绑定完成传递。（#71064）感谢 @DolencLuka。
+- Discord/代理：使用 undici `FormData` 序列化代理的多部分附件上传，使 Discord 媒体发送通过配置的 REST 代理工作。（#71383）感谢 @TC500。
+- 浏览器/工具：给 Chrome MCP 现有会话管理调用更长的默认超时，将显式工具超时传递通过标签页管理，并恢复过时的所选页面 MCP 会话而非强制手动重置。
+- 浏览器/沙盒：清理由 primary-agent 浏览器会话打开的空闲跟踪标签页，同时保留活跃标签页复用和子代理、cron 和 ACP 会话的生命周期清理。修复 #71165。感谢 @dwbutler。
+- 插件/Voice Call：在同一运行时实例上重用 webhook 运行时，避免在 Gateway 已拥有语音 webhook 端口时 agent 工具或 CLI 命令运行时出现 `EADDRINUSE`。修复 #58115。感谢 @sfbrian。
+- 插件/Voice Call：在 `call.initiated` 上应答已接受的 Telnyx 入站 Call Control 分支，使到达 OpenClaw 的 webhook 不再让呼叫者持续响铃直到挂断。修复 #58231 和 #40131。感谢 @KonsultDigital。
+- 插件/Voice Call：合并同一运行时实例上并发的 webhook 服务器启动，避免重叠启动路径竞争时的第二次 `listen()` 绑定。感谢 @education-01。
+- 插件/Voice Call：在嵌入式 agent 运行前将语音响应会话固定到 `responseModel`，避免当全局默认模型不同时出现实时会话模型切换失败。修复 #60118。感谢 @xinbenlv。
+- 插件/Voice Call：为语音响应生成添加 `agentId`，使电话可以使用专用 agent 工作区而非总是通过 `main` 路由。修复 #42155。感谢 @TheOpie。
+- 插件/Voice Call：将嵌入式语音响应沙盒解析作用域到所选语音 agent，使隐式 `main` 语音会话遵守 `agents.defaults.sandbox.mode: "off"`，即使其他 agent 定义了沙盒化 Docker 绑定。修复 #56367。感谢 @crpol。
+- 媒体工具：为媒体理解、图像/音乐/视频生成引用和 PDF 输入遵守配置的 web-fetch SSRF 策略，使显式 RFC2544 opt-in 覆盖 WebChat OSS 上传而不削弱默认值。修复 #71300。（#71321）感谢 @neeravmakwana。
+- Agents/TTS：当结构化语音媒体已排队时从详细聊天工具输出中抑制成功的语音转录本，同时为非内置工具名冲突保留文本输出。修复 #71282。感谢 @neeravmakwana。
+- 插件/Google Meet：跨无害 URL 查询差异复用活跃 Meet 标签页，在浏览器超时后恢复已打开的标签页，为登录或权限阻止者显示手动操作详情，并让 `googlemeet recover-tab` 从终端检查配对浏览器节点。
+- Cron/隔离会话：在创建全新的隔离运行时清除过时的运行时、生命周期、认证、模型、exec、心跳、使用、特权、路由和传递产物，并将每运行会话行持久化为快照，使旧基础会话状态不再泄漏到新 cron 执行中。感谢 @vincentkoc。
+- Gateway/会话：从过时的转录锁证据中恢复被 gateway 重启中断的主 agent 轮次，避免在广泛启动后扫描转录的情况下出现卡住的 `status: "running"` 会话。修复 #70555。感谢 @bitloi。
+- Codex 审批：在转发到 OpenClaw 审批提示前清除 MCP 征求审批标题、描述和显示参数。（#71343）感谢 @Lucenx9。
+- Codex 审批：将命令审批响应保持在 Codex app-server `availableDecisions` 范围内，包括对不提供 `decline` 的提示的拒绝/取消回退。（#71338）感谢 @Lucenx9。
+- Codex harness：在绑定轮次开始后拒绝没有 `turnId` 或 `turn.id` 的同线程 app-server 通知，防止未作用域的事件改变或完成活跃回复。（#71317）感谢 @Lucenx9。
+- 插件/Google Meet：在 setup 中包含活跃 Chrome-node 就绪和 Parallels 恢复检查，使过时的节点令牌或断开的 VM 浏览器在 agent 打开会议前可见。
+- 上下文引擎：在上下文引擎窗口化和 `ownsCompaction` 引擎后保持安全摘要压缩检查活跃，使大型转录本可以在提示提交前压缩而非等待 provider 溢出。修复 #71325。
+- 审批：在 Codex 权限提示和 exec 审批元数据中将结构化主目录路径压缩为 `~`，而不将它们重复作为单独的高风险警告，同时保留文件系统根和通配符主机警告。
+- 插件/运行时依赖：将捆绑插件运行时依赖隔离在内部 npm 缓存中用于捆绑插件运行时依赖修复，并让包更新刷新/验证已是当前的安装，使失败的更新或 sudo doctor 运行可以通过重新运行 `openclaw update` 修复。
+- Agents/delete：保持 `--json` 输出机器可读，并保留与另一个 agent 工作区重叠的工作区而非将共享状态移至垃圾箱。修复 #70889 和 #70890。（#70897）感谢 @kaseonedge。
+- 浏览器/截图：通过主机和节点截图请求遵守 `timeoutMs`，绑定原始 CDP 截图命令，并为普通视口截图避免超出视口的 CDP 捕获，使 Windows Chrome 捕获不再在请求截止日期后挂起。修复 #68330。感谢 @Woodylai24。
+- Telegram/模型选择器：在通过 provider 按钮浏览模型时显示配置的模型显示名称，与输入 `/models <provider>` 的输出匹配。修复 #70560。（#71016）感谢 @iskim77。
+- 插件/运行时依赖：为打包/全局安装的捆绑插件运行时依赖在外部运行时根中暂存，并在修复期间保留已暂存的依赖，避免包树更新竞争和升级后 npm 修剪。
+- 插件/运行时依赖：在同步 npm 安装开始前记录捆绑插件运行时依赖暂存，并在之后包含耗时计时，使升级后首次启动在依赖修复期间看起来不再像挂起。
+- Memory/Bedrock：当 AWS 凭证不可用时在自动内存嵌入选择中跳过 Bedrock，使 `memory_search` 可以回退到词法搜索而非在首次嵌入调用时失败。修复 #71143 via #71245。感谢 @bitloi。
+- Agents/故障转移：将嵌入式运行中止信号转发到 provider 自有的模型流，将隐式 LLM 空闲看门狗上限限制在长运行超时以下，并将没有可用重试计时的 429 响应标记为不可重试，使 GitHub Copilot 速率限制故障转移或及时浮出而非在运行超时前挂起。修复 #71120。
+- 插件/Google Meet：使会议创建默认加入，并提供显式仅 URL opt-out，使创建 Meet 的 agent 也会进入会议。
+- Telegram/轮询：在长时间运行的处理器完成前持久化已接受的更新偏移量，使轮询器重启不重放已摄入的更新，同时保留同进程重试用于处理器失败。
+- Telegram/配置：在打包插件 manifest 中包含生成的 Telegram 渠道配置模式元数据，使论坛主题/群组配置在运行时加载前被接受。
+- CLI/Claude：在严格的 Claude CLI MCP bundle 配置中包含用户配置的 `mcp.servers`，匹配 Pi 运行同时保留 OpenClaw loopback 覆盖。修复 #70909。感谢 @keishingu。
+- 浏览器/工具：保持显式 AI 快照不从高效的角色快照默认继承，并保留数字 Playwright AI refs，使 `--format ai` 仍是一条真正的 AI 快照路径。修复 #62550。感谢 @ly85206559。
+- Gateway/配置：当 `${VAR}` 环境引用在磁盘上恢复时，在解析的源快照上保持进程内配置补丁重载比较，避免为未更改的 gateway/plugin 密钥触发错误的完整 gateway 重启。修复 #71208。感谢 @robbiethompson18。
+- Slack/消息：序列化每个目标的写客户端请求和完整出站发送，使快速多消息 Slack 回复保持发送顺序。修复 #69101。（#69105）感谢 @nightq 和 @ztexydt-cqh。
+- Slack/消息：将 Slack bot 令牌排除在内部消息排序和 DM 缓存键外。
+- Slack/exec 审批：通过 Gateway 解析原生审批按钮点击，而非将 `/approve ...` 作为纯 agent 文本传递，如果 Gateway 解析失败则保留重试按钮。修复 #71023。（#71025）感谢 @marusan03。
+- 浏览器/工具：向 agent 公开浏览器 doctor 诊断，并扩展 `openclaw doctor` 浏览器就绪状态说明用于托管 Chromium 启动前提条件。（#62948、#62936）感谢 @seanc-dev。
+- Slack/文件：将非图像 `download-file` 结果作为本地文件路径返回而非图像有效载荷，并在入站文件占位符中包含 Slack 文件 ID，以便 agent 可以调用 `download-file`。修复 #71212。感谢 @teamrazo。
+- 浏览器控制：将独立 loopback 认证作用域到解析的活跃 gateway 凭证，并在密码模式缺少解析密码时失败关闭，使不活跃的令牌或密码不再授权浏览器路由。修复 #65626。（#65639）感谢 @coygeek。
+- Control UI/Codex harness：发出原生 Codex app-server 助手和生命周期完成事件，使实时 webchat 运行停止旋转而无需转录重载回退。（#70815）感谢 @lesaai。
+- Agents/会话：从嵌入式 agent 运行中持久化运行时解析的上下文预算，使 Codex GPT-5.5 会话保持目录/运行时上下文上限而非回退到通用的 200k 状态值。修复 #71294。感谢 @tud0r。
+- Agents/工具：当显式工具允许列表解析为无可调用工具时，在模型提交前使运行失败，防止为未注册工具（如未注册的插件命令）出现仅文本的幻觉工具结果。修复 #71292。
+- Agents/嵌入式：当嵌入式运行没有提示、重放历史或提示本地图像时跳过 provider 提交，防止空的 OpenAI Responses 请求将 provider 错误暴露到用户渠道。修复 #71130。
+- Providers/Google：将 `/think adaptive` 映射到 Gemini 动态 thinking 而非固定的中等/高预算，使用 Gemini 3 的 provider 默认值和 Gemini 2.5 的 `thinkingBudget: -1`。修复 #71316。
+- Providers/MiniMax：保持 M2.7 聊天模型元数据仅文本，使图像工具请求通过 `MiniMax-VL-01` 路由而非 Anthropic 兼容聊天端点。修复 #71296。感谢 @ilker-cevikkaya。
+- Discord/回复：为 Discord 回复传递运行 `message_sending` 插件钩子，包括 DM 目标，使插件可以与其他渠道一致地转换或取消出站 Discord 回复。修复 #59350。（#71094）感谢 @wei840222。
+- Discord/回复：在共享有效载荷回退、组件、语音和排队传递路径中保留一次性原生回复语义，使显式回复标签不再消耗隐式回复槽，块状回退仅发送一次回复。
+- Control UI/命令：在会话行和默认中携带 provider 自有的 thinking 选项 id/标签，使新会话显示并接受 `adaptive`、`xhigh` 和 `max` 等动态模式。修复 #71269。感谢 @Young-Khalil。
+- 图像生成：使显式 `model=` 覆盖为精确匹配，使失败的 `openai/gpt-image-2` 请求不再回落到 Gemini 或其他配置的 provider，并更新 `image_generate list` 以提及 OpenAI Codex OAuth 作为 `openai/gpt-image-2` 的有效认证。修复 #71290 和 #71231。感谢 @Young-Khalil。
+- Providers/GitHub Copilot：保持插件流包装器不在 OpenClaw 选取边界感知流路径前声明传输选择，避免在正常模型轮次上使用 Pi 的过时回退 Copilot 头。
+- Discord/子代理：将运行时配置传递到线程绑定的原生子代理绑定，并在辅助边界要求它，使 Discord 渠道解析保持账户感知配置。修复 #71054。（#70945）感谢 @jai。
+- Slack/Assistant：接受 Slack Assistant DM `message_changed` 事件当其元数据识别人类发送者，同时继续删除机器人自创的编辑。修复 #55445。感谢 @AlfredPros。
+- Slack/原生流式传输：在 `chat.startStream`/`appendStream` 前抑制仅推理有效载荷，使 Claude 扩展 thinking 块不再显示为可见 Slack 消息。修复 #59687。感谢 @vision-ifc。
+- Slack/块回复：当 `replyToMode` 为 `first` 时，将多部分块传递保持在第一个 Slack 回复线程中，匹配文本回复线程而非将后续块泄漏到渠道。修复 #49341。感谢 @pholmstr 和 @xiwuqi。
+- Slack/线程广播：将 `thread_broadcast` 事件作为用户消息处理，使使用"同时发送到渠道"发送的回复到达 agent 而非成为仅元数据系统事件。修复 #56605 和 #4351。感谢 @clawSean 和 @jlowin。
+- Slack/线程化：在选择 Slack `thread_ts` 值时忽略内部回复 id，使恢复的回复保持真实 Slack 线程锚点而非泄漏到渠道根。修复 #68790。感谢 @MonkeyLeeT 和 @martingarramon。
+- Agents/故障转移：停止让无 body 的 HTTP 400/422 代理失败默认归类为 `"format"`，使嵌入式重试暴露不透明的 provider 失败而非进入压缩循环。修复 #66462。（#67024）感谢 @altaywtf 和 @HongzhuLiu。
+- 插件/加载器：为只读插件能力查找使用缓存的发现模式快照加载，保持快照缓存与活跃 Gateway 注册表隔离，并使同一插件渠道/HTTP 路由重新注册幂等，使重复快照或热重载路径不再重跑完整插件副作用或累积重复 surface。修复 #51781、#52031、#54181 和 #57514。感谢 @livingghost、@okuyam2y、@ShionEria 和 @bbshih。
+- 插件/加载器：在 gateway 可绑定的引导加载后，为广泛运行时插件 ensure 调用重用兼容的活跃 Gateway 注册表，使非捆绑插件不再在同一引导路径中重跑 `register()`。修复 #69250。感谢 @markthebest12。
+- 插件/钩子：当后续默认模式插件加载激活不同注册表时，保持 gateway 可绑定的钩子运行器已安装，在运行时缓存未命中间保留 Gateway 子代理生命周期钩子。修复 #63166。
+- 插件/钩子：在入站渠道分发前刷新活跃 Gateway 运行时钩子，使外部安装的插件在作用域启动插件加载后保持 `message_received`、`before_dispatch` 和回复钩子活跃。修复 #71167。
+- 媒体/输入：通过共享媒体加载器解析规范的入站媒体引用，使原生提示图像重放和显式图像/PDF 工具可以在仅工作区文件策略下读取 `media://inbound/<id>` 和托管入站重放路径。
+- 媒体/工具：为图像、PDF、图像生成、视频生成和音乐生成输入集中化媒体引用方案分类，使托管入站引用被一致接受。
+- Control UI/媒体：在服务助手媒体预览前解析规范的入站媒体引用，使 `media://inbound/<id>` 源不再通过访问检查但在文件打开时失败。
+- Auth/Codex：在全新安装时从 Codex CLI 凭证引导 `openai-codex:default`，而不替换后续本地刷新的 OpenClaw OAuth 令牌。修复 #71305。感谢 @Gforce10-design。
+- 插件 SDK/工具结果转换：绑定中间件 `details`，验证就地结果变更，并用规范 `error` 状态标记失败关闭中间件回退。感谢 @vincentkoc。
+- Discord/gateway：当 Carbon gateway 注册与生命周期重连竞争时，防止启动卡在"等待 gateway 就绪"。修复 #52372。（#68159）感谢 @IVY-AI-gif。
+- Discord/gateway：监督 Carbon 的异步 gateway 注册 promise，使致命的 Discord 元数据失败通过启动浮出而非进程级未处理拒绝。（#62451）感谢 @safzanpirani。
+- Discord/gateway：将 websocket 帧活动记录为传输存活，使空闲但健康的 Discord gateway 在用户消息间不再看起来过时。（#68213）感谢 @bmadwaves。
+- Slack/流式传输：当原生或草稿预览流拥有该轮次时抑制块回复，防止在也启用块流式传输时出现重复 Slack 传递。解决 #56675。感谢 @hsiaoa。
+- 插件/缓存：在加载器缓存命中时恢复插件命令和交互处理程序注册表，而不重置交互回调去重，使缓存的外部插件在重载后保持斜杠命令和回调处理程序可用。修复 #71100。感谢 @BomBastikDE。
+- Gateway/OpenAI 兼容：当 agent 运行只有最后调用使用元数据可用时，报告 `/v1/chat/completions` 的非零 token 使用量。修复 #71118。（#71242）感谢 @RenzoMXD。
+- 插件 SDK/工具结果转换：将 harness 工具结果中间件限制为捆绑插件，在中间件错误时失败关闭，验证重写的结果形状，保留 Pi 每调用 id，并使 Codex 媒体信任检查锚定到原始工具来源。感谢 @vincentkoc。
+- Gateway/MCP loopback：对 `127.0.0.1/mcp` `tools/list` 和 `tools/call` 应用仅所有者工具策略并运行 before-tool-call 钩子，使非所有者 bearer 调用者不能再看到或调用仅所有者工具如 `cron`、`gateway` 和 `nodes`，与现有 HTTP `/tools/invoke` 和嵌入式 agent 路径匹配。（#71159）感谢 @mmaps。
+- Codex harness/安全：等待最终 app-server 审批决策并清除审批预览文本，使原生 Codex 权限提示不能通过早期占位符决策解决或渲染不安全的终端/控制内容。（#70751、#70569）感谢 @Lucenx9。
+- Providers/语音安全：通过受保护的 fetch 路径路由 ElevenLabs TTS 和 OpenAI Realtime 浏览器会话密钥创建，保留 provider 调用同时在语音 surface 上保持 SSRF 保护。
+- Agents/OpenAI WS：匹配 Codex 的 Responses WebSocket 延续策略，仅发送带有 `previous_response_id` 的严格增量后续输入，当重放链或请求形状不同时回退到完整上下文。修复 #44948。感谢 @hss-oss。
+- 插件/Google Chat：仅在所有候选都失败后记录 webhook 认证拒绝原因，并在 add-on `appPrincipal` 值与配置不匹配时发出警告。修复 #71078。（#71145）感谢 @luyao618。
+- Models/配置：当从配置重新运行 provider 认证时保留现有默认模型，同时保持显式默认设置命令权威。修复 #70696。（#70793）感谢 @Sathvik-1007。
+- 配置/插件：在验证、生成模式元数据和插件策略检查中接受 `plugins.entries.*.hooks.allowConversationAccess`，使受信任的外部插件可以启用会话访问钩子如 `agent_end` 而无需本地模式补丁。修复 #71215。（#71221）感谢 @BillChirico。
+- Models/运行时：每个 provider 显示一个模型 provider 选择，并将 Codex、Claude CLI 和 Gemini CLI 执行移入显式运行时选择，同时保持仅回退的遗留运行时引用不变。感谢 @vincentkoc。
+- 插件/运行时依赖：在修复捆绑运行时依赖时遵守显式的插件和渠道禁用，使 doctor 和健康检查不再为已禁用的已配置渠道安装依赖。感谢 @vincentkoc。
+- 诊断/OTEL：通过有界的诊断日志事件导出日志，而非直接日志器传输钩子。感谢 @vincentkoc。
+- WhatsApp/插件：支持入站 `message_received` 钩子的显式 opt-in，包含规范渠道、会话和发送者字段。感谢 @vincentkoc。
+- 渠道/设置：保持捆绑设置条目依赖轻量，仅在实际需要登录时才暂存 WhatsApp 运行时依赖，使首次运行设置和只读渠道发现避免未使用的 SDK 导入。
+- Slack/HTTP：在进程全局注册表中保持 webhook 处理器，使 HTTP 模式在插件加载器/原生导入拆分后存活，`/slack/events/<account>` 在记录为活跃后不再返回 404。修复 #67955、#46245 和 #46246。感谢 @chrisabad 和 @cesararevalo。
+- 诊断：加强工具和模型诊断事件抵御恶意错误、阻塞监听器和不安全稳定性原因字段。感谢 @vincentkoc。
+- 插件/onboarding：记录本地插件安装源元数据，而不重复原始绝对本地路径到持久化的 `plugins.installs`，同时保留链接加载路径清理。（#70970）感谢 @vincentkoc。
+- 群聊/静默回复：收紧 `NO_REPLY` 提示指导，使群组保持安静而不叙述沉默或发出回退闲聊，当沉默是预期结果时。（#70954、#71209）感谢 @Takhoffman。
+- WhatsApp/群组+直接：在特定的 `groups.<id>` 或 `direct.<peerId>` 条目上设置 `systemPrompt: ""` 现在会抑制通配符系统提示而非降级到它，使用户可以针对特定群组或对等方静音全局提示。（#70381）感谢 @Bluetegu。
+- 浏览器/工具：告诉 agent 不要在现有会话类型上传递每调用 `timeoutMs`，评估和其他拒绝超时覆盖的 Chrome MCP 操作。
+- 浏览器/工具：使用 Playwright 当前的 AI aria 快照 API 用于 `refs="aria"`，当节点浏览器无法提供 aria refs 时回退到 role refs，使 agent 仍能检查和点击 Google Meet 入场按钮等控件。
+- 浏览器/工具：公开稳定的 `tabId` 句柄如 `t1` 加上可选标签页标签，并在任何需要浏览器标签页目标的地方接受这些句柄。
+- 浏览器/工具：在标签页有效载荷中首先返回 `suggestedTargetId`，使 agent 自然地复用标签或稳定标签页句柄而非原始 DevTools id。
+- 浏览器/工具：捆绑一个 `browser-automation` 技能，包含多步快照、稳定标签页、过期引用和手动阻止循环，用于 agent 控制的页面。
+- 浏览器/工具：新增 `openclaw browser doctor`、URL 扩展快照、直接标签截图，并为意外传递位置索引的 agent 提供更清晰的标签页目标错误。
+- 插件/Google Meet：使用浏览器自动化分类和清除 Meet 入场阻止者如麦克风选择插页式界面，并在重试时复用进行中的创建标签而非打开重复。
+- Codex/GPT-5.4：在原生和嵌入式运行时路径中加强回退、auth-profile、工具模式和重放边缘情况。（#70743）感谢 @100yenadmin。
+- Models/回退：在模型切换前解析裸回退模型 provider id，使配置的回退链在回退未带显式 provider 前缀命名时继续工作。
+- Voice-call/Telnyx：保留入站/出站回调元数据并从 Telnyx 当前的 `transcription_data` 有效载荷中读取转录文本。
+- Providers/DeepSeek：接入 V4 thinking 控件和 OpenAI 兼容重放策略，使后续轮次保留 DeepSeek `reasoning_content`，而 None/off thinking 路径剥离重放的推理字段。修复 #70931。感谢 @lsdsjy。
+- Providers/GitHub Copilot：跨 Anthropic、Responses 和内置压缩摘要路径对齐 Copilot 请求头，包括工具结果和图像后续轮次，而不启用未验证的 Responses 延续。
+- Codex harness：为原生 app-server 运行向聊天渠道发送详细工具进度，匹配 Pi harness `/verbose on` 和 `/verbose full` 行为。（#70966）感谢 @jalehman。
+- Codex 模型：获取分页的 Codex app-server 模型目录，标记截断的 `/codex models` 输出，并将 ChatGPT OAuth 默认值保持在 `openai-codex/gpt-5.5` 路由而非 OpenAI API 密钥路由。
+- Codex 状态：为原生 `codex/*` 会话报告 Codex CLI OAuth 为 `oauth (codex-cli)` 而非显示未知认证。修复 #70688。感谢 @jb510。
+- 渠道/CLI：接受显式共享密钥、base-URL 和 auth-directory 设置标志，并将遗留 Nextcloud Talk `--url`/`--token` add 命令映射到捆绑插件设置输入。修复 #61759 和 #61923。
+- Models/CLI：保持 `openclaw models list` 只读，同时仍显示符合条件的已配置 provider 行，使列出模型不再重写每个 agent 的 `models.json`。（#70847）感谢 @shakkernerd。
+- Agents/传输：将配置的尝试超时传播到受保护的每请求调度器，使慢速本地 LLM 调用如 Ollama 不再在 Undici 默认 60 秒 body 超时处失败。修复 #70829。（#70831）感谢 @DranboFieldston。
+- 插件/providers：在捆绑 provider manifest 中镜像运行时认证选择，并在插件运行时加载前检测 Moonshot/Kimi 网络搜索的 `KIMI_API_KEY`。感谢 @vincentkoc。
+- Gateway/聊天：在聊天运行注册表中注册 chat.send 运行，使生命周期错误事件到达客户端而非被静默丢弃，修复卡住的'等待'状态和 /abort 报告无活跃运行。（#69747）感谢 @wangshu94。
+- 插件/QQ Bot：默认启用捆绑的 qqbot 插件，使其运行时依赖 `@tencent-connect/qqbot-connector` 在首次启动时安装，解锁在配置任何账户前动态导入连接器的二维码绑定流程。（#71051）感谢 @cxyhhhhh。
+- Gateway/agent RPC：将活跃 `agent` 运行注册到聊天中止控制器映射中，使 `chat.abort` 和 `sessions.abort` 可以中断它们，匹配 `chat.send` 行为并解锁通过公共 `agent` RPC 驱动 Gateway 的外部运行时。修复 #71128。（#71214）感谢 @bitloi。
+- Matrix/CLI：将解析的运行时配置传递到 verify 命令，使 `openclaw matrix verify status` 和同级 verify 子命令在获取 Matrix 客户端前不再崩溃。修复 #70992。（#71102）感谢 @luyao618。
+- Gateway/启动：在渠道监视器报告就绪前等待启动辅助程序，减少 Discord 和插件启动竞争，同时保持 gateway 启动可观察性完整。
+- 插件/Google Meet：报告 Chrome 加入所需的手动操作，使用浏览器自动化进行 Meet 入场，并持久化私有 WS 节点 opt-in，使配对节点实时会话保持其预期的网络策略。
+- Slack：将原生流回退回复通过正常分块发送方路由，使长的缓冲 Slack Connect 响应不被丢弃或重复。（#71124）感谢 @martingarramon。
+- WhatsApp：在 agent 分发前转录接受的语音笔记，同时将语音转录本排除在命令授权外。（#64120）感谢 @rogerdigital。
+- 插件/CLI：在发现模式插件加载期间公开渠道插件 CLI 描述符，使快照注册表保持渠道命令可见而不激活完整运行时。（#71309）感谢 @gumadeiras。
+- Matrix：在 E2EE 恢复期间分离恢复密钥、备份和所有者信任诊断，添加备份重置的恢复密钥轮换，并在 QA 中覆盖破坏性备份恢复路径。（#71311）感谢 @gumadeiras。
+- WhatsApp：传递由工具结果回复生成的媒体，同时仍抑制仅文本工具闲聊。（#60968）感谢 @adaclaw。
+- 配置/agents：在严格配置验证中接受 `agents.list[].contextTokens`，使每个 agent 覆盖在热重载后存活，让 `/status` 反映配置的模型窗口而非 200k 回退。修复 #70692。（#71247）感谢 @statxc。
+- 心跳：在心跳提示中包含异步 exec 完成详情，使命令完成通知中继实际输出。（#71213）感谢 @GodsBoy。
+- 内存搜索：对会话转录命中应用会话可见性和 agent 到 agent 策略，并在结果限制前保持 `corpus=sessions` 排名作用域到会话集合。（#70761）感谢 @nefainl。
+- Agents/会话：停止让会话写锁超时进入模型故障转移，使本地锁争用直接浮出而非级联到 providers。（#68700）感谢 @MonkeyLeeT。
+- 自动回复：通过 `message_sending` 钩子运行入站回复传递，使插件可以在发送前转换或取消生成的回复。（#70118）感谢 @jzakirov。
+- CI/release-checks：通过步骤环境变量传递工作流输入和矩阵值，而非直接将它们嵌入 `run:` shell 命令，减少跨 OS release-check 工作流中的模板注入 surface。（#66884）感谢 @alexlomt。
+
+## 🚀 v2026.4.23 (2026年4月24日)
+
+### ✨ 新增功能与改进
+
+- Providers/OpenAI：通过 Codex OAuth 新增图像生成和参考图像编辑功能，使 `openai/gpt-image-2` 无需 `OPENAI_API_KEY` 即可工作。修复 #70703。
+- Providers/OpenRouter：通过 `image_generate` 新增图像生成和参考图像编辑功能，使 OpenRouter 图像模型可以使用 `OPENROUTER_API_KEY` 工作。修复 #55066（通过 #67668）。感谢 @notamicrodose。
+- 图像生成：允许 agent 请求 provider 支持的质量和输出格式提示，并通过 `image_generate` 工具传递 OpenAI 特定的背景、审核、压缩和用户提示。（#70503）感谢 @ottodeng。
+- Agents/subagents：为原生 `sessions_spawn` 运行添加可选的分叉上下文，使 agent 可以在需要时让子级继承请求者的对话记录，同时默认保持干净的隔离会话；包括提示引导、上下文引擎 hook 元数据、文档和 QA 覆盖。
+- Agents/tools：为图像、视频、音乐和 TTS 生成工具添加可选的每调用 `timeoutMs` 支持，使 agent 仅在特定生成需要时延长 provider 请求超时。
+- 内存/本地嵌入：添加可配置的 `memorySearch.local.contextSize`，默认为 4096，使本地嵌入上下文可以在不修改内存主机的情况下为受限主机进行调整。（#70544）感谢 @aalekh-sarvam。
+- 依赖/Pi：更新捆绑 Pi 包至 `0.70.0`，使用 Pi 上游的 `gpt-5.5` 目录元数据用于 OpenAI 和 OpenAI Codex，仅保留本地 `gpt-5.5-pro` 向前兼容处理。
+- Codex harness：为嵌入式 harness 选择决策添加结构化调试日志，使 `/status` 保持简洁，同时网关日志解释自动选择和 Pi 回退原因。（#70760）感谢 @100yenadmin。
+
+### 🐛 问题修复
+
+- Agents/bootstrap：通过检测自定义的 identity/profile 文件、删除过时的 bootstrap 文件并记录设置完成情况，修复仍有过时 `BOOTSTRAP.md` 的已完成工作区（#71230）。感谢 @Patrick-Erichsen。
+- Codex harness：将原生 `request_user_input` 提示路由回原始聊天，保留排队的后续答案，并遵循更新的 app-server 命令审批修订决策。
+- Codex harness/context-engine：在记录之前编辑 context-engine 组装失败，使回退警告不会序列化原始错误对象。（#70809）感谢 @jalehman。
+- WhatsApp/onboarding：使首次运行设置条目加载脱离 Baileys 运行时依赖路径，使打包的 QuickStart 安装可以在运行时依赖暂存之前显示 WhatsApp 设置。修复 #70932。
+- 块流式传输：在已发送的文本块完全覆盖最终回复时，抑制部分块传递中止后的最终组装文本，防止重复回复而不会丢弃无关的短消息。修复 #70921。
+- Codex harness/Windows：在启动原生 app-server 之前通过 PATHEXT 解析 npm 安装的 `codex.cmd` shim，使 `codex/*` 模型无需手动 `.exe` shim 即可工作。修复 #70913。
+- Slack/群组：将 MPIM 群组 DM 分类为群组聊天上下文，并在 Slack 非 DM 表面上抑制详细的工具/计划进度，使内部"Working…"跟踪不再泄露到房间中。修复 #70912。
+- Agents/replay：阻止 OpenAI/Codex 对话记录重放合成缺失的工具结果，同时仍在 Anthropic、Gemini 和 Bedrock 传输拥有的会话上保留合成修复。（#61556）感谢 @VictorJeon 和 @vincentkoc。
+- Telegram/媒体回复：在最终回复路径上将远程 markdown 图像语法解析为出站媒体负载，使 Telegram 群组聊天在模型或工具发出 `![...](...)` 而不是 `MEDIA:` 令牌时不再回退到纯文本图像 URL。（#66191）感谢 @apezam 和 @vincentkoc。
+- Agents/WebChat：从嵌入式 runner 中显示不可重试的 provider 失败（如计费、认证和速率限制错误），而不是记录 `surface_error` 并使 webchat 没有渲染的错误。修复 #70124。（#70848）感谢 @truffle-dev。
+- WhatsApp：统一直接发送和自动回复之间的出站媒体标准化。感谢 @mcaxtr。
+- 内存/CLI：在 memory-core 清单中声明内置的 `local` 嵌入 provider，使独立的 `openclaw memory status`、`index` 和 `search` 可以像网关运行时一样解析本地嵌入。修复 #70836。（#70873）感谢 @mattznojassist。
+- 网关/WebChat：将图像附件作为媒体引用卸载而不是丢弃，为文本-only 主模型保留图像附件，使配置的图像工具仍可检查原始文件。修复 #68513、#44276、#51656、#70212。
+- 插件/Google Meet：在离开时挂起委托的 Twilio 呼叫，在启动失败时清理 Chrome 实时音频桥接，并使用扁平的 provider 安全工具 schema。
+- 媒体理解：在原生视觉跳过之前尊重显式图像模型配置，包括 `agents.defaults.imageModel`、`tools.media.image.models` 和 provider 图像默认值（如 MiniMax VL），当活动聊天模型为文本-only 时。修复 #47614、#63722、#69171。
+- Codex/媒体理解：通过有界的 Codex app-server 图像轮次支持 `codex/*` 图像模型，同时将 `openai-codex/*` 保留在 OpenAI Codex OAuth 路由上，并针对生成的协议合同验证 app-server 响应。修复 #70201。
+- Providers/OpenAI Codex：当 Codex 目录发现省略 `openai-codex/gpt-5.5` OAuth 模型行时合成它，使 cron 和子 agent 运行在账户认证时不会因 `Unknown model` 而失败。
+- 模型/Codex：在从聊天或 CLI 命令添加模型时保留 Codex provider 元数据，使手动添加的 Codex 模型保持正确的认证和路由行为。（#70820）感谢 @Takhoffman。
+- Providers/OpenAI：当 `openai-codex` 配置文件处于活动状态时，直接通过配置的 Codex OAuth 路由 `openai/gpt-image-2`，而不是先探测 `OPENAI_API_KEY`。
+- Providers/OpenAI：强化图像生成认证路由和 Codex OAuth 响应解析，使回退仅适用于公共 OpenAI API 路由和有界的 SSE 结果。感谢 @Takhoffman。
+- OpenAI/图像生成：将参考图像编辑作为受保护的多部分上传发送，而不是 JSON 数据 URL，恢复复杂的多参考 `gpt-image-2` 编辑。修复 #70642。感谢 @dashhuang。
+- Providers/OpenRouter：将图像理解提示作为用户文本在图像部分之前发送，恢复 OpenRouter 多模态模型的非空视觉响应。修复 #70410。
+- Providers/Google：为 Gemini 图像生成请求尊重私有网络 SSRF 选择加入，使将 Google API 主机解析为私有地址的受信任代理设置可以使用 `image_generate`。修复 #67216。
+- Agents/传输：阻止嵌入式运行降低进程范围的 undici 流超时，使慢速 Gemini 图像生成和其他长时间运行的 provider 请求不再继承短的运行尝试头超时。修复 #70423。感谢 @giangthb。
+- Providers/OpenAI：为 OpenAI 兼容的图像生成端点尊重私有网络 SSRF 选择加入，使受信任的 LocalAI/LAN `image_generate` 路由无需全局禁用 SSRF 检查即可工作。修复 #62879。感谢 @seitzbg。
+- Providers/OpenAI：停止通过回退目录宣传已移除的 `gpt-5.3-codex-spark` Codex 模型，并使用 GPT-5.5 恢复提示抑制陈旧行。
+- Control UI/chat：将 agent 生成的图像持久化为认证的管理媒体，并接受配对设备令牌用于 agent 媒体获取，使 webchat 历史重载继续显示生成的图像。（#70719、#70741）感谢 @Patrick-Erichsen。
+- Control UI/chat：在网关重连之间排队停止按钮中止，使断开的活动运行在重连时取消，而不是仅清除本地 UI 状态。（#70673）感谢 @chinar-amrutkar。
+- 内存/QMD：当启动修复发现集合名称已存在时重新创建过时的托管 QMD 集合，使根内存缩小回 `MEMORY.md`，而不是停留在广泛的工作区 markdown 索引上。
+- Agents/OpenAI：从 PI、Codex 和自动回复 harness 路径中显示选定模型容量失败，并带有模型切换提示，而不是通用的空响应错误。感谢 @vincentkoc。
+- 插件/QR：用有界的 `qrcode-tui` 辅助工具替换旧版 `qrcode-terminal` QR 渲染，用于插件登录/设置流程。（#65969）感谢 @vincentkoc。
+- 语音调用/实时：在问候或转发缓冲音频之前等待 OpenAI 会话配置，并在流设置之前拒绝非允许列表的 Twilio 呼叫者。（#43501）感谢 @forrestblount。
+- ACPX/Codex：停止为 Codex ACP、Codex app-server 和 Codex CLI 运行物化 `auth.json` 桥接文件；Codex 拥有的运行时现在直接使用其正常的 `CODEX_HOME`/`~/.codex` 认证路径。
+- 自动回复/系统事件：通过持久化的会话传递上下文路由异步 exec 事件完成回复，使长时间运行的命令结果返回到原始通道，而不是在实时源元数据缺失时被丢弃。（#70258）感谢 @wzfukui。
+- 网关/会话：将 webchat 会话变更守卫扩展到 `sessions.compact` 和 `sessions.compaction.restore`，使 `WEBCHAT_UI` 客户端与现有的补丁/删除守卫一致地被拒绝进行压缩侧会话变更。（#70716）感谢 @drobison00。
+- QA 通道/安全：在媒体获取之前拒绝非 HTTP(S) 入站附件 URL，并记录被拒绝的方案，使可疑或配置错误的负载在调试期间可见。（#70708）感谢 @vincentkoc。
+- 插件/安装：将主机 OpenClaw 包链接到声明 `openclaw` 为对等依赖的外部插件中，使仅对等的插件 SDK 导入在安装后解析，而无需捆绑重复的主机包。（#70462）感谢 @anishesg。
+- 插件/Windows：在捆绑的运行时依赖修复期间就地刷新打包的插件 SDK 别名，使网关和 CLI 插件启动在同guest npm 更新后不再在 `ENOTEMPTY`/`EPERM` 上竞争。
+- Teams/安全：要求共享的 Bot Framework 受众令牌通过验证的 `appid` 或 `azp` 命名配置的 Teams 应用，阻止跨 bot 令牌在全局受众上重放。（#70724）感谢 @vincentkoc。
+- 插件/启动：相对于目标插件模块解析捆绑的插件 Jiti 加载，而不是中央加载器，使 Bun 全局安装在发现捆绑的图像 provider 时不再挂起。（#70073）感谢 @yidianyiko。
+- Anthropic/CLI 安全：从 OpenClaw 现有的 YOLO exec 策略派生 Claude CLI `bypassPermissions`，保留显式的原始 Claude `--permission-mode` 覆盖，并剥离格式错误的权限模式参数，而不是静默回退到旁路。（#70723）感谢 @vincentkoc。
+- Android/安全：在 Android 手动和扫描路由上要求仅回环的明文网关连接，使私有 LAN 和链路本地 `ws://` 端点在启用 TLS 之前 fail closed。（#70722）感谢 @vincentkoc。
+- 配对/安全：要求私有 IP 或回环主机用于明文移动配对，并停止将 `.local` 或无点主机名视为安全的明文端点。（#70721）感谢 @vincentkoc。
+- 插件/安全：阻止 setup-api 查找回退到启动目录，使工作区本地的 `extensions/<plugin>/setup-api.*` 文件在 provider 设置解析期间无法执行。（#70718）感谢 @drobison00。
+- 审批/安全：要求显式的聊天 exec 审批启用，而不是仅因为审批者从配置或所有者允许列表中解析就自动启用审批客户端。（#70715）感谢 @vincentkoc。
+- Discord/安全：阻止原生斜杠命令通道策略绕过配置的 owner 或成员限制，同时在没有更严格的访问规则时保留通道策略回退。（#70711）感谢 @vincentkoc。
+- Android/安全：阻止 `ASK_OPENCLAW` 意图自动发送注入的提示，使外部应用操作仅预填草稿而不是立即分发。（#70714）感谢 @vincentkoc。
+- 密钥/Windows：从文件支持的密钥中剥离 UTF-8 BOM，并使不可用的 ACL 检查 fail closed，除非受信任的文件或 exec provider 显式选择加入 `allowInsecurePath`。（#70662）感谢 @zhanggpcsu。
+- Agents/图像生成：在工具警告中转义忽略的覆盖值，使解析的 `MEDIA:` 指令无法通过不支持的模型选项注入。（#70710）感谢 @vincentkoc。
+- QQBot/安全：要求 `/bot-approve` 的框架认证，使未经授权的 QQ 发送者无法通过未认证的分派前斜杠命令路径更改 exec 审批设置。（#70706）感谢 @vincentkoc。
+- MCP/工具：阻止 ACPX OpenClaw 工具桥列出或调用 owner-only 工具（如 `cron`），关闭非 owner MCP 调用者的权限提升路径。（#70698）感谢 @vincentkoc。
+- Feishu/onboarding：通过仅设置的 barrel 加载 Feishu 设置表面，使首次运行设置在捆绑的运行时依赖暂存之前不再导入 Feishu 的 Lark SDK。（#70339）感谢 @andrejtr。
+- 审批/启动：使原生审批处理程序在网关认证后报告就绪，同时在后台重放待处理的审批，使慢速或失败的重放传递不再阻止处理程序启动或放大重连风暴。
+- WhatsApp/安全：将联系人/vCard/位置结构化对象的自由文本排除在内联消息体之外，并通过围栏的不可信元数据 JSON 渲染，限制名称、电话字段和位置标签/注释中的隐藏提示注入负载。
+- 群组聊天/安全：将通道来源的群组名称和参与者标签排除在内联群组系统提示之外，并通过围栏的不可信元数据 JSON 渲染。
+- Agents/replay：在严格的重放清理期间保留 Kimi 风格的 `functions.<name>:<index>` 工具调用 ID，使自定义的 OpenAI 兼容 Kimi 路由保持多轮工具使用完整。（#70693）感谢 @geri4。
+- Discord/回复：通过出站传递保留最终回复权限上下文，使 Discord 回复在发送时保持相同的通道/成员路由规则。
+- 插件/启动：从打包的安装和外部运行时依赖暂存根恢复捆绑的插件 `openclaw/plugin-sdk/*` 解析，使 Telegram/Discord 在缺少依赖修复后不再因 `Cannot find package 'openclaw'` 而崩溃循环。（#70852）感谢 @simonemacario。
+- CLI/Claude：在 `claude-cli` 轮次上运行与直接嵌入式运行相同的提示构建 hook 和触发/通道上下文，使 Claude Code 会话与 OpenClaw 工作区身份、路由和 hook 驱动的提示变更保持一致。（#70625）感谢 @mbelinky。
+- Discord/插件启动：将子 agent hook 延迟在 Discord 的通道入口之后，使打包的入口导入保持狭窄，并使用通道 ID 和入口路径报告导入失败。
+- 内存/doctor：将根持久内存规范化在 `MEMORY.md` 上，停止将小写的 `memory.md` 视为运行时回退，并使 `openclaw doctor --fix` 将真正的分裂根文件合并到 `MEMORY.md` 中并备份。（#70621）感谢 @mbelinky。
+- Providers/Anthropic Vertex：在轻量级 provider 发现路径之后恢复 ADC 支持的模型发现，通过解析发出的发现条目、在引导发现上显示合成认证，并在探测默认 GCP ADC 路径时尊重复制的环境快照。修复 #65715。（#65716）感谢 @feiskyer。
+- Codex harness/状态：在每个会话上固定嵌入式 harness 选择，在 `/status` 中显示活动非 PI harness ID（如 `codex`），并在 `/new` 或 `/reset` 之前将旧版对话记录保留在 PI 上，使配置变更无法热切换现有会话。
+- 网关/安全：通过允许列表限制 agent 可调的提示、模型和提及门控路径（包括 Telegram 主题级 `requireMention`），在 agent 驱动的 `gateway config.apply`/`config.patch` 运行时编辑上 fail closed，而不是依赖手工维护的可能遗漏新敏感配置密钥的保护子树拒绝列表。（#70726）感谢 @drobison00。
+- Webhooks/安全：在每个请求上重新解析 `SecretRef` 支持的 webhook 路由密钥，使 `openclaw secrets reload` 立即撤销先前的密钥，而不是等待网关重启。（#70727）感谢 @drobison00。
+- 内存/梦境：将托管的梦境 cron 与心跳解耦，作为隔离的轻量级 agent 轮次运行，使梦境在默认 agent 的心跳被禁用时仍运行，且不再被 `heartbeat.activeHours` 跳过。`openclaw doctor --fix` 将持久化 cron 配置中的过时主会话梦境作业迁移到新形状。修复 #69811、#67397、#68972。（#70737）感谢 @jalehman。
+- Agents/CLI：将 `--agent` 加 `--session-id` 查找限制在请求的 agent 存储中，使显式的 agent 恢复无法选择另一个 agent 的会话。（#70985）感谢 @frankekn。
+- 插件/Comfy：从 `plugins.entries.comfy.config` 读取工作流和云认证配置，同时保留旧版 Comfy 配置回退，使图像、视频和音乐工作流通过配置验证。修复 #61915。（#63058）感谢 @547895019。
+- 网关/密钥：在 `secrets.reload` 期间重启 Slack 和 Zalo 等密钥支持的通道，使轮换的 webhook 密钥立即生效，重载被序列化，每个通道的重启错误被隔离。（#70720）感谢 @drobison00。
+- 插件/tokenjuice：在捆绑的插件运行时暂存期间保留 `node_modules/tokenjuice/dist/rules/tests/*.json`，使插件停止因 `Cannot find module '../rules/tests/bun-test.json'` 而加载失败。全局基本名称修剪将任何 `tests/` 目录视为测试货物，但 tokenjuice 的 `dist/rules/tests/` 是被 `dist/core/builtin-rules.generated.js` 消耗的运行时加载的规则数据。为每个包的修剪规则添加可选的 `keepDirectories` 字段，使与修剪的基本名称冲突的资产目录的包可以干净地暂存。
+
 ## 🚀 v2026.4.22 (2026年4月23日)
 
 > 上游官方版本，包含大量新功能和问题修复。以下为英文原文，中文翻译持续更新中。
