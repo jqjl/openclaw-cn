@@ -6,8 +6,6 @@ read_when:
 title: "TUI"
 ---
 
-# TUI (Terminal UI)
-
 ## Quick start
 
 1. Start the Gateway.

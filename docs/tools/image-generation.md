@@ -1,18 +1,22 @@
 ---
 summary: "Generate and edit images using configured providers (OpenAI, Google Gemini, fal, MiniMax, ComfyUI, Vydra)"
 read_when:
-  - Generating images via the agent
-  - Configuring image generation providers and models
+  - Generating or editing images via the agent
+  - Configuring image-generation providers and models
   - Understanding the image_generate tool parameters
-title: "Image Generation"
+title: "Image generation"
+sidebarTitle: "Image generation"
 ---
 
-# Image Generation
-
-The `image_generate` tool lets the agent create and edit images using your configured providers. Generated images are delivered automatically as media attachments in the agent's reply.
+The `image_generate` tool lets the agent create and edit images using your
+configured providers. Generated images are delivered automatically as media
+attachments in the agent's reply.
 
 <Note>
-The tool only appears when at least one image generation provider is available. If you don't see `image_generate` in your agent's tools, configure `agents.defaults.imageGenerationModel` or set up a provider API key.
+The tool only appears when at least one image-generation provider is
+available. If you do not see `image_generate` in your agent's tools,
+configure `agents.defaults.imageGenerationModel`, set up a provider API key,
+or sign in with OpenAI Codex OAuth.
 </Note>
 
 ## Quick start
@@ -27,14 +31,52 @@ The tool only appears when at least one image generation provider is available. 
       imageGenerationModel: {
         primary: "openai/gpt-image-1",
       },
-    },
-  },
-}
-```
+    }
+    ```
 
-3. Ask the agent: _"Generate an image of a friendly lobster mascot."_
+    Codex OAuth uses the same `openai/gpt-image-2` model ref. When an
+    `openai-codex` OAuth profile is configured, OpenClaw routes image
+    requests through that OAuth profile instead of first trying
+    `OPENAI_API_KEY`. Explicit `models.providers.openai` config (API key,
+    custom/Azure base URL) opts back into the direct OpenAI Images API
+    route.
 
-The agent calls `image_generate` automatically. No tool allow-listing needed — it's enabled by default when a provider is available.
+  </Step>
+  <Step title="Ask the agent">
+    _"Generate an image of a friendly robot mascot."_
+
+    The agent calls `image_generate` automatically. No tool allow-listing
+    needed — it is enabled by default when a provider is available.
+
+  </Step>
+</Steps>
+
+<Warning>
+For OpenAI-compatible LAN endpoints such as LocalAI, keep the custom
+`models.providers.openai.baseUrl` and explicitly opt in with
+`browser.ssrfPolicy.dangerouslyAllowPrivateNetwork: true`. Private and
+internal image endpoints remain blocked by default.
+</Warning>
+
+## Common routes
+
+| Goal                                                 | Model ref                                          | Auth                                   |
+| ---------------------------------------------------- | -------------------------------------------------- | -------------------------------------- |
+| OpenAI image generation with API billing             | `openai/gpt-image-2`                               | `OPENAI_API_KEY`                       |
+| OpenAI image generation with Codex subscription auth | `openai/gpt-image-2`                               | OpenAI Codex OAuth                     |
+| OpenAI transparent-background PNG/WebP               | `openai/gpt-image-1.5`                             | `OPENAI_API_KEY` or OpenAI Codex OAuth |
+| DeepInfra image generation                           | `deepinfra/black-forest-labs/FLUX-1-schnell`       | `DEEPINFRA_API_KEY`                    |
+| OpenRouter image generation                          | `openrouter/google/gemini-3.1-flash-image-preview` | `OPENROUTER_API_KEY`                   |
+| LiteLLM image generation                             | `litellm/gpt-image-2`                              | `LITELLM_API_KEY`                      |
+| Google Gemini image generation                       | `google/gemini-3.1-flash-image-preview`            | `GEMINI_API_KEY` or `GOOGLE_API_KEY`   |
+
+The same `image_generate` tool handles text-to-image and reference-image
+editing. Use `image` for one reference or `images` for multiple references.
+Provider-supported output hints such as `quality`, `outputFormat`, and
+`background` are forwarded when available and reported as ignored when a
+provider does not support them. Bundled transparent-background support is
+OpenAI-specific; other providers may still preserve PNG alpha if their
+backend emits it.
 
 ## Supported providers
 
@@ -49,9 +91,19 @@ The agent calls `image_generate` automatically. No tool allow-listing needed —
 
 Use `action: "list"` to inspect available providers and models at runtime:
 
-```
+```text
 /tool image_generate action=list
 ```
+
+## Provider capabilities
+
+| Capability            | ComfyUI            | DeepInfra | fal               | Google         | MiniMax               | OpenAI         | Vydra | xAI            |
+| --------------------- | ------------------ | --------- | ----------------- | -------------- | --------------------- | -------------- | ----- | -------------- |
+| Generate (max count)  | Workflow-defined   | 4         | 4                 | 4              | 9                     | 4              | 1     | 4              |
+| Edit / reference      | 1 image (workflow) | 1 image   | 1 image           | Up to 5 images | 1 image (subject ref) | Up to 5 images | —     | Up to 5 images |
+| Size control          | —                  | ✓         | ✓                 | ✓              | —                     | Up to 4K       | —     | —              |
+| Aspect ratio          | —                  | —         | ✓ (generate only) | ✓              | ✓                     | —              | —     | ✓              |
+| Resolution (1K/2K/4K) | —                  | —         | ✓                 | ✓              | —                     | —              | —     | 1K, 2K         |
 
 ## Tool parameters
 
@@ -68,9 +120,15 @@ Use `action: "list"` to inspect available providers and models at runtime:
 | `count`       | number   | Number of images to generate (1–4)                                                    |
 | `filename`    | string   | Output filename hint                                                                  |
 
-Not all providers support all parameters. When a fallback provider supports a nearby geometry option instead of the exact requested one, OpenClaw remaps to the closest supported size, aspect ratio, or resolution before submission. Truly unsupported overrides are still reported in the tool result.
-
-Tool results report the applied settings. When OpenClaw remaps geometry during provider fallback, the returned `size`, `aspectRatio`, and `resolution` values reflect what was actually sent, and `details.normalization` captures the requested-to-applied translation.
+<Note>
+Not all providers support all parameters. When a fallback provider supports a
+nearby geometry option instead of the exact requested one, OpenClaw remaps to
+the closest supported size, aspect ratio, or resolution before submission.
+Unsupported output hints are dropped for providers that do not declare
+support and reported in the tool result. Tool results report the applied
+settings; `details.normalization` captures any requested-to-applied
+translation.
+</Note>
 
 ## Configuration
 
@@ -91,33 +149,46 @@ Tool results report the applied settings. When OpenClaw remaps geometry during p
 
 ### Provider selection order
 
-When generating an image, OpenClaw tries providers in this order:
+OpenClaw tries providers in this order:
 
-1. **`model` parameter** from the tool call (if the agent specifies one)
-2. **`imageGenerationModel.primary`** from config
-3. **`imageGenerationModel.fallbacks`** in order
-4. **Auto-detection** — uses auth-backed provider defaults only:
-   - current default provider first
-   - remaining registered image-generation providers in provider-id order
+1. **`model` parameter** from the tool call (if the agent specifies one).
+2. **`imageGenerationModel.primary`** from config.
+3. **`imageGenerationModel.fallbacks`** in order.
+4. **Auto-detection** — auth-backed provider defaults only:
+   - current default provider first;
+   - remaining registered image-generation providers in provider-id order.
 
-If a provider fails (auth error, rate limit, etc.), the next candidate is tried automatically. If all fail, the error includes details from each attempt.
+If a provider fails (auth error, rate limit, etc.), the next configured
+candidate is tried automatically. If all fail, the error includes details
+from each attempt.
 
-Notes:
-
-- Auto-detection is auth-aware. A provider default only enters the candidate list
-  when OpenClaw can actually authenticate that provider.
-- Auto-detection is enabled by default. Set
-  `agents.defaults.mediaGenerationAutoProviderFallback: false` if you want image
-  generation to use only the explicit `model`, `primary`, and `fallbacks`
-  entries.
-- Use `action: "list"` to inspect the currently registered providers, their
-  default models, and auth env-var hints.
+<AccordionGroup>
+  <Accordion title="Per-call model overrides are exact">
+    A per-call `model` override tries only that provider/model and does
+    not continue to configured primary/fallback or auto-detected providers.
+  </Accordion>
+  <Accordion title="Auto-detection is auth-aware">
+    A provider default only enters the candidate list when OpenClaw can
+    actually authenticate that provider. Set
+    `agents.defaults.mediaGenerationAutoProviderFallback: false` to use only
+    explicit `model`, `primary`, and `fallbacks` entries.
+  </Accordion>
+  <Accordion title="Timeouts">
+    Set `agents.defaults.imageGenerationModel.timeoutMs` for slow image
+    backends. A per-call `timeoutMs` tool parameter overrides the configured
+    default.
+  </Accordion>
+  <Accordion title="Inspect at runtime">
+    Use `action: "list"` to inspect the currently registered providers,
+    their default models, and auth env-var hints.
+  </Accordion>
+</AccordionGroup>
 
 ### Image editing
 
 OpenAI, Google, fal, MiniMax, and ComfyUI support editing reference images. Pass a reference image path or URL:
 
-```
+```text
 "Generate a watercolor version of this photo" + image: "/path/to/photo.jpg"
 ```
 
@@ -140,9 +211,9 @@ MiniMax image generation is available through both bundled MiniMax auth paths:
 
 ## Related
 
-- [Tools Overview](/tools) — all available agent tools
-- [fal](/providers/fal) — fal image and video provider setup
+- [Tools overview](/tools) — all available agent tools
 - [ComfyUI](/providers/comfy) — local ComfyUI and Comfy Cloud workflow setup
+- [fal](/providers/fal) — fal image and video provider setup
 - [Google (Gemini)](/providers/google) — Gemini image provider setup
 - [MiniMax](/providers/minimax) — MiniMax image provider setup
 - [OpenAI](/providers/openai) — OpenAI Images provider setup

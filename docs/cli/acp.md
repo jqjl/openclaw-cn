@@ -3,10 +3,8 @@ summary: "Run the ACP bridge for IDE integrations"
 read_when:
   - Setting up ACP-based IDE integrations
   - Debugging ACP session routing to the Gateway
-title: "acp"
+title: "ACP"
 ---
-
-# acp
 
 Run the [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) bridge that talks to an OpenClaw Gateway.
 
@@ -314,3 +312,8 @@ Security note:
 - `--server-args <args...>`: extra arguments passed to the ACP server.
 - `--server-verbose`: enable verbose logging on the ACP server.
 - `--verbose, -v`: verbose client logging.
+
+## Related
+
+- [CLI reference](/cli)
+- [ACP agents](/tools/acp-agents)

@@ -6,8 +6,6 @@ read_when:
 title: "OpenCode Go"
 ---
 
-# OpenCode Go
-
 OpenCode Go is the Go catalog within [OpenCode](/providers/opencode).
 It uses the same `OPENCODE_API_KEY` as the Zen catalog, but keeps the runtime
 provider id `opencode-go` so upstream per-model routing stays correct.
@@ -18,7 +16,7 @@ provider id `opencode-go` so upstream per-model routing stays correct.
 | Auth             | `OPENCODE_API_KEY`              |
 | Parent setup     | [OpenCode](/providers/opencode) |
 
-## Supported models
+## Built-in catalog
 
 | Model ref                  | Name         |
 | -------------------------- | ------------ |
@@ -38,7 +36,7 @@ provider id `opencode-go` so upstream per-model routing stays correct.
       </Step>
       <Step title="Set a Go model as default">
         ```bash
-        openclaw config set agents.defaults.model.primary "opencode-go/kimi-k2.5"
+        openclaw config set agents.defaults.model.primary "opencode-go/kimi-k2.6"
         ```
       </Step>
       <Step title="Verify models are available">
@@ -70,11 +68,11 @@ provider id `opencode-go` so upstream per-model routing stays correct.
 ```json5
 {
   env: { OPENCODE_API_KEY: "YOUR_API_KEY_HERE" }, // pragma: allowlist secret
-  agents: { defaults: { model: { primary: "opencode-go/kimi-k2.5" } } },
+  agents: { defaults: { model: { primary: "opencode-go/kimi-k2.6" } } },
 }
 ```
 
-## Advanced notes
+## Advanced configuration
 
 <AccordionGroup>
   <Accordion title="Routing behavior">

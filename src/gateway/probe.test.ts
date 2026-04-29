@@ -3,12 +3,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const gatewayClientState = vi.hoisted(() => ({
   options: null as Record<string, unknown> | null,
   requests: [] as string[],
-  startMode: "hello" as "hello" | "close" | "connect-error-close",
+  startMode: "hello" as "hello" | "close" | "connect-error-close" | "startup-retry-then-hello",
   close: { code: 1008, reason: "pairing required" },
   helloAuth: {
     role: "operator",
     scopes: ["operator.read"],
   } as { role?: string; scopes?: string[] } | undefined,
+  helloServer: {
+    version: "2026.4.24",
+    connId: "conn-test",
+  },
   connectError: "scope upgrade pending approval (requestId: req-123)",
   connectErrorDetails: {
     code: "PAIRING_REQUIRED",
@@ -18,8 +22,14 @@ const gatewayClientState = vi.hoisted(() => ({
 }));
 
 const deviceIdentityState = vi.hoisted(() => ({
-  value: { id: "test-device-identity" } as Record<string, unknown>,
+  value: { deviceId: "test-device-identity" } as Record<string, unknown>,
   throwOnLoad: false,
+  cachedToken: {
+    token: "cached-operator-token",
+    role: "operator",
+    scopes: ["operator.read"],
+    updatedAtMs: 1,
+  } as Record<string, unknown> | null,
 }));
 
 class MockGatewayClientRequestError extends Error {
@@ -66,10 +76,22 @@ class MockGatewayClient {
           }
           return;
         }
+        if (gatewayClientState.startMode === "startup-retry-then-hello") {
+          const onHelloOk = this.opts.onHelloOk;
+          if (typeof onHelloOk === "function") {
+            await onHelloOk({
+              type: "hello-ok",
+              server: gatewayClientState.helloServer,
+              auth: gatewayClientState.helloAuth,
+            });
+          }
+          return;
+        }
         const onHelloOk = this.opts.onHelloOk;
         if (typeof onHelloOk === "function") {
           await onHelloOk({
             type: "hello-ok",
+            server: gatewayClientState.helloServer,
             auth: gatewayClientState.helloAuth,
           });
         }
@@ -100,6 +122,16 @@ vi.mock("../infra/device-identity.js", () => ({
     }
     return deviceIdentityState.value;
   },
+  loadDeviceIdentityIfPresent: () => {
+    if (deviceIdentityState.throwOnLoad) {
+      throw new Error("read-only identity dir");
+    }
+    return deviceIdentityState.value;
+  },
+}));
+
+vi.mock("../infra/device-auth-store.js", () => ({
+  loadDeviceAuthToken: () => deviceIdentityState.cachedToken,
 }));
 
 const { clampProbeTimeoutMs, probeGateway } = await import("./probe.js");
@@ -107,6 +139,12 @@ const { clampProbeTimeoutMs, probeGateway } = await import("./probe.js");
 describe("probeGateway", () => {
   beforeEach(() => {
     deviceIdentityState.throwOnLoad = false;
+    deviceIdentityState.cachedToken = {
+      token: "cached-operator-token",
+      role: "operator",
+      scopes: ["operator.read"],
+      updatedAtMs: 1,
+    };
     gatewayClientState.startMode = "hello";
     gatewayClientState.close = { code: 1008, reason: "pairing required" };
     gatewayClientState.helloAuth = {
@@ -147,6 +185,10 @@ describe("probeGateway", () => {
       scopes: ["operator.read"],
       capability: "read_only",
     });
+    expect(result.server).toEqual({
+      version: "2026.4.24",
+      connId: "conn-test",
+    });
   });
 
   it("keeps device identity enabled for remote probes", async () => {
@@ -159,7 +201,31 @@ describe("probeGateway", () => {
     expect(gatewayClientState.options?.deviceIdentity).toEqual(deviceIdentityState.value);
   });
 
-  it("keeps device identity disabled for unauthenticated loopback probes", async () => {
+  it("does not create or attach a device identity for first-time authenticated probes", async () => {
+    deviceIdentityState.cachedToken = null;
+
+    await probeGateway({
+      url: "ws://127.0.0.1:18789",
+      auth: { token: "secret" },
+      timeoutMs: 1_000,
+    });
+
+    expect(gatewayClientState.options?.deviceIdentity).toBeNull();
+    expect(gatewayClientState.options?.scopes).toEqual(["operator.read"]);
+  });
+
+  it("reuses cached device identity for unauthenticated loopback probes", async () => {
+    await probeGateway({
+      url: "ws://127.0.0.1:18789",
+      timeoutMs: 1_000,
+    });
+
+    expect(gatewayClientState.options?.deviceIdentity).toEqual(deviceIdentityState.value);
+  });
+
+  it("keeps device identity disabled for first-time unauthenticated loopback probes", async () => {
+    deviceIdentityState.cachedToken = null;
+
     await probeGateway({
       url: "ws://127.0.0.1:18789",
       timeoutMs: 1_000,
@@ -176,7 +242,7 @@ describe("probeGateway", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(gatewayClientState.options?.deviceIdentity).toBeNull();
+    expect(gatewayClientState.options?.deviceIdentity).toEqual(deviceIdentityState.value);
     expect(gatewayClientState.requests).toEqual([]);
   });
 
@@ -324,6 +390,23 @@ describe("probeGateway", () => {
       ok: false,
       error: "scope upgrade pending approval (requestId: req-123)",
       close: { code: 1008, reason: "pairing required" },
+    });
+  });
+
+  it("keeps probing through internally retried startup-unavailable handshakes", async () => {
+    gatewayClientState.startMode = "startup-retry-then-hello";
+
+    const result = await probeGateway({
+      url: "ws://127.0.0.1:18789",
+      auth: { token: "secret" },
+      timeoutMs: 1_000,
+      includeDetails: false,
+    });
+
+    expect(result).toMatchObject({
+      ok: true,
+      error: null,
+      close: null,
     });
   });
 });

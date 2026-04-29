@@ -100,6 +100,7 @@ Palette source of truth: `src/terminal/palette.ts` (the “lobster palette”).
 
 ```
 openclaw [--dev] [--profile <name>] <command>
+  crestodian
   setup
   onboard
   configure

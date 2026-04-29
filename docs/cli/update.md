@@ -3,7 +3,7 @@ summary: "CLI reference for `openclaw update` (safe-ish source update + gateway 
 read_when:
   - You want to update a source checkout safely
   - You need to understand `--update` shorthand behavior
-title: "update"
+title: "Update"
 ---
 
 # `openclaw update`
@@ -32,7 +32,7 @@ openclaw --update
 
 ## Options
 
-- `--no-restart`: skip restarting the Gateway service after a successful update.
+- `--no-restart`: skip restarting the Gateway service after a successful update. Package-manager updates that do restart the Gateway verify the restarted service reports the expected updated version before the command succeeds.
 - `--channel <stable|beta|dev>`: set the update channel (git + npm; persisted in config).
 - `--tag <dist-tag|version|spec>`: override the package target for this update only. For package installs, `main` maps to `github:openclaw/openclaw#main`.
 - `--dry-run`: preview planned update actions (channel/tag/target/restart flow) without writing config, installing, syncing plugins, or restarting.
@@ -40,7 +40,9 @@ openclaw --update
 - `--timeout <seconds>`: per-step timeout (default is 1200s).
 - `--yes`: skip confirmation prompts (for example downgrade confirmation)
 
-Note: downgrades require confirmation because older versions can break configuration.
+<Warning>
+Downgrades require confirmation because older versions can break configuration.
+</Warning>
 
 ## `update status`
 
@@ -65,7 +67,7 @@ offers to create one.
 
 Options:
 
-- `--timeout <seconds>`: timeout for each update step (default `1200`)
+- `--timeout <seconds>`: timeout for each update step (default `1800`)
 
 ## What it does
 
@@ -82,14 +84,13 @@ The Gateway core auto-updater (when enabled via config) reuses this same update 
 
 ## Git checkout flow
 
-Channels:
+### Channel selection
 
-- `stable`: checkout the latest non-beta tag, then build + doctor.
-- `beta`: prefer the latest `-beta` tag, but fall back to the latest stable tag
-  when beta is missing or older.
-- `dev`: checkout `main`, then fetch + rebase.
+- `stable`: checkout the latest non-beta tag, then build and doctor.
+- `beta`: prefer the latest `-beta` tag, but fall back to the latest stable tag when beta is missing or older.
+- `dev`: checkout `main`, then fetch and rebase.
 
-High-level:
+### Update steps
 
 1. Requires a clean worktree (no uncommitted changes).
 2. Switches to the selected channel (tag or branch).
@@ -101,13 +102,19 @@ High-level:
 8. Runs `openclaw doctor` as the final “safe update” check.
 9. Syncs plugins to the active channel (dev uses bundled extensions; stable/beta uses npm) and updates npm-installed plugins.
 
-If pnpm bootstrap still fails, the updater now stops early with a package-manager-specific error instead of trying `npm run build` inside the checkout.
+<Note>
+Post-update plugin sync failures fail the update result and stop restart follow-up work. Fix the plugin install or update error, then rerun `openclaw update`.
+
+When the updated Gateway starts, enabled bundled plugin runtime dependencies are staged before plugin activation. Update-triggered restarts drain any active runtime-dependency staging before closing the Gateway, so service-manager restarts do not interrupt an in-flight npm install.
+
+If pnpm bootstrap still fails, the updater stops early with a package-manager-specific error instead of trying `npm run build` inside the checkout.
+</Note>
 
 ## `--update` shorthand
 
 `openclaw --update` rewrites to `openclaw update` (useful for shells and launcher scripts).
 
-## See also
+## Related
 
 - `openclaw doctor` (offers to run update first on git checkouts)
 - [Development channels](/install/development-channels)

@@ -5,8 +5,9 @@ import type {
   WAMessage,
   WASocket,
 } from "@whiskeysockets/baileys";
-import { createInboundDebouncer, formatLocationText } from "openclaw/plugin-sdk/channel-inbound";
-import { recordChannelActivity } from "openclaw/plugin-sdk/infra-runtime";
+import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
+import { formatLocationText } from "openclaw/plugin-sdk/channel-inbound";
+import { createInboundDebouncer } from "openclaw/plugin-sdk/channel-inbound-debounce";
 import { defaultRuntime } from "openclaw/plugin-sdk/runtime-env";
 import { createSubsystemLogger } from "openclaw/plugin-sdk/runtime-env";
 import { getChildLogger } from "openclaw/plugin-sdk/text-runtime";
@@ -16,6 +17,7 @@ import { cacheInboundMessageMeta } from "../quoted-message.js";
 import { DEFAULT_RECONNECT_POLICY, computeBackoff, sleepWithAbort } from "../reconnect.js";
 import type { OpenClawConfig } from "../runtime-api.js";
 import { createWaSocket, formatError, getStatusCode, waitForWaConnection } from "../session.js";
+import { resolveWhatsAppSocketTiming } from "../socket-timing.js";
 import { resolveJidToE164 } from "../text-runtime.js";
 import { checkInboundAccessControl } from "./access-control.js";
 import {
@@ -29,9 +31,11 @@ import {
 import {
   describeReplyContext,
   extractLocationData,
+  extractContactContext,
   extractMediaPlaceholder,
   extractMentionedJids,
   extractText,
+  hasInboundUserContent,
 } from "./extract.js";
 import { attachEmitterListener, closeInboundMonitorSocket } from "./lifecycle.js";
 import { downloadInboundMedia } from "./media.js";
@@ -378,6 +382,18 @@ export async function attachWebInboxToSocket(
       );
       return null;
     }
+    // Gate pairing access-control on extractable inbound user content. Baileys
+    // delivers receipts, typing indicators, presence updates, and protocol
+    // messages on the same `messages.upsert` stream as real messages; without
+    // this gate, `checkInboundAccessControl` can send an unsolicited pairing
+    // verification reply to a `dmPolicy: pairing` peer who never typed
+    // anything (e.g. when Master sends an outbound message to a new JID and
+    // the receipt round-trip arrives before the recipient ever replies).
+    // Echoes of our own outbound messages are already handled above.
+    if (!hasInboundUserContent(msg.message ?? undefined)) {
+      return null;
+    }
+
     const participantJid = msg.key?.participant ?? undefined;
     const from = group ? remoteJid : await resolveInboundJid(remoteJid);
     if (!from) {
@@ -457,6 +473,7 @@ export async function attachWebInboxToSocket(
   type EnrichedInboundMessage = {
     body: string;
     location?: ReturnType<typeof extractLocationData>;
+    contactContext?: ReturnType<typeof extractContactContext>;
     replyContext?: ReturnType<typeof describeReplyContext>;
     mediaPath?: string;
     mediaType?: string;
@@ -466,6 +483,7 @@ export async function attachWebInboxToSocket(
   const enrichInboundMessage = async (msg: WAMessage): Promise<EnrichedInboundMessage | null> => {
     const location = extractLocationData(msg.message ?? undefined);
     const locationText = location ? formatLocationText(location) : undefined;
+    const contactContext = extractContactContext(msg.message ?? undefined);
     let body = extractText(msg.message ?? undefined);
     if (locationText) {
       body = [body, locationText].filter(Boolean).join("\n").trim();
@@ -507,6 +525,7 @@ export async function attachWebInboxToSocket(
     return {
       body,
       location: location ?? undefined,
+      contactContext,
       replyContext,
       mediaPath,
       mediaType,
@@ -562,6 +581,7 @@ export async function attachWebInboxToSocket(
       conversationId: inbound.from,
       to: self.e164 ?? "me",
       accountId: inbound.access.resolvedAccountId,
+      accessControlPassed: true,
       body: enriched.body,
       pushName: senderName,
       timestamp,
@@ -591,6 +611,16 @@ export async function attachWebInboxToSocket(
       selfE164: self.e164 ?? undefined,
       fromMe: Boolean(msg.key?.fromMe),
       location: enriched.location ?? undefined,
+      untrustedStructuredContext: enriched.contactContext
+        ? [
+            {
+              label: "WhatsApp contact",
+              source: "whatsapp",
+              type: enriched.contactContext.kind,
+              payload: enriched.contactContext,
+            },
+          ]
+        : undefined,
       sendComposing,
       reply,
       sendMedia,
@@ -758,6 +788,7 @@ export async function attachWebInboxToSocket(
 export async function monitorWebInbox(options: MonitorWebInboxOptions) {
   const sock = await createWaSocket(false, options.verbose, {
     authDir: options.authDir,
+    ...resolveWhatsAppSocketTiming(options.cfg),
   });
   await waitForWaConnection(sock);
   return attachWebInboxToSocket({

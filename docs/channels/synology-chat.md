@@ -6,8 +6,6 @@ read_when:
 title: "Synology Chat"
 ---
 
-# Synology Chat
-
 Status: bundled plugin direct-message channel using Synology Chat webhooks.
 The plugin accepts inbound messages from Synology Chat outgoing webhooks and sends replies
 through a Synology Chat incoming webhook.
@@ -93,8 +91,8 @@ Config values override env vars.
 
 - `dmPolicy: "allowlist"` is the recommended default.
 - `allowedUserIds` accepts a list (or comma-separated string) of Synology user IDs.
-- In `allowlist` mode, an empty `allowedUserIds` list is treated as misconfiguration and the webhook route will not start (use `dmPolicy: "open"` for allow-all).
-- `dmPolicy: "open"` allows any sender.
+- In `allowlist` mode, an empty `allowedUserIds` list is treated as misconfiguration and the webhook route will not start (use `dmPolicy: "open"` with `allowedUserIds: ["*"]` for allow-all).
+- `dmPolicy: "open"` allows public DMs only when `allowedUserIds` includes `"*"`; with restrictive entries, only matching users can chat.
 - `dmPolicy: "disabled"` blocks DMs.
 - Reply recipient binding stays on stable numeric `user_id` by default. `channels.synology-chat.dangerouslyAllowNameMatching: true` is break-glass compatibility mode that re-enables mutable username/nickname lookup for reply delivery.
 - Pairing approvals work with:
@@ -171,7 +169,7 @@ but duplicate exact paths are still rejected fail-closed. Prefer explicit per-ac
 - `Rate limit exceeded`:
   - too many invalid token attempts from the same source can temporarily lock that source out
   - authenticated senders also have a separate per-user message rate limit
-- `Allowlist is empty. Configure allowedUserIds or use dmPolicy=open.`:
+- `Allowlist is empty. Configure allowedUserIds or use dmPolicy=open with allowedUserIds=["*"].`:
   - `dmPolicy="allowlist"` is enabled but no users are configured
 - `User not authorized`:
   - the sender's numeric `user_id` is not in `allowedUserIds`

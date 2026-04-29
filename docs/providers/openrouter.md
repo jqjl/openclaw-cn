@@ -3,10 +3,10 @@ summary: "Use OpenRouter's unified API to access many models in OpenClaw"
 read_when:
   - You want a single API key for many LLMs
   - You want to run models via OpenRouter in OpenClaw
+  - You want to use OpenRouter for image generation
+  - You want to use OpenRouter for video generation
 title: "OpenRouter"
 ---
-
-# OpenRouter
 
 OpenRouter provides a **unified API** that routes requests to many models behind a single
 endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switching the base URL.
@@ -70,7 +70,7 @@ If you repoint the OpenRouter provider at some other proxy or base URL, OpenClaw
 does **not** inject those OpenRouter-specific headers or Anthropic cache markers.
 </Warning>
 
-## Advanced notes
+## Advanced configuration
 
 <AccordionGroup>
   <Accordion title="Anthropic cache markers">
@@ -82,7 +82,9 @@ does **not** inject those OpenRouter-specific headers or Anthropic cache markers
   <Accordion title="Thinking / reasoning injection">
     On supported non-`auto` routes, OpenClaw maps the selected thinking level to
     OpenRouter proxy reasoning payloads. Unsupported model hints and
-    `openrouter/auto` skip that reasoning injection.
+    `openrouter/auto` skip that reasoning injection. Hunter Alpha also skips
+    proxy reasoning for stale configured model refs because OpenRouter could
+    return final answer text in reasoning fields for that retired route.
   </Accordion>
 
   <Accordion title="OpenAI-only request shaping">

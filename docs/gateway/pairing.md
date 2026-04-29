@@ -4,10 +4,8 @@ read_when:
   - Implementing node pairing approvals without macOS UI
   - Adding CLI flows for approving remote nodes
   - Extending gateway protocol with node management
-title: "Gateway-Owned Pairing"
+title: "Gateway-owned pairing"
 ---
-
-# Gateway-owned pairing (Option B)
 
 In Gateway-owned pairing, the **Gateway** is the source of truth for which nodes
 are allowed to join. UIs (macOS app, future clients) are just frontends that
@@ -41,6 +39,7 @@ openclaw nodes pending
 openclaw nodes approve <requestId>
 openclaw nodes reject <requestId>
 openclaw nodes status
+openclaw nodes remove --node <id|name|ip>
 openclaw nodes rename --node <id|name|ip> --name "Living Room iPad"
 ```
 
@@ -59,6 +58,7 @@ Methods:
 - `node.pair.list` — list pending + paired nodes (`operator.pairing`).
 - `node.pair.approve` — approve a pending request (issues token).
 - `node.pair.reject` — reject a pending request.
+- `node.pair.remove` — remove a stale paired node entry.
 - `node.pair.verify` — verify `{ nodeId, token }`.
 
 Notes:
@@ -77,15 +77,13 @@ Notes:
   - `system.run` / `system.run.prepare` / `system.which` request:
     `operator.pairing` + `operator.admin`
 
-Important:
+<Warning>
+Node pairing is a trust and identity flow plus token issuance. It does **not** pin the live node command surface per node.
 
-- Node pairing is a trust/identity flow plus token issuance.
-- It does **not** pin the live node command surface per node.
-- Live node commands come from what the node declares on connect after the
-  gateway's global node command policy (`gateway.nodes.allowCommands` /
-  `denyCommands`) is applied.
-- Per-node `system.run` allow/ask policy lives on the node in
-  `exec.approvals.node.*`, not in the pairing record.
+- Live node commands come from what the node declares on connect after the gateway's global node command policy (`gateway.nodes.allowCommands` and `denyCommands`) is applied.
+- Per-node `system.run` allow and ask policy lives on the node in `exec.approvals.node.*`, not in the pairing record.
+
+</Warning>
 
 ## Node command gating (2026.3.31+)
 
@@ -107,6 +105,11 @@ This means:
 </Warning>
 
 Node-originated summaries and related session events are restricted to the intended trusted surface. Notification-driven or node-triggered flows that previously relied on broader host or session tool access may need adjustment. This hardening ensures that node events cannot escalate into host-level tool access beyond what the node's trust boundary permits.
+
+Durable node presence updates follow the same identity boundary. The `node.presence.alive` event is
+accepted only from authenticated node device sessions and updates pairing metadata only when the
+device/node identity is already paired. Self-declared `client.id` values are not enough to write
+last-seen state.
 
 ## Auto-approval (macOS app)
 
@@ -136,3 +139,9 @@ Security notes:
 - The transport is **stateless**; it does not store membership.
 - If the Gateway is offline or pairing is disabled, nodes cannot pair.
 - If the Gateway is in remote mode, pairing still happens against the remote Gateway’s store.
+
+## Related
+
+- [Channel pairing](/channels/pairing)
+- [Nodes](/nodes)
+- [Devices CLI](/cli/devices)

@@ -1,14 +1,12 @@
 ---
-title: "Building Plugins"
-sidebarTitle: "Getting Started"
 summary: "Create your first OpenClaw plugin in minutes"
+title: "Building plugins"
+sidebarTitle: "Getting Started"
 read_when:
   - You want to create a new OpenClaw plugin
   - You need a quick-start for plugin development
   - You are adding a new channel, provider, tool, or other capability to OpenClaw
 ---
-
-# Building Plugins
 
 Plugins extend OpenClaw with new capabilities: channels, model providers,
 speech, realtime transcription, realtime voice, media understanding, image
@@ -16,9 +14,9 @@ generation, video generation, web fetch, web search, agent tools, or any
 combination.
 
 You do not need to add your plugin to the OpenClaw repository. Publish to
-[ClawHub](/tools/clawhub) or npm and users install with
+[ClawHub](/tools/clawhub) and users install with
 `openclaw plugins install <package-name>`. OpenClaw tries ClawHub first and
-falls back to npm automatically.
+falls back to npm automatically for packages that still use npm distribution.
 
 ## Prerequisites
 
@@ -35,12 +33,12 @@ falls back to npm automatically.
   <Card title="Provider plugin" icon="cpu" href="/plugins/sdk-provider-plugins">
     Add a model provider (LLM, proxy, or custom endpoint)
   </Card>
-  <Card title="Tool / hook plugin" icon="wrench">
+  <Card title="Tool / hook plugin" icon="wrench" href="/plugins/hooks">
     Register agent tools, event hooks, or services — continue below
   </Card>
 </CardGroup>
 
-If a channel plugin is optional and may not be installed when onboarding/setup
+For a channel plugin that isn't guaranteed to be installed when onboarding/setup
 runs, use `createOptionalChannelSetupSurface(...)` from
 `openclaw/plugin-sdk/channel-setup`. It produces a setup adapter + wizard pair
 that advertises the install requirement and fails closed on real config writes
@@ -78,6 +76,9 @@ and provider plugins have dedicated guides linked above.
       "id": "my-plugin",
       "name": "My Plugin",
       "description": "Adds a custom tool to OpenClaw",
+      "activation": {
+        "onStartup": true
+      },
       "configSchema": {
         "type": "object",
         "additionalProperties": false
@@ -86,7 +87,9 @@ and provider plugins have dedicated guides linked above.
     ```
     </CodeGroup>
 
-    Every plugin needs a manifest, even with no config. See
+    Every plugin needs a manifest, even with no config, and every plugin should
+    declare `activation.onStartup` intentionally. Runtime-registered tools need
+    startup import, so this example sets it to `true`. See
     [Manifest](/plugins/manifest) for the full schema. The canonical ClawHub
     publish snippets live in `docs/snippets/plugin-publish/`.
 
@@ -133,7 +136,8 @@ and provider plugins have dedicated guides linked above.
     ```
 
     OpenClaw also checks ClawHub before npm for bare package specs like
-    `@myorg/openclaw-my-plugin`.
+    `@myorg/openclaw-my-plugin`; npm remains a fallback for packages that have
+    not migrated to ClawHub yet.
 
     **In-repo plugins:** place under the bundled plugin workspace tree — automatically discovered.
 
@@ -164,8 +168,9 @@ A single plugin can register any number of capabilities via the `api` object:
 | Web search             | `api.registerWebSearchProvider(...)`             | [Provider Plugins](/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
 | Agent tools            | `api.registerTool(...)`                          | Below                                                                           |
 | Custom commands        | `api.registerCommand(...)`                       | [Entry Points](/plugins/sdk-entrypoints)                                        |
-| Event hooks            | `api.registerHook(...)`                          | [Entry Points](/plugins/sdk-entrypoints)                                        |
-| HTTP routes            | `api.registerHttpRoute(...)`                     | [Internals](/plugins/architecture#gateway-http-routes)                          |
+| Plugin hooks           | `api.on(...)`                                    | [Plugin hooks](/plugins/hooks)                                                  |
+| Internal event hooks   | `api.registerHook(...)`                          | [Entry Points](/plugins/sdk-entrypoints)                                        |
+| HTTP routes            | `api.registerHttpRoute(...)`                     | [Internals](/plugins/architecture-internals#gateway-http-routes)                |
 | CLI subcommands        | `api.registerCli(...)`                           | [Entry Points](/plugins/sdk-entrypoints)                                        |
 
 For the full registration API, see [SDK Overview](/plugins/sdk-overview#registration-api).
@@ -191,7 +196,7 @@ If custom approval plumbing needs to detect that same bounded fallback case,
 prefer `isApprovalNotFoundError` from `openclaw/plugin-sdk/error-runtime`
 instead of matching approval-expiry strings manually.
 
-See [SDK Overview hook decision semantics](/plugins/sdk-overview#hook-decision-semantics) for details.
+See [Plugin hooks](/plugins/hooks) for examples and the hook reference.
 
 ## Registering agent tools
 
@@ -234,6 +239,7 @@ Users enable optional tools in config:
 ```
 
 - Tool names must not clash with core tools (conflicts are skipped)
+- Tools with malformed registration objects, including missing `parameters`, are skipped and reported in plugin diagnostics instead of breaking agent runs
 - Use `optional: true` for tools with side effects or extra binary requirements
 - Users can enable all tools from a plugin by adding the plugin id to `tools.allow`
 
@@ -265,9 +271,8 @@ If a helper is only useful inside one bundled provider package, keep it on that
 package-root seam instead of promoting it into `openclaw/plugin-sdk/*`.
 
 Some generated `openclaw/plugin-sdk/<bundled-id>` helper seams still exist for
-bundled-plugin maintenance and compatibility, for example
-`plugin-sdk/feishu-setup` or `plugin-sdk/zalo-setup`. Treat those as reserved
-surfaces, not as the default pattern for new third-party plugins.
+bundled-plugin maintenance when they have tracked owner usage. Treat those as
+reserved surfaces, not as the default pattern for new third-party plugins.
 
 ## Pre-submission checklist
 
@@ -279,7 +284,7 @@ surfaces, not as the default pattern for new third-party plugins.
 <Check>Tests pass (`pnpm test -- <bundled-plugin-root>/my-plugin/`)</Check>
 <Check>`pnpm check` passes (in-repo plugins)</Check>
 
-## Beta Release Testing
+## Beta release testing
 
 1. Watch for GitHub release tags on [openclaw/openclaw](https://github.com/openclaw/openclaw/releases) and subscribe via `Watch` > `Releases`. Beta tags look like `v2026.3.N-beta.1`. You can also turn on notifications for the official OpenClaw X account [@openclaw](https://x.com/openclaw) for release announcements.
 2. Test your plugin against the beta tag as soon as it appears. The window before stable is typically only a few hours.

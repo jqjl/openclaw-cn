@@ -1,16 +1,14 @@
 ---
-title: "Configuration Reference"
 summary: "Gateway config reference for core OpenClaw keys, defaults, and links to dedicated subsystem references"
+title: "Configuration reference"
 read_when:
   - You need exact field-level config semantics or defaults
   - You are validating channel, model, gateway, or tool config blocks
 ---
 
-# Configuration Reference
-
 Core config reference for `~/.openclaw/openclaw.json`. For a task-oriented overview, see [Configuration](/gateway/configuration).
 
-This page covers the main OpenClaw config surfaces and links out when a subsystem has its own deeper reference. It does **not** try to inline every channel/plugin-owned command catalog or every deep memory/QMD knob on one page.
+Covers the main OpenClaw config surfaces and links out when a subsystem has its own deeper reference. Channel- and plugin-owned command catalogs and deep memory/QMD knobs live on their own pages rather than on this one.
 
 Code truth:
 
@@ -18,10 +16,15 @@ Code truth:
 - `config.schema.lookup` returns one path-scoped schema node for drill-down tooling
 - `pnpm config:docs:check` / `pnpm config:docs:gen` validate the config-doc baseline hash against the current schema surface
 
+Agent lookup path: use the `gateway` tool action `config.schema.lookup` for
+exact field-level docs and constraints before edits. Use
+[Configuration](/gateway/configuration) for task-oriented guidance and this page
+for the broader field map, defaults, and links to subsystem references.
+
 Dedicated deep references:
 
 - [Memory configuration reference](/reference/memory-config) for `agents.defaults.memorySearch.*`, `memory.qmd.*`, `memory.citations`, and dreaming config under `plugins.entries.memory-core.config.dreaming`
-- [Slash Commands](/tools/slash-commands) for the current built-in + bundled command catalog
+- [Slash commands](/tools/slash-commands) for the current built-in + bundled command catalog
 - owning channel/plugin pages for channel-specific command surfaces
 
 Config format is **JSON5** (comments + trailing commas allowed). All fields are optional — OpenClaw uses safe defaults when omitted.
@@ -30,32 +33,31 @@ Config format is **JSON5** (comments + trailing commas allowed). All fields are 
 
 ## Channels
 
-Each channel starts automatically when its config section exists (unless `enabled: false`).
+Per-channel config keys moved to a dedicated page — see
+[Configuration — channels](/gateway/config-channels) for `channels.*`,
+including Slack, Discord, Telegram, WhatsApp, Matrix, iMessage, and other
+bundled channels (auth, access control, multi-account, mention gating).
 
-### DM and group access
+## Agent defaults, multi-agent, sessions, and messages
 
-All channels support DM policies and group policies:
+Moved to a dedicated page — see
+[Configuration — agents](/gateway/config-agents) for:
 
-| DM policy           | Behavior                                                        |
-| ------------------- | --------------------------------------------------------------- |
-| `pairing` (default) | Unknown senders get a one-time pairing code; owner must approve |
-| `allowlist`         | Only senders in `allowFrom` (or paired allow store)             |
-| `open`              | Allow all inbound DMs (requires `allowFrom: ["*"]`)             |
-| `disabled`          | Ignore all inbound DMs                                          |
+- `agents.defaults.*` (workspace, model, thinking, heartbeat, memory, media, skills, sandbox)
+- `multiAgent.*` (multi-agent routing and bindings)
+- `session.*` (session lifecycle, compaction, pruning)
+- `messages.*` (message delivery, TTS, markdown rendering)
+- `talk.*` (Talk mode)
+  - `talk.speechLocale`: optional BCP 47 locale id for Talk speech recognition on iOS/macOS
+  - `talk.silenceTimeoutMs`: when unset, Talk keeps the platform default pause window before sending the transcript (`700 ms on macOS and Android, 900 ms on iOS`)
 
-| Group policy          | Behavior                                               |
-| --------------------- | ------------------------------------------------------ |
-| `allowlist` (default) | Only groups matching the configured allowlist          |
-| `open`                | Bypass group allowlists (mention-gating still applies) |
-| `disabled`            | Block all group/room messages                          |
+## Tools and custom providers
 
-<Note>
-`channels.defaults.groupPolicy` sets the default when a provider's `groupPolicy` is unset.
-Pairing codes expire after 1 hour. Pending DM pairing requests are capped at **3 per channel**.
-If a provider block is missing entirely (`channels.<provider>` absent), runtime group policy falls back to `allowlist` (fail-closed) with a startup warning.
-</Note>
+Tool policy, experimental toggles, provider-backed tool config, and custom
+provider / base-URL setup moved to a dedicated page — see
+[Configuration — tools and custom providers](/gateway/config-tools).
 
-### Channel model overrides
+## Models
 
 Use `channels.modelByChannel` to pin specific channel IDs to a model. Values accept `provider/model` or configured model aliases. The channel mapping applies when a session does not already have a model override (for example, set via `/model`).
 
@@ -2521,44 +2523,11 @@ OpenClaw uses the built-in model catalog. Add custom providers via `models.provi
 ```json5
 {
   models: {
-    mode: "merge", // merge (default) | replace
-    providers: {
-      "custom-proxy": {
-        baseUrl: "http://localhost:4000/v1",
-        apiKey: "LITELLM_KEY",
-        api: "openai-completions", // openai-completions | openai-responses | anthropic-messages | google-generative-ai
-        models: [
-          {
-            id: "llama-3.1-8b",
-            name: "Llama 3.1 8B",
-            reasoning: false,
-            input: ["text"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 128000,
-            contextTokens: 96000,
-            maxTokens: 32000,
-          },
-        ],
-      },
-    },
+    // Optional. Default: true. Requires a Gateway restart when changed.
+    pricing: { enabled: false },
   },
 }
 ```
-
-- Use `authHeader: true` + `headers` for custom auth needs.
-- Override agent config root with `OPENCLAW_AGENT_DIR` (or `PI_CODING_AGENT_DIR`, a legacy environment variable alias).
-- Merge precedence for matching provider IDs:
-  - Non-empty agent `models.json` `baseUrl` values win.
-  - Non-empty agent `apiKey` values win only when that provider is not SecretRef-managed in current config/auth-profile context.
-  - SecretRef-managed provider `apiKey` values are refreshed from source markers (`ENV_VAR_NAME` for env refs, `secretref-managed` for file/exec refs) instead of persisting resolved secrets.
-  - SecretRef-managed provider header values are refreshed from source markers (`secretref-env:ENV_VAR_NAME` for env refs, `secretref-managed` for file/exec refs).
-  - Empty or missing agent `apiKey`/`baseUrl` fall back to `models.providers` in config.
-  - Matching model `contextWindow`/`maxTokens` use the higher value between explicit config and implicit catalog values.
-  - Matching model `contextTokens` preserves an explicit runtime cap when present; use it to limit effective context without changing native model metadata.
-  - Use `models.mode: "replace"` when you want config to fully rewrite `models.json`.
-  - Marker persistence is source-authoritative: markers are written from the active source config snapshot (pre-resolution), not from resolved runtime secret values.
-
-### Provider field details
 
 - `models.mode`: provider catalog behavior (`merge` or `replace`).
 - `models.providers`: custom provider map keyed by provider id.
@@ -2588,238 +2557,49 @@ OpenClaw uses the built-in model catalog. Add custom providers via `models.provi
 - `plugins.entries.amazon-bedrock.config.discovery.defaultContextWindow`: fallback context window for discovered models.
 - `plugins.entries.amazon-bedrock.config.discovery.defaultMaxTokens`: fallback max output tokens for discovered models.
 
-### Provider examples
+## MCP
 
-<Accordion title="Cerebras (GLM 4.6 / 4.7)">
+OpenClaw-managed MCP server definitions live under `mcp.servers` and are
+consumed by embedded Pi and other runtime adapters. The `openclaw mcp list`,
+`show`, `set`, and `unset` commands manage this block without connecting to the
+target server during config edits.
 
 ```json5
 {
-  env: { CEREBRAS_API_KEY: "sk-..." },
-  agents: {
-    defaults: {
-      model: {
-        primary: "cerebras/zai-glm-4.7",
-        fallbacks: ["cerebras/zai-glm-4.6"],
+  mcp: {
+    // Optional. Default: 600000 ms (10 minutes). Set 0 to disable idle eviction.
+    sessionIdleTtlMs: 600000,
+    servers: {
+      docs: {
+        command: "npx",
+        args: ["-y", "@modelcontextprotocol/server-fetch"],
       },
-      models: {
-        "cerebras/zai-glm-4.7": { alias: "GLM 4.7 (Cerebras)" },
-        "cerebras/zai-glm-4.6": { alias: "GLM 4.6 (Cerebras)" },
-      },
-    },
-  },
-  models: {
-    mode: "merge",
-    providers: {
-      cerebras: {
-        baseUrl: "https://api.cerebras.ai/v1",
-        apiKey: "${CEREBRAS_API_KEY}",
-        api: "openai-completions",
-        models: [
-          { id: "zai-glm-4.7", name: "GLM 4.7 (Cerebras)" },
-          { id: "zai-glm-4.6", name: "GLM 4.6 (Cerebras)" },
-        ],
+      remote: {
+        url: "https://example.com/mcp",
+        transport: "streamable-http", // streamable-http | sse
+        headers: {
+          Authorization: "Bearer ${MCP_REMOTE_TOKEN}",
+        },
       },
     },
   },
 }
 ```
 
-Use `cerebras/zai-glm-4.7` for Cerebras; `zai/glm-4.7` for Z.AI direct.
+- `mcp.servers`: named stdio or remote MCP server definitions for runtimes that
+  expose configured MCP tools.
+  Remote entries use `transport: "streamable-http"` or `transport: "sse"`;
+  `type: "http"` is a CLI-native alias that `openclaw mcp set` and
+  `openclaw doctor --fix` normalize into the canonical `transport` field.
+- `mcp.sessionIdleTtlMs`: idle TTL for session-scoped bundled MCP runtimes.
+  One-shot embedded runs request run-end cleanup; this TTL is the backstop for
+  long-lived sessions and future callers.
+- Changes under `mcp.*` hot-apply by disposing cached session MCP runtimes.
+  The next tool discovery/use recreates them from the new config, so removed
+  `mcp.servers` entries are reaped immediately instead of waiting for idle TTL.
 
-</Accordion>
-
-<Accordion title="OpenCode">
-
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "opencode/claude-opus-4-6" },
-      models: { "opencode/claude-opus-4-6": { alias: "Opus" } },
-    },
-  },
-}
-```
-
-Set `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`). Use `opencode/...` refs for the Zen catalog or `opencode-go/...` refs for the Go catalog. Shortcut: `openclaw onboard --auth-choice opencode-zen` or `openclaw onboard --auth-choice opencode-go`.
-
-</Accordion>
-
-<Accordion title="Z.AI (GLM-4.7)">
-
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "zai/glm-4.7" },
-      models: { "zai/glm-4.7": {} },
-    },
-  },
-}
-```
-
-Set `ZAI_API_KEY`. `z.ai/*` and `z-ai/*` are accepted aliases. Shortcut: `openclaw onboard --auth-choice zai-api-key`.
-
-- General endpoint: `https://api.z.ai/api/paas/v4`
-- Coding endpoint (default): `https://api.z.ai/api/coding/paas/v4`
-- For the general endpoint, define a custom provider with the base URL override.
-
-</Accordion>
-
-<Accordion title="Moonshot AI (Kimi)">
-
-```json5
-{
-  env: { MOONSHOT_API_KEY: "sk-..." },
-  agents: {
-    defaults: {
-      model: { primary: "moonshot/kimi-k2.6" },
-      models: { "moonshot/kimi-k2.6": { alias: "Kimi K2.6" } },
-    },
-  },
-  models: {
-    mode: "merge",
-    providers: {
-      moonshot: {
-        baseUrl: "https://api.moonshot.ai/v1",
-        apiKey: "${MOONSHOT_API_KEY}",
-        api: "openai-completions",
-        models: [
-          {
-            id: "kimi-k2.6",
-            name: "Kimi K2.6",
-            reasoning: false,
-            input: ["text", "image"],
-            cost: { input: 0.95, output: 4, cacheRead: 0.16, cacheWrite: 0 },
-            contextWindow: 262144,
-            maxTokens: 262144,
-          },
-        ],
-      },
-    },
-  },
-}
-```
-
-For the China endpoint: `baseUrl: "https://api.moonshot.cn/v1"` or `openclaw onboard --auth-choice moonshot-api-key-cn`.
-
-Native Moonshot endpoints advertise streaming usage compatibility on the shared
-`openai-completions` transport, and OpenClaw keys that off endpoint capabilities
-rather than the built-in provider id alone.
-
-</Accordion>
-
-<Accordion title="Kimi Coding">
-
-```json5
-{
-  env: { KIMI_API_KEY: "sk-..." },
-  agents: {
-    defaults: {
-      model: { primary: "kimi/kimi-code" },
-      models: { "kimi/kimi-code": { alias: "Kimi Code" } },
-    },
-  },
-}
-```
-
-Anthropic-compatible, built-in provider. Shortcut: `openclaw onboard --auth-choice kimi-code-api-key`.
-
-</Accordion>
-
-<Accordion title="Synthetic (Anthropic-compatible)">
-
-```json5
-{
-  env: { SYNTHETIC_API_KEY: "sk-..." },
-  agents: {
-    defaults: {
-      model: { primary: "synthetic/hf:MiniMaxAI/MiniMax-M2.5" },
-      models: { "synthetic/hf:MiniMaxAI/MiniMax-M2.5": { alias: "MiniMax M2.5" } },
-    },
-  },
-  models: {
-    mode: "merge",
-    providers: {
-      synthetic: {
-        baseUrl: "https://api.synthetic.new/anthropic",
-        apiKey: "${SYNTHETIC_API_KEY}",
-        api: "anthropic-messages",
-        models: [
-          {
-            id: "hf:MiniMaxAI/MiniMax-M2.5",
-            name: "MiniMax M2.5",
-            reasoning: true,
-            input: ["text"],
-            cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-            contextWindow: 192000,
-            maxTokens: 65536,
-          },
-        ],
-      },
-    },
-  },
-}
-```
-
-Base URL should omit `/v1` (Anthropic client appends it). Shortcut: `openclaw onboard --auth-choice synthetic-api-key`.
-
-</Accordion>
-
-<Accordion title="MiniMax M2.7 (direct)">
-
-```json5
-{
-  agents: {
-    defaults: {
-      model: { primary: "minimax/MiniMax-M2.7" },
-      models: {
-        "minimax/MiniMax-M2.7": { alias: "Minimax" },
-      },
-    },
-  },
-  models: {
-    mode: "merge",
-    providers: {
-      minimax: {
-        baseUrl: "https://api.minimax.io/anthropic",
-        apiKey: "${MINIMAX_API_KEY}",
-        api: "anthropic-messages",
-        models: [
-          {
-            id: "MiniMax-M2.7",
-            name: "MiniMax M2.7",
-            reasoning: true,
-            input: ["text", "image"],
-            cost: { input: 0.3, output: 1.2, cacheRead: 0.06, cacheWrite: 0.375 },
-            contextWindow: 204800,
-            maxTokens: 131072,
-          },
-        ],
-      },
-    },
-  },
-}
-```
-
-Set `MINIMAX_API_KEY`. Shortcuts:
-`openclaw onboard --auth-choice minimax-global-api` or
-`openclaw onboard --auth-choice minimax-cn-api`.
-The model catalog defaults to M2.7 only.
-On the Anthropic-compatible streaming path, OpenClaw disables MiniMax thinking
-by default unless you explicitly set `thinking` yourself. `/fast on` or
-`params.fastMode: true` rewrites `MiniMax-M2.7` to
-`MiniMax-M2.7-highspeed`.
-
-</Accordion>
-
-<Accordion title="Local models (LM Studio)">
-
-See [Local Models](/gateway/local-models). TL;DR: run a large local model via LM Studio Responses API on serious hardware; keep hosted models merged for fallback.
-
-</Accordion>
-
----
+See [MCP](/cli/mcp#openclaw-as-an-mcp-client-registry) and
+[CLI backends](/gateway/cli-backends#bundle-mcp-overlays) for runtime behavior.
 
 ## Skills
 
@@ -2888,9 +2668,11 @@ See [Local Models](/gateway/local-models). TL;DR: run a large local model via LM
 - `plugins.entries.<id>.apiKey`: plugin-level API key convenience field (when supported by the plugin).
 - `plugins.entries.<id>.env`: plugin-scoped env var map.
 - `plugins.entries.<id>.hooks.allowPromptInjection`: when `false`, core blocks `before_prompt_build` and ignores prompt-mutating fields from legacy `before_agent_start`, while preserving legacy `modelOverride` and `providerOverride`. Applies to native plugin hooks and supported bundle-provided hook directories.
+- `plugins.entries.<id>.hooks.allowConversationAccess`: when `true`, trusted non-bundled plugins may read raw conversation content from typed hooks such as `llm_input`, `llm_output`, `before_agent_finalize`, and `agent_end`.
 - `plugins.entries.<id>.subagent.allowModelOverride`: explicitly trust this plugin to request per-run `provider` and `model` overrides for background subagent runs.
 - `plugins.entries.<id>.subagent.allowedModels`: optional allowlist of canonical `provider/model` targets for trusted subagent overrides. Use `"*"` only when you intentionally want to allow any model.
 - `plugins.entries.<id>.config`: plugin-defined config object (validated by native OpenClaw plugin schema when available).
+- Channel plugin account/runtime settings live under `channels.<id>` and should be described by the owning plugin's manifest `channelConfigs` metadata, not by a central OpenClaw option registry.
 - `plugins.entries.firecrawl.config.webFetch`: Firecrawl web-fetch provider settings.
   - `apiKey`: Firecrawl API key (accepts SecretRef). Falls back to `plugins.entries.firecrawl.config.webSearch.apiKey`, legacy `tools.web.fetch.firecrawl.apiKey`, or `FIRECRAWL_API_KEY` env var.
   - `baseUrl`: Firecrawl API base URL (default: `https://api.firecrawl.dev`).
@@ -2903,6 +2685,7 @@ See [Local Models](/gateway/local-models). TL;DR: run a large local model via LM
 - `plugins.entries.memory-core.config.dreaming`: memory dreaming settings. See [Dreaming](/concepts/dreaming) for phases and thresholds.
   - `enabled`: master dreaming switch (default `false`).
   - `frequency`: cron cadence for each full dreaming sweep (`"0 3 * * *"` by default).
+  - `model`: optional Dream Diary subagent model override. Requires `plugins.entries.memory-core.subagent.allowModelOverride: true`; pair with `allowedModels` to restrict targets. Model-unavailable errors retry once with the session default model; trust or allowlist failures do not fall back silently.
   - phase policy and thresholds are implementation details (not user-facing config keys).
 - Full memory config lives in [Memory configuration reference](/reference/memory-config):
   - `agents.defaults.memorySearch.*`
@@ -2913,9 +2696,6 @@ See [Local Models](/gateway/local-models). TL;DR: run a large local model via LM
 - Enabled Claude bundle plugins can also contribute embedded Pi defaults from `settings.json`; OpenClaw applies those as sanitized agent settings, not as raw OpenClaw config patches.
 - `plugins.slots.memory`: pick the active memory plugin id, or `"none"` to disable memory plugins.
 - `plugins.slots.contextEngine`: pick the active context engine plugin id; defaults to `"legacy"` unless you install and select another engine.
-- `plugins.installs`: CLI-managed install metadata used by `openclaw plugins update`.
-  - Includes `source`, `spec`, `sourcePath`, `installPath`, `version`, `resolvedName`, `resolvedVersion`, `resolvedSpec`, `integrity`, `shasum`, `resolvedAt`, `installedAt`.
-  - Treat `plugins.installs.*` as managed state; prefer CLI commands over manual edits.
 
 See [Plugins](/tools/plugin).
 
@@ -2935,9 +2715,19 @@ See [Plugins](/tools/plugin).
       // hostnameAllowlist: ["*.example.com", "example.com"],
       // allowedHostnames: ["localhost"],
     },
+    tabCleanup: {
+      enabled: true,
+      idleMinutes: 120,
+      maxTabsPerSession: 8,
+      sweepMinutes: 5,
+    },
     profiles: {
       openclaw: { cdpPort: 18800, color: "#FF4500" },
-      work: { cdpPort: 18801, color: "#0066CC" },
+      work: {
+        cdpPort: 18801,
+        color: "#0066CC",
+        executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      },
       user: { driver: "existing-session", attachOnly: true, color: "#00AA00" },
       brave: {
         driver: "existing-session",
@@ -2958,6 +2748,9 @@ See [Plugins](/tools/plugin).
 ```
 
 - `evaluateEnabled: false` disables `act:evaluate` and `wait --fn`.
+- `tabCleanup` reclaims tracked primary-agent tabs after idle time or when a
+  session exceeds its cap. Set `idleMinutes: 0` or `maxTabsPerSession: 0` to
+  disable those individual cleanup modes.
 - `ssrfPolicy.dangerouslyAllowPrivateNetwork` is disabled when unset, so browser navigation stays strict by default.
 - Set `ssrfPolicy.dangerouslyAllowPrivateNetwork: true` only when you intentionally trust private-network browser navigation.
 - In strict mode, remote CDP profile endpoints (`profiles.*.cdpUrl`) are subject to the same private-network blocking during reachability/discovery checks.
@@ -2967,6 +2760,12 @@ See [Plugins](/tools/plugin).
 - `profiles.*.cdpUrl` accepts `http://`, `https://`, `ws://`, and `wss://`.
   Use HTTP(S) when you want OpenClaw to discover `/json/version`; use WS(S)
   when your provider gives you a direct DevTools WebSocket URL.
+- `remoteCdpTimeoutMs` and `remoteCdpHandshakeTimeoutMs` apply to remote and
+  `attachOnly` CDP reachability plus tab-opening requests. Managed loopback
+  profiles keep local CDP defaults.
+- If an externally managed CDP service is reachable through loopback, set that
+  profile's `attachOnly: true`; otherwise OpenClaw treats the loopback port as a
+  local managed browser profile and may report local port ownership errors.
 - `existing-session` profiles use Chrome MCP instead of CDP and can attach on
   the selected host or through a connected browser node.
 - `existing-session` profiles can set `userDataDir` to target a specific
@@ -2977,7 +2776,18 @@ See [Plugins](/tools/plugin).
   `responsebody`, PDF export, download interception, or batch actions.
 - Local managed `openclaw` profiles auto-assign `cdpPort` and `cdpUrl`; only
   set `cdpUrl` explicitly for remote CDP.
+- Local managed profiles can set `executablePath` to override the global
+  `browser.executablePath` for that profile. Use this to run one profile in
+  Chrome and another in Brave.
+- Local managed profiles use `browser.localLaunchTimeoutMs` for Chrome CDP HTTP
+  discovery after process start and `browser.localCdpReadyTimeoutMs` for
+  post-launch CDP websocket readiness. Raise them on slower hosts where Chrome
+  starts successfully but readiness checks race startup. Both values must be
+  positive integers up to `120000` ms; invalid config values are rejected.
 - Auto-detect order: default browser if Chromium-based → Chrome → Brave → Edge → Chromium → Chrome Canary.
+- `browser.executablePath` and `browser.profiles.<name>.executablePath` both
+  accept `~` and `~/...` for your OS home directory before Chromium launch.
+  Per-profile `userDataDir` on `existing-session` profiles is also tilde-expanded.
 - Control service: loopback only (port derived from `gateway.port`, default `18791`).
 - `extraArgs` appends extra launch flags to local Chromium startup (for example
   `--disable-gpu`, window sizing, or debug flags).
@@ -3048,6 +2858,14 @@ See [Plugins](/tools/plugin).
     trustedProxies: ["10.0.0.1"],
     // Optional. Default false.
     allowRealIpFallback: false,
+    nodes: {
+      pairing: {
+        // Optional. Default unset/disabled.
+        autoApproveCidrs: ["192.168.1.0/24", "fd00:1234:5678::/64"],
+      },
+      allowCommands: ["canvas.navigate"],
+      denyCommands: ["system.run"],
+    },
     tools: {
       // Additional /tools/invoke HTTP denies
       deny: ["browser"],
@@ -3076,7 +2894,7 @@ See [Plugins](/tools/plugin).
 - **Auth**: required by default. Non-loopback binds require gateway auth. In practice that means a shared token/password or an identity-aware reverse proxy with `gateway.auth.mode: "trusted-proxy"`. Onboarding wizard generates a token by default.
 - If both `gateway.auth.token` and `gateway.auth.password` are configured (including SecretRefs), set `gateway.auth.mode` explicitly to `token` or `password`. Startup and service install/repair flows fail when both are configured and mode is unset.
 - `gateway.auth.mode: "none"`: explicit no-auth mode. Use only for trusted local loopback setups; this is intentionally not offered by onboarding prompts.
-- `gateway.auth.mode: "trusted-proxy"`: delegate auth to an identity-aware reverse proxy and trust identity headers from `gateway.trustedProxies` (see [Trusted Proxy Auth](/gateway/trusted-proxy-auth)). This mode expects a **non-loopback** proxy source; same-host loopback reverse proxies do not satisfy trusted-proxy auth.
+- `gateway.auth.mode: "trusted-proxy"`: delegate browser/user auth to an identity-aware reverse proxy and trust identity headers from `gateway.trustedProxies` (see [Trusted Proxy Auth](/gateway/trusted-proxy-auth)). This mode expects a **non-loopback** proxy source by default; same-host loopback reverse proxies require explicit `gateway.auth.trustedProxy.allowLoopback = true`. Internal same-host callers can use `gateway.auth.password` as a local direct fallback; `gateway.auth.token` remains mutually exclusive with trusted-proxy mode.
 - `gateway.auth.allowTailscale`: when `true`, Tailscale Serve identity headers can satisfy Control UI/WebSocket auth (verified via `tailscale whois`). HTTP API endpoints do **not** use that Tailscale header auth; they follow the gateway's normal HTTP auth mode instead. This tokenless flow assumes the gateway host is trusted. Defaults to `true` when `tailscale.mode = "serve"`.
 - `gateway.auth.rateLimit`: optional failed-auth limiter. Applies per client IP and per auth scope (shared-secret and device-token are tracked independently). Blocked attempts return `429` + `Retry-After`.
   - On the async Tailscale Serve Control UI path, failed attempts for the same `{scope, clientIp}` are serialized before the failure write. Concurrent bad attempts from the same client can therefore trip the limiter on the second request instead of both racing through as plain mismatches.
@@ -3089,13 +2907,19 @@ See [Plugins](/tools/plugin).
 - `controlUi.allowedOrigins`: explicit browser-origin allowlist for Gateway WebSocket connects. Required when browser clients are expected from non-loopback origins.
 - `controlUi.dangerouslyAllowHostHeaderOriginFallback`: dangerous mode that enables Host-header origin fallback for deployments that intentionally rely on Host-header origin policy.
 - `remote.transport`: `ssh` (default) or `direct` (ws/wss). For `direct`, `remote.url` must be `ws://` or `wss://`.
-- `OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1`: client-side break-glass override that allows plaintext `ws://` to trusted private-network IPs; default remains loopback-only for plaintext.
+- `OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1`: client-side process-environment
+  break-glass override that allows plaintext `ws://` to trusted private-network
+  IPs; default remains loopback-only for plaintext. There is no `openclaw.json`
+  equivalent, and browser private-network config such as
+  `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork` does not affect Gateway
+  WebSocket clients.
 - `gateway.remote.token` / `.password` are remote-client credential fields. They do not configure gateway auth by themselves.
 - `gateway.push.apns.relay.baseUrl`: base HTTPS URL for the external APNs relay used by official/TestFlight iOS builds after they publish relay-backed registrations to the gateway. This URL must match the relay URL compiled into the iOS build.
 - `gateway.push.apns.relay.timeoutMs`: gateway-to-relay send timeout in milliseconds. Defaults to `10000`.
 - Relay-backed registrations are delegated to a specific gateway identity. The paired iOS app fetches `gateway.identity.get`, includes that identity in the relay registration, and forwards a registration-scoped send grant to the gateway. Another gateway cannot reuse that stored registration.
 - `OPENCLAW_APNS_RELAY_BASE_URL` / `OPENCLAW_APNS_RELAY_TIMEOUT_MS`: temporary env overrides for the relay config above.
 - `OPENCLAW_APNS_RELAY_ALLOW_HTTP=true`: development-only escape hatch for loopback HTTP relay URLs. Production relay URLs should stay on HTTPS.
+- `gateway.handshakeTimeoutMs`: pre-auth Gateway WebSocket handshake timeout in milliseconds. Default: `15000`. `OPENCLAW_HANDSHAKE_TIMEOUT_MS` takes precedence when set. Increase this on loaded or low-powered hosts where local clients can connect while startup warmup is still settling.
 - `gateway.channelHealthCheckMinutes`: channel health-monitor interval in minutes. Set `0` to disable health-monitor restarts globally. Default: `5`.
 - `gateway.channelStaleEventThresholdMinutes`: stale-socket threshold in minutes. Keep this greater than or equal to `gateway.channelHealthCheckMinutes`. Default: `30`.
 - `gateway.channelMaxRestartsPerHour`: maximum health-monitor restarts per channel/account in a rolling hour. Default: `10`.
@@ -3105,6 +2929,8 @@ See [Plugins](/tools/plugin).
 - If `gateway.auth.token` / `gateway.auth.password` is explicitly configured via SecretRef and unresolved, resolution fails closed (no remote fallback masking).
 - `trustedProxies`: reverse proxy IPs that terminate TLS or inject forwarded-client headers. Only list proxies you control. Loopback entries are still valid for same-host proxy/local-detection setups (for example Tailscale Serve or a local reverse proxy), but they do **not** make loopback requests eligible for `gateway.auth.mode: "trusted-proxy"`.
 - `allowRealIpFallback`: when `true`, the gateway accepts `X-Real-IP` if `X-Forwarded-For` is missing. Default `false` for fail-closed behavior.
+- `gateway.nodes.pairing.autoApproveCidrs`: optional CIDR/IP allowlist for auto-approving first-time node device pairing with no requested scopes. It is disabled when unset. This does not auto-approve operator/browser/Control UI/WebChat pairing, and it does not auto-approve role, scope, metadata, or public-key upgrades.
+- `gateway.nodes.allowCommands` / `gateway.nodes.denyCommands`: global allow/deny shaping for declared node commands after pairing and platform allowlist evaluation. Use `allowCommands` to opt into dangerous node commands such as `camera.snap`, `camera.clip`, and `screen.record`; `denyCommands` removes a command even if a platform default or explicit allow would otherwise include it. After a node changes its declared command list, reject and re-approve that device pairing so the gateway stores the updated command snapshot.
 - `gateway.tools.deny`: extra tool names blocked for HTTP `POST /tools/invoke` (extends default deny list).
 - `gateway.tools.allow`: remove tool names from the default HTTP deny list.
 
@@ -3179,7 +3005,7 @@ See [Multiple Gateways](/gateway/multiple-gateways).
   - `"hot"`: apply changes in-process without restarting.
   - `"hybrid"` (default): try hot reload first; fall back to restart if required.
 - `debounceMs`: debounce window in ms before config changes are applied (non-negative integer).
-- `deferralTimeoutMs`: maximum time in ms to wait for in-flight operations before forcing a restart (default: `300000` = 5 minutes).
+- `deferralTimeoutMs`: optional maximum time in ms to wait for in-flight operations before forcing a restart. Omit it to use the default bounded wait (`300000`); set `0` to wait indefinitely and log periodic still-pending warnings.
 
 ---
 
@@ -3327,7 +3153,7 @@ Validation and safety notes:
 
 - `minimal` (default): omit `cliPath` + `sshPort` from TXT records.
 - `full`: include `cliPath` + `sshPort`.
-- Hostname defaults to `openclaw`. Override with `OPENCLAW_MDNS_HOSTNAME`.
+- Hostname defaults to the system hostname when it is a valid DNS label, falling back to `openclaw`. Override with `OPENCLAW_MDNS_HOSTNAME`.
 
 ### Wide-area (DNS-SD)
 
@@ -3445,6 +3271,7 @@ Validation:
 Notes:
 
 - `file` provider supports `mode: "json"` and `mode: "singleValue"` (`id` must be `"value"` in singleValue mode).
+- File and exec provider paths fail closed when Windows ACL verification is unavailable. Set `allowInsecurePath: true` only for trusted paths that cannot be verified.
 - `exec` provider requires an absolute `command` path and uses protocol payloads on stdin/stdout.
 - By default, symlink command paths are rejected. Set `allowSymlinkCommand: true` to allow symlink paths while validating the resolved target path.
 - If `trustedDirs` is configured, the trusted-dir check applies to the resolved target path.
@@ -3474,6 +3301,7 @@ Notes:
 
 - Per-agent profiles are stored at `<agentDir>/auth-profiles.json`.
 - `auth-profiles.json` supports value-level refs (`keyRef` for `api_key`, `tokenRef` for `token`) for static credential modes.
+- Legacy flat `auth-profiles.json` maps such as `{ "provider": { "apiKey": "..." } }` are not a runtime format; `openclaw doctor --fix` rewrites them to canonical `provider:default` API-key profiles with a `.legacy-flat.*.bak` backup.
 - OAuth-mode profiles (`auth.profiles.<id>.mode = "oauth"`) do not support SecretRef-backed auth-profile credentials.
 - Static runtime credentials come from in-memory resolved snapshots; legacy static `auth.json` entries are scrubbed when discovered.
 - Legacy OAuth imports from `~/.openclaw/credentials/oauth.json`.
@@ -3536,7 +3364,8 @@ Notes:
 - Default log file: `/tmp/openclaw/openclaw-YYYY-MM-DD.log`.
 - Set `logging.file` for a stable path.
 - `consoleLevel` bumps to `debug` when `--verbose`.
-- `maxFileBytes`: maximum log file size in bytes before writes are suppressed (positive integer; default: `524288000` = 500 MB). Use external log rotation for production deployments.
+- `maxFileBytes`: maximum active log file size in bytes before rotation (positive integer; default: `104857600` = 100 MB). OpenClaw keeps up to five numbered archives beside the active file.
+- `redactSensitive` / `redactPatterns`: best-effort masking for console output, file logs, OTLP log records, and persisted session transcript text. `redactSensitive: "off"` only disables this general log/transcript policy; UI/tool/diagnostic safety surfaces still redact secrets before emission.
 
 ---
 
@@ -3552,6 +3381,9 @@ Notes:
     otel: {
       enabled: false,
       endpoint: "https://otel-collector.example.com:4318",
+      tracesEndpoint: "https://traces.example.com/v1/traces",
+      metricsEndpoint: "https://metrics.example.com/v1/metrics",
+      logsEndpoint: "https://logs.example.com/v1/logs",
       protocol: "http/protobuf", // http/protobuf | grpc
       headers: { "x-tenant-id": "my-org" },
       serviceName: "openclaw-gateway",
@@ -3560,6 +3392,14 @@ Notes:
       logs: false,
       sampleRate: 1.0,
       flushIntervalMs: 5000,
+      captureContent: {
+        enabled: false,
+        inputMessages: false,
+        outputMessages: false,
+        toolInputs: false,
+        toolOutputs: false,
+        systemPrompt: false,
+      },
     },
 
     cacheTrace: {
@@ -3576,14 +3416,19 @@ Notes:
 - `enabled`: master toggle for instrumentation output (default: `true`).
 - `flags`: array of flag strings enabling targeted log output (supports wildcards like `"telegram.*"` or `"*"`).
 - `stuckSessionWarnMs`: age threshold in ms for emitting stuck-session warnings while a session remains in processing state.
-- `otel.enabled`: enables the OpenTelemetry export pipeline (default: `false`).
+- `otel.enabled`: enables the OpenTelemetry export pipeline (default: `false`). For the full configuration, signal catalog, and privacy model, see [OpenTelemetry export](/gateway/opentelemetry).
 - `otel.endpoint`: collector URL for OTel export.
+- `otel.tracesEndpoint` / `otel.metricsEndpoint` / `otel.logsEndpoint`: optional signal-specific OTLP endpoints. When set, they override `otel.endpoint` for that signal only.
 - `otel.protocol`: `"http/protobuf"` (default) or `"grpc"`.
 - `otel.headers`: extra HTTP/gRPC metadata headers sent with OTel export requests.
 - `otel.serviceName`: service name for resource attributes.
 - `otel.traces` / `otel.metrics` / `otel.logs`: enable trace, metrics, or log export.
 - `otel.sampleRate`: trace sampling rate `0`–`1`.
 - `otel.flushIntervalMs`: periodic telemetry flush interval in ms.
+- `otel.captureContent`: opt-in raw content capture for OTEL span attributes. Defaults to off. Boolean `true` captures non-system message/tool content; the object form lets you enable `inputMessages`, `outputMessages`, `toolInputs`, `toolOutputs`, and `systemPrompt` explicitly.
+- `OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental`: environment toggle for latest experimental GenAI span provider attributes. By default spans keep the legacy `gen_ai.system` attribute for compatibility; GenAI metrics use bounded semantic attributes.
+- `OPENCLAW_OTEL_PRELOADED=1`: environment toggle for hosts that already registered a global OpenTelemetry SDK. OpenClaw then skips plugin-owned SDK startup/shutdown while keeping diagnostic listeners active.
+- `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT`, `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT`, and `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`: signal-specific endpoint env vars used when the matching config key is unset.
 - `cacheTrace.enabled`: log cache trace snapshots for embedded runs (default: `false`).
 - `cacheTrace.filePath`: output path for cache trace JSONL (default: `$OPENCLAW_STATE_DIR/logs/cache-trace.jsonl`).
 - `cacheTrace.includeMessages` / `includePrompt` / `includeSystem`: control what is included in cache trace output (all default: `true`).
@@ -3622,7 +3467,7 @@ Notes:
 ```json5
 {
   acp: {
-    enabled: false,
+    enabled: true,
     dispatch: { enabled: true },
     backend: "acpx",
     defaultAgent: "main",
@@ -3646,9 +3491,10 @@ Notes:
 }
 ```
 
-- `enabled`: global ACP feature gate (default: `false`).
+- `enabled`: global ACP feature gate (default: `true`; set `false` to hide ACP dispatch and spawn affordances).
 - `dispatch.enabled`: independent gate for ACP session turn dispatch (default: `true`). Set `false` to keep ACP commands available while blocking execution.
 - `backend`: default ACP runtime backend id (must match a registered ACP runtime plugin).
+  If `plugins.allow` is set, include the backend plugin id (for example `acpx`) or the bundled default plugin will not load.
 - `defaultAgent`: fallback ACP target agent id when spawns do not specify an explicit target.
 - `allowedAgents`: allowlist of agent ids permitted for ACP runtime sessions; empty means no additional restriction.
 - `maxConcurrentSessions`: maximum concurrently active ACP sessions.
@@ -3705,7 +3551,7 @@ Metadata written by CLI guided setup flows (`onboard`, `configure`, `doctor`):
 
 ## Identity
 
-See `agents.list` identity fields under [Agent defaults](#agent-defaults).
+See `agents.list` identity fields under [Agent defaults](/gateway/config-agents#agent-defaults).
 
 ---
 
@@ -3739,7 +3585,7 @@ Current builds no longer include the TCP bridge. Nodes connect over the Gateway 
 {
   cron: {
     enabled: true,
-    maxConcurrentRuns: 2,
+    maxConcurrentRuns: 2, // cron dispatch + isolated cron agent-turn execution
     webhook: "https://example.invalid/legacy", // deprecated fallback for stored notify:true jobs
     webhookToken: "replace-with-dedicated-token", // optional bearer token for outbound webhook auth
     sessionRetention: "24h", // duration string or false
@@ -3786,6 +3632,7 @@ Applies only to one-shot cron jobs. Recurring jobs use separate failure handling
       enabled: false,
       after: 3,
       cooldownMs: 3600000,
+      includeSkipped: false,
       mode: "announce",
       accountId: "main",
     },
@@ -3796,6 +3643,7 @@ Applies only to one-shot cron jobs. Recurring jobs use separate failure handling
 - `enabled`: enable failure alerts for cron jobs (default: `false`).
 - `after`: consecutive failures before an alert fires (positive integer, min: `1`).
 - `cooldownMs`: minimum milliseconds between repeated alerts for the same job (non-negative integer).
+- `includeSkipped`: count consecutive skipped runs toward the alert threshold (default: `false`). Skipped runs are tracked separately and do not affect execution-error backoff.
 - `mode`: delivery mode — `"announce"` sends via a channel message; `"webhook"` posts to the configured webhook.
 - `accountId`: optional account or channel id to scope alert delivery.
 
@@ -3883,3 +3731,8 @@ Split config into multiple files:
 ---
 
 _Related: [Configuration](/gateway/configuration) · [Configuration Examples](/gateway/configuration-examples) · [Doctor](/gateway/doctor)_
+
+## Related
+
+- [Configuration](/gateway/configuration)
+- [Configuration examples](/gateway/configuration-examples)

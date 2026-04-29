@@ -4,10 +4,8 @@ read_when:
   - You want to connect OpenClaw to QQ
   - You need QQ Bot credential setup
   - You want QQ Bot group or private chat support
-title: QQ Bot
+title: QQ bot
 ---
-
-# QQ Bot
 
 QQ Bot connects to OpenClaw via the official QQ Bot API (WebSocket gateway). The
 plugin supports C2C private chat, group @messages, and guild channel messages with
@@ -120,14 +118,63 @@ Add a second bot via CLI:
 openclaw channels add --channel qqbot --account bot2 --token "222222222:secret-of-bot-2"
 ```
 
+### Group chats
+
+QQ Bot group chat support uses QQ group OpenIDs, not display names. Add the bot
+to a group, then mention it or configure the group to run without a mention.
+
+```json5
+{
+  channels: {
+    qqbot: {
+      groupPolicy: "allowlist",
+      groupAllowFrom: ["member_openid"],
+      groups: {
+        "*": {
+          requireMention: true,
+          historyLimit: 50,
+          toolPolicy: "restricted",
+        },
+        GROUP_OPENID: {
+          name: "Release room",
+          requireMention: false,
+          ignoreOtherMentions: true,
+          historyLimit: 20,
+          prompt: "Keep replies short and operational.",
+        },
+      },
+    },
+  },
+}
+```
+
+`groups["*"]` sets defaults for every group, and a concrete
+`groups.GROUP_OPENID` entry overrides those defaults for one group. Group
+settings include:
+
+- `requireMention`: require an @mention before the bot replies. Default: `true`.
+- `ignoreOtherMentions`: drop messages that mention someone else but not the bot.
+- `historyLimit`: keep recent non-mention group messages as context for the next mentioned turn. Set `0` to disable.
+- `toolPolicy`: `full`, `restricted`, or `none` for group-scoped tools.
+- `name`: friendly label used in logs and group context.
+- `prompt`: per-group behavior prompt appended to the agent context.
+
+Activation modes are `mention` and `always`. `requireMention: true` maps to
+`mention`; `requireMention: false` maps to `always`. A session-level activation
+override, when present, wins over config.
+
+The inbound queue is per peer. Group peers get a larger queue cap, keep human
+messages ahead of bot-authored chatter when full, and merge bursts of normal
+group messages into one attributed turn. Slash commands still run one by one.
+
 ### Voice (STT / TTS)
 
 STT and TTS support two-level configuration with priority fallback:
 
-| Setting | Plugin-specific      | Framework fallback            |
-| ------- | -------------------- | ----------------------------- |
-| STT     | `channels.qqbot.stt` | `tools.media.audio.models[0]` |
-| TTS     | `channels.qqbot.tts` | `messages.tts`                |
+| Setting | Plugin-specific                                          | Framework fallback            |
+| ------- | -------------------------------------------------------- | ----------------------------- |
+| STT     | `channels.qqbot.stt`                                     | `tools.media.audio.models[0]` |
+| TTS     | `channels.qqbot.tts`, `channels.qqbot.accounts.<id>.tts` | `messages.tts`                |
 
 ```json5
 {
@@ -142,12 +189,28 @@ STT and TTS support two-level configuration with priority fallback:
         model: "your-tts-model",
         voice: "your-voice",
       },
+      accounts: {
+        qq-main: {
+          tts: {
+            providers: {
+              openai: { voice: "shimmer" },
+            },
+          },
+        },
+      },
     },
   },
 }
 ```
 
 Set `enabled: false` on either to disable.
+Account-level TTS overrides use the same shape as `messages.tts` and deep-merge
+over the channel/global TTS config.
+
+Inbound QQ voice attachments are exposed to agents as audio media metadata while
+keeping raw voice files out of generic `MediaPaths`. `[[audio_as_voice]]` plain
+text replies synthesize TTS and send a native QQ voice message when TTS is
+configured.
 
 Outbound audio upload/transcode behavior can also be tuned with
 `channels.qqbot.audioFormatPolicy`:
@@ -186,8 +249,18 @@ Append `?` to any command for usage help (for example `/bot-upgrade ?`).
 - **Bot replies "gone to Mars":** credentials not configured or Gateway not started.
 - **No inbound messages:** verify `appId` and `clientSecret` are correct, and the
   bot is enabled on the QQ Open Platform.
+- **Repeated self-replies:** OpenClaw records QQ outbound ref indexes as
+  bot-authored and ignores inbound events whose current `msgIdx` matches that
+  same bot account. This prevents platform echo loops while still allowing users
+  to quote or reply to previous bot messages.
 - **Setup with `--token-file` still shows unconfigured:** `--token-file` only sets
   the AppSecret. You still need `appId` in config or `QQBOT_APP_ID`.
 - **Proactive messages not arriving:** QQ may intercept bot-initiated messages if
   the user hasn't interacted recently.
 - **Voice not transcribed:** ensure STT is configured and the provider is reachable.
+
+## Related
+
+- [Pairing](/channels/pairing)
+- [Groups](/channels/groups)
+- [Channel troubleshooting](/channels/troubleshooting)

@@ -7,10 +7,7 @@ read_when:
 title: "Debugging"
 ---
 
-# Debugging
-
-This page covers debugging helpers for streaming output, especially when a
-provider mixes reasoning into normal text.
+Debugging helpers for streaming output, especially when a provider mixes reasoning into normal text.
 
 ## Runtime debug overrides
 
@@ -54,11 +51,41 @@ For fast iteration, run the gateway under the file watcher:
 pnpm gateway:watch
 ```
 
-This maps to:
+By default, this starts or restarts a tmux session named
+`openclaw-gateway-watch-main` (or a profile/port-specific variant such as
+`openclaw-gateway-watch-dev-19001`) and auto-attaches from interactive terminals.
+Non-interactive shells, CI, and agent exec calls stay detached and print attach
+instructions instead. Attach manually when needed:
+
+```bash
+tmux attach -t openclaw-gateway-watch-main
+```
+
+The tmux pane runs the raw watcher:
 
 ```bash
 node scripts/watch-node.mjs gateway --force
 ```
+
+Use foreground mode when tmux is not wanted:
+
+```bash
+pnpm gateway:watch:raw
+# or
+OPENCLAW_GATEWAY_WATCH_TMUX=0 pnpm gateway:watch
+```
+
+Disable auto-attach while keeping tmux management:
+
+```bash
+OPENCLAW_GATEWAY_WATCH_ATTACH=0 pnpm gateway:watch
+```
+
+The tmux wrapper carries common non-secret runtime selectors such as
+`OPENCLAW_PROFILE`, `OPENCLAW_CONFIG_PATH`, `OPENCLAW_STATE_DIR`,
+`OPENCLAW_GATEWAY_PORT`, and `OPENCLAW_SKIP_CHANNELS` into the pane. Put
+provider credentials in your normal profile/config, or use raw foreground mode
+for one-off ephemeral secrets.
 
 The watcher restarts on build-relevant files under `src/`, extension source files,
 extension `package.json` and `openclaw.plugin.json` metadata, `tsconfig.json`,
@@ -67,8 +94,9 @@ gateway without forcing a `tsdown` rebuild; source and config changes still
 rebuild `dist` first.
 
 Add any gateway CLI flags after `gateway:watch` and they will be passed through on
-each restart. Re-running the same watch command for the same repo/flag set now
-replaces the older watcher instead of leaving duplicate watcher parents behind.
+each restart. Re-running the same watch command respawns the named tmux pane, and
+the raw watcher still keeps its single-watcher lock so duplicate watcher parents
+are replaced instead of piling up.
 
 ## Dev profile + dev gateway (--dev)
 
@@ -112,21 +140,26 @@ Reset flow (fresh start):
 pnpm gateway:dev:reset
 ```
 
-Note: `--dev` is a **global** profile flag and gets eaten by some runners.
-If you need to spell it out, use the env var form:
+<Note>
+`--dev` is a **global** profile flag and gets eaten by some runners. If you need to spell it out, use the env var form:
 
 ```bash
 OPENCLAW_PROFILE=dev openclaw gateway --dev --reset
 ```
 
+</Note>
+
 `--reset` wipes config, credentials, sessions, and the dev workspace (using
 `trash`, not `rm`), then recreates the default dev setup.
 
-Tip: if a non‑dev gateway is already running (launchd/systemd), stop it first:
+<Tip>
+If a non-dev gateway is already running (launchd or systemd), stop it first:
 
 ```bash
 openclaw gateway stop
 ```
+
+</Tip>
 
 ## Raw stream logging (OpenClaw)
 
@@ -184,3 +217,8 @@ Default file:
 - Raw stream logs can include full prompts, tool output, and user data.
 - Keep logs local and delete them after debugging.
 - If you share logs, scrub secrets and PII first.
+
+## Related
+
+- [Troubleshooting](/help/troubleshooting)
+- [FAQ](/help/faq)

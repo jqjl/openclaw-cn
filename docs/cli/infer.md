@@ -6,8 +6,6 @@ read_when:
 title: "Inference CLI"
 ---
 
-# Inference CLI
-
 `openclaw infer` is the canonical headless surface for provider-backed inference workflows.
 
 It intentionally exposes capability families, not raw gateway RPC names and not raw agent tool ids.
@@ -48,6 +46,11 @@ Benefits:
 - Use a stable `--json` output shape for scripts, automation, and agent-driven workflows.
 - Prefer a first-party OpenClaw surface when the task is fundamentally "run inference."
 - Use the normal local path without requiring the gateway for most infer commands.
+
+For end-to-end provider checks, prefer `openclaw infer ...` once lower-level
+provider tests are green. It exercises the shipped CLI, config loading,
+default-agent resolution, bundled plugin activation, runtime-dependency repair,
+and the shared capability runtime before the provider request is made.
 
 ## Command tree
 
@@ -126,6 +129,11 @@ This table maps common inference tasks to the corresponding infer command.
 - Stateless execution commands default to local.
 - Gateway-managed state commands default to gateway.
 - The normal local path does not require the gateway to be running.
+- Local `model run` is a lean one-shot provider completion. It resolves the configured agent model and auth, but does not start a chat-agent turn, load tools, or open bundled MCP servers.
+- `model run --file` accepts image files, detects their MIME type, and sends them with the supplied prompt to the selected model. Repeat `--file` for multiple images.
+- `model run --file` rejects non-image inputs. Use `infer audio transcribe` for audio files and `infer video describe` for video files.
+- `model run --gateway` exercises Gateway routing, saved auth, provider selection, and the embedded runtime, but still runs as a raw model probe: it sends the supplied prompt and any image attachments without prior session transcript, bootstrap/AGENTS context, context-engine assembly, tools, or bundled MCP servers.
+- `model run --gateway --model <provider/model>` requires a trusted operator gateway credential because the request asks the Gateway to run a one-off provider/model override.
 
 ## Model
 
@@ -133,14 +141,34 @@ Use `model` for provider-backed text inference and model/provider inspection.
 
 ```bash
 openclaw infer model run --prompt "Reply with exactly: smoke-ok" --json
-openclaw infer model run --prompt "Summarize this changelog entry" --provider openai --json
+openclaw infer model run --prompt "Summarize this changelog entry" --model openai/gpt-5.4 --json
+openclaw infer model run --prompt "Describe this image in one sentence" --file ./photo.jpg --model google/gemini-2.5-flash --json
 openclaw infer model providers --json
-openclaw infer model inspect --name gpt-5.4 --json
+openclaw infer model inspect --name gpt-5.5 --json
+```
+
+Use full `<provider/model>` refs to smoke-test a specific provider without
+starting the Gateway or loading the full agent tool surface:
+
+```bash
+openclaw infer model run --local --model anthropic/claude-sonnet-4-6 --prompt "Reply with exactly: pong" --json
+openclaw infer model run --local --model cerebras/zai-glm-4.7 --prompt "Reply with exactly: pong" --json
+openclaw infer model run --local --model google/gemini-2.5-flash --prompt "Reply with exactly: pong" --json
+openclaw infer model run --local --model groq/llama-3.1-8b-instant --prompt "Reply with exactly: pong" --json
+openclaw infer model run --local --model mistral/mistral-small-latest --prompt "Reply with exactly: pong" --json
+openclaw infer model run --local --model openai/gpt-4.1 --prompt "Reply with exactly: pong" --json
+openclaw infer model run --local --model ollama/qwen2.5vl:7b --prompt "Describe this image." --file ./photo.jpg --json
 ```
 
 Notes:
 
-- `model run` reuses the agent runtime so provider/model overrides behave like normal agent execution.
+- Local `model run` is the narrowest CLI smoke for provider/model/auth health because it sends only the supplied prompt to the selected model.
+- Local `model run --file` keeps that lean path and attaches image content directly to the single user message. Common image files such as PNG, JPEG, and WebP work when their MIME type is detected as `image/*`; unsupported or unrecognized files fail before the provider is called.
+- `model run --file` is best when you want to test the selected multimodal text model directly. Use `infer image describe` when you want OpenClaw's image-understanding provider selection and default image-model routing.
+- The selected model must support image input; text-only models may reject the request at the provider layer.
+- `model run --prompt` must contain non-whitespace text; empty prompts are rejected before local providers or the Gateway are called.
+- Local `model run` exits non-zero when the provider returns no text output, so unreachable local providers and empty completions do not look like successful probes.
+- Use `model run --gateway` when you need to test Gateway routing, agent-runtime setup, or Gateway-managed provider state while keeping the model input raw. Use `openclaw agent` or chat surfaces when you want the full agent context, tools, memory, and session transcript.
 - `model auth login`, `model auth logout`, and `model auth status` manage saved provider auth state.
 
 ## Image
@@ -150,7 +178,13 @@ Use `image` for generation, edit, and description.
 ```bash
 openclaw infer image generate --prompt "friendly lobster illustration" --json
 openclaw infer image generate --prompt "cinematic product photo of headphones" --json
+openclaw infer image generate --model openai/gpt-image-1.5 --output-format png --background transparent --prompt "simple red circle sticker on a transparent background" --json
+openclaw infer image generate --prompt "slow image backend" --timeout-ms 180000 --json
+openclaw infer image edit --file ./logo.png --model openai/gpt-image-1.5 --output-format png --background transparent --prompt "keep the logo, remove the background" --json
+openclaw infer image edit --file ./poster.png --prompt "make this a vertical story ad" --size 2160x3840 --aspect-ratio 9:16 --resolution 4K --json
 openclaw infer image describe --file ./photo.jpg --json
+openclaw infer image describe --file ./receipt.jpg --prompt "Extract the merchant, date, and total" --json
+openclaw infer image describe-many --file ./before.png --file ./after.png --prompt "Compare the screenshots and list visible UI changes" --json
 openclaw infer image describe --file ./ui-screenshot.png --model openai/gpt-4.1-mini --json
 ```
 
@@ -196,13 +230,14 @@ Use `video` for generation and description.
 
 ```bash
 openclaw infer video generate --prompt "cinematic sunset over the ocean" --json
-openclaw infer video generate --prompt "slow drone shot over a forest lake" --json
+openclaw infer video generate --prompt "slow drone shot over a forest lake" --resolution 768P --duration 6 --json
 openclaw infer video describe --file ./clip.mp4 --json
 openclaw infer video describe --file ./clip.mp4 --model openai/gpt-4.1-mini --json
 ```
 
 Notes:
 
+- `video generate` accepts `--size`, `--aspect-ratio`, `--resolution`, `--duration`, `--audio`, `--watermark`, and `--timeout-ms` and forwards them to the video-generation runtime.
 - `--model` must be `<provider/model>` for `video describe`.
 
 ## Web
@@ -257,6 +292,10 @@ Top-level fields are stable:
 - `outputs`
 - `error`
 
+For generated media commands, `outputs` contains files written by OpenClaw. Use
+the `path`, `mimeType`, `size`, and any media-specific dimensions in that array
+for automation instead of parsing human-readable stdout.
+
 ## Common pitfalls
 
 ```bash
@@ -278,3 +317,8 @@ openclaw infer audio transcribe --file ./memo.m4a --model openai/whisper-1 --jso
 ## Notes
 
 - `openclaw capability ...` is an alias for `openclaw infer ...`.
+
+## Related
+
+- [CLI reference](/cli)
+- [Models](/concepts/models)
