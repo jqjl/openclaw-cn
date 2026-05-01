@@ -114,6 +114,23 @@ describe("docker build helper", () => {
     );
   });
 
+  it("times and parallelizes release installer E2E agent turns after gateway startup", () => {
+    const runner = readFileSync(INSTALL_E2E_RUNNER_PATH, "utf8");
+    const wrapper = readFileSync("scripts/test-install-sh-e2e-docker.sh", "utf8");
+
+    expect(runner).toContain(
+      'AGENT_TURNS_PARALLEL="${OPENCLAW_INSTALL_E2E_AGENT_TURNS_PARALLEL:-1}"',
+    );
+    expect(runner).toContain("time_phase");
+    expect(runner).toContain("phase_mark_start");
+    expect(runner).toContain("run_agent_turn_bg");
+    expect(runner).toContain("wait_agent_turn_batch");
+    expect(runner).toContain('run_agent_turn_bg "read proof"');
+    expect(runner).toContain('run_agent_turn_bg "image write"');
+    expect(runner).toContain('run_agent_turn_logged "read proof copy"');
+    expect(wrapper).toContain("OPENCLAW_INSTALL_E2E_AGENT_TURNS_PARALLEL");
+  });
+
   it("keeps package acceptance plugin coverage offline-capable", () => {
     const scenarios = readFileSync(DOCKER_E2E_SCENARIOS_PATH, "utf8");
 
@@ -146,8 +163,8 @@ describe("docker build helper", () => {
     const pluginsAssertions = readFileSync(PLUGINS_DOCKER_ASSERTIONS_PATH, "utf8");
     const pluginUpdateScenario = readFileSync(PLUGIN_UPDATE_SCENARIO_PATH, "utf8");
     const pluginUpdateProbe = readFileSync(PLUGIN_UPDATE_PROBE_PATH, "utf8");
-    const packageCompat = readFileSync(PACKAGE_COMPAT_PATH, "utf8");
     const updateChannelAssertions = readFileSync(UPDATE_CHANNEL_SWITCH_ASSERTIONS_PATH, "utf8");
+    const packageCompat = readFileSync(PACKAGE_COMPAT_PATH, "utf8");
     const scripts = [
       doctorScenario,
       updateChannel,
@@ -214,7 +231,7 @@ describe("docker build helper", () => {
 
     expect(runner).toContain('rm -f "$workspace/BOOTSTRAP.md"');
     expect(runner.indexOf('rm -f "$workspace/BOOTSTRAP.md"')).toBeLessThan(
-      runner.indexOf('echo "==> Agent turns ($profile)"'),
+      runner.indexOf('phase_mark_start "Agent turns ($profile)"'),
     );
   });
 

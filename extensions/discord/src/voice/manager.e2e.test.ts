@@ -1,5 +1,5 @@
-import { ChannelType } from "@buape/carbon";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { ChannelType } from "../internal/discord.js";
 import { createVoiceCaptureState } from "./capture-state.js";
 import { createVoiceReceiveRecoveryState } from "./receive-recovery.js";
 
@@ -539,6 +539,79 @@ describe("DiscordVoiceManager", () => {
     expect(commandArgs?.model).toBe("openai/gpt-5.4-mini");
   });
 
+  it("runs voice replies under Discord voice output policy", async () => {
+    agentCommandMock.mockResolvedValueOnce({
+      payloads: [{ text: "hello back" }],
+    } as never);
+
+    const client = createClient();
+    client.fetchMember.mockResolvedValue({
+      nickname: "Guest Nick",
+      user: {
+        id: "u-guest",
+        username: "guest",
+        globalName: "Guest",
+        discriminator: "4321",
+      },
+    });
+    const manager = createManager({ groupPolicy: "open" }, client, {
+      commands: { useAccessGroups: false },
+    });
+    await processVoiceSegment(manager, "u-guest");
+
+    const commandArgs = agentCommandMock.mock.calls.at(-1)?.[0] as
+      | { message?: string; messageChannel?: string; messageProvider?: string }
+      | undefined;
+
+    expect(commandArgs?.messageChannel).toBe("discord");
+    expect(commandArgs?.messageProvider).toBe("discord-voice");
+    expect(commandArgs?.message).toContain("Do not call the tts tool");
+    expect(textToSpeechMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "discord",
+        text: "hello back",
+      }),
+    );
+  });
+
+  it("passes per-channel system prompt overrides to voice agent runs", async () => {
+    const client = createClient();
+    client.fetchMember.mockResolvedValue({
+      nickname: "Guest Nick",
+      user: {
+        id: "u-guest",
+        username: "guest",
+        globalName: "Guest",
+        discriminator: "4321",
+      },
+    });
+    const manager = createManager(
+      {
+        groupPolicy: "open",
+        guilds: {
+          g1: {
+            channels: {
+              "1001": {
+                systemPrompt: "  Use short voice replies.  ",
+              },
+            },
+          },
+        },
+      },
+      client,
+      {
+        commands: { useAccessGroups: false },
+      },
+    );
+    await processVoiceSegment(manager, "u-guest");
+
+    const commandArgs = agentCommandMock.mock.calls.at(-1)?.[0] as
+      | { extraSystemPrompt?: string }
+      | undefined;
+
+    expect(commandArgs?.extraSystemPrompt).toBe("Use short voice replies.");
+  });
+
   it("reuses speaker context cache for repeated segments from the same speaker", async () => {
     const client = createClient();
     client.fetchMember.mockResolvedValue({
@@ -591,19 +664,21 @@ describe("DiscordVoiceManager", () => {
 
     const cache = (
       manager as unknown as {
-        speakerContextCache: Map<
-          string,
-          {
-            id?: string;
-            label: string;
-            name?: string;
-            tag?: string;
-            senderIsOwner: boolean;
-            expiresAt: number;
-          }
-        >;
+        speakerContext: {
+          cache: Map<
+            string,
+            {
+              id?: string;
+              label: string;
+              name?: string;
+              tag?: string;
+              senderIsOwner: boolean;
+              expiresAt: number;
+            }
+          >;
+        };
       }
-    ).speakerContextCache;
+    ).speakerContext.cache;
     const cached = cache.get("g1:u-role");
 
     expect(cached).toEqual(
