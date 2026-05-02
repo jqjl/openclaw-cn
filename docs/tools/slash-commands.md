@@ -61,29 +61,55 @@ There are two related systems:
 }
 ```
 
-- `commands.text` (default `true`) enables parsing `/...` in chat messages.
-  - On surfaces without native commands (WhatsApp/WebChat/Signal/iMessage/Google Chat/Microsoft Teams), text commands still work even if you set this to `false`.
-- `commands.native` (default `"auto"`) registers native commands.
-  - Auto: on for Discord/Telegram; off for Slack (until you add slash commands); ignored for providers without native support.
-  - Set `channels.discord.commands.native`, `channels.telegram.commands.native`, or `channels.slack.commands.native` to override per provider (bool or `"auto"`).
-  - `false` clears previously registered commands on Discord/Telegram at startup. Slack commands are managed in the Slack app and are not removed automatically.
-- `commands.nativeSkills` (default `"auto"`) registers **skill** commands natively when supported.
-  - Auto: on for Discord/Telegram; off for Slack (Slack requires creating a slash command per skill).
-  - Set `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills`, or `channels.slack.commands.nativeSkills` to override per provider (bool or `"auto"`).
-- `commands.bash` (default `false`) enables `! <cmd>` to run host shell commands (`/bash <cmd>` is an alias; requires `tools.elevated` allowlists).
-- `commands.bashForegroundMs` (default `2000`) controls how long bash waits before switching to background mode (`0` backgrounds immediately).
-- `commands.config` (default `false`) enables `/config` (reads/writes `openclaw.json`).
-- `commands.mcp` (default `false`) enables `/mcp` (reads/writes OpenClaw-managed MCP config under `mcp.servers`).
-- `commands.plugins` (default `false`) enables `/plugins` (plugin discovery/status plus install + enable/disable controls).
-- `commands.debug` (default `false`) enables `/debug` (runtime-only overrides).
-- `commands.restart` (default `true`) enables `/restart` plus gateway restart tool actions.
-- `commands.ownerAllowFrom` (optional) sets the explicit owner allowlist for owner-only command/tool surfaces. This is separate from `commands.allowFrom`.
-- `commands.ownerDisplay` controls how owner ids appear in the system prompt: `raw` or `hash`.
-- `commands.ownerDisplaySecret` optionally sets the HMAC secret used when `commands.ownerDisplay="hash"`.
-- `commands.allowFrom` (optional) sets a per-provider allowlist for command authorization. When configured, it is the
-  only authorization source for commands and directives (channel allowlists/pairing and `commands.useAccessGroups`
-  are ignored). Use `"*"` for a global default; provider-specific keys override it.
-- `commands.useAccessGroups` (default `true`) enforces allowlists/policies for commands when `commands.allowFrom` is not set.
+<ParamField path="commands.text" type="boolean" default="true">
+  Enables parsing `/...` in chat messages. On surfaces without native commands (WhatsApp/WebChat/Signal/iMessage/Google Chat/Microsoft Teams), text commands still work even if you set this to `false`.
+</ParamField>
+<ParamField path="commands.native" type='boolean | "auto"' default='"auto"'>
+  Registers native commands. Auto: on for Discord/Telegram; off for Slack (until you add slash commands); ignored for providers without native support. Set `channels.discord.commands.native`, `channels.telegram.commands.native`, or `channels.slack.commands.native` to override per provider (bool or `"auto"`). `false` clears previously registered commands on Discord/Telegram at startup. Slack commands are managed in the Slack app and are not removed automatically.
+</ParamField>
+On Discord, native command specs may include `descriptionLocalizations`, which OpenClaw publishes as Discord `description_localizations` and includes in reconcile comparisons.
+<ParamField path="commands.nativeSkills" type='boolean | "auto"' default='"auto"'>
+  Registers **skill** commands natively when supported. Auto: on for Discord/Telegram; off for Slack (Slack requires creating a slash command per skill). Set `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills`, or `channels.slack.commands.nativeSkills` to override per provider (bool or `"auto"`).
+</ParamField>
+<ParamField path="commands.bash" type="boolean" default="false">
+  Enables `! <cmd>` to run host shell commands (`/bash <cmd>` is an alias; requires `tools.elevated` allowlists).
+</ParamField>
+<ParamField path="commands.bashForegroundMs" type="number" default="2000">
+  Controls how long bash waits before switching to background mode (`0` backgrounds immediately).
+</ParamField>
+<ParamField path="commands.config" type="boolean" default="false">
+  Enables `/config` (reads/writes `openclaw.json`).
+</ParamField>
+<ParamField path="commands.mcp" type="boolean" default="false">
+  Enables `/mcp` (reads/writes OpenClaw-managed MCP config under `mcp.servers`).
+</ParamField>
+<ParamField path="commands.plugins" type="boolean" default="false">
+  Enables `/plugins` (plugin discovery/status plus install + enable/disable controls).
+</ParamField>
+<ParamField path="commands.debug" type="boolean" default="false">
+  Enables `/debug` (runtime-only overrides).
+</ParamField>
+<ParamField path="commands.restart" type="boolean" default="true">
+  Enables `/restart` plus gateway restart tool actions.
+</ParamField>
+<ParamField path="commands.ownerAllowFrom" type="string[]">
+  Sets the explicit owner allowlist for owner-only command/tool surfaces. This is the human operator account that can approve dangerous actions and run commands such as `/diagnostics`, `/export-trajectory`, and `/config`. It is separate from `commands.allowFrom` and from DM pairing access.
+</ParamField>
+<ParamField path="channels.<channel>.commands.enforceOwnerForCommands" type="boolean" default="false">
+  Per-channel: makes owner-only commands require **owner identity** to run on that surface. When `true`, the sender must either match a resolved owner candidate (for example an entry in `commands.ownerAllowFrom` or provider-native owner metadata) or hold internal `operator.admin` scope on an internal message channel. A wildcard entry in channel `allowFrom`, or an empty/unresolved owner-candidate list, is **not** sufficient — owner-only commands fail closed on that channel. Leave this off if you want owner-only commands gated only by `ownerAllowFrom` and the standard command allowlists.
+</ParamField>
+<ParamField path="commands.ownerDisplay" type='"raw" | "hash"'>
+  Controls how owner ids appear in the system prompt.
+</ParamField>
+<ParamField path="commands.ownerDisplaySecret" type="string">
+  Optionally sets the HMAC secret used when `commands.ownerDisplay="hash"`.
+</ParamField>
+<ParamField path="commands.allowFrom" type="object">
+  Per-provider allowlist for command authorization. When configured, it is the only authorization source for commands and directives (channel allowlists/pairing and `commands.useAccessGroups` are ignored). Use `"*"` for a global default; provider-specific keys override it.
+</ParamField>
+<ParamField path="commands.useAccessGroups" type="boolean" default="true">
+  Enforces allowlists/policies for commands when `commands.allowFrom` is not set.
+</ParamField>
 
 ## Command list
 
@@ -99,6 +125,7 @@ Current source-of-truth:
 <AccordionGroup>
   <Accordion title="Sessions and runs">
     - `/new [model]` starts a new session; `/reset` is the reset alias.
+    - Control UI intercepts typed `/new` to create and switch to a fresh dashboard session; typed `/reset` still runs the Gateway's in-place reset.
     - `/reset soft [message]` keeps the current transcript, drops reused CLI backend session ids, and reruns startup/system-prompt loading in-place.
     - `/compact [instructions]` compacts the session context. See [Compaction](/concepts/compaction).
     - `/stop` aborts the current run.
@@ -106,51 +133,68 @@ Current source-of-truth:
     - `/export-session [path]` exports the current session to HTML. Alias: `/export`.
     - `/export-trajectory [path]` asks for exec approval, then exports a JSONL [trajectory bundle](/tools/trajectory) for the current session. Use it when you need the prompt, tool, and transcript timeline for one OpenClaw session. In group chats, the approval prompt and export result go to the owner privately. Alias: `/trajectory`.
 
-- `/new [model]` starts a new session; `/reset` is the reset alias.
-- `/compact [instructions]` compacts the session context. See [/concepts/compaction](/concepts/compaction).
-- `/stop` aborts the current run.
-- `/session idle <duration|off>` and `/session max-age <duration|off>` manage thread-binding expiry.
-- `/think <level>` sets the thinking level. Options come from the active model's provider profile; common levels are `off`, `minimal`, `low`, `medium`, and `high`, with custom levels such as `xhigh`, `adaptive`, `max`, or binary `on` only where supported. Aliases: `/thinking`, `/t`.
-- `/verbose on|off|full` toggles verbose output. Alias: `/v`.
-- `/trace on|off` toggles plugin trace output for the current session.
-- `/fast [status|on|off]` shows or sets fast mode.
-- `/reasoning [on|off|stream]` toggles reasoning visibility. Alias: `/reason`.
-- `/elevated [on|off|ask|full]` toggles elevated mode. Alias: `/elev`.
-- `/exec host=<auto|sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` shows or sets exec defaults.
-- `/model [name|#|status]` shows or sets the model.
-- `/models [provider] [page] [limit=<n>|size=<n>|all]` lists providers or models for a provider.
-- `/queue <mode>` manages queue behavior (`steer`, `interrupt`, `followup`, `collect`, `steer-backlog`) plus options like `debounce:2s cap:25 drop:summarize`.
-- `/help` shows the short help summary.
-- `/commands` shows the generated command catalog.
-- `/tools [compact|verbose]` shows what the current agent can use right now.
-- `/status` shows runtime status, including provider usage/quota when available.
-- `/tasks` lists active/recent background tasks for the current session.
-- `/context [list|detail|json]` explains how context is assembled.
-- `/export-session [path]` exports the current session to HTML. Alias: `/export`.
-- `/whoami` shows your sender id. Alias: `/id`.
-- `/skill <name> [input]` runs a skill by name.
-- `/allowlist [list|add|remove] ...` manages allowlist entries. Text-only.
-- `/approve <id> <decision>` resolves exec approval prompts.
-- `/btw <question>` asks a side question without changing future session context. See [/tools/btw](/tools/btw).
-- `/subagents list|kill|log|info|send|steer|spawn` manages sub-agent runs for the current session.
-- `/acp spawn|cancel|steer|close|sessions|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|help` manages ACP sessions and runtime options.
-- `/focus <target>` binds the current Discord thread or Telegram topic/conversation to a session target.
-- `/unfocus` removes the current binding.
-- `/agents` lists thread-bound agents for the current session.
-- `/kill <id|#|all>` aborts one or all running sub-agents.
-- `/steer <id|#> <message>` sends steering to a running sub-agent. Alias: `/tell`.
-- `/config show|get|set|unset` reads or writes `openclaw.json`. Owner-only. Requires `commands.config: true`.
-- `/mcp show|get|set|unset` reads or writes OpenClaw-managed MCP server config under `mcp.servers`. Owner-only. Requires `commands.mcp: true`.
-- `/plugins list|inspect|show|get|install|enable|disable` inspects or mutates plugin state. `/plugin` is an alias. Owner-only for writes. Requires `commands.plugins: true`.
-- `/debug show|set|unset|reset` manages runtime-only config overrides. Owner-only. Requires `commands.debug: true`.
-- `/usage off|tokens|full|cost` controls the per-response usage footer or prints a local cost summary.
-- `/tts on|off|status|provider|limit|summary|audio|help` controls TTS. See [/tools/tts](/tools/tts).
-- `/restart` restarts OpenClaw when enabled. Default: enabled; set `commands.restart: false` to disable it.
-- `/activation mention|always` sets group activation mode.
-- `/send on|off|inherit` sets send policy. Owner-only.
-- `/bash <command>` runs a host shell command. Text-only. Alias: `! <command>`. Requires `commands.bash: true` plus `tools.elevated` allowlists.
-- `!poll [sessionId]` checks a background bash job.
-- `!stop [sessionId]` stops a background bash job.
+  </Accordion>
+  <Accordion title="Model and run controls">
+    - `/think <level>` sets the thinking level. Options come from the active model's provider profile; common levels are `off`, `minimal`, `low`, `medium`, and `high`, with custom levels such as `xhigh`, `adaptive`, `max`, or binary `on` only where supported. Aliases: `/thinking`, `/t`.
+    - `/verbose on|off|full` toggles verbose output. Alias: `/v`.
+    - `/trace on|off` toggles plugin trace output for the current session.
+    - `/fast [status|on|off]` shows or sets fast mode.
+    - `/reasoning [on|off|stream]` toggles reasoning visibility. Alias: `/reason`.
+    - `/elevated [on|off|ask|full]` toggles elevated mode. Alias: `/elev`.
+    - `/exec host=<auto|sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` shows or sets exec defaults.
+    - `/model [name|#|status]` shows or sets the model.
+    - `/models [provider] [page] [limit=<n>|size=<n>|all]` lists configured/auth-available providers or models for a provider; add `all` to browse that provider's full catalog.
+    - `/queue <mode>` manages queue behavior (`steer`, legacy `queue`, `followup`, `collect`, `steer-backlog`, `interrupt`) plus options like `debounce:0.5s cap:25 drop:summarize`; `/queue default` or `/queue reset` clears the session override. See [Command queue](/concepts/queue) and [Steering queue](/concepts/queue-steering).
+
+  </Accordion>
+  <Accordion title="Discovery and status">
+    - `/help` shows the short help summary.
+    - `/commands` shows the generated command catalog.
+    - `/tools [compact|verbose]` shows what the current agent can use right now.
+    - `/status` shows execution/runtime status, including `Execution`/`Runtime` labels and provider usage/quota when available.
+    - `/diagnostics [note]` is the owner-only support-report flow for Gateway bugs and Codex harness runs. It asks for explicit exec approval every time before running `openclaw gateway diagnostics export --json`; do not approve diagnostics with an allow-all rule. After approval, it sends a pasteable report with the local bundle path, manifest summary, privacy notes, and relevant session ids. In group chats, the approval prompt and report go to the owner privately. When the active session uses the OpenAI Codex harness, the same approval also sends relevant Codex feedback to OpenAI servers and the completed reply lists the OpenClaw session ids, Codex thread ids, and `codex resume <thread-id>` commands. See [Diagnostics Export](/gateway/diagnostics).
+    - `/crestodian <request>` runs the Crestodian setup and repair helper from an owner DM.
+    - `/tasks` lists active/recent background tasks for the current session.
+    - `/context [list|detail|json]` explains how context is assembled.
+    - `/whoami` shows your sender id. Alias: `/id`.
+    - `/usage off|tokens|full|cost` controls the per-response usage footer or prints a local cost summary.
+
+  </Accordion>
+  <Accordion title="Skills, allowlists, approvals">
+    - `/skill <name> [input]` runs a skill by name.
+    - `/allowlist [list|add|remove] ...` manages allowlist entries. Text-only.
+    - `/approve <id> <decision>` resolves exec approval prompts.
+    - `/btw <question>` asks a side question without changing future session context. See [BTW](/tools/btw).
+
+  </Accordion>
+  <Accordion title="Subagents and ACP">
+    - `/subagents list|kill|log|info|send|steer|spawn` manages sub-agent runs for the current session.
+    - `/acp spawn|cancel|steer|close|sessions|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|help` manages ACP sessions and runtime options.
+    - `/focus <target>` binds the current Discord thread or Telegram topic/conversation to a session target.
+    - `/unfocus` removes the current binding.
+    - `/agents` lists thread-bound agents for the current session.
+    - `/kill <id|#|all>` aborts one or all running sub-agents.
+    - `/steer <id|#> <message>` sends steering to a running sub-agent. Alias: `/tell`.
+
+  </Accordion>
+  <Accordion title="Owner-only writes and admin">
+    - `/config show|get|set|unset` reads or writes `openclaw.json`. Owner-only. Requires `commands.config: true`.
+    - `/mcp show|get|set|unset` reads or writes OpenClaw-managed MCP server config under `mcp.servers`. Owner-only. Requires `commands.mcp: true`.
+    - `/plugins list|inspect|show|get|install|enable|disable` inspects or mutates plugin state. `/plugin` is an alias. Owner-only for writes. Requires `commands.plugins: true`.
+    - `/debug show|set|unset|reset` manages runtime-only config overrides. Owner-only. Requires `commands.debug: true`.
+    - `/restart` restarts OpenClaw when enabled. Default: enabled; set `commands.restart: false` to disable it.
+    - `/send on|off|inherit` sets send policy. Owner-only.
+
+  </Accordion>
+  <Accordion title="Voice, TTS, channel control">
+    - `/tts on|off|status|chat|latest|provider|limit|summary|audio|help` controls TTS. See [TTS](/tools/tts).
+    - `/activation mention|always` sets group activation mode.
+    - `/bash <command>` runs a host shell command. Text-only. Alias: `! <command>`. Requires `commands.bash: true` plus `tools.elevated` allowlists.
+    - `!poll [sessionId]` checks a background bash job.
+    - `!stop [sessionId]` stops a background bash job.
+
+  </Accordion>
+</AccordionGroup>
 
 ### Generated dock commands
 
@@ -195,6 +239,7 @@ User-invocable skills are also exposed as slash commands:
 - `/skill <name> [input]` always works as the generic entrypoint.
 - skills may also appear as direct commands like `/prose` when the skill/plugin registers them.
 - native skill-command registration is controlled by `commands.nativeSkills` and `channels.<provider>.commands.nativeSkills`.
+- command specs can provide `descriptionLocalizations` for native surfaces that support localized descriptions, including Discord.
 
 <AccordionGroup>
   <Accordion title="Argument and parser notes">
@@ -205,7 +250,7 @@ User-invocable skills are also exposed as slash commands:
     - In multi-account channels, config-targeted `/allowlist --account <id>` and `/config set channels.<provider>.accounts.<id>...` also honor the target account's `configWrites`.
     - `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from OpenClaw session logs.
     - `/restart` is enabled by default; set `commands.restart: false` to disable it.
-    - `/plugins install <spec>` accepts the same plugin specs as `openclaw plugins install`: local path/archive, npm package, or `clawhub:<pkg>`.
+    - `/plugins install <spec>` accepts the same plugin specs as `openclaw plugins install`: local path/archive, npm package, `git:<repo>`, or `clawhub:<pkg>`.
     - `/plugins enable|disable` updates plugin config and may prompt for a restart.
 
   </Accordion>

@@ -113,10 +113,11 @@ OpenClaw chooses a harness after provider/model resolution:
 5. If no registered harness matches, OpenClaw uses PI unless PI fallback is
    disabled.
 
-Forced plugin harness failures surface as run failures. In `auto` mode,
-OpenClaw may fall back to PI when the selected plugin harness fails before a
-turn has produced side effects. Set `OPENCLAW_AGENT_HARNESS_FALLBACK=none` or
-`embeddedHarness.fallback: "none"` to make that fallback a hard failure instead.
+Plugin harness failures surface as run failures. In `auto` mode, PI fallback is
+only used when no registered plugin harness supports the resolved
+provider/model. Once a plugin harness has claimed a run, OpenClaw does not
+replay that same turn through PI because that can change auth/runtime semantics
+or duplicate side effects.
 
 The selected harness id is persisted with the session id after an embedded run.
 Legacy sessions created before harness pins are treated as PI-pinned once they
@@ -164,6 +165,30 @@ OpenClaw only runs against the protocol surface it has been tested with. The
 `0.125.0` floor includes the native MCP hook payload support that landed in
 Codex `0.124.0`, while pinning OpenClaw to the newer tested stable line.
 
+### Tool-result middleware
+
+Bundled plugins can attach runtime-neutral tool-result middleware through
+`api.registerAgentToolResultMiddleware(...)` when their manifest declares the
+targeted runtime ids in `contracts.agentToolResultMiddleware`. This trusted
+seam is for async tool-result transforms that must run before PI or Codex feeds
+tool output back into the model.
+
+Legacy bundled plugins can still use
+`api.registerCodexAppServerExtensionFactory(...)` for Codex app-server-only
+middleware, but new result transforms should use the runtime-neutral API.
+The Pi-only `api.registerEmbeddedExtensionFactory(...)` hook has been removed;
+Pi tool-result transforms must use runtime-neutral middleware.
+
+### Terminal outcome classification
+
+Native harnesses that own their own protocol projection can use
+`classifyAgentHarnessTerminalOutcome(...)` from
+`openclaw/plugin-sdk/agent-harness-runtime` when a completed turn produced no
+visible assistant text. The helper returns `empty`, `reasoning-only`, or
+`planning-only` so OpenClaw's fallback policy can decide whether to retry on a
+different model. It intentionally leaves prompt errors, in-flight turns, and
+intentional silent replies such as `NO_REPLY` unclassified.
+
 ### Native Codex harness mode
 
 The bundled `codex` harness is the native Codex mode for embedded OpenClaw
@@ -176,20 +201,25 @@ model refs remain compatibility aliases for the native harness.
 When this mode runs, Codex owns the native thread id, resume behavior,
 compaction, and app-server execution. OpenClaw still owns the chat channel,
 visible transcript mirror, tool policy, approvals, media delivery, and session
-selection. Use `embeddedHarness.runtime: "codex"` with
-`embeddedHarness.fallback: "none"` when you need to prove that the Codex
-app-server path is used and PI fallback is not hiding a broken native harness.
+selection. Use `agentRuntime.id: "codex"` without a `fallback` override
+when you need to prove that only the Codex app-server path can claim the run.
+Explicit plugin runtimes already fail closed by default. Set `fallback: "pi"`
+only when you intentionally want PI to handle missing harness selection. Codex
+app-server failures already fail directly instead of retrying through PI.
 
 ## Disable PI fallback
 
-By default, OpenClaw runs embedded agents with `agents.defaults.embeddedHarness`
-set to `{ runtime: "auto", fallback: "pi" }`. In `auto` mode, registered plugin
-harnesses can claim a provider/model pair. If none match, or if an auto-selected
-plugin harness fails before producing output, OpenClaw falls back to PI.
+By default, OpenClaw runs embedded agents with `agents.defaults.agentRuntime`
+set to `{ id: "auto", fallback: "pi" }`. In `auto` mode, registered plugin
+harnesses can claim a provider/model pair. If none match, OpenClaw falls back
+to PI.
 
-Set `fallback: "none"` when you need to prove that a plugin harness is the only
-runtime being exercised. This disables automatic PI fallback; it does not block
-an explicit `runtime: "pi"` or `OPENCLAW_AGENT_RUNTIME=pi`.
+In `auto` mode, set `fallback: "none"` when you need missing plugin harness
+selection to fail instead of using PI. Explicit plugin runtimes such as
+`agentRuntime.id: "codex"` already fail closed by default, unless
+`fallback: "pi"` is set in the same config or environment override scope.
+Selected plugin harness failures always fail hard. This does not block an
+explicit `agentRuntime.id: "pi"` or `OPENCLAW_AGENT_RUNTIME=pi`.
 
 For Codex-only embedded runs:
 

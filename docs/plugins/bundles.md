@@ -102,6 +102,8 @@ loader. Cursor command markdown works through the same path.
   `mcpServers`
 - OpenClaw exposes supported bundle MCP tools during embedded Pi agent turns by
   launching stdio servers or connecting to HTTP servers
+- the `coding` and `messaging` tool profiles include bundle MCP tools by
+  default; use `tools.deny: ["bundle-mcp"]` to opt out for an agent or gateway
 - project-local Pi settings still apply after bundle defaults, so workspace
   settings can override bundle MCP entries when needed
 - bundle MCP tool catalogs are sorted deterministically before registration, so
@@ -169,6 +171,9 @@ OpenClaw registers bundle MCP tools with provider-safe names in the form
 - colliding sanitized names are disambiguated with numeric suffixes
 - final exposed tool order is deterministic by safe name to keep repeated Pi
   turns cache-stable
+- profile filtering treats all tools from one bundle MCP server as plugin-owned
+  by `bundle-mcp`, so profile allowlists and deny lists can include either
+  individual exposed tool names or the `bundle-mcp` plugin key
 
 #### Embedded Pi settings
 
@@ -247,6 +252,18 @@ OpenClaw checks for native plugin format first:
 
 If a directory contains both, OpenClaw uses the native path. This prevents
 dual-format packages from being partially installed as bundles.
+
+## Runtime dependencies and cleanup
+
+- Third-party compatible bundles do not get startup `npm install` repair. They
+  should be installed through `openclaw plugins install` and ship everything
+  they need in the installed plugin directory.
+- OpenClaw-owned bundled plugins are either shipped lightweight in core or
+  downloadable through the plugin installer. Gateway startup never runs a
+  package manager for them.
+- `openclaw doctor --fix` removes legacy staged dependency directories and can
+  install configured downloadable plugins that are missing from the local
+  plugin index.
 
 ## Security
 

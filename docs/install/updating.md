@@ -103,6 +103,28 @@ pnpm add -g openclaw@latest
 bun add -g openclaw@latest
 ```
 
+### Advanced npm install topics
+
+<AccordionGroup>
+  <Accordion title="Read-only package tree">
+    OpenClaw treats packaged global installs as read-only at runtime, even when the global package directory is writable by the current user. Plugin package installs live in OpenClaw-owned npm/git roots under the user config directory, and Gateway startup does not mutate the OpenClaw package tree.
+
+    Some Linux npm setups install global packages under root-owned directories such as `/usr/lib/node_modules/openclaw`. OpenClaw supports that layout because plugin install/update commands write outside that global package directory.
+
+  </Accordion>
+  <Accordion title="Hardened systemd units">
+    Give OpenClaw write access to its config/state roots so explicit plugin installs, plugin updates, and doctor cleanup can persist their changes:
+
+    ```ini
+    ReadWritePaths=/var/lib/openclaw /home/openclaw/.openclaw /tmp
+    ```
+
+  </Accordion>
+  <Accordion title="Disk-space preflight">
+    Before package updates and explicit plugin installs, OpenClaw tries a best-effort disk-space check for the target volume. Low space produces a warning with the checked path, but does not block the update because filesystem quotas, snapshots, and network volumes can change after the check. The actual package-manager install and post-install verification remain authoritative.
+  </Accordion>
+</AccordionGroup>
+
 ## Auto-updater
 
 The auto-updater is off by default. Enable it in `~/.openclaw/openclaw.json`:

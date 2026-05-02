@@ -35,7 +35,6 @@ import { enqueueSystemEvent } from "../infra/system-events.js";
 import type { VoiceWakeRoutingConfig } from "../infra/voicewake-routing.js";
 import { startDiagnosticHeartbeat, stopDiagnosticHeartbeat } from "../logging/diagnostic.js";
 import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js";
-import { getActiveBundledRuntimeDepsInstallCount } from "../plugins/bundled-runtime-deps-activity.js";
 import {
   clearCurrentPluginMetadataSnapshot,
   setCurrentPluginMetadataSnapshot,
@@ -545,7 +544,6 @@ export async function startGatewayServer(
       getTotalQueueSize() +
       getTotalPendingReplies() +
       getActiveEmbeddedRunCount() +
-      getActiveBundledRuntimeDepsInstallCount() +
       getInspectableTaskRegistrySummary().active,
   );
   // Unconditional startup migration: seed gateway.controlUi.allowedOrigins for existing
@@ -743,6 +741,9 @@ export async function startGatewayServer(
     getStartupPending: () => !startupSidecarsReady,
     getStartupPendingReason: () => startupPendingReason,
     getEventLoopHealth: readinessEventLoopHealth.snapshot,
+    shouldSkipChannelReadiness: () =>
+      isTruthyEnvValue(process.env.OPENCLAW_SKIP_CHANNELS) ||
+      isTruthyEnvValue(process.env.OPENCLAW_SKIP_PROVIDERS),
   });
   log.info("starting HTTP server...");
   const {
@@ -826,7 +827,9 @@ export async function startGatewayServer(
   });
   deps.cron = runtimeState.cronState.cron;
 
+  let closePreludeStarted = false;
   const runClosePrelude = async () => {
+    closePreludeStarted = true;
     clearCurrentPluginMetadataSnapshot();
     const { runGatewayClosePrelude } = await loadGatewayCloseModule();
     await runGatewayClosePrelude({
@@ -972,7 +975,6 @@ export async function startGatewayServer(
         cfgAtStart,
         channelManager,
         log,
-        pluginLookUpTable,
       }),
     );
 
@@ -1165,6 +1167,31 @@ export async function startGatewayServer(
     await startListening();
     startupTrace.mark("http.bound");
     const sessionDeliveryRecoveryMaxEnqueuedAt = Date.now();
+    let postAttachRuntimeReturned = false;
+    let scheduledServicesActivated = false;
+    const activateScheduledServicesWhenReady = () => {
+      if (
+        closePreludeStarted ||
+        !postAttachRuntimeReturned ||
+        !startupSidecarsReady ||
+        scheduledServicesActivated
+      ) {
+        return;
+      }
+      const activated = activateGatewayScheduledServices({
+        minimalTestGateway,
+        cfgAtStart,
+        deps,
+        sessionDeliveryRecoveryMaxEnqueuedAt,
+        cron: runtimeState.cronState.cron,
+        logCron,
+        log,
+        pluginLookUpTable,
+      });
+      scheduledServicesActivated = true;
+      runtimeState.heartbeatRunner = activated.heartbeatRunner;
+      runtimeState.stopModelPricingRefresh = activated.stopModelPricingRefresh;
+    };
     ({
       stopGatewayUpdateCheck: runtimeState.stopGatewayUpdateCheck,
       tailscaleCleanup: runtimeState.tailscaleCleanup,
@@ -1206,7 +1233,7 @@ export async function startGatewayServer(
                 pluginLookUpTable,
               }),
         onStartupPluginsLoading: () => {
-          startupPendingReason = "plugin-runtime-deps";
+          startupPendingReason = "startup-sidecars";
         },
         onStartupPluginsLoaded: async (loaded) => {
           replaceAttachedPluginRuntime(loaded);
@@ -1220,23 +1247,15 @@ export async function startGatewayServer(
         },
         onSidecarsReady: () => {
           startupSidecarsReady = true;
+          activateScheduledServicesWhenReady();
         },
         startupTrace,
         deferSidecars: opts.deferStartupSidecars === true,
       }),
     ));
     startupTrace.mark("ready");
-
-    const activated = activateGatewayScheduledServices({
-      minimalTestGateway,
-      cfgAtStart,
-      deps,
-      sessionDeliveryRecoveryMaxEnqueuedAt,
-      cron: runtimeState.cronState.cron,
-      logCron,
-      log,
-    });
-    runtimeState.heartbeatRunner = activated.heartbeatRunner;
+    postAttachRuntimeReturned = true;
+    activateScheduledServicesWhenReady();
 
     const { startManagedGatewayConfigReloader } = await import("./server-reload-handlers.js");
     runtimeState.configReloader = startManagedGatewayConfigReloader({

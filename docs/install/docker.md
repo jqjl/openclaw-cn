@@ -122,15 +122,63 @@ and setup-time config writes through `openclaw-gateway` with
 
 The setup script accepts these optional environment variables:
 
-| Variable                       | Purpose                                                          |
-| ------------------------------ | ---------------------------------------------------------------- |
-| `OPENCLAW_IMAGE`               | Use a remote image instead of building locally                   |
-| `OPENCLAW_DOCKER_APT_PACKAGES` | Install extra apt packages during build (space-separated)        |
-| `OPENCLAW_EXTENSIONS`          | Pre-install extension deps at build time (space-separated names) |
-| `OPENCLAW_EXTRA_MOUNTS`        | Extra host bind mounts (comma-separated `source:target[:opts]`)  |
-| `OPENCLAW_HOME_VOLUME`         | Persist `/home/node` in a named Docker volume                    |
-| `OPENCLAW_SANDBOX`             | Opt in to sandbox bootstrap (`1`, `true`, `yes`, `on`)           |
-| `OPENCLAW_DOCKER_SOCKET`       | Override Docker socket path                                      |
+| Variable                                   | Purpose                                                         |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `OPENCLAW_IMAGE`                           | Use a remote image instead of building locally                  |
+| `OPENCLAW_DOCKER_APT_PACKAGES`             | Install extra apt packages during build (space-separated)       |
+| `OPENCLAW_EXTENSIONS`                      | Include selected bundled plugin helpers at build time           |
+| `OPENCLAW_EXTRA_MOUNTS`                    | Extra host bind mounts (comma-separated `source:target[:opts]`) |
+| `OPENCLAW_HOME_VOLUME`                     | Persist `/home/node` in a named Docker volume                   |
+| `OPENCLAW_SANDBOX`                         | Opt in to sandbox bootstrap (`1`, `true`, `yes`, `on`)          |
+| `OPENCLAW_SKIP_ONBOARDING`                 | Skip the interactive onboarding step (`1`, `true`, `yes`, `on`) |
+| `OPENCLAW_DOCKER_SOCKET`                   | Override Docker socket path                                     |
+| `OPENCLAW_DISABLE_BONJOUR`                 | Disable Bonjour/mDNS advertising (defaults to `1` for Docker)   |
+| `OPENCLAW_DISABLE_BUNDLED_SOURCE_OVERLAYS` | Disable bundled plugin source bind-mount overlays               |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`              | Shared OTLP/HTTP collector endpoint for OpenTelemetry export    |
+| `OTEL_EXPORTER_OTLP_*_ENDPOINT`            | Signal-specific OTLP endpoints for traces, metrics, or logs     |
+| `OTEL_EXPORTER_OTLP_PROTOCOL`              | OTLP protocol override. Only `http/protobuf` is supported today |
+| `OTEL_SERVICE_NAME`                        | Service name used for OpenTelemetry resources                   |
+| `OTEL_SEMCONV_STABILITY_OPT_IN`            | Opt in to latest experimental GenAI semantic attributes         |
+| `OPENCLAW_OTEL_PRELOADED`                  | Skip starting a second OpenTelemetry SDK when one is preloaded  |
+
+Maintainers can test bundled plugin source against a packaged image by mounting
+one plugin source directory over its packaged source path, for example
+`OPENCLAW_EXTRA_MOUNTS=/path/to/fork/extensions/synology-chat:/app/extensions/synology-chat:ro`.
+That mounted source directory overrides the matching compiled
+`/app/dist/extensions/synology-chat` bundle for the same plugin id.
+
+### Observability
+
+OpenTelemetry export is outbound from the Gateway container to your OTLP
+collector. It does not require a published Docker port. If you build the image
+locally and want the bundled OpenTelemetry exporter available inside the image,
+include its runtime dependencies:
+
+```bash
+export OPENCLAW_EXTENSIONS="diagnostics-otel"
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://otel-collector:4318"
+export OTEL_SERVICE_NAME="openclaw-gateway"
+./scripts/docker/setup.sh
+```
+
+Install the official `@openclaw/diagnostics-otel` plugin in packaged Docker
+installs before enabling export. Custom source-built images can still include
+the local plugin source with `OPENCLAW_EXTENSIONS=diagnostics-otel`. To enable
+export, allow and enable the `diagnostics-otel` plugin in config, then set
+`diagnostics.otel.enabled=true` or use the config example in [OpenTelemetry
+export](/gateway/opentelemetry). Collector auth headers are configured through
+`diagnostics.otel.headers`, not through Docker environment variables.
+
+Prometheus metrics use the already-published Gateway port. Enable the
+`diagnostics-prometheus` plugin, then scrape:
+
+```text
+http://<gateway-host>:18789/api/diagnostics/prometheus
+```
+
+The route is protected by Gateway authentication. Do not expose a separate
+public `/metrics` port or unauthenticated reverse-proxy path. See
+[Prometheus metrics](/gateway/prometheus).
 
 ### Health checks
 
@@ -221,24 +269,16 @@ That mounted config directory is where OpenClaw keeps:
 - `agents/<agentId>/agent/auth-profiles.json` for stored provider OAuth/API-key auth
 - `.env` for env-backed runtime secrets such as `OPENCLAW_GATEWAY_TOKEN`
 
-Bundled plugin runtime dependencies and mirrored runtime files are generated
-state, not user config. Compose stores them in the named Docker volume
-`openclaw-plugin-runtime-deps` mounted at
-`/var/lib/openclaw/plugin-runtime-deps`. Keeping that high-churn tree out of the
-host config bind mount avoids slow Docker Desktop/WSL file operations and stale
-Windows handles during cold Gateway startup.
-
-The default Compose file sets `OPENCLAW_PLUGIN_STAGE_DIR` to that path for both
-`openclaw-gateway` and `openclaw-cli`, so `openclaw doctor --fix`, channel
-login/setup commands, and Gateway startup all use the same generated runtime
-volume.
+Installed downloadable plugins store their package state under the mounted
+OpenClaw home, so plugin install records and package roots survive container
+replacement. Gateway startup does not generate bundled-plugin dependency trees.
 
 For full persistence details on VM deployments, see
 [Docker VM Runtime - What persists where](/install/docker-vm-runtime#what-persists-where).
 
-**Disk growth hotspots:** watch `media/`, session JSONL files, `cron/runs/*.jsonl`,
-the `openclaw-plugin-runtime-deps` Docker volume, and rolling file logs under
-`/tmp/openclaw/`.
+**Disk growth hotspots:** watch `media/`, session JSONL files,
+`cron/runs/*.jsonl`, installed plugin package roots, and rolling file logs
+under `/tmp/openclaw/`.
 
 ### Shell helpers (optional)
 
@@ -400,11 +440,13 @@ For full configuration, images, security notes, and multi-agent profiles, see:
 }
 ```
 
-Build the default sandbox image:
+Build the default sandbox image (from a source checkout):
 
 ```bash
 scripts/sandbox-setup.sh
 ```
+
+For npm installs without a source checkout, see [Sandboxing § Images and setup](/gateway/sandboxing#images-and-setup) for inline `docker build` commands.
 
 ## Troubleshooting
 
@@ -412,6 +454,7 @@ scripts/sandbox-setup.sh
   <Accordion title="Image missing or sandbox container not starting">
     Build the sandbox image with
     [`scripts/sandbox-setup.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/sandbox-setup.sh)
+    (source checkout) or the inline `docker build` command from [Sandboxing § Images and setup](/gateway/sandboxing#images-and-setup) (npm install),
     or set `agents.defaults.sandbox.docker.image` to your custom image.
     Containers are auto-created per session on demand.
   </Accordion>
