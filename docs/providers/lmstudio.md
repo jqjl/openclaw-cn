@@ -98,6 +98,33 @@ LM Studio plugin config trusts the configured LM Studio endpoint for model reque
 
 ## Configuration
 
+### Streaming usage compatibility
+
+LM Studio is streaming-usage compatible. When it does not emit an OpenAI-shaped
+`usage` object, OpenClaw recovers token counts from llama.cpp-style
+`timings.prompt_n` / `timings.predicted_n` metadata instead.
+
+Same streaming usage behavior applies to these OpenAI-compatible local backends:
+
+- vLLM
+- SGLang
+- llama.cpp
+- LocalAI
+- Jan
+- TabbyAPI
+- text-generation-webui
+
+### Thinking compatibility
+
+When LM Studio's `/api/v1/models` discovery reports model-specific reasoning
+options, OpenClaw exposes the matching OpenAI-compatible `reasoning_effort`
+values in model compat metadata. Current LM Studio builds can advertise binary
+UI options such as `allowed_options: ["off", "on"]` while rejecting those values
+on `/v1/chat/completions`; OpenClaw normalizes that binary discovery shape to
+`none`, `minimal`, `low`, `medium`, `high`, and `xhigh` before sending requests.
+Older saved LM Studio config that contains `off`/`on` reasoning maps is
+normalized the same way when the catalog is loaded.
+
 ### Explicit configuration
 
 ```json5

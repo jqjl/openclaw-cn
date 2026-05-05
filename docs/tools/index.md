@@ -110,6 +110,12 @@ Plugins can register additional tools. Some examples:
 - [Diffs](/tools/diffs) — diff viewer and renderer
 - [OpenProse](/prose) — markdown-first workflow orchestration
 
+Plugin tools are still authored with `api.registerTool(...)` and declared in
+the plugin manifest's `contracts.tools` list. OpenClaw captures the validated
+tool descriptor during discovery and caches it by plugin source and contract, so
+later tool planning can skip plugin runtime loading. Tool execution still loads
+the owning plugin and calls the live registered implementation.
+
 ## Tool configuration
 
 ### Allow and deny lists
@@ -139,7 +145,7 @@ Per-agent override: `agents.list[].tools.profile`.
 
 | Profile     | What it includes                                                                                                                                  |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `full`      | Unrestricted baseline for broader command/control access; same as leaving `tools.profile` unset                                                   |
+| `full`      | All core and optional plugin tools; unrestricted baseline for broader command/control access                                                      |
 | `coding`    | `group:fs`, `group:runtime`, `group:web`, `group:sessions`, `group:memory`, `cron`, `image`, `image_generate`, `music_generate`, `video_generate` |
 | `messaging` | `group:messaging`, `sessions_list`, `sessions_history`, `sessions_send`, `session_status`                                                         |
 | `minimal`   | `session_status` only                                                                                                                             |

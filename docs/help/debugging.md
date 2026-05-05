@@ -43,6 +43,63 @@ Use `/trace` for plugin diagnostics such as Active Memory debug summaries.
 Keep using `/verbose` for normal verbose status/tool output, and keep using
 `/debug` for runtime-only config overrides.
 
+## Plugin lifecycle trace
+
+Use `OPENCLAW_PLUGIN_LIFECYCLE_TRACE=1` when plugin lifecycle commands feel slow
+and you need a built-in phase breakdown for plugin metadata, discovery, registry,
+runtime mirror, config mutation, and refresh work. The trace is opt-in and writes
+to stderr, so JSON command output remains parseable.
+
+Example:
+
+```bash
+OPENCLAW_PLUGIN_LIFECYCLE_TRACE=1 openclaw plugins install tokenjuice --force
+```
+
+Example output:
+
+```text
+[plugins:lifecycle] phase="config read" ms=6.83 status=ok command="install"
+[plugins:lifecycle] phase="slot selection" ms=94.31 status=ok command="install" pluginId="tokenjuice"
+[plugins:lifecycle] phase="registry refresh" ms=51.56 status=ok command="install" reason="source-changed"
+```
+
+Use this for plugin lifecycle investigation before reaching for a CPU profiler.
+If the command is running from a source checkout, prefer measuring the built
+runtime with `node dist/entry.js ...` after `pnpm build`; `pnpm openclaw ...`
+also measures source-runner overhead.
+
+## CLI startup and command profiling
+
+Use the checked-in startup benchmark when a command feels slow:
+
+```bash
+pnpm test:startup:bench:smoke
+pnpm tsx scripts/bench-cli-startup.ts --preset real --case status --runs 3
+pnpm tsx scripts/bench-cli-startup.ts --preset real --cpu-prof-dir .artifacts/cli-cpu
+```
+
+For one-off profiling through the normal source runner, set
+`OPENCLAW_RUN_NODE_CPU_PROF_DIR`:
+
+```bash
+OPENCLAW_RUN_NODE_CPU_PROF_DIR=.artifacts/cli-cpu pnpm openclaw status
+```
+
+The source runner adds Node CPU profile flags and writes a `.cpuprofile` for the
+command. Use this before adding temporary instrumentation to command code.
+
+For startup stalls that look like synchronous filesystem or module-loader work,
+add Node's sync I/O trace flag through the source runner:
+
+```bash
+OPENCLAW_TRACE_SYNC_IO=1 pnpm openclaw gateway --force
+```
+
+`pnpm gateway:watch` enables this flag by default for the watched Gateway child.
+Set `OPENCLAW_TRACE_SYNC_IO=0` to suppress Node sync I/O trace output in watch
+mode.
+
 ## Gateway watch mode
 
 For fast iteration, run the gateway under the file watcher:
@@ -81,11 +138,40 @@ Disable auto-attach while keeping tmux management:
 OPENCLAW_GATEWAY_WATCH_ATTACH=0 pnpm gateway:watch
 ```
 
+Profile watched Gateway CPU time when debugging startup/runtime hotspots:
+
+```bash
+pnpm gateway:watch --benchmark
+```
+
+The watch wrapper consumes `--benchmark` before invoking the Gateway and writes
+one V8 `.cpuprofile` per Gateway child exit under
+`.artifacts/gateway-watch-profiles/`. Stop or restart the watched gateway to
+flush the current profile, then open it with Chrome DevTools or Speedscope:
+
+```bash
+npx speedscope .artifacts/gateway-watch-profiles/*.cpuprofile
+```
+
+Use `--benchmark-dir <path>` when you want profiles somewhere else.
+Use `--benchmark-no-force` when you want the benchmarked child to skip the
+default `--force` port cleanup and fail fast if the Gateway port is already in
+use.
+Benchmark mode suppresses sync-I/O trace spam by default. Set
+`OPENCLAW_TRACE_SYNC_IO=1` with `--benchmark` when you explicitly want both CPU
+profiles and Node sync-I/O stack traces. In benchmark mode those trace blocks
+are written to `gateway-watch-output.log` under the benchmark directory and
+filtered from the terminal pane; normal Gateway logs remain visible.
+
 The tmux wrapper carries common non-secret runtime selectors such as
 `OPENCLAW_PROFILE`, `OPENCLAW_CONFIG_PATH`, `OPENCLAW_STATE_DIR`,
 `OPENCLAW_GATEWAY_PORT`, and `OPENCLAW_SKIP_CHANNELS` into the pane. Put
 provider credentials in your normal profile/config, or use raw foreground mode
 for one-off ephemeral secrets.
+If the watched Gateway exits during startup, the watcher runs
+`openclaw doctor --fix --non-interactive` once and restarts the Gateway child.
+Use `OPENCLAW_GATEWAY_WATCH_AUTO_DOCTOR=0` when you want the original startup
+failure without the dev-only repair pass.
 The managed tmux pane also defaults to colored Gateway logs for readability;
 set `FORCE_COLOR=0` when starting `pnpm gateway:watch` to disable ANSI output.
 

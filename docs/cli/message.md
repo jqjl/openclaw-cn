@@ -26,8 +26,8 @@ Channel selection:
 
 Target formats (`--target`):
 
-- WhatsApp: E.164 or group JID
-- Telegram: chat id or `@username`
+- WhatsApp: E.164, group JID, or WhatsApp Channel/Newsletter JID (`...@newsletter`)
+- Telegram: chat id, `@username`, or forum topic target (`-1001234567890:topic:42`, or `--thread-id 42`)
 - Discord: `channel:<id>` or `user:<id>` (or `<@id>` mention; raw numeric ids are treated as channels)
 - Google Chat: `spaces/<spaceId>` or `users/<userId>`
 - Slack: `channel:<id>` or `user:<id>` (raw channel id is accepted)
@@ -78,7 +78,7 @@ Name lookup:
   - Discord only: `--components` JSON payload
   - Adaptive-card channels: `--card` JSON payload when supported
   - Telegram + Discord: `--silent`
-  - WhatsApp only: `--gif-playback`
+  - WhatsApp only: `--gif-playback`; WhatsApp Channels/Newsletters are addressed with their native `@newsletter` JID.
 
 - `poll`
   - Channels: WhatsApp/Telegram/Discord/Matrix/Microsoft Teams
