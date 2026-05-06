@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { movePathWithCopyFallback } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
 
 export const DEFAULT_OPEN_SHELL_MIRROR_EXCLUDE_DIRS = ["hooks", "git-hooks", ".git"] as const;
@@ -137,6 +141,7 @@ export async function stageDirectoryContents(params: {
   }
 }
 
+<<<<<<< HEAD
 export async function movePathWithCopyFallback(params: {
   from: string;
   to: string;
@@ -157,3 +162,6 @@ export async function movePathWithCopyFallback(params: {
   });
   await fs.rm(params.from, { recursive: true, force: true });
 }
+=======
+export { movePathWithCopyFallback };
+>>>>>>> upstream/main

@@ -159,6 +159,7 @@ Recommended defaults:
     - Explicit `openclaw infer image describe --model <provider/model>` requests are different: they run that image-capable provider/model directly, including Ollama refs such as `ollama/qwen2.5vl:7b`.
     - If `<capability>.enabled: true` but no models are configured, OpenClaw tries the **active reply model** when its provider supports the capability.
 
+<<<<<<< HEAD
 - If media exceeds `maxBytes`, that model is skipped and the **next model is tried**.
 - Audio files smaller than **1024 bytes** are treated as empty/corrupt and skipped before provider/CLI transcription.
 - If the model returns more than `maxChars`, output is trimmed.
@@ -168,11 +169,16 @@ Recommended defaults:
   model instead.
 - If `<capability>.enabled: true` but no models are configured, OpenClaw tries the
   **active reply model** when its provider supports the capability.
+=======
+  </Accordion>
+</AccordionGroup>
+>>>>>>> upstream/main
 
 ### Auto-detect media understanding (default)
 
 If `tools.media.<capability>.enabled` is **not** set to `false` and you haven't configured models, OpenClaw auto-detects in this order and **stops at the first working option**:
 
+<<<<<<< HEAD
 1. **Active reply model** when its provider supports the capability.
 2. **`agents.defaults.imageModel`** primary/fallback refs (image only).
 3. **Local CLIs** (audio only; if installed)
@@ -189,6 +195,40 @@ If `tools.media.<capability>.enabled` is **not** set to `false` and you haven't 
      - Audio: OpenAI → Groq → Deepgram → Google → Mistral
      - Image: OpenAI → Anthropic → Google → MiniMax → MiniMax Portal → Z.AI
      - Video: Google → Qwen → Moonshot
+=======
+<Steps>
+  <Step title="Active reply model">
+    Active reply model when its provider supports the capability.
+  </Step>
+  <Step title="agents.defaults.imageModel">
+    `agents.defaults.imageModel` primary/fallback refs (image only).
+    Prefer `provider/model` refs. Bare refs are qualified from configured image-capable provider model entries only when the match is unique.
+  </Step>
+  <Step title="Local CLIs (audio only)">
+    Local CLIs (if installed):
+
+    - `sherpa-onnx-offline` (requires `SHERPA_ONNX_MODEL_DIR` with encoder/decoder/joiner/tokens)
+    - `whisper-cli` (`whisper-cpp`; uses `WHISPER_CPP_MODEL` or the bundled tiny model)
+    - `whisper` (Python CLI; downloads models automatically)
+
+  </Step>
+  <Step title="Gemini CLI">
+    `gemini` using `read_many_files`.
+  </Step>
+  <Step title="Provider auth">
+    - Configured `models.providers.*` entries that support the capability are tried before the bundled fallback order.
+    - Image-only config providers with an image-capable model auto-register for media understanding even when they are not a bundled vendor plugin.
+    - Ollama image understanding is available when selected explicitly, for example through `agents.defaults.imageModel` or `openclaw infer image describe --model ollama/<vision-model>`.
+
+    Bundled fallback order:
+
+    - Audio: OpenAI → Groq → xAI → Deepgram → Google → SenseAudio → ElevenLabs → Mistral
+    - Image: OpenAI → Anthropic → Google → MiniMax → MiniMax Portal → Z.AI
+    - Video: Google → Qwen → Moonshot
+
+  </Step>
+</Steps>
+>>>>>>> upstream/main
 
 To disable auto-detection, set:
 
@@ -234,6 +274,10 @@ If you set `capabilities`, the entry only runs for those media types. For shared
 - `mistral`: **audio**
 - `zai`: **image**
 - `groq`: **audio**
+<<<<<<< HEAD
+=======
+- `xai`: **audio**
+>>>>>>> upstream/main
 - `deepgram`: **audio**
 - Any `models.providers.<id>.models[]` catalog with an image-capable model: **image**
 

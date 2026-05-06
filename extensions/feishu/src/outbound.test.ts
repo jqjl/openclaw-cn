@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { MessagePresentation } from "openclaw/plugin-sdk/interactive-runtime";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ClawdbotConfig } from "../runtime-api.js";
@@ -23,6 +27,11 @@ vi.mock("./media.js", () => ({
 }));
 
 vi.mock("./send.js", () => ({
+<<<<<<< HEAD
+=======
+  editMessageFeishu: vi.fn(),
+  getMessageFeishu: vi.fn(),
+>>>>>>> upstream/main
   sendCardFeishu: sendCardFeishuMock,
   sendMessageFeishu: sendMessageFeishuMock,
   sendMarkdownCardFeishu: sendMarkdownCardFeishuMock,
@@ -69,7 +78,13 @@ vi.mock("./comment-reaction.js", () => ({
   cleanupAmbientCommentTypingReaction: cleanupAmbientCommentTypingReactionMock,
 }));
 
+<<<<<<< HEAD
 import { feishuOutbound } from "./outbound.js";
+=======
+import { feishuPlugin } from "./channel.js";
+import { feishuOutbound } from "./outbound.js";
+import { createFeishuSendReceipt } from "./send-result.js";
+>>>>>>> upstream/main
 const sendText = feishuOutbound.sendText!;
 const emptyConfig: ClawdbotConfig = {};
 const cardRenderConfig: ClawdbotConfig = {
@@ -99,6 +114,77 @@ describe("feishuOutbound.sendText local-image auto-convert", () => {
     resetOutboundMocks();
   });
 
+<<<<<<< HEAD
+=======
+  it("declares message adapter durable text and media with receipt proofs", async () => {
+    sendMessageFeishuMock.mockResolvedValue({
+      messageId: "feishu-text-1",
+      chatId: "chat-1",
+      receipt: createFeishuSendReceipt({
+        messageId: "feishu-text-1",
+        chatId: "chat-1",
+        kind: "text",
+      }),
+    });
+    sendMediaFeishuMock.mockResolvedValue({
+      messageId: "feishu-media-1",
+      chatId: "chat-1",
+      receipt: createFeishuSendReceipt({
+        messageId: "feishu-media-1",
+        chatId: "chat-1",
+        kind: "media",
+      }),
+    });
+
+    await expect(
+      verifyChannelMessageAdapterCapabilityProofs({
+        adapterName: "feishu",
+        adapter: feishuPlugin.message!,
+        proofs: {
+          text: async () => {
+            const result = await feishuPlugin.message?.send?.text?.({
+              cfg: emptyConfig,
+              to: "chat:chat-1",
+              text: "hello",
+              accountId: "default",
+            });
+            expect(sendMessageFeishuMock).toHaveBeenCalledWith(
+              expect.objectContaining({
+                to: "chat:chat-1",
+                text: "hello",
+                accountId: "default",
+              }),
+            );
+            expect(result?.receipt.platformMessageIds).toEqual(["feishu-text-1"]);
+          },
+          media: async () => {
+            const result = await feishuPlugin.message?.send?.media?.({
+              cfg: emptyConfig,
+              to: "chat:chat-1",
+              text: "",
+              mediaUrl: "https://example.com/image.png",
+              accountId: "default",
+            });
+            expect(sendMediaFeishuMock).toHaveBeenCalledWith(
+              expect.objectContaining({
+                to: "chat:chat-1",
+                mediaUrl: "https://example.com/image.png",
+                accountId: "default",
+              }),
+            );
+            expect(result?.receipt.platformMessageIds).toEqual(["feishu-media-1"]);
+          },
+        },
+      }),
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        { capability: "text", status: "verified" },
+        { capability: "media", status: "verified" },
+      ]),
+    );
+  });
+
+>>>>>>> upstream/main
   it("chunks outbound text without requiring Feishu runtime initialization", () => {
     const chunker = feishuOutbound.chunker;
     if (!chunker) {

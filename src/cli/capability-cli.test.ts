@@ -406,16 +406,31 @@ describe("capability cli", () => {
     );
     expect(mocks.completeWithPreparedSimpleCompletionModel).toHaveBeenCalledWith(
       expect.objectContaining({
+<<<<<<< HEAD
         context: {
+=======
+        context: expect.objectContaining({
+>>>>>>> upstream/main
           messages: [
             expect.objectContaining({
               role: "user",
               content: "hello",
             }),
           ],
+<<<<<<< HEAD
         },
       }),
     );
+=======
+        }),
+      }),
+    );
+    const calls = mocks.completeWithPreparedSimpleCompletionModel.mock.calls as unknown as Array<
+      [{ context?: { systemPrompt?: string } }]
+    >;
+    const call = calls[0]?.[0];
+    expect(call.context).not.toHaveProperty("systemPrompt");
+>>>>>>> upstream/main
   });
 
   it("passes image files to local model probes", async () => {
@@ -438,7 +453,11 @@ describe("capability cli", () => {
 
     expect(mocks.completeWithPreparedSimpleCompletionModel).toHaveBeenCalledWith(
       expect.objectContaining({
+<<<<<<< HEAD
         context: {
+=======
+        context: expect.objectContaining({
+>>>>>>> upstream/main
           messages: [
             expect.objectContaining({
               role: "user",
@@ -448,9 +467,20 @@ describe("capability cli", () => {
               ],
             }),
           ],
+<<<<<<< HEAD
         },
       }),
     );
+=======
+        }),
+      }),
+    );
+    const calls = mocks.completeWithPreparedSimpleCompletionModel.mock.calls as unknown as Array<
+      [{ context?: { systemPrompt?: string } }]
+    >;
+    const call = calls[0]?.[0];
+    expect(call.context).not.toHaveProperty("systemPrompt");
+>>>>>>> upstream/main
     expect(mocks.runtime.writeJson).toHaveBeenCalledWith(
       expect.objectContaining({
         inputs: [
@@ -463,6 +493,58 @@ describe("capability cli", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("adds minimal instructions only for openai-codex local model probes", async () => {
+    mocks.prepareSimpleCompletionModelForAgent.mockResolvedValueOnce({
+      selection: {
+        provider: "openai-codex",
+        modelId: "gpt-5.5",
+        agentDir: "/tmp/agent",
+      },
+      model: {
+        provider: "openai-codex",
+        id: "gpt-5.5",
+        api: "openai-codex-responses",
+        maxTokens: 128,
+      },
+      auth: {
+        apiKey: "codex-app-server",
+        source: "codex-app-server",
+        mode: "token",
+      },
+    } as never);
+
+    await runRegisteredCli({
+      register: registerCapabilityCli as (program: Command) => void,
+      argv: [
+        "capability",
+        "model",
+        "run",
+        "--model",
+        "openai-codex/gpt-5.5",
+        "--prompt",
+        "hello",
+        "--json",
+      ],
+    });
+
+    expect(mocks.completeWithPreparedSimpleCompletionModel).toHaveBeenCalledWith(
+      expect.objectContaining({
+        context: expect.objectContaining({
+          systemPrompt: "You are a personal assistant running inside OpenClaw.",
+          messages: [
+            expect.objectContaining({
+              role: "user",
+              content: "hello",
+            }),
+          ],
+        }),
+      }),
+    );
+  });
+
+>>>>>>> upstream/main
   it("passes image files to gateway model probes as attachments", async () => {
     const tempInput = path.join(os.tmpdir(), `openclaw-model-run-gateway-image-${Date.now()}.png`);
     await fs.writeFile(tempInput, Buffer.from(PNG_1X1_BASE64, "base64"));
@@ -547,6 +629,29 @@ describe("capability cli", () => {
     expect(mocks.runtime.writeJson).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
+=======
+  it("surfaces provider errors when local model probes return no text output", async () => {
+    mocks.completeWithPreparedSimpleCompletionModel.mockResolvedValueOnce({
+      content: [],
+      stopReason: "error",
+      errorMessage: '{"detail":"Instructions are required"}',
+    } as never);
+
+    await expect(
+      runRegisteredCli({
+        register: registerCapabilityCli as (program: Command) => void,
+        argv: ["capability", "model", "run", "--prompt", "hello", "--json"],
+      }),
+    ).rejects.toThrow("exit 1");
+
+    expect(mocks.runtime.error).toHaveBeenCalledWith(
+      expect.stringContaining('{"detail":"Instructions are required"}'),
+    );
+    expect(mocks.runtime.writeJson).not.toHaveBeenCalled();
+  });
+
+>>>>>>> upstream/main
   it("rejects local Codex provider probes before simple-completion dispatch", async () => {
     mocks.prepareSimpleCompletionModelForAgent.mockResolvedValueOnce({
       selection: {

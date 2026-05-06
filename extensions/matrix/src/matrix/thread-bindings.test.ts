@@ -319,6 +319,17 @@ describe("matrix thread bindings", () => {
       await vi.advanceTimersByTimeAsync(61_000);
 
       await vi.waitFor(
+<<<<<<< HEAD
+=======
+        () => expect(sendMessageMatrixMock.mock.calls.length).toBeGreaterThanOrEqual(2),
+        {
+          interval: 1,
+          timeout: 1_000,
+        },
+      );
+
+      await vi.waitFor(
+>>>>>>> upstream/main
         async () => {
           const persistedRaw = await fs.readFile(resolveBindingsFilePath(), "utf-8");
           expect(JSON.parse(persistedRaw)).toMatchObject({

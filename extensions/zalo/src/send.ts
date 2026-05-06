@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptPartKind,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import { resolveZaloAccount } from "./accounts.js";
@@ -19,6 +27,7 @@ type ZaloSendOptions = {
 type ZaloSendResult = {
   ok: boolean;
   messageId?: string;
+<<<<<<< HEAD
   error?: string;
 };
 
@@ -30,10 +39,60 @@ function toZaloSendResult(response: {
     return { ok: true, messageId: response.result.message_id };
   }
   return { ok: false, error: "Failed to send message" };
+=======
+  receipt: MessageReceipt;
+  error?: string;
+};
+
+function createZaloSendReceipt(params: {
+  messageId?: string;
+  chatId: string;
+  kind: MessageReceiptPartKind;
+}): MessageReceipt {
+  const messageId = params.messageId?.trim();
+  return createMessageReceiptFromOutboundResults({
+    results: messageId
+      ? [
+          {
+            channel: "zalo",
+            messageId,
+            chatId: params.chatId,
+          },
+        ]
+      : [],
+    kind: params.kind,
+  });
+}
+
+function toZaloSendResult(
+  response: {
+    ok?: boolean;
+    result?: { message_id?: string };
+  },
+  params: { chatId: string; kind: MessageReceiptPartKind },
+): ZaloSendResult {
+  if (response.ok && response.result) {
+    return {
+      ok: true,
+      messageId: response.result.message_id,
+      receipt: createZaloSendReceipt({
+        messageId: response.result.message_id,
+        chatId: params.chatId,
+        kind: params.kind,
+      }),
+    };
+  }
+  return {
+    ok: false,
+    error: "Failed to send message",
+    receipt: createZaloSendReceipt({ chatId: params.chatId, kind: params.kind }),
+  };
+>>>>>>> upstream/main
 }
 
 async function runZaloSend(
   failureMessage: string,
+<<<<<<< HEAD
   send: () => Promise<{ ok?: boolean; result?: { message_id?: string } }>,
 ): Promise<ZaloSendResult> {
   try {
@@ -41,6 +100,20 @@ async function runZaloSend(
     return result.ok ? result : { ok: false, error: failureMessage };
   } catch (err) {
     return { ok: false, error: formatErrorMessage(err) };
+=======
+  params: { chatId: string; kind: MessageReceiptPartKind },
+  send: () => Promise<{ ok?: boolean; result?: { message_id?: string } }>,
+): Promise<ZaloSendResult> {
+  try {
+    const result = toZaloSendResult(await send(), params);
+    return result.ok ? result : { ok: false, error: failureMessage, receipt: result.receipt };
+  } catch (err) {
+    return {
+      ok: false,
+      error: formatErrorMessage(err),
+      receipt: createZaloSendReceipt({ chatId: params.chatId, kind: params.kind }),
+    };
+>>>>>>> upstream/main
   }
 }
 
@@ -88,7 +161,15 @@ function resolveSendContextOrFailure(
   return context.ok
     ? { context }
     : {
+<<<<<<< HEAD
         failure: { ok: false, error: context.error },
+=======
+        failure: {
+          ok: false,
+          error: context.error,
+          receipt: createZaloSendReceipt({ chatId, kind: "unknown" }),
+        },
+>>>>>>> upstream/main
       };
 }
 
@@ -111,7 +192,11 @@ export async function sendMessageZalo(
     });
   }
 
+<<<<<<< HEAD
   return await runZaloSend("Failed to send message", () =>
+=======
+  return await runZaloSend("Failed to send message", { chatId: context.chatId, kind: "text" }, () =>
+>>>>>>> upstream/main
     sendMessage(
       context.token,
       {
@@ -135,10 +220,21 @@ export async function sendPhotoZalo(
   const { context } = resolved;
 
   if (!photoUrl?.trim()) {
+<<<<<<< HEAD
     return { ok: false, error: "No photo URL provided" };
   }
 
   return await runZaloSend("Failed to send photo", () =>
+=======
+    return {
+      ok: false,
+      error: "No photo URL provided",
+      receipt: createZaloSendReceipt({ chatId: context.chatId, kind: "media" }),
+    };
+  }
+
+  return await runZaloSend("Failed to send photo", { chatId: context.chatId, kind: "media" }, () =>
+>>>>>>> upstream/main
     (async () =>
       sendPhoto(
         context.token,

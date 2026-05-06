@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 import { appendFile, mkdir } from "node:fs/promises";
+=======
+import { mkdir } from "node:fs/promises";
+>>>>>>> upstream/main
 import path from "node:path";
 import { readAcpSessionEntry } from "../acp/runtime/session-meta.js";
 import { resolveSessionFilePath, resolveSessionFilePathOptions } from "../config/sessions/paths.js";
 import { onAgentEvent } from "../infra/agent-events.js";
 import { requestHeartbeat } from "../infra/heartbeat-wake.js";
+<<<<<<< HEAD
+=======
+import { appendRegularFile } from "../infra/regular-file.js";
+>>>>>>> upstream/main
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { scopedHeartbeatWakeOptions } from "../routing/session-key.js";
 import { normalizeAssistantPhase } from "../shared/chat-message-content.js";
@@ -130,10 +138,14 @@ export function startAcpSpawnParentStreamRelay(params: {
           });
           logDirReady = true;
         }
+<<<<<<< HEAD
         await appendFile(logPath, chunk, {
           encoding: "utf-8",
           mode: 0o600,
         });
+=======
+        await appendRegularFile({ filePath: logPath, content: chunk });
+>>>>>>> upstream/main
       })
       .catch(() => {
         // Best-effort diagnostics; never break relay flow.

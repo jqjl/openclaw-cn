@@ -4,6 +4,7 @@ import path from "node:path";
 
 export const POSIX_OPENCLAW_TMP_DIR = "/tmp/openclaw";
 
+<<<<<<< HEAD
 type ResolvePreferredOpenClawTmpDirOptions = {
   accessSync?: (path: string, mode?: number) => void;
   chmodSync?: (path: string, mode: number) => void;
@@ -15,12 +16,33 @@ type ResolvePreferredOpenClawTmpDirOptions = {
   };
   mkdirSync?: (path: string, opts: { recursive: boolean; mode?: number }) => void;
   getuid?: () => number | undefined;
+=======
+type MaybeNodeError = { code?: string };
+
+type SecureDirStat = {
+  isDirectory(): boolean;
+  isSymbolicLink(): boolean;
+  mode?: number;
+  uid?: number;
+};
+
+export type ResolvePreferredOpenClawTmpDirOptions = {
+  accessSync?: (path: string, mode?: number) => void;
+  chmodSync?: (path: string, mode: number) => void;
+  getuid?: () => number | undefined;
+  lstatSync?: (path: string) => SecureDirStat;
+  mkdirSync?: (path: string, opts: { recursive: boolean; mode?: number }) => void;
+  platform?: NodeJS.Platform;
+>>>>>>> upstream/main
   tmpdir?: () => string;
   warn?: (message: string) => void;
 };
 
+<<<<<<< HEAD
 type MaybeNodeError = { code?: string };
 
+=======
+>>>>>>> upstream/main
 function isNodeErrorWithCode(err: unknown, code: string): err is MaybeNodeError {
   return (
     typeof err === "object" &&
@@ -30,6 +52,7 @@ function isNodeErrorWithCode(err: unknown, code: string): err is MaybeNodeError 
   );
 }
 
+<<<<<<< HEAD
 type ResolvePreferredOpenClawTmpDirInternalOptions = ResolvePreferredOpenClawTmpDirOptions & {
   /** Test seam for the host platform; defaults to `process.platform`. */
   platform?: NodeJS.Platform;
@@ -40,6 +63,12 @@ export function resolvePreferredOpenClawTmpDir(
 ): string {
   // Evaluated here (not at module load) so this file is safe to import in browser bundles.
   const TMP_DIR_ACCESS_MODE = fs.constants.W_OK | fs.constants.X_OK;
+=======
+export function resolvePreferredOpenClawTmpDir(
+  options: ResolvePreferredOpenClawTmpDirOptions = {},
+): string {
+  const accessMode = fs.constants.W_OK | fs.constants.X_OK;
+>>>>>>> upstream/main
   const accessSync = options.accessSync ?? fs.accessSync;
   const chmodSync = options.chmodSync ?? fs.chmodSync;
   const lstatSync = options.lstatSync ?? fs.lstatSync;
@@ -65,6 +94,7 @@ export function resolvePreferredOpenClawTmpDir(
     if (typeof st.uid === "number" && st.uid !== uid) {
       return false;
     }
+<<<<<<< HEAD
     // Avoid group/other writable dirs when running on multi-user hosts.
     if (typeof st.mode === "number" && (st.mode & 0o022) !== 0) {
       return false;
@@ -90,6 +120,19 @@ export function resolvePreferredOpenClawTmpDir(
   }): boolean => {
     return st.isDirectory() && !st.isSymbolicLink() && isSecureDirForUser(st);
   };
+=======
+    return typeof st.mode !== "number" || (st.mode & 0o022) === 0;
+  };
+
+  const fallback = (): string => {
+    const suffix = uid === undefined ? "openclaw" : `openclaw-${uid}`;
+    const joiner = platform === "win32" ? path.win32.join : path.join;
+    return joiner(tmpdir(), suffix);
+  };
+
+  const isTrustedTmpDir = (st: SecureDirStat): boolean =>
+    st.isDirectory() && !st.isSymbolicLink() && isSecureDirForUser(st);
+>>>>>>> upstream/main
 
   const resolveDirState = (candidatePath: string): "available" | "missing" | "invalid" => {
     try {
@@ -97,6 +140,7 @@ export function resolvePreferredOpenClawTmpDir(
       if (!isTrustedTmpDir(candidate)) {
         return "invalid";
       }
+<<<<<<< HEAD
       accessSync(candidatePath, TMP_DIR_ACCESS_MODE);
       return "available";
     } catch (err) {
@@ -104,6 +148,12 @@ export function resolvePreferredOpenClawTmpDir(
         return "missing";
       }
       return "invalid";
+=======
+      accessSync(candidatePath, accessMode);
+      return "available";
+    } catch (err) {
+      return isNodeErrorWithCode(err, "ENOENT") ? "missing" : "invalid";
+>>>>>>> upstream/main
     }
   };
 
@@ -165,6 +215,7 @@ export function resolvePreferredOpenClawTmpDir(
     return fallbackPath;
   };
 
+<<<<<<< HEAD
   // On Windows, Node resolves the POSIX path `/tmp` to `C:\tmp` (relative to
   // the current drive root). Many Windows hosts have `C:\tmp` because Git,
   // MSYS2, and other Unix-compat tools create it; the existing logic then
@@ -172,10 +223,13 @@ export function resolvePreferredOpenClawTmpDir(
   // other code path expects `%TEMP%\openclaw\`. Skip the POSIX preferred
   // path entirely on Windows so the function falls through to the
   // os.tmpdir() fallback (#60713).
+=======
+>>>>>>> upstream/main
   if (platform === "win32") {
     return ensureTrustedFallbackDir();
   }
 
+<<<<<<< HEAD
   const existingPreferredState = resolveDirState(POSIX_OPENCLAW_TMP_DIR);
   if (existingPreferredState === "available") {
     return POSIX_OPENCLAW_TMP_DIR;
@@ -183,11 +237,22 @@ export function resolvePreferredOpenClawTmpDir(
   if (existingPreferredState === "invalid") {
     if (tryRepairWritableBits(POSIX_OPENCLAW_TMP_DIR)) {
       return POSIX_OPENCLAW_TMP_DIR;
+=======
+  const preferredDir = POSIX_OPENCLAW_TMP_DIR;
+  const preferredState = resolveDirState(preferredDir);
+  if (preferredState === "available") {
+    return preferredDir;
+  }
+  if (preferredState === "invalid") {
+    if (tryRepairWritableBits(preferredDir)) {
+      return preferredDir;
+>>>>>>> upstream/main
     }
     return ensureTrustedFallbackDir();
   }
 
   try {
+<<<<<<< HEAD
     accessSync("/tmp", TMP_DIR_ACCESS_MODE);
     // Create with a safe default; subsequent callers expect it exists.
     mkdirSync(POSIX_OPENCLAW_TMP_DIR, { recursive: true, mode: 0o700 });
@@ -199,6 +264,15 @@ export function resolvePreferredOpenClawTmpDir(
       return ensureTrustedFallbackDir();
     }
     return POSIX_OPENCLAW_TMP_DIR;
+=======
+    accessSync(path.dirname(preferredDir), accessMode);
+    mkdirSync(preferredDir, { recursive: true, mode: 0o700 });
+    chmodSync(preferredDir, 0o700);
+    if (resolveDirState(preferredDir) !== "available" && !tryRepairWritableBits(preferredDir)) {
+      return ensureTrustedFallbackDir();
+    }
+    return preferredDir;
+>>>>>>> upstream/main
   } catch {
     return ensureTrustedFallbackDir();
   }

@@ -1,9 +1,16 @@
 import { randomBytes } from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs";
+=======
+>>>>>>> upstream/main
 import path from "node:path";
 import type { OpenClawConfig } from "../config/config.js";
 import { resolveStateDir } from "../config/paths.js";
 import { expandHomePrefix } from "../infra/home-dir.js";
+<<<<<<< HEAD
+=======
+import { privateFileStore } from "../infra/private-file-store.js";
+>>>>>>> upstream/main
 import {
   DEFAULT_COMMITMENT_EXPIRE_AFTER_HOURS,
   DEFAULT_COMMITMENT_MAX_PER_HEARTBEAT,
@@ -111,8 +118,14 @@ function sanitizeStoreForWrite(store: CommitmentStoreFile): CommitmentStoreFile 
 async function loadCommitmentStoreInternal(storePath?: string): Promise<LoadedCommitmentStore> {
   const resolved = resolveCommitmentStorePath(storePath);
   try {
+<<<<<<< HEAD
     const raw = await fs.promises.readFile(resolved, "utf-8");
     const parsed = JSON.parse(raw) as unknown;
+=======
+    const parsed = await privateFileStore(path.dirname(resolved)).readJsonIfExists(
+      path.basename(resolved),
+    );
+>>>>>>> upstream/main
     if (
       !isRecord(parsed) ||
       parsed.version !== STORE_VERSION ||
@@ -149,6 +162,7 @@ export async function saveCommitmentStore(
   store: CommitmentStoreFile,
 ): Promise<void> {
   const resolved = resolveCommitmentStorePath(storePath);
+<<<<<<< HEAD
   const dir = path.dirname(resolved);
   await fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
   await fs.promises.chmod(dir, 0o700).catch(() => undefined);
@@ -158,6 +172,12 @@ export async function saveCommitmentStore(
   await fs.promises.chmod(tmp, 0o600).catch(() => undefined);
   await fs.promises.rename(tmp, resolved);
   await fs.promises.chmod(resolved, 0o600).catch(() => undefined);
+=======
+  await privateFileStore(path.dirname(resolved)).writeJson(
+    path.basename(resolved),
+    sanitizeStoreForWrite(store),
+  );
+>>>>>>> upstream/main
 }
 
 function generateCommitmentId(nowMs: number): string {

@@ -700,6 +700,17 @@ export type ChannelToolSend = {
   threadId?: string | null;
 };
 
+<<<<<<< HEAD
+=======
+export type ChannelMessagePreparedSendPayloadContext = {
+  ctx: ChannelMessageActionContext;
+  to: string;
+  payload: ReplyPayload;
+  replyToId?: string | null;
+  threadId?: string | number | null;
+};
+
+>>>>>>> upstream/main
 /** Channel-owned action surface for the shared `message` tool. */
 export type ChannelMessageActionAdapter = {
   /**
@@ -734,6 +745,17 @@ export type ChannelMessageActionAdapter = {
   }) => boolean;
   extractToolSend?: (params: { args: Record<string, unknown> }) => ChannelToolSend | null;
   /**
+<<<<<<< HEAD
+=======
+   * Translate generic `message(action=send)` arguments into the payload core
+   * should persist, retry, recover, and ack. Return null to keep the legacy
+   * plugin-owned action path for sends that cannot be represented durably.
+   */
+  prepareSendPayload?: (
+    params: ChannelMessagePreparedSendPayloadContext,
+  ) => ReplyPayload | null | undefined | Promise<ReplyPayload | null | undefined>;
+  /**
+>>>>>>> upstream/main
    * Prefer this for channel-specific poll semantics or extra poll parameters.
    * Core only parses the shared poll model when falling back to `outbound.sendPoll`.
    */

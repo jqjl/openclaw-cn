@@ -61,6 +61,10 @@ export type QaGatewayChildStateMutationContext = {
 export type QaGatewayChildCommand = {
   executablePath: string;
   argsPrefix?: string[];
+<<<<<<< HEAD
+=======
+  argsSuffix?: string[];
+>>>>>>> upstream/main
   cwd?: string;
   usePackagedPlugins?: boolean;
 };
@@ -505,6 +509,10 @@ export async function startQaGatewayChild(params: {
   const gatewayCommand = params.command;
   const gatewayExecutablePath = gatewayCommand?.executablePath;
   const gatewayArgsPrefix = gatewayCommand?.argsPrefix ?? [];
+<<<<<<< HEAD
+=======
+  const gatewayArgsSuffix = gatewayCommand?.argsSuffix ?? [];
+>>>>>>> upstream/main
   const gatewayCwd = gatewayCommand?.cwd ?? runtimeCwd;
   const workspaceDir = path.join(tempRoot, "workspace");
   const stateDir = path.join(tempRoot, "state");
@@ -624,6 +632,10 @@ export async function startQaGatewayChild(params: {
       "--bind",
       "loopback",
       "--allow-unconfigured",
+<<<<<<< HEAD
+=======
+      ...gatewayArgsSuffix,
+>>>>>>> upstream/main
     ];
     for (let attempt = 1; attempt <= QA_GATEWAY_CHILD_STARTUP_MAX_ATTEMPTS; attempt += 1) {
       gatewayPort = await getFreePort();

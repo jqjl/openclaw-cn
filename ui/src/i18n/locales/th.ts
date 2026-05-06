@@ -202,13 +202,35 @@ export const th: TranslationMap = {
     autoThreshold: "เกณฑ์อัตโนมัติ",
     overflowRetry: "ลองใหม่เมื่อเกินขีดจำกัด",
     timeoutRetry: "ลองใหม่เมื่อหมดเวลา",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} โทเค็น",
+=======
+    tokenRange: "{before} to {after} โทเค็น",
+>>>>>>> upstream/main
     tokensBefore: "{count} โทเค็นก่อนหน้า",
     tokenDeltaUnavailable: "ไม่สามารถแสดงส่วนต่างของโทเค็นได้",
     checkpoints: "{count} เช็กพอยต์",
     checkpoint: "{count} เช็กพอยต์",
+<<<<<<< HEAD
     showCheckpoints: "แสดงเช็กพอยต์",
     hideCheckpoints: "ซ่อนเช็กพอยต์",
+=======
+    showSessionDetails: "แสดงรายละเอียดเซสชันสำหรับ {count}",
+    hideSessionDetails: "ซ่อนรายละเอียดเซสชันสำหรับ {count}",
+    sessionDetails: "รายละเอียดเซสชัน",
+    compactionHistory: "ประวัติการบีบอัด",
+    status: "สถานะ",
+    model: "Model",
+    provider: "Provider",
+    runtime: "รันไทม์",
+    surface: "พื้นผิว",
+    subject: "หัวข้อ",
+    room: "ห้อง",
+    space: "พื้นที่",
+    sessionId: "รหัสเซสชัน",
+    activeRun: "การเรียกใช้งานที่ใช้งานอยู่",
+    archived: "เก็บถาวรแล้ว",
+>>>>>>> upstream/main
     loadingCheckpoints: "กำลังโหลดเช็กพอยต์…",
     noCheckpoints: "ไม่มีเช็กพอยต์การบีบอัดที่บันทึกไว้สำหรับเซสชันนี้",
     noSummary: "ไม่มีสรุปที่บันทึกไว้",

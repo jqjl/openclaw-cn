@@ -1,5 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
 import { listChannelCatalogEntries } from "../plugins/channel-catalog-registry.js";
 import type { PluginPackageChannel } from "../plugins/manifest.js";
@@ -50,19 +54,29 @@ function readOfficialCatalogFileSync(): ChannelCatalogEntryLike[] {
       officialCatalogFileCache.set(candidate, null);
       continue;
     }
+<<<<<<< HEAD
     try {
       const payload = JSON.parse(fs.readFileSync(candidate, "utf8")) as {
         entries?: unknown;
       };
+=======
+    const payload = tryReadJsonSync<{ entries?: unknown }>(candidate);
+    if (payload) {
+>>>>>>> upstream/main
       const entries = Array.isArray(payload.entries)
         ? (payload.entries as ChannelCatalogEntryLike[])
         : [];
       officialCatalogFileCache.set(candidate, entries);
       return entries;
+<<<<<<< HEAD
     } catch {
       officialCatalogFileCache.set(candidate, null);
       continue;
     }
+=======
+    }
+    officialCatalogFileCache.set(candidate, null);
+>>>>>>> upstream/main
   }
   return [];
 }

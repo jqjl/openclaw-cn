@@ -7,8 +7,11 @@ read_when:
   - Reviewing post-incident follow-up expectations
 ---
 
+<<<<<<< HEAD
 # Incident Response
 
+=======
+>>>>>>> upstream/main
 ## 1. Detection and triage
 
 We monitor security signals from:

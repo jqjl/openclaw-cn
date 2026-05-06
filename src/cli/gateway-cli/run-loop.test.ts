@@ -627,9 +627,19 @@ describe("runGatewayLoop", () => {
       await withIsolatedSignals(async ({ captureSignal }) => {
         const { runtime, exited } = await createSignaledLoopHarness();
         const sigusr1 = captureSignal("SIGUSR1");
+<<<<<<< HEAD
         const startedAt = Date.now();
 
         sigusr1();
+=======
+
+        vi.useFakeTimers();
+        sigusr1();
+        await vi.advanceTimersByTimeAsync(1499);
+        expect(runtime.exit).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(1);
+
+>>>>>>> upstream/main
         await expect(exited).resolves.toBe(0);
         expect(runtime.exit).toHaveBeenCalledWith(0);
         expect(writeGatewayRestartHandoffSync).toHaveBeenCalledWith({
@@ -638,9 +648,15 @@ describe("runGatewayLoop", () => {
           processInstanceId: expect.any(String),
           supervisorMode: "launchd",
         });
+<<<<<<< HEAD
         expect(Date.now() - startedAt).toBeGreaterThanOrEqual(1400);
       });
     } finally {
+=======
+      });
+    } finally {
+      vi.useRealTimers();
+>>>>>>> upstream/main
       delete process.env.LAUNCH_JOB_LABEL;
       if (originalPlatformDescriptor) {
         Object.defineProperty(process, "platform", originalPlatformDescriptor);

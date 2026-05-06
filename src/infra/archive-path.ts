@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { resolveSafeBaseDir } from "./path-safety.js";
 
@@ -61,3 +62,13 @@ export function resolveArchiveOutputPath(params: {
   }
   return outPath;
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  isWindowsDrivePath,
+  normalizeArchiveEntryPath,
+  resolveArchiveOutputPath,
+  stripArchivePath,
+  validateArchiveEntryPath,
+} from "@openclaw/fs-safe/archive";
+>>>>>>> upstream/main

@@ -9,12 +9,20 @@ import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import { withFileLock } from "openclaw/plugin-sdk/file-lock";
 import {
   createSubsystemLogger,
+<<<<<<< HEAD
+=======
+  isPathInside,
+  root,
+>>>>>>> upstream/main
   resolveAgentContextLimits,
   resolveMemorySearchSyncConfig,
   resolveAgentWorkspaceDir,
   resolveGlobalSingleton,
   resolveStateDir,
+<<<<<<< HEAD
   writeFileWithinRoot,
+=======
+>>>>>>> upstream/main
   type OpenClawConfig,
 } from "openclaw/plugin-sdk/memory-core-host-engine-foundation";
 import {
@@ -1302,7 +1310,19 @@ export class QmdMemoryManager implements MemorySearchManager {
     if (!absPath.endsWith(".md")) {
       throw new Error("path required");
     }
+<<<<<<< HEAD
     const statResult = await statRegularFile(absPath);
+=======
+    let statResult: Awaited<ReturnType<typeof statRegularFile>>;
+    try {
+      statResult = await statRegularFile(absPath);
+    } catch (err) {
+      if (err instanceof Error && err.message === "path must be a regular file") {
+        throw new Error("path required", { cause: err });
+      }
+      throw err;
+    }
+>>>>>>> upstream/main
     if (statResult.missing) {
       return { text: "", path: relPath };
     }
@@ -2203,6 +2223,10 @@ export class QmdMemoryManager implements MemorySearchManager {
     }
     const exportDir = this.sessionExporter.dir;
     await fs.mkdir(exportDir, { recursive: true });
+<<<<<<< HEAD
+=======
+    const exportRoot = await root(exportDir);
+>>>>>>> upstream/main
     const files = await listSessionFilesForAgent(this.agentId);
     const keep = new Set<string>();
     const tracked = new Set<string>();
@@ -2222,10 +2246,14 @@ export class QmdMemoryManager implements MemorySearchManager {
       tracked.add(sessionFile);
       const state = this.exportedSessionState.get(sessionFile);
       if (!state || state.hash !== entry.hash || state.mtimeMs !== entry.mtimeMs) {
+<<<<<<< HEAD
         await writeFileWithinRoot({
           rootDir: exportDir,
           relativePath: targetName,
           data: this.renderSessionMarkdown(entry),
+=======
+        await exportRoot.write(targetName, this.renderSessionMarkdown(entry), {
+>>>>>>> upstream/main
           encoding: "utf-8",
         });
       }
@@ -2236,18 +2264,30 @@ export class QmdMemoryManager implements MemorySearchManager {
       });
       keep.add(target);
     }
+<<<<<<< HEAD
     const exported = await fs.readdir(exportDir).catch(() => []);
+=======
+    const exported = await exportRoot.list(".").catch(() => []);
+>>>>>>> upstream/main
     for (const name of exported) {
       if (!name.endsWith(".md")) {
         continue;
       }
       const full = path.join(exportDir, name);
       if (!keep.has(full)) {
+<<<<<<< HEAD
         await fs.rm(full, { force: true });
       }
     }
     for (const [sessionFile, state] of this.exportedSessionState) {
       if (!tracked.has(sessionFile) || !state.target.startsWith(exportDir + path.sep)) {
+=======
+        await exportRoot.remove(name).catch(() => undefined);
+      }
+    }
+    for (const [sessionFile, state] of this.exportedSessionState) {
+      if (!tracked.has(sessionFile) || !isPathInside(exportDir, state.target)) {
+>>>>>>> upstream/main
         this.exportedSessionState.delete(sessionFile);
       }
     }
@@ -2788,6 +2828,7 @@ export class QmdMemoryManager implements MemorySearchManager {
   }
 
   private isWithinWorkspace(absPath: string): boolean {
+<<<<<<< HEAD
     const normalizedWorkspace = this.workspaceDir.endsWith(path.sep)
       ? this.workspaceDir
       : `${this.workspaceDir}${path.sep}`;
@@ -2805,6 +2846,13 @@ export class QmdMemoryManager implements MemorySearchManager {
     }
     const next = candidate.endsWith(path.sep) ? candidate : `${candidate}${path.sep}`;
     return next.startsWith(normalizedRoot);
+=======
+    return isPathInside(this.workspaceDir, absPath);
+  }
+
+  private isWithinRoot(root: string, candidate: string): boolean {
+    return isPathInside(root, candidate);
+>>>>>>> upstream/main
   }
 
   private clampResultsByInjectedChars(results: MemorySearchResult[]): MemorySearchResult[] {

@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  defineChannelMessageAdapter,
+  type ChannelMessageSendResult,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { chunkText } from "openclaw/plugin-sdk/reply-chunking";
 import { createWhatsAppOutboundBase } from "./outbound-base.js";
 import { normalizeWhatsAppPayloadTextPreservingIndentation } from "./outbound-media-contract.js";
@@ -34,3 +42,52 @@ export const whatsappChannelOutbound = {
     text: normalizeWhatsAppChannelPayloadText(payload.text),
   }),
 };
+<<<<<<< HEAD
+=======
+
+function toWhatsAppMessageSendResult(
+  result: Awaited<ReturnType<NonNullable<typeof whatsappChannelOutbound.sendText>>>,
+  replyToId?: string | null,
+): ChannelMessageSendResult {
+  const source = result as typeof result & { toJid?: string };
+  const receipt =
+    result.receipt ??
+    createMessageReceiptFromOutboundResults({
+      results: result.messageId
+        ? [
+            {
+              channel: "whatsapp",
+              messageId: result.messageId,
+              toJid: source.toJid,
+            },
+          ]
+        : [],
+      kind: "text",
+      ...(replyToId ? { replyToId } : {}),
+    });
+  return {
+    messageId: result.messageId || receipt.primaryPlatformMessageId,
+    receipt,
+  };
+}
+
+export const whatsappMessageAdapter = defineChannelMessageAdapter({
+  id: "whatsapp",
+  durableFinal: {
+    capabilities: {
+      text: true,
+      replyTo: true,
+      messageSendingHooks: true,
+    },
+  },
+  send: {
+    text: async (ctx) =>
+      toWhatsAppMessageSendResult(
+        await whatsappChannelOutbound.sendText!({
+          ...ctx,
+        }),
+        ctx.replyToId,
+      ),
+  },
+});
+>>>>>>> upstream/main

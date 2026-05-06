@@ -90,7 +90,18 @@ function hasExplicitPdfToolModelConfig(config?: OpenClawConfig): boolean {
 // Build context for extraction fallback path
 // ---------------------------------------------------------------------------
 
+<<<<<<< HEAD
 function buildPdfExtractionContext(prompt: string, extractions: PdfExtractedContent[]): Context {
+=======
+const CODEX_PDF_INSTRUCTIONS =
+  "Analyze the provided PDF content and answer the user's request accurately.";
+
+function buildPdfExtractionContext(
+  prompt: string,
+  extractions: PdfExtractedContent[],
+  model?: { api?: string },
+): Context {
+>>>>>>> upstream/main
   const content: Array<
     { type: "text"; text: string } | { type: "image"; data: string; mimeType: string }
   > = [];
@@ -110,7 +121,14 @@ function buildPdfExtractionContext(prompt: string, extractions: PdfExtractedCont
   // Add the user prompt
   content.push({ type: "text", text: prompt });
 
+<<<<<<< HEAD
   return {
+=======
+  const systemPrompt = model?.api === "openai-codex-responses" ? CODEX_PDF_INSTRUCTIONS : undefined;
+
+  return {
+    ...(systemPrompt ? { systemPrompt } : {}),
+>>>>>>> upstream/main
     messages: [{ role: "user", content, timestamp: Date.now() }],
   };
 }
@@ -217,7 +235,11 @@ async function runPdfPrompt(params: {
           text: e.text,
           images: [],
         }));
+<<<<<<< HEAD
         const context = buildPdfExtractionContext(params.prompt, textOnlyExtractions);
+=======
+        const context = buildPdfExtractionContext(params.prompt, textOnlyExtractions, model);
+>>>>>>> upstream/main
         const message = await complete(model, context, {
           apiKey,
           maxTokens: resolvePdfToolMaxTokens(model.maxTokens),
@@ -226,7 +248,11 @@ async function runPdfPrompt(params: {
         return { text, provider, model: modelId, native: false };
       }
 
+<<<<<<< HEAD
       const context = buildPdfExtractionContext(params.prompt, extractions);
+=======
+      const context = buildPdfExtractionContext(params.prompt, extractions, model);
+>>>>>>> upstream/main
       const message = await complete(model, context, {
         apiKey,
         maxTokens: resolvePdfToolMaxTokens(model.maxTokens),

@@ -40,7 +40,17 @@ export function readQueuedEntry(tmpDir: string, id: string): Record<string, unkn
 export function setQueuedEntryState(
   tmpDir: string,
   id: string,
+<<<<<<< HEAD
   state: { retryCount: number; lastAttemptAt?: number; enqueuedAt?: number },
+=======
+  state: {
+    retryCount: number;
+    lastAttemptAt?: number;
+    enqueuedAt?: number;
+    platformSendStartedAt?: number;
+    recoveryState?: "send_attempt_started" | "unknown_after_send";
+  },
+>>>>>>> upstream/main
 ): void {
   const filePath = path.join(tmpDir, "delivery-queue", `${id}.json`);
   const entry = readQueuedEntry(tmpDir, id);
@@ -53,6 +63,15 @@ export function setQueuedEntryState(
   if (state.enqueuedAt !== undefined) {
     entry.enqueuedAt = state.enqueuedAt;
   }
+<<<<<<< HEAD
+=======
+  if (state.platformSendStartedAt !== undefined) {
+    entry.platformSendStartedAt = state.platformSendStartedAt;
+  }
+  if (state.recoveryState !== undefined) {
+    entry.recoveryState = state.recoveryState;
+  }
+>>>>>>> upstream/main
   fs.writeFileSync(filePath, JSON.stringify(entry), "utf-8");
 }
 

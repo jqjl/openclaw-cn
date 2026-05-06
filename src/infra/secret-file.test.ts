@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createTrackedTempDirs } from "../test-utils/tracked-temp-dirs.js";
 import {
   DEFAULT_SECRET_FILE_MAX_BYTES,
+<<<<<<< HEAD
   loadSecretFileSync,
+=======
+>>>>>>> upstream/main
   PRIVATE_SECRET_DIR_MODE,
   PRIVATE_SECRET_FILE_MODE,
   readSecretFileSync,
@@ -53,6 +56,7 @@ describe("readSecretFileSync", () => {
     expect(tryReadSecretFileSync(file, "Gateway password")).toBe("top-secret");
   });
 
+<<<<<<< HEAD
   it.each([
     {
       name: "surfaces resolvedPath and error details for missing files",
@@ -83,6 +87,20 @@ describe("readSecretFileSync", () => {
   ])("$name", async ({ assert }) => {
     const file = await createSecretPath(async (dir) => path.join(dir, "missing-secret.txt"));
     assert(file);
+=======
+  it("preserves the underlying cause when throwing for missing files", async () => {
+    const file = await createSecretPath(async (dir) => path.join(dir, "missing-secret.txt"));
+    let thrown: Error | undefined;
+    try {
+      readSecretFileSync(file, "Gateway password");
+    } catch (error) {
+      thrown = error as Error;
+    }
+
+    expect(thrown).toBeInstanceOf(Error);
+    expect(thrown?.message).toContain(`Failed to inspect Gateway password file at ${file}:`);
+    expect((thrown as Error & { cause?: unknown }).cause).toBeInstanceOf(Error);
+>>>>>>> upstream/main
   });
 
   it.each([
@@ -132,6 +150,7 @@ describe("readSecretFileSync", () => {
 
   it.each([
     {
+<<<<<<< HEAD
       name: "exposes resolvedPath on non-throwing read failures",
       pathValue: async () =>
         createSecretPath(async (dir) => {
@@ -149,6 +168,8 @@ describe("readSecretFileSync", () => {
       }),
     },
     {
+=======
+>>>>>>> upstream/main
       name: "returns undefined from the non-throwing helper for rejected files",
       pathValue: async () =>
         createSecretPath(async (dir) => {
@@ -160,22 +181,31 @@ describe("readSecretFileSync", () => {
         }),
       label: "Telegram bot token",
       options: { rejectSymlink: true },
+<<<<<<< HEAD
       helper: "try" as const,
       expected: () => undefined,
+=======
+      expected: undefined,
+>>>>>>> upstream/main
     },
     {
       name: "returns undefined from the non-throwing helper for blank file paths",
       pathValue: async () => "   ",
       label: "Telegram bot token",
       options: undefined,
+<<<<<<< HEAD
       helper: "try" as const,
       expected: () => undefined,
+=======
+      expected: undefined,
+>>>>>>> upstream/main
     },
     {
       name: "returns undefined from the non-throwing helper for missing path values",
       pathValue: async () => undefined,
       label: "Telegram bot token",
       options: undefined,
+<<<<<<< HEAD
       helper: "try" as const,
       expected: () => undefined,
     },
@@ -188,6 +218,13 @@ describe("readSecretFileSync", () => {
       return;
     }
     expect(tryReadSecretFileSync(file, label, options)).toBe((expected as () => undefined)());
+=======
+      expected: undefined,
+    },
+  ])("$name", async ({ pathValue, label, options, expected }) => {
+    const file = await pathValue();
+    expect(tryReadSecretFileSync(file, label, options)).toBe(expected);
+>>>>>>> upstream/main
   });
 });
 
@@ -202,10 +239,14 @@ describe("writePrivateSecretFileAtomic", () => {
       content: '{"ok":true}\n',
     });
 
+<<<<<<< HEAD
     expect(loadSecretFileSync(file, "Gateway password")).toMatchObject({
       ok: true,
       secret: '{"ok":true}',
     });
+=======
+    expect(readSecretFileSync(file, "Gateway password")).toBe('{"ok":true}');
+>>>>>>> upstream/main
     if (process.platform !== "win32") {
       const dirStat = await fsPromises.stat(path.dirname(file));
       const fileStat = await fsPromises.stat(file);

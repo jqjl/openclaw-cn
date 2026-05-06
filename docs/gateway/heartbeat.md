@@ -288,6 +288,7 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 
 ## Delivery behavior
 
+<<<<<<< HEAD
 - Heartbeats run in the agent’s main session by default (`agent:<id>:<mainKey>`),
   or `global` when `session.scope = "global"`. Set `session` to override to a
   specific channel session (Discord/WhatsApp/etc.).
@@ -303,6 +304,32 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 - Heartbeat-only replies do **not** keep the session alive; the last `updatedAt`
   is restored so idle expiry behaves normally.
 - Detached [background tasks](/automation/tasks) can enqueue a system event and wake heartbeat when the main session should notice something quickly. That wake does not make the heartbeat run a background task.
+=======
+<AccordionGroup>
+  <Accordion title="Session and target routing">
+    - Heartbeats run in the agent's main session by default (`agent:<id>:<mainKey>`), or `global` when `session.scope = "global"`. Set `session` to override to a specific channel session (Discord/WhatsApp/etc.).
+    - `session` only affects the run context; delivery is controlled by `target` and `to`.
+    - To deliver to a specific channel/recipient, set `target` + `to`. With `target: "last"`, delivery uses the last external channel for that session.
+    - Heartbeat deliveries allow direct/DM targets by default. Set `directPolicy: "block"` to suppress direct-target sends while still running the heartbeat turn.
+    - If the main queue, target session lane, cron lane, or an active cron job is busy, the heartbeat is skipped and retried later.
+    - If `skipWhenBusy: true`, subagent and nested lanes also defer heartbeat runs.
+    - If `target` resolves to no external destination, the run still happens but no outbound message is sent.
+
+  </Accordion>
+  <Accordion title="Visibility and skip behavior">
+    - If `showOk`, `showAlerts`, and `useIndicator` are all disabled, the run is skipped up front as `reason=alerts-disabled`.
+    - If only alert delivery is disabled, OpenClaw can still run the heartbeat, update due-task timestamps, restore the session idle timestamp, and suppress the outward alert payload.
+    - If the resolved heartbeat target supports typing, OpenClaw shows typing while the heartbeat run is active. This uses the same target the heartbeat would send chat output to, and it is disabled by `typingMode: "never"`.
+
+  </Accordion>
+  <Accordion title="Session lifecycle and audit">
+    - Heartbeat-only replies do **not** keep the session alive. Heartbeat metadata may update the session row, but idle expiry uses `lastInteractionAt` from the last real user/channel message, and daily expiry uses `sessionStartedAt`.
+    - Control UI and WebChat history hide heartbeat prompts and OK-only acknowledgments. The underlying session transcript can still contain those turns for audit/replay.
+    - Detached [background tasks](/automation/tasks) can enqueue a system event and wake heartbeat when the main session should notice something quickly. That wake does not make the heartbeat run a background task.
+
+  </Accordion>
+</AccordionGroup>
+>>>>>>> upstream/main
 
 ## Visibility controls
 

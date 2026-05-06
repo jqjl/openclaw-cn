@@ -1,10 +1,16 @@
 import { collectConfiguredAgentHarnessRuntimes } from "../agents/harness-runtimes.js";
 import { normalizeProviderId } from "../agents/provider-id.js";
+<<<<<<< HEAD
 import {
   hasPotentialConfiguredChannels,
   listPotentialConfiguredChannelPresenceSignals,
 } from "../channels/config-presence.js";
 import { getChatChannelMeta, normalizeChatChannelId } from "../channels/registry.js";
+=======
+import { listPotentialConfiguredChannelPresenceSignals } from "../channels/config-presence.js";
+import { getChatChannelMeta, normalizeChatChannelId } from "../channels/registry.js";
+import { getCurrentPluginMetadataSnapshot } from "../plugins/current-plugin-metadata-snapshot.js";
+>>>>>>> upstream/main
 import {
   type PluginManifestRecord,
   type PluginManifestRegistry,
@@ -484,6 +490,7 @@ export function configMayNeedPluginAutoEnable(
   cfg: OpenClawConfig,
   env: NodeJS.ProcessEnv,
 ): boolean {
+<<<<<<< HEAD
   if (arePluginsGloballyDisabled(cfg)) {
     return false;
   }
@@ -498,12 +505,37 @@ export function configMayNeedPluginAutoEnable(
   }
   if (hasConfiguredProviderModelOrHarness(cfg, env)) {
     return true;
+=======
+  return resolvePluginAutoEnableReadiness(cfg, env).mayNeedAutoEnable;
+}
+
+export function resolvePluginAutoEnableReadiness(
+  cfg: OpenClawConfig,
+  env: NodeJS.ProcessEnv,
+): { mayNeedAutoEnable: boolean; configuredChannelIds: string[] } {
+  if (arePluginsGloballyDisabled(cfg)) {
+    return { mayNeedAutoEnable: false, configuredChannelIds: [] };
+  }
+  if (hasPluginAllowlistWithMaterialEntries(cfg)) {
+    return { mayNeedAutoEnable: true, configuredChannelIds: [] };
+  }
+  if (hasConfiguredPluginConfigEntry(cfg)) {
+    return { mayNeedAutoEnable: true, configuredChannelIds: [] };
+  }
+  const configuredChannelIds = collectConfiguredChannelIds(cfg, env);
+  if (configuredChannelIds.length > 0) {
+    return { mayNeedAutoEnable: true, configuredChannelIds };
+  }
+  if (hasConfiguredProviderModelOrHarness(cfg, env)) {
+    return { mayNeedAutoEnable: true, configuredChannelIds };
+>>>>>>> upstream/main
   }
   if (
     hasConfiguredWebSearchProviderSelection(cfg) ||
     hasConfiguredWebSearchPluginEntry(cfg) ||
     hasConfiguredWebFetchPluginEntry(cfg)
   ) {
+<<<<<<< HEAD
     return true;
   }
   if (!hasSetupAutoEnableRelevantConfig(cfg)) {
@@ -516,6 +548,22 @@ export function configMayNeedPluginAutoEnable(
       pluginIds: resolveRelevantSetupAutoEnablePluginIds(cfg),
     }).length > 0
   );
+=======
+    return { mayNeedAutoEnable: true, configuredChannelIds };
+  }
+  if (!hasSetupAutoEnableRelevantConfig(cfg)) {
+    return { mayNeedAutoEnable: false, configuredChannelIds };
+  }
+  return {
+    mayNeedAutoEnable:
+      resolvePluginSetupAutoEnableReasons({
+        config: cfg,
+        env,
+        pluginIds: resolveRelevantSetupAutoEnablePluginIds(cfg),
+      }).length > 0,
+    configuredChannelIds,
+  };
+>>>>>>> upstream/main
 }
 
 export function resolvePluginAutoEnableCandidateReason(
@@ -550,9 +598,17 @@ export function resolveConfiguredPluginAutoEnableCandidates(params: {
   config: OpenClawConfig;
   env: NodeJS.ProcessEnv;
   registry: PluginManifestRegistry;
+<<<<<<< HEAD
 }): PluginAutoEnableCandidate[] {
   const changes: PluginAutoEnableCandidate[] = [];
   for (const channelId of collectConfiguredChannelIds(params.config, params.env)) {
+=======
+  configuredChannelIds?: readonly string[];
+}): PluginAutoEnableCandidate[] {
+  const changes: PluginAutoEnableCandidate[] = [];
+  for (const channelId of params.configuredChannelIds ??
+    collectConfiguredChannelIds(params.config, params.env)) {
+>>>>>>> upstream/main
     for (const pluginId of collectPluginIdsForConfiguredChannel(channelId, params.registry)) {
       changes.push({ pluginId, kind: "channel-configured", channelId });
     }
@@ -889,6 +945,7 @@ export function resolvePluginAutoEnableManifestRegistry(params: {
   env: NodeJS.ProcessEnv;
   manifestRegistry?: PluginManifestRegistry;
 }): PluginManifestRegistry {
+<<<<<<< HEAD
   return (
     params.manifestRegistry ??
     (configMayNeedPluginManifestRegistry(params.config, params.env)
@@ -897,6 +954,25 @@ export function resolvePluginAutoEnableManifestRegistry(params: {
           env: params.env,
         }).manifestRegistry
       : EMPTY_PLUGIN_MANIFEST_REGISTRY)
+=======
+  if (params.manifestRegistry) {
+    return params.manifestRegistry;
+  }
+  if (!configMayNeedPluginManifestRegistry(params.config, params.env)) {
+    return EMPTY_PLUGIN_MANIFEST_REGISTRY;
+  }
+  const currentSnapshot = getCurrentPluginMetadataSnapshot({
+    config: params.config,
+    env: params.env,
+    allowWorkspaceScopedSnapshot: true,
+  });
+  return (
+    currentSnapshot?.manifestRegistry ??
+    loadPluginMetadataSnapshot({
+      config: params.config,
+      env: params.env,
+    }).manifestRegistry
+>>>>>>> upstream/main
   );
 }
 

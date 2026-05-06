@@ -8,8 +8,11 @@ read_when:
 title: "macOS VMs"
 ---
 
+<<<<<<< HEAD
 # OpenClaw on macOS VMs (Sandboxing)
 
+=======
+>>>>>>> upstream/main
 ## Recommended default (most users)
 
 - **Small Linux VPS** for an always-on Gateway and low cost. See [VPS hosting](/vps).

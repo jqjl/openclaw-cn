@@ -512,12 +512,31 @@ describe("registerTelegramNativeCommands — session metadata", () => {
   });
 
   it("uses the target session model when building native argument menus", async () => {
+<<<<<<< HEAD
     const cfg: OpenClawConfig = {};
+=======
+    const cfg = {
+      agents: {
+        defaults: {
+          thinkingDefault: "low",
+          models: {
+            "anthropic/claude-opus-4-7": {
+              params: { thinking: "xhigh" },
+            },
+          },
+        },
+      },
+    } as OpenClawConfig;
+>>>>>>> upstream/main
     sessionMocks.loadSessionStore.mockReturnValue({
       "agent:main:main": {
         providerOverride: "anthropic",
         modelOverride: "claude-opus-4-7",
         modelOverrideSource: "user",
+<<<<<<< HEAD
+=======
+        thinkingLevel: "high",
+>>>>>>> upstream/main
         updatedAt: 0,
       },
     });
@@ -541,7 +560,11 @@ describe("registerTelegramNativeCommands — session metadata", () => {
     expect(sessionMocks.loadSessionStore).toHaveBeenCalledWith("/tmp/openclaw-sessions.json");
     expect(sendMessage).toHaveBeenCalledWith(
       100,
+<<<<<<< HEAD
       expect.stringContaining("Choose level for /think."),
+=======
+      expect.stringContaining("Current thinking level: high.\nChoose level for /think."),
+>>>>>>> upstream/main
       expect.objectContaining({ reply_markup: expect.any(Object) }),
     );
     expect(replyMocks.dispatchReplyWithBufferedBlockDispatcher).not.toHaveBeenCalled();
@@ -587,6 +610,10 @@ describe("registerTelegramNativeCommands — session metadata", () => {
       agents: {
         defaults: {
           model: { primary: "openai/gpt-5.5" },
+<<<<<<< HEAD
+=======
+          thinkingDefault: "medium",
+>>>>>>> upstream/main
         },
       },
     } as OpenClawConfig;
@@ -619,7 +646,85 @@ describe("registerTelegramNativeCommands — session metadata", () => {
     );
     expect(sendMessage).toHaveBeenCalledWith(
       100,
+<<<<<<< HEAD
       expect.stringContaining("Choose level for /think."),
+=======
+      expect.stringContaining("Current thinking level: medium.\nChoose level for /think."),
+      expect.objectContaining({ reply_markup: expect.any(Object) }),
+    );
+    expect(replyMocks.dispatchReplyWithBufferedBlockDispatcher).not.toHaveBeenCalled();
+  });
+
+  it("uses target model thinking defaults before global thinking defaults", async () => {
+    const cfg = {
+      agents: {
+        defaults: {
+          thinkingDefault: "low",
+          models: {
+            "anthropic/claude-opus-4-7": {
+              params: { thinking: "xhigh" },
+            },
+          },
+        },
+      },
+    } as OpenClawConfig;
+    sessionMocks.loadSessionStore.mockReturnValue({
+      "agent:main:main": {
+        providerOverride: "anthropic",
+        modelOverride: "claude-opus-4-7",
+        modelOverrideSource: "user",
+        updatedAt: 0,
+      },
+    });
+
+    const { handler, sendMessage } = registerAndResolveCommandHandler({
+      commandName: "think",
+      cfg,
+      allowFrom: ["*"],
+    });
+    await handler(createTelegramPrivateCommandContext());
+
+    expect(sendMessage).toHaveBeenCalledWith(
+      100,
+      expect.stringContaining("Current thinking level: xhigh.\nChoose level for /think."),
+      expect.objectContaining({ reply_markup: expect.any(Object) }),
+    );
+    expect(replyMocks.dispatchReplyWithBufferedBlockDispatcher).not.toHaveBeenCalled();
+  });
+
+  it("uses per-agent thinking defaults before target model and global thinking defaults", async () => {
+    const cfg = {
+      agents: {
+        defaults: {
+          thinkingDefault: "low",
+          models: {
+            "anthropic/claude-opus-4-7": {
+              params: { thinking: "xhigh" },
+            },
+          },
+        },
+        list: [
+          {
+            id: "alpha",
+            model: { primary: "anthropic/claude-opus-4-7" },
+            thinkingDefault: "minimal",
+          },
+        ],
+      },
+    } as OpenClawConfig;
+    sessionMocks.loadSessionStore.mockReturnValue({});
+
+    const { handler, sendMessage } = registerAndResolveCommandHandler({
+      commandName: "think",
+      cfg,
+      allowFrom: ["*"],
+    });
+    await handler(createTelegramPrivateCommandContext());
+
+    expect(sendMessage).toHaveBeenCalledWith(
+      100,
+      expect.stringContaining("Current thinking level: minimal.\nChoose level for /think."),
+>>>>>>> upstream/main
       expect.objectContaining({ reply_markup: expect.any(Object) }),
     );
     expect(replyMocks.dispatchReplyWithBufferedBlockDispatcher).not.toHaveBeenCalled();

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+=======
+import { readFileSync } from "node:fs";
+>>>>>>> upstream/main
 import path from "node:path";
 import {
   CHROMIUM_FULL_VERSION,
@@ -21,7 +25,11 @@ import {
   fetchWithSsrFGuard,
   ssrfPolicyFromHttpBaseUrlAllowedHostname,
 } from "openclaw/plugin-sdk/ssrf-runtime";
+<<<<<<< HEAD
 import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+=======
+import { tempWorkspace, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+>>>>>>> upstream/main
 import { edgeTTS, inferEdgeExtension } from "./tts.js";
 
 const DEFAULT_EDGE_VOICE = "en-US-MichelleNeural";
@@ -236,9 +244,17 @@ export function buildMicrosoftSpeechProvider(): SpeechProviderPlugin {
     isConfigured: ({ providerConfig }) => readMicrosoftProviderConfig(providerConfig).enabled,
     synthesize: async (req) => {
       const config = readMicrosoftProviderConfig(req.providerConfig);
+<<<<<<< HEAD
       const tempRoot = resolvePreferredOpenClawTmpDir();
       mkdirSync(tempRoot, { recursive: true, mode: 0o700 });
       const tempDir = mkdtempSync(path.join(tempRoot, "tts-microsoft-"));
+=======
+      const temp = await tempWorkspace({
+        rootDir: resolvePreferredOpenClawTmpDir(),
+        prefix: "tts-microsoft-",
+      });
+      const tempDir = temp.dir;
+>>>>>>> upstream/main
       const overrideVoice = trimToUndefined(req.providerOverrides?.voice);
       let voice = overrideVoice ?? config.voice;
       let lang = config.lang;
@@ -286,7 +302,11 @@ export function buildMicrosoftSpeechProvider(): SpeechProviderPlugin {
           return await runEdge(outputFormat);
         }
       } finally {
+<<<<<<< HEAD
         rmSync(tempDir, { recursive: true, force: true });
+=======
+        await temp.cleanup();
+>>>>>>> upstream/main
       }
     },
   };

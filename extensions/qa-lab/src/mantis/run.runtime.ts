@@ -55,9 +55,27 @@ type LaneResult = {
   videoPath?: string;
 };
 
+<<<<<<< HEAD
 type Comparison = {
   baseline: {
     expected: "queued-only";
+=======
+type MantisScenarioConfig = {
+  baselineExpected: string;
+  baselineLabel: string;
+  baselineScreenshotAlt: string;
+  candidateExpected: string;
+  candidateLabel: string;
+  candidateScreenshotAlt: string;
+  defaultBaselineRef: string;
+  id: string;
+  title: string;
+};
+
+type Comparison = {
+  baseline: {
+    expected: string;
+>>>>>>> upstream/main
     ref: string;
     reproduced: boolean;
     screenshotPath?: string;
@@ -65,7 +83,11 @@ type Comparison = {
     videoPath?: string;
   };
   candidate: {
+<<<<<<< HEAD
     expected: "queued -> thinking -> done";
+=======
+    expected: string;
+>>>>>>> upstream/main
     fixed: boolean;
     ref: string;
     screenshotPath?: string;
@@ -80,12 +102,44 @@ type Comparison = {
 const DEFAULT_BASELINE_REF = "0bf06e953fdda290799fc9fb9244a8f67fdae593";
 const DEFAULT_CANDIDATE_REF = "HEAD";
 const DEFAULT_SCENARIO = "discord-status-reactions-tool-only";
+<<<<<<< HEAD
+=======
+const DISCORD_THREAD_FILEPATH_ATTACHMENT_SCENARIO = "discord-thread-reply-filepath-attachment";
+>>>>>>> upstream/main
 const DEFAULT_TRANSPORT = "discord";
 const DEFAULT_PROVIDER_MODE = "live-frontier";
 const DEFAULT_MODEL = "openai/gpt-5.4";
 const DEFAULT_CREDENTIAL_SOURCE = "convex";
 const DEFAULT_CREDENTIAL_ROLE = "ci";
 
+<<<<<<< HEAD
+=======
+const MANTIS_SCENARIO_CONFIGS: Record<string, MantisScenarioConfig> = {
+  [DEFAULT_SCENARIO]: {
+    baselineExpected: "queued-only",
+    baselineLabel: "Baseline queued-only",
+    baselineScreenshotAlt: "Baseline Discord status reaction timeline",
+    candidateExpected: "queued -> thinking -> done",
+    candidateLabel: "Candidate queued -> thinking -> done",
+    candidateScreenshotAlt: "Candidate Discord status reaction timeline",
+    defaultBaselineRef: DEFAULT_BASELINE_REF,
+    id: DEFAULT_SCENARIO,
+    title: "Mantis Discord Status Reactions QA",
+  },
+  [DISCORD_THREAD_FILEPATH_ATTACHMENT_SCENARIO]: {
+    baselineExpected: "thread reply omits filePath attachment",
+    baselineLabel: "Baseline missing filePath attachment",
+    baselineScreenshotAlt: "Baseline Discord thread reply without filePath attachment",
+    candidateExpected: "thread reply includes filePath attachment",
+    candidateLabel: "Candidate includes filePath attachment",
+    candidateScreenshotAlt: "Candidate Discord thread reply with filePath attachment",
+    defaultBaselineRef: "81349cdc2a9d5143fd0991ed858b739e7d96e05c",
+    id: DISCORD_THREAD_FILEPATH_ATTACHMENT_SCENARIO,
+    title: "Mantis Discord Thread Attachment QA",
+  },
+};
+
+>>>>>>> upstream/main
 function trimToValue(value: string | undefined) {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : undefined;
@@ -177,9 +231,16 @@ function renderReport(params: {
   candidate: LaneResult;
   comparison: Comparison;
   outputDir: string;
+<<<<<<< HEAD
 }) {
   const lines = [
     "# Mantis Before/After",
+=======
+  scenarioConfig: MantisScenarioConfig;
+}) {
+  const lines = [
+    `# ${params.scenarioConfig.title}`,
+>>>>>>> upstream/main
     "",
     `Status: ${params.comparison.pass ? "pass" : "fail"}`,
     `Transport: ${params.comparison.transport}`,
@@ -230,6 +291,10 @@ function buildEvidenceManifest(params: {
   candidate: LaneResult;
   comparison: Comparison;
   outputDir: string;
+<<<<<<< HEAD
+=======
+  scenarioConfig: MantisScenarioConfig;
+>>>>>>> upstream/main
 }) {
   const artifacts: {
     alt?: string;
@@ -259,9 +324,15 @@ function buildEvidenceManifest(params: {
   const baselineScreenshot = relativeArtifactPath(params.outputDir, params.baseline.screenshotPath);
   if (baselineScreenshot) {
     artifacts.push({
+<<<<<<< HEAD
       alt: "Baseline Discord status reaction timeline",
       kind: "timeline",
       label: "Baseline queued-only",
+=======
+      alt: params.scenarioConfig.baselineScreenshotAlt,
+      kind: "timeline",
+      label: params.scenarioConfig.baselineLabel,
+>>>>>>> upstream/main
       lane: "baseline",
       path: baselineScreenshot,
       targetPath: "baseline.png",
@@ -274,9 +345,15 @@ function buildEvidenceManifest(params: {
   );
   if (candidateScreenshot) {
     artifacts.push({
+<<<<<<< HEAD
       alt: "Candidate Discord status reaction timeline",
       kind: "timeline",
       label: "Candidate queued -> thinking -> done",
+=======
+      alt: params.scenarioConfig.candidateScreenshotAlt,
+      kind: "timeline",
+      label: params.scenarioConfig.candidateLabel,
+>>>>>>> upstream/main
       lane: "candidate",
       path: candidateScreenshot,
       targetPath: "candidate.png",
@@ -314,7 +391,11 @@ function buildEvidenceManifest(params: {
     schemaVersion: 1,
     summary:
       "Mantis ran the before/after scenario, captured baseline and candidate evidence, and compared the expected bug reproduction against the candidate fix.",
+<<<<<<< HEAD
     title: "Mantis Before/After QA",
+=======
+    title: params.scenarioConfig.title,
+>>>>>>> upstream/main
   };
 }
 
@@ -452,10 +533,21 @@ export async function runMantisBeforeAfter(
   const scenario = normalizeRequiredLiteral(
     opts.scenario,
     DEFAULT_SCENARIO,
+<<<<<<< HEAD
     [DEFAULT_SCENARIO],
     "--scenario",
   );
   const baseline = trimToValue(opts.baseline) ?? DEFAULT_BASELINE_REF;
+=======
+    Object.keys(MANTIS_SCENARIO_CONFIGS),
+    "--scenario",
+  );
+  const scenarioConfig = MANTIS_SCENARIO_CONFIGS[scenario];
+  if (!scenarioConfig) {
+    throw new Error(`Unsupported Mantis scenario: ${scenario}`);
+  }
+  const baseline = trimToValue(opts.baseline) ?? scenarioConfig.defaultBaselineRef;
+>>>>>>> upstream/main
   const candidate = trimToValue(opts.candidate) ?? DEFAULT_CANDIDATE_REF;
   const runner = opts.commandRunner ?? defaultCommandRunner;
   const worktreeRoot = path.join(outputDir, "worktrees");
@@ -495,7 +587,11 @@ export async function runMantisBeforeAfter(
     });
     const comparison = {
       baseline: {
+<<<<<<< HEAD
         expected: "queued-only",
+=======
+        expected: scenarioConfig.baselineExpected,
+>>>>>>> upstream/main
         ref: baseline,
         reproduced: baselineResult.status === "fail",
         screenshotPath: baselineResult.screenshotPath,
@@ -503,7 +599,11 @@ export async function runMantisBeforeAfter(
         videoPath: baselineResult.videoPath,
       },
       candidate: {
+<<<<<<< HEAD
         expected: "queued -> thinking -> done",
+=======
+        expected: scenarioConfig.candidateExpected,
+>>>>>>> upstream/main
         fixed: candidateResult.status === "pass",
         ref: candidate,
         screenshotPath: candidateResult.screenshotPath,
@@ -522,6 +622,10 @@ export async function runMantisBeforeAfter(
         candidate: candidateResult,
         comparison,
         outputDir,
+<<<<<<< HEAD
+=======
+        scenarioConfig,
+>>>>>>> upstream/main
       }),
       "utf8",
     );
@@ -533,6 +637,10 @@ export async function runMantisBeforeAfter(
           candidate: candidateResult,
           comparison,
           outputDir,
+<<<<<<< HEAD
+=======
+          scenarioConfig,
+>>>>>>> upstream/main
         }),
         null,
         2,

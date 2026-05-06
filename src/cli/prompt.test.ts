@@ -1,13 +1,41 @@
 import readline from "node:readline/promises";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { isYes, setVerbose, setYes } from "../globals.js";
+<<<<<<< HEAD
 import { promptYesNo } from "./prompt.js";
+=======
+import { PromptInputClosedError, promptYesNo } from "./prompt.js";
+>>>>>>> upstream/main
 
 const readlineState = vi.hoisted(() => {
   const question = vi.fn(async () => "");
   const close = vi.fn();
+<<<<<<< HEAD
   const createInterface = vi.fn(() => ({ question, close }));
   return { question, close, createInterface };
+=======
+  const listeners = new Map<string, Set<() => void>>();
+  const once = vi.fn((event: string, listener: () => void) => {
+    const current = listeners.get(event) ?? new Set<() => void>();
+    current.add(listener);
+    listeners.set(event, current);
+  });
+  const off = vi.fn((event: string, listener: () => void) => {
+    listeners.get(event)?.delete(listener);
+  });
+  const emit = (event: string) => {
+    const current = [...(listeners.get(event) ?? [])];
+    listeners.delete(event);
+    for (const listener of current) {
+      listener();
+    }
+  };
+  const resetListeners = () => {
+    listeners.clear();
+  };
+  const createInterface = vi.fn(() => ({ question, close, once, off }));
+  return { question, close, createInterface, emit, off, once, resetListeners };
+>>>>>>> upstream/main
 });
 
 vi.mock("node:readline/promises", () => ({
@@ -21,6 +49,12 @@ beforeEach(() => {
   readlineState.question.mockResolvedValue("");
   readlineState.close.mockClear();
   readlineState.createInterface.mockClear();
+<<<<<<< HEAD
+=======
+  readlineState.off.mockClear();
+  readlineState.once.mockClear();
+  readlineState.resetListeners();
+>>>>>>> upstream/main
 });
 
 describe("promptYesNo", () => {
@@ -48,4 +82,17 @@ describe("promptYesNo", () => {
     const resultYes = await promptYesNo("Continue?", false);
     expect(resultYes).toBe(true);
   });
+<<<<<<< HEAD
+=======
+
+  it("rejects when input closes before an answer is received", async () => {
+    readlineState.question.mockReturnValueOnce(new Promise<string>(() => undefined));
+
+    const result = promptYesNo("Continue?");
+    readlineState.emit("close");
+
+    await expect(result).rejects.toThrow(PromptInputClosedError);
+    expect(readlineState.close).toHaveBeenCalled();
+  });
+>>>>>>> upstream/main
 });

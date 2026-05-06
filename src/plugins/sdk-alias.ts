@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 import { PluginLruCache } from "./plugin-cache-primitives.js";
@@ -37,6 +41,7 @@ function readPluginSdkPackageJson(packageRoot: string): PluginSdkPackageJson | n
   if (pluginSdkPackageJsonByRoot.has(cacheKey)) {
     return pluginSdkPackageJsonByRoot.get(cacheKey) ?? null;
   }
+<<<<<<< HEAD
   try {
     const pkgRaw = fs.readFileSync(path.join(packageRoot, "package.json"), "utf-8");
     const parsed = JSON.parse(pkgRaw) as PluginSdkPackageJson;
@@ -46,6 +51,15 @@ function readPluginSdkPackageJson(packageRoot: string): PluginSdkPackageJson | n
     pluginSdkPackageJsonByRoot.set(cacheKey, null);
     return null;
   }
+=======
+  const parsed = tryReadJsonSync<PluginSdkPackageJson>(path.join(packageRoot, "package.json"));
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    pluginSdkPackageJsonByRoot.set(cacheKey, null);
+    return null;
+  }
+  pluginSdkPackageJsonByRoot.set(cacheKey, parsed);
+  return parsed;
+>>>>>>> upstream/main
 }
 
 function isSafePluginSdkSubpathSegment(subpath: string): boolean {
@@ -306,6 +320,7 @@ function isUsableDistPluginSdkArtifact(candidate: string): boolean {
 }
 
 function readPrivateLocalOnlyPluginSdkSubpaths(packageRoot: string): string[] {
+<<<<<<< HEAD
   try {
     const raw = fs.readFileSync(
       path.join(packageRoot, "scripts", "lib", "plugin-sdk-private-local-only-subpaths.json"),
@@ -329,6 +344,21 @@ function readBundledPluginPackageName(packageJsonPath: string): string | null {
   } catch {
     return null;
   }
+=======
+  const parsed = tryReadJsonSync(
+    path.join(packageRoot, "scripts", "lib", "plugin-sdk-private-local-only-subpaths.json"),
+  );
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.filter((subpath): subpath is string => isSafePluginSdkSubpathSegment(subpath));
+}
+
+function readBundledPluginPackageName(packageJsonPath: string): string | null {
+  const parsed = tryReadJsonSync<{ name?: unknown }>(packageJsonPath);
+  const name = typeof parsed?.name === "string" ? parsed.name.trim() : "";
+  return name.startsWith("@openclaw/") ? name : null;
+>>>>>>> upstream/main
 }
 
 function isBundledPluginPublicSurfaceSourceBasename(params: {

@@ -9,7 +9,11 @@ title: "Docs hubs"
 If you are new to OpenClaw, start with [Getting Started](/start/getting-started).
 </Note>
 
+<<<<<<< HEAD
 Use these hubs to discover every page, including deep dives and reference docs that don’t appear in the left nav.
+=======
+Use these hubs to discover every page, including deep dives and reference docs that don't appear in the left nav.
+>>>>>>> upstream/main
 
 ## Start here
 
@@ -84,7 +88,11 @@ Use these hubs to discover every page, including deep dives and reference docs t
 ## Gateway + operations
 
 - [Gateway runbook](/gateway)
+<<<<<<< HEAD
 - [Network model](/gateway/network-model)
+=======
+- [Network model](/network#core-model)
+>>>>>>> upstream/main
 - [Gateway pairing](/gateway/pairing)
 - [Gateway lock](/gateway/gateway-lock)
 - [Background process](/gateway/background-process)
@@ -160,7 +168,11 @@ Use these hubs to discover every page, including deep dives and reference docs t
 - [macOS skills](/platforms/mac/skills)
 - [macOS Peekaboo](/platforms/mac/peekaboo)
 
+<<<<<<< HEAD
 ## Extensions + plugins
+=======
+## Plugins
+>>>>>>> upstream/main
 
 - [Plugins overview](/tools/plugin)
 - [Building plugins](/plugins/building-plugins)

@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 import { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+import {
+  createChannelMessageReplyPipeline,
+  deliverInboundReplyWithMessageSendContext,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { readChannelAllowFromStore } from "openclaw/plugin-sdk/conversation-runtime";
 import { upsertChannelPairingRequest } from "openclaw/plugin-sdk/conversation-runtime";
 import { buildModelsProviderData } from "openclaw/plugin-sdk/models-provider-runtime";
@@ -32,9 +39,16 @@ export type TelegramBotDeps = {
   resolveExecApproval?: typeof resolveTelegramExecApproval;
   createTelegramDraftStream?: typeof createTelegramDraftStream;
   deliverReplies?: typeof deliverReplies;
+<<<<<<< HEAD
   emitInternalMessageSentHook?: typeof emitInternalMessageSentHook;
   editMessageTelegram?: typeof editMessageTelegram;
   createChannelReplyPipeline?: typeof createChannelReplyPipeline;
+=======
+  deliverInboundReplyWithMessageSendContext?: typeof deliverInboundReplyWithMessageSendContext;
+  emitInternalMessageSentHook?: typeof emitInternalMessageSentHook;
+  editMessageTelegram?: typeof editMessageTelegram;
+  createChannelMessageReplyPipeline?: typeof createChannelMessageReplyPipeline;
+>>>>>>> upstream/main
 };
 
 export const defaultTelegramBotDeps: TelegramBotDeps = {
@@ -83,13 +97,24 @@ export const defaultTelegramBotDeps: TelegramBotDeps = {
   get deliverReplies() {
     return deliverReplies;
   },
+<<<<<<< HEAD
+=======
+  get deliverInboundReplyWithMessageSendContext() {
+    return deliverInboundReplyWithMessageSendContext;
+  },
+>>>>>>> upstream/main
   get emitInternalMessageSentHook() {
     return emitInternalMessageSentHook;
   },
   get editMessageTelegram() {
     return editMessageTelegram;
   },
+<<<<<<< HEAD
   get createChannelReplyPipeline() {
     return createChannelReplyPipeline;
+=======
+  get createChannelMessageReplyPipeline() {
+    return createChannelMessageReplyPipeline;
+>>>>>>> upstream/main
   },
 };

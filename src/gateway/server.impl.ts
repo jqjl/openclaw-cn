@@ -884,7 +884,11 @@ export async function startGatewayServer(
     nodeUnsubscribe,
     nodeUnsubscribeAll,
     broadcastVoiceWakeChanged,
+<<<<<<< HEAD
     hasMobileNodeConnected,
+=======
+    hasTalkNodeConnected,
+>>>>>>> upstream/main
   } = createGatewayNodeSessionRuntime({ broadcast });
   applyGatewayLaneConcurrency(cfgAtStart);
 
@@ -1261,7 +1265,11 @@ export async function startGatewayServer(
       nodeSubscribe,
       nodeUnsubscribe,
       nodeUnsubscribeAll,
+<<<<<<< HEAD
       hasConnectedMobileNode: hasMobileNodeConnected,
+=======
+      hasConnectedTalkNode: hasTalkNodeConnected,
+>>>>>>> upstream/main
       clients,
       enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: OpenClawConfig) => {
         enforceSharedGatewaySessionGenerationForConfigWrite({
@@ -1524,14 +1532,37 @@ export async function startGatewayServer(
         onStarted: () => {
           postReadyMaintenanceTimer = null;
         },
+<<<<<<< HEAD
         startMaintenance: earlyRuntime.startMaintenance,
         applyMaintenance: (maintenance) => {
+=======
+        startMaintenance: async () => {
+          if (closePreludeStarted) {
+            return null;
+          }
+          return earlyRuntime.startMaintenance();
+        },
+        applyMaintenance: (maintenance) => {
+          if (closePreludeStarted) {
+            clearInterval(maintenance.tickInterval);
+            clearInterval(maintenance.healthInterval);
+            clearInterval(maintenance.dedupeCleanup);
+            if (maintenance.mediaCleanup) {
+              clearInterval(maintenance.mediaCleanup);
+            }
+            return;
+          }
+>>>>>>> upstream/main
           runtimeState.tickInterval = maintenance.tickInterval;
           runtimeState.healthInterval = maintenance.healthInterval;
           runtimeState.dedupeCleanup = maintenance.dedupeCleanup;
           runtimeState.mediaCleanup = maintenance.mediaCleanup;
         },
+<<<<<<< HEAD
         shouldStartCron: () => !gatewayCronStartHandled,
+=======
+        shouldStartCron: () => !closePreludeStarted && !gatewayCronStartHandled,
+>>>>>>> upstream/main
         markCronStartHandled: () => {
           gatewayCronStartHandled = true;
         },

@@ -4,6 +4,10 @@ import { formatCliCommand } from "../cli/command-format.js";
 import type { OpenClawConfig, GatewayBindMode } from "../config/config.js";
 import type { AgentConfig } from "../config/types.agents.js";
 import { hasConfiguredSecretInput } from "../config/types.secrets.js";
+<<<<<<< HEAD
+=======
+import { resolveGatewayAuthTokenSourceConflict } from "../gateway/auth-token-source-conflict.js";
+>>>>>>> upstream/main
 import { resolveGatewayAuth } from "../gateway/auth.js";
 import { isLoopbackHost, resolveGatewayBindHost } from "../gateway/net.js";
 import { resolveExecPolicyScopeSnapshot } from "../infra/exec-approvals-effective.js";
@@ -252,6 +256,14 @@ export async function noteSecurityWarnings(cfg: OpenClawConfig) {
     }
   }
 
+<<<<<<< HEAD
+=======
+  const tokenConflict = resolveGatewayAuthTokenSourceConflict({ cfg, env: process.env });
+  if (tokenConflict) {
+    warnings.push(...tokenConflict.warningLines);
+  }
+
+>>>>>>> upstream/main
   const warnDmPolicy = async (params: {
     label: string;
     provider: ChannelId;

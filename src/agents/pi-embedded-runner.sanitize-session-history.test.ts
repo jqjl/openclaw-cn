@@ -981,7 +981,11 @@ describe("sanitizeSessionHistory", () => {
 
     expect(result).toEqual([
       {
+<<<<<<< HEAD
         ...(messages[0] as Record<string, unknown>),
+=======
+        ...(messages[0] as unknown as Record<string, unknown>),
+>>>>>>> upstream/main
         usage: makeZeroUsageSnapshot(),
       },
     ]);

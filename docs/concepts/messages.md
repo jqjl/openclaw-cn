@@ -181,7 +181,11 @@ Details: [Configuration](/gateway/config-agents#messages) and channel docs.
 
 ## Silent replies
 
+<<<<<<< HEAD
 The exact silent token `NO_REPLY` / `no_reply` means “do not deliver a user-visible reply”.
+=======
+The exact silent token `NO_REPLY` / `no_reply` means "do not deliver a user-visible reply".
+>>>>>>> upstream/main
 When a turn also has pending tool media, such as generated TTS audio, OpenClaw
 strips the silent text but still delivers the media attachment.
 OpenClaw resolves that behavior by conversation type:
@@ -200,8 +204,18 @@ Defaults live under `agents.defaults.silentReply` and
 `agents.defaults.silentReplyRewrite`; `surfaces.<id>.silentReply` and
 `surfaces.<id>.silentReplyRewrite` can override them per surface.
 
+<<<<<<< HEAD
 ## Related
 
+=======
+When the parent session has one or more pending spawned subagent runs, bare
+silent replies are dropped on all surfaces instead of being rewritten, so the
+parent stays quiet until the child completion event delivers the real reply.
+
+## Related
+
+- [Message lifecycle refactor](/concepts/message-lifecycle-refactor) - target durable send and receive design
+>>>>>>> upstream/main
 - [Streaming](/concepts/streaming) — real-time message delivery
 - [Retry](/concepts/retry) — message delivery retry behavior
 - [Queue](/concepts/queue) — message processing queue

@@ -101,8 +101,24 @@ surfaces, make sure the tone still fits the room.
 
 Sharp is good. Annoying is not.
 
+<<<<<<< HEAD
 ## Related docs
 
 - [Agent workspace](/concepts/agent-workspace)
 - [System prompt](/concepts/system-prompt)
 - [SOUL.md template](/reference/templates/SOUL)
+=======
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Agent workspace" href="/concepts/agent-workspace" icon="folder-open">
+    Workspace files OpenClaw injects into the system prompt.
+  </Card>
+  <Card title="System prompt" href="/concepts/system-prompt" icon="message-lines">
+    How `SOUL.md` is composed into the per-turn system prompt.
+  </Card>
+  <Card title="SOUL.md template" href="/reference/templates/SOUL" icon="file-lines">
+    Starter template for a personality file.
+  </Card>
+</CardGroup>
+>>>>>>> upstream/main

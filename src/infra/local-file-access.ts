@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
@@ -73,3 +74,14 @@ export function basenameFromMediaSource(source?: string): string | undefined {
   }
   return path.basename(source) || undefined;
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  assertNoWindowsNetworkPath,
+  basenameFromMediaSource,
+  hasEncodedFileUrlSeparator,
+  isWindowsNetworkPath,
+  safeFileURLToPath,
+  trySafeFileURLToPath,
+} from "@openclaw/fs-safe/advanced";
+>>>>>>> upstream/main

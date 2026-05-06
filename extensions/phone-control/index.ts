@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+<<<<<<< HEAD
+=======
+import { replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -150,7 +154,10 @@ async function readArmState(statePath: string): Promise<ArmStateFile | null> {
 }
 
 async function writeArmState(statePath: string, state: ArmStateFile | null): Promise<void> {
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(statePath), { recursive: true });
+=======
+>>>>>>> upstream/main
   if (!state) {
     try {
       await fs.unlink(statePath);
@@ -159,7 +166,15 @@ async function writeArmState(statePath: string, state: ArmStateFile | null): Pro
     }
     return;
   }
+<<<<<<< HEAD
   await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+=======
+  await replaceFileAtomic({
+    filePath: statePath,
+    content: `${JSON.stringify(state, null, 2)}\n`,
+    tempPrefix: ".phone-control-arm",
+  });
+>>>>>>> upstream/main
 }
 
 function normalizeDenyList(cfg: OpenClawPluginApi["config"]): string[] {

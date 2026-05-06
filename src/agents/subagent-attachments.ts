@@ -2,6 +2,10 @@ import crypto from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import { privateFileStore } from "../infra/private-file-store.js";
+>>>>>>> upstream/main
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { resolveAgentWorkspaceDir } from "./agent-scope.js";
 
@@ -131,6 +135,10 @@ export async function materializeSubagentAttachments(params: {
 
   try {
     await fs.mkdir(absDir, { recursive: true, mode: 0o700 });
+<<<<<<< HEAD
+=======
+    const store = privateFileStore(absDir);
+>>>>>>> upstream/main
 
     const seen = new Set<string>();
     const files: SubagentAttachmentReceiptFile[] = [];
@@ -192,6 +200,7 @@ export async function materializeSubagentAttachments(params: {
       }
 
       const sha256 = crypto.createHash("sha256").update(buf).digest("hex");
+<<<<<<< HEAD
       const outPath = path.join(absDir, name);
       writeJobs.push({ outPath, buf });
       files.push({ name, bytes, sha256 });
@@ -200,6 +209,13 @@ export async function materializeSubagentAttachments(params: {
     await Promise.all(
       writeJobs.map(({ outPath, buf }) => fs.writeFile(outPath, buf, { mode: 0o600, flag: "wx" })),
     );
+=======
+      writeJobs.push({ outPath: name, buf });
+      files.push({ name, bytes, sha256 });
+    }
+
+    await Promise.all(writeJobs.map(({ outPath, buf }) => store.writeText(outPath, buf)));
+>>>>>>> upstream/main
 
     const manifest = {
       relDir,
@@ -207,6 +223,7 @@ export async function materializeSubagentAttachments(params: {
       totalBytes,
       files,
     };
+<<<<<<< HEAD
     await fs.writeFile(
       path.join(absDir, ".manifest.json"),
       JSON.stringify(manifest, null, 2) + "\n",
@@ -215,6 +232,9 @@ export async function materializeSubagentAttachments(params: {
         flag: "wx",
       },
     );
+=======
+    await store.writeJson(".manifest.json", manifest, { trailingNewline: true });
+>>>>>>> upstream/main
 
     return {
       status: "ok",

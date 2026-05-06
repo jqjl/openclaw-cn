@@ -392,6 +392,10 @@ describe("runCli exit behavior", () => {
     ["chat control-plane", ["node", "openclaw", "chat"]],
     ["terminal control-plane", ["node", "openclaw", "terminal"]],
     ["config", ["node", "openclaw", "config", "get", "proxy.enabled"]],
+<<<<<<< HEAD
+=======
+    ["channels parent help", ["node", "openclaw", "channels"]],
+>>>>>>> upstream/main
     ["completion", ["node", "openclaw", "completion", "zsh"]],
     ["debug proxy cli", ["node", "openclaw", "proxy", "start"]],
     ["agents list", ["node", "openclaw", "agents", "list"]],

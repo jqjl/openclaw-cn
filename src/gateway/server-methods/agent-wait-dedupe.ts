@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { isNonTerminalAgentRunStatus } from "../../shared/agent-run-status.js";
+>>>>>>> upstream/main
 import { setSafeTimeout } from "../../utils/timer-delay.js";
 import type { DedupeEntry } from "../server-shared.js";
 
@@ -91,7 +95,11 @@ function readTerminalSnapshotFromDedupeEntry(entry: DedupeEntry): AgentWaitTermi
       }
     | undefined;
   const status = typeof payload?.status === "string" ? payload.status : undefined;
+<<<<<<< HEAD
   if (status === "accepted" || status === "started" || status === "in_flight") {
+=======
+  if (isNonTerminalAgentRunStatus(status)) {
+>>>>>>> upstream/main
     return null;
   }
 

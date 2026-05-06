@@ -1,6 +1,10 @@
 import path from "node:path";
 import { GrammyError } from "grammy";
+<<<<<<< HEAD
 import { readFileWithinRoot } from "openclaw/plugin-sdk/file-access-runtime";
+=======
+import { root as fsRoot } from "openclaw/plugin-sdk/file-access-runtime";
+>>>>>>> upstream/main
 import type { TelegramTransport } from "../fetch.js";
 import { cacheSticker, getCachedSticker } from "../sticker-cache.js";
 import {
@@ -203,9 +207,14 @@ async function downloadAndSaveTelegramFile(params: {
   if (trustedLocalFile) {
     let localFile;
     try {
+<<<<<<< HEAD
       localFile = await readFileWithinRoot({
         rootDir: trustedLocalFile.rootDir,
         relativePath: trustedLocalFile.relativePath,
+=======
+      const root = await fsRoot(trustedLocalFile.rootDir);
+      localFile = await root.read(trustedLocalFile.relativePath, {
+>>>>>>> upstream/main
         maxBytes: params.maxBytes,
       });
     } catch (err) {

@@ -33,7 +33,11 @@ import {
   type SavedMedia,
   saveMediaBuffer,
 } from "../../media/store.js";
+<<<<<<< HEAD
 import { createChannelReplyPipeline } from "../../plugin-sdk/channel-reply-pipeline.js";
+=======
+import { createChannelMessageReplyPipeline } from "../../plugin-sdk/channel-message.js";
+>>>>>>> upstream/main
 import { isPluginOwnedSessionBindingRecord } from "../../plugins/conversation-binding.js";
 import { normalizeInputProvenance, type InputProvenance } from "../../sessions/input-provenance.js";
 import { resolveSendPolicy } from "../../sessions/send-policy.js";
@@ -110,6 +114,10 @@ import { formatForLog } from "../ws-log.js";
 import { injectTimestamp, timestampOptsFromConfig } from "./agent-timestamp.js";
 import { setGatewayDedupeEntry } from "./agent-wait-dedupe.js";
 import { normalizeRpcAttachmentsToChatAttachments } from "./attachment-normalize.js";
+<<<<<<< HEAD
+=======
+import { normalizeWebchatReplyMediaPathsForDisplay } from "./chat-reply-media.js";
+>>>>>>> upstream/main
 import { appendInjectedAssistantMessageToTranscript } from "./chat-transcript-inject.js";
 import {
   buildWebchatAssistantMessageFromReplyPayloads,
@@ -2194,6 +2202,10 @@ export const chatHandlers: GatewayRequestHandlers = {
         p.thinking && trimmedMessage && !trimmedMessage.startsWith("/"),
       );
       const commandBody = injectThinking ? `/think ${p.thinking} ${parsedMessage}` : parsedMessage;
+<<<<<<< HEAD
+=======
+      const commandSource = trimmedMessage.startsWith("/") ? "text" : undefined;
+>>>>>>> upstream/main
       const messageForAgent = systemProvenanceReceipt
         ? [systemProvenanceReceipt, parsedMessage].filter(Boolean).join("\n\n")
         : parsedMessage;
@@ -2225,6 +2237,10 @@ export const chatHandlers: GatewayRequestHandlers = {
         AccountId: accountId,
         MessageThreadId: messageThreadId,
         ChatType: "direct",
+<<<<<<< HEAD
+=======
+        ...(commandSource ? { CommandSource: commandSource } : {}),
+>>>>>>> upstream/main
         CommandAuthorized: true,
         MessageSid: clientRunId,
         SenderId: clientInfo?.id,
@@ -2247,7 +2263,11 @@ export const chatHandlers: GatewayRequestHandlers = {
         ctx.MediaStaged = true;
       }
 
+<<<<<<< HEAD
       const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
+=======
+      const { onModelSelected, ...replyPipeline } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
         cfg,
         agentId,
         channel: INTERNAL_MESSAGE_CHANNEL,
@@ -2320,7 +2340,20 @@ export const chatHandlers: GatewayRequestHandlers = {
         if (!agentRunStarted || appendedWebchatAgentMedia || !isMediaBearingPayload(payload)) {
           return;
         }
+<<<<<<< HEAD
         const transcriptPayload = stripVisibleTextFromTtsSupplement(payload);
+=======
+        const [transcriptPayload] = await normalizeWebchatReplyMediaPathsForDisplay({
+          cfg,
+          sessionKey,
+          agentId,
+          accountId,
+          payloads: [stripVisibleTextFromTtsSupplement(payload)],
+        });
+        if (!transcriptPayload) {
+          return;
+        }
+>>>>>>> upstream/main
         const { storePath: latestStorePath, entry: latestEntry } = loadSessionEntry(sessionKey);
         const sessionId = latestEntry?.sessionId ?? backingSessionId ?? clientRunId;
         const resolvedTranscriptPath = resolveTranscriptPath({
@@ -2499,11 +2532,25 @@ export const chatHandlers: GatewayRequestHandlers = {
                 sessionKey,
               });
             } else {
+<<<<<<< HEAD
               const finalPayloads = appendedWebchatAgentMedia
+=======
+              const rawFinalPayloads = appendedWebchatAgentMedia
+>>>>>>> upstream/main
                 ? []
                 : deliveredReplies
                     .filter((entry) => entry.kind === "final")
                     .map((entry) => entry.payload);
+<<<<<<< HEAD
+=======
+              const finalPayloads = await normalizeWebchatReplyMediaPathsForDisplay({
+                cfg,
+                sessionKey,
+                agentId,
+                accountId,
+                payloads: rawFinalPayloads,
+              });
+>>>>>>> upstream/main
               const { storePath: latestStorePath, entry: latestEntry } =
                 loadSessionEntry(sessionKey);
               const sessionId = latestEntry?.sessionId ?? backingSessionId ?? clientRunId;

@@ -37,7 +37,11 @@ For Tailscale or public hosts, Android requires a secure endpoint:
 
 ### Prerequisites
 
+<<<<<<< HEAD
 - You can run the Gateway on the “master” machine.
+=======
+- You can run the Gateway on the "master" machine.
+>>>>>>> upstream/main
 - Android device/emulator can reach the gateway WebSocket:
   - Same LAN with mDNS/NSD, **or**
   - Same Tailscale tailnet using Wide-Area Bonjour / unicast DNS-SD (see below), **or**
@@ -84,7 +88,11 @@ service endpoint instead of TXT-only hints.
 
 #### Tailnet (Vienna ⇄ London) discovery via unicast DNS-SD
 
+<<<<<<< HEAD
 Android NSD/mDNS discovery won’t cross networks. If your Android node and the gateway are on different networks but connected via Tailscale, use Wide-Area Bonjour / unicast DNS-SD instead.
+=======
+Android NSD/mDNS discovery won't cross networks. If your Android node and the gateway are on different networks but connected via Tailscale, use Wide-Area Bonjour / unicast DNS-SD instead.
+>>>>>>> upstream/main
 
 Discovery alone is not sufficient for tailnet/public Android pairing. The discovered route still needs a secure endpoint (`wss://` or Tailscale Serve):
 

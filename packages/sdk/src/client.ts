@@ -8,6 +8,11 @@ import type {
   ArtifactsDownloadResult,
   ArtifactsGetResult,
   ArtifactsListResult,
+<<<<<<< HEAD
+=======
+  EnvironmentSummary,
+  EnvironmentsListResult,
+>>>>>>> upstream/main
   GatewayEvent,
   GatewayRequestOptions,
   OpenClawEvent,
@@ -819,9 +824,14 @@ export class EnvironmentsNamespace extends RpcNamespace {
     super(client, "environments");
   }
 
+<<<<<<< HEAD
   async list(params?: unknown): Promise<unknown> {
     void params;
     return unsupportedGatewayApi("oc.environments.list");
+=======
+  async list(params?: unknown): Promise<EnvironmentsListResult> {
+    return await this.call("list", params ?? {});
+>>>>>>> upstream/main
   }
 
   async create(params?: unknown): Promise<unknown> {
@@ -829,9 +839,14 @@ export class EnvironmentsNamespace extends RpcNamespace {
     return unsupportedGatewayApi("oc.environments.create");
   }
 
+<<<<<<< HEAD
   async status(environmentId: string): Promise<unknown> {
     void environmentId;
     return unsupportedGatewayApi("oc.environments.status");
+=======
+  async status(environmentId: string): Promise<EnvironmentSummary> {
+    return await this.call("status", { environmentId });
+>>>>>>> upstream/main
   }
 
   async delete(environmentId: string): Promise<unknown> {

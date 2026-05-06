@@ -3,6 +3,10 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import { normalizeSource } from "../messaging/media-source.js";
+>>>>>>> upstream/main
 import {
   ApiError,
   MediaFileType,
@@ -19,6 +23,15 @@ import type { UploadCacheAdapter } from "./media.js";
 import { UPLOAD_PREPARE_FALLBACK_CODE } from "./retry.js";
 import type { TokenManager } from "./token.js";
 
+<<<<<<< HEAD
+=======
+const fetchWithSsrFGuardMock = vi.hoisted(() => vi.fn());
+
+vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
+  fetchWithSsrFGuard: fetchWithSsrFGuardMock,
+}));
+
+>>>>>>> upstream/main
 // ============ Test doubles ============
 
 /** Build a minimal ApiClient stub whose `request` is fully mockable. */
@@ -81,6 +94,7 @@ const FIXTURE_BUFFER = Buffer.from("0123456789abcdefghij"); // 20 bytes
 let originalFetch: typeof globalThis.fetch;
 
 function stubFetchOk(): ReturnType<typeof vi.fn> {
+<<<<<<< HEAD
   const spy = vi.fn(
     async () =>
       new Response("", {
@@ -93,6 +107,19 @@ function stubFetchOk(): ReturnType<typeof vi.fn> {
   );
   globalThis.fetch = spy as unknown as typeof globalThis.fetch;
   return spy;
+=======
+  fetchWithSsrFGuardMock.mockImplementation(async () => ({
+    response: new Response("", {
+      status: 200,
+      headers: {
+        ETag: '"etag-value"',
+        "x-cos-request-id": "req-id",
+      },
+    }),
+    release: vi.fn(),
+  }));
+  return fetchWithSsrFGuardMock;
+>>>>>>> upstream/main
 }
 
 // ============ Tests ============
@@ -121,6 +148,10 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+<<<<<<< HEAD
+=======
+    fetchWithSsrFGuardMock.mockReset();
+>>>>>>> upstream/main
     vi.restoreAllMocks();
   });
 
@@ -234,7 +265,11 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
 
     // 3 COS PUTs, one per part, each to the presigned URL.
     expect(fetchSpy).toHaveBeenCalledTimes(3);
+<<<<<<< HEAD
     const putUrls = fetchSpy.mock.calls.map((c) => c[0]);
+=======
+    const putUrls = fetchSpy.mock.calls.map((c) => (c[0] as { url: string }).url);
+>>>>>>> upstream/main
     expect(putUrls).toEqual(
       expect.arrayContaining([
         "https://cos.example.com/part-1",
@@ -333,4 +368,54 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
       await fs.promises.rm(tmp, { recursive: true, force: true });
     }
   });
+<<<<<<< HEAD
+=======
+
+  it("uses the verified localPath handle if the path is replaced before chunked upload", async () => {
+    const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), "chunked-verified-"));
+    const filePath = path.join(tmp, "fixture.bin");
+    await fs.promises.writeFile(filePath, FIXTURE_BUFFER);
+    const source = await normalizeSource({ localPath: filePath }, { maxSize: 1_000_000 });
+    await fs.promises.rm(filePath);
+    await fs.promises.writeFile(filePath, Buffer.from("replacement bytes"));
+    try {
+      const client = mockApiClient();
+      const tm = mockTokenManager();
+      stubFetchOk();
+
+      client.request.mockImplementation(async (_t, _m, p) => {
+        if (p.endsWith("/upload_prepare")) {
+          return makePrepareResponse("uid-verified", 3);
+        }
+        if (p.endsWith("/upload_part_finish")) {
+          return {};
+        }
+        if (p.endsWith("/files")) {
+          return { file_uuid: "u", file_info: "fi", ttl: 10 } satisfies UploadMediaResponse;
+        }
+        throw new Error(`unexpected ${p}`);
+      });
+
+      const api = new ChunkedMediaApi(client, tm);
+      await api.uploadChunked({
+        scope: "c2c",
+        targetId: "u1",
+        fileType: MediaFileType.VIDEO,
+        source,
+        creds: { appId: "a", clientSecret: "s" },
+      });
+
+      const prepareCall = client.request.mock.calls.find((c) =>
+        String(c[2]).endsWith("/upload_prepare"),
+      )!;
+      const prepareBody = prepareCall[3] as { md5: string };
+      expect(prepareBody.md5).toBe(crypto.createHash("md5").update(FIXTURE_BUFFER).digest("hex"));
+    } finally {
+      if (source.kind === "localPath") {
+        await source.opened?.close().catch(() => undefined);
+      }
+      await fs.promises.rm(tmp, { recursive: true, force: true });
+    }
+  });
+>>>>>>> upstream/main
 });

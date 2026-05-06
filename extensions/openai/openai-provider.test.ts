@@ -365,7 +365,11 @@ describe("buildOpenAIProvider", () => {
     );
   });
 
+<<<<<<< HEAD
   it("keeps modern live selection on OpenAI 5.2+ and Codex 5.2+", () => {
+=======
+  it("keeps modern live selection on OpenAI 5.2+ and current Codex models", () => {
+>>>>>>> upstream/main
     const provider = buildOpenAIProvider();
     const codexProvider = buildOpenAICodexProviderPlugin();
 
@@ -411,7 +415,11 @@ describe("buildOpenAIProvider", () => {
         provider: "openai-codex",
         modelId: "gpt-5.2-codex",
       } as never),
+<<<<<<< HEAD
     ).toBe(true);
+=======
+    ).toBe(false);
+>>>>>>> upstream/main
     expect(
       codexProvider.isModernModelRef?.({
         provider: "openai-codex",

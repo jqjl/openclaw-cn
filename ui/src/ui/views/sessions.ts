@@ -13,6 +13,10 @@ import type {
   SessionCompactionCheckpoint,
   SessionsListResult,
 } from "../types.ts";
+<<<<<<< HEAD
+=======
+import { resolveAgentRuntimeLabel } from "./agents-utils.ts";
+>>>>>>> upstream/main
 
 export type SessionsProps = {
   loading: boolean;
@@ -178,7 +182,18 @@ function filterRows(
     const label = normalizeLowercaseStringOrEmpty(row.label);
     const kind = normalizeLowercaseStringOrEmpty(row.kind);
     const displayName = normalizeLowercaseStringOrEmpty(row.displayName);
+<<<<<<< HEAD
     if (key.includes(q) || label.includes(q) || kind.includes(q) || displayName.includes(q)) {
+=======
+    const runtime = normalizeLowercaseStringOrEmpty(resolveAgentRuntimeLabel(row.agentRuntime));
+    if (
+      key.includes(q) ||
+      label.includes(q) ||
+      kind.includes(q) ||
+      displayName.includes(q) ||
+      runtime.includes(q)
+    ) {
+>>>>>>> upstream/main
       return true;
     }
     const keyParts = parseSessionKeyParts(row.key);
@@ -257,6 +272,15 @@ function formatCheckpointReason(reason: SessionCompactionCheckpoint["reason"]): 
   }
 }
 
+<<<<<<< HEAD
+=======
+function formatCheckpointCount(count: number): string {
+  return count === 1
+    ? t("sessionsView.checkpoint", { count: String(count) })
+    : t("sessionsView.checkpoints", { count: String(count) });
+}
+
+>>>>>>> upstream/main
 function formatCheckpointDelta(checkpoint: SessionCompactionCheckpoint): string {
   if (
     typeof checkpoint.tokensBefore === "number" &&
@@ -275,6 +299,70 @@ function formatCheckpointDelta(checkpoint: SessionCompactionCheckpoint): string 
   return t("sessionsView.tokenDeltaUnavailable");
 }
 
+<<<<<<< HEAD
+=======
+function formatRuntimeMs(runtimeMs: number | undefined): string | null {
+  if (typeof runtimeMs !== "number" || !Number.isFinite(runtimeMs) || runtimeMs < 0) {
+    return null;
+  }
+  const totalSeconds = Math.round(runtimeMs / 1000);
+  if (totalSeconds < 60) {
+    return `${totalSeconds}s`;
+  }
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  if (minutes < 60) {
+    return seconds > 0 ? `${minutes}m ${seconds}s` : `${minutes}m`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+}
+
+function sessionDetailItems(params: {
+  row: GatewaySessionRow;
+  updated: string;
+  checkpointCount: number;
+}): Array<{ label: string; value: string }> {
+  const { row, updated, checkpointCount } = params;
+  const details: Array<{ label: string; value: string }> = [
+    { label: t("sessionsView.key"), value: row.key },
+    { label: t("sessionsView.kind"), value: row.kind },
+    { label: t("sessionsView.updated"), value: updated },
+    { label: t("sessionsView.tokens"), value: formatSessionTokens(row) },
+    { label: t("sessionsView.compaction"), value: formatCheckpointCount(checkpointCount) },
+  ];
+  const add = (label: string, value: string | null | undefined) => {
+    const normalized = normalizeOptionalString(value);
+    if (normalized) {
+      details.push({ label, value: normalized });
+    }
+  };
+  add(t("sessionsView.status"), row.status);
+  add(t("sessionsView.model"), row.model);
+  add(t("sessionsView.provider"), row.modelProvider);
+  add(t("sessionsView.runtime"), formatRuntimeMs(row.runtimeMs));
+  add(t("sessionsView.surface"), row.surface);
+  add(t("sessionsView.subject"), row.subject);
+  add(t("sessionsView.room"), row.room);
+  add(t("sessionsView.space"), row.space);
+  add(t("sessionsView.sessionId"), row.sessionId);
+  if (typeof row.hasActiveRun === "boolean") {
+    details.push({
+      label: t("sessionsView.activeRun"),
+      value: row.hasActiveRun ? t("common.yes") : t("common.no"),
+    });
+  }
+  if (typeof row.archived === "boolean") {
+    details.push({
+      label: t("sessionsView.archived"),
+      value: row.archived ? t("common.yes") : t("common.no"),
+    });
+  }
+  return details;
+}
+
+>>>>>>> upstream/main
 function isRowControlTarget(target: EventTarget | null): boolean {
   return (
     target instanceof Element &&
@@ -543,9 +631,16 @@ export function renderSessions(props: SessionsProps) {
                 ${sortHeader("key", t("sessionsView.key"), "data-table-key-col")}
                 <th>${t("sessionsView.label")}</th>
                 ${sortHeader("kind", t("sessionsView.kind"))}
+<<<<<<< HEAD
                 ${sortHeader("updated", t("sessionsView.updated"))}
                 ${sortHeader("tokens", t("sessionsView.tokens"))}
                 <th>${t("sessionsView.compaction")}</th>
+=======
+                <th>${t("agents.context.runtime")}</th>
+                ${sortHeader("updated", t("sessionsView.updated"))}
+                ${sortHeader("tokens", t("sessionsView.tokens"))}
+                <th class="session-compaction-col">${t("sessionsView.compaction")}</th>
+>>>>>>> upstream/main
                 <th>${t("sessionsView.thinking")}</th>
                 <th>${t("sessionsView.fast")}</th>
                 <th>${t("sessionsView.verbose")}</th>
@@ -556,7 +651,11 @@ export function renderSessions(props: SessionsProps) {
               ${paginated.length === 0
                 ? html`
                     <tr>
+<<<<<<< HEAD
                       <td colspan="11" class="data-table-empty-cell">
+=======
+                      <td colspan="12" class="data-table-empty-cell">
+>>>>>>> upstream/main
                         ${emptyBecauseFiltered
                           ? html`
                               <div class="data-table-empty-state" role="status" aria-live="polite">
@@ -622,11 +721,24 @@ function renderRows(row: GatewaySessionRow, props: SessionsProps) {
   const reasoningLevels = withCurrentOption(REASONING_LEVELS, reasoning);
   const latestCheckpoint = row.latestCompactionCheckpoint;
   const checkpointCount = row.compactionCheckpointCount ?? 0;
+<<<<<<< HEAD
+=======
+  const visibleCheckpointCount = Math.max(checkpointCount, latestCheckpoint ? 1 : 0);
+>>>>>>> upstream/main
   const hasCheckpoints = checkpointCount > 0 || Boolean(latestCheckpoint);
   const isExpanded = props.expandedCheckpointKey === row.key;
   const checkpointItems = props.checkpointItemsByKey[row.key] ?? [];
   const checkpointError = props.checkpointErrorByKey[row.key];
   const detailsId = `session-checkpoints-${encodeURIComponent(row.key)}`;
+<<<<<<< HEAD
+=======
+  const checkpointLabel = formatCheckpointCount(visibleCheckpointCount);
+  const sessionDetails = sessionDetailItems({
+    row,
+    updated,
+    checkpointCount: visibleCheckpointCount,
+  });
+>>>>>>> upstream/main
   const displayName = normalizeOptionalString(row.displayName) ?? null;
   const trimmedLabel = normalizeOptionalString(row.label) ?? "";
   const showDisplayName = Boolean(
@@ -748,6 +860,7 @@ function renderRows(row: GatewaySessionRow, props: SessionsProps) {
       <td>
         <span class="data-table-badge ${badgeClass}">${row.kind}</span>
       </td>
+<<<<<<< HEAD
       <td>${updated}</td>
       <td class="session-token-cell">${formatSessionTokens(row)}</td>
       <td>
@@ -782,6 +895,34 @@ function renderRows(row: GatewaySessionRow, props: SessionsProps) {
                 </button>
               `
             : nothing}
+=======
+      <td class="session-runtime-cell">
+        <span class="mono">${resolveAgentRuntimeLabel(row.agentRuntime)}</span>
+      </td>
+      <td>${updated}</td>
+      <td class="session-token-cell">${formatSessionTokens(row)}</td>
+      <td class="session-compaction-col">
+        <div class="session-compaction-cell">
+          ${hasCheckpoints
+            ? html`
+                <button
+                  class="session-compaction-trigger"
+                  type="button"
+                  aria-expanded=${String(isExpanded)}
+                  aria-controls=${detailsId}
+                  aria-label=${isExpanded
+                    ? t("sessionsView.hideSessionDetails", { count: checkpointLabel })
+                    : t("sessionsView.showSessionDetails", { count: checkpointLabel })}
+                  @click=${(e: MouseEvent) => {
+                    e.stopPropagation();
+                    activateCheckpointDetails();
+                  }}
+                >
+                  <span class="session-compaction-count">${checkpointLabel}</span>
+                </button>
+              `
+            : html`<span class="muted session-compaction-count">${t("common.none")}</span>`}
+>>>>>>> upstream/main
         </div>
       </td>
       <td>
@@ -858,6 +999,7 @@ function renderRows(row: GatewaySessionRow, props: SessionsProps) {
     ...(isExpanded && hasCheckpoints
       ? [
           html`<tr id=${detailsId} class="session-checkpoint-details-row">
+<<<<<<< HEAD
             <td colspan="11" style="padding: 0;">
               <div
                 style="padding: 14px 16px; border-top: 1px solid var(--border); background: var(--surface-2, rgba(127, 127, 127, 0.05));"
@@ -919,6 +1061,110 @@ function renderRows(row: GatewaySessionRow, props: SessionsProps) {
                             )}
                           </div>
                         `}
+=======
+            <td colspan="12">
+              <div class="session-details-panel">
+                <div class="session-details-panel__hero">
+                  <div>
+                    <div class="session-details-panel__eyebrow">
+                      ${t("sessionsView.sessionDetails")}
+                    </div>
+                    <div class="session-details-panel__title">${friendlyKeyLabel ?? row.key}</div>
+                    ${showDisplayName
+                      ? html`
+                          <div class="muted session-details-panel__subtitle">${displayName}</div>
+                        `
+                      : nothing}
+                  </div>
+                  <span class="data-table-badge ${badgeClass}">${row.kind}</span>
+                </div>
+
+                <div class="session-details-grid">
+                  ${sessionDetails.map(
+                    (item) => html`
+                      <div class="session-detail-stat">
+                        <div class="session-detail-stat__label">${item.label}</div>
+                        <div class="session-detail-stat__value" title=${item.value}>
+                          ${item.value}
+                        </div>
+                      </div>
+                    `,
+                  )}
+                </div>
+
+                <div class="session-details-section">
+                  <div class="session-details-section__header">
+                    <div>
+                      <div class="session-details-panel__eyebrow">
+                        ${t("sessionsView.compactionHistory")}
+                      </div>
+                      <div class="session-details-section__title">${checkpointLabel}</div>
+                    </div>
+                  </div>
+                  ${props.checkpointLoadingKey === row.key
+                    ? html`<div class="muted session-details-empty">
+                        ${t("sessionsView.loadingCheckpoints")}
+                      </div>`
+                    : checkpointError
+                      ? html`<div class="callout danger">${checkpointError}</div>`
+                      : checkpointItems.length === 0
+                        ? html`<div class="muted session-details-empty">
+                            ${t("sessionsView.noCheckpoints")}
+                          </div>`
+                        : html`
+                            <div class="session-checkpoint-list">
+                              ${checkpointItems.map(
+                                (checkpoint) => html`
+                                  <div class="session-checkpoint-card">
+                                    <div class="session-checkpoint-card__header">
+                                      <strong>
+                                        ${formatCheckpointReason(checkpoint.reason)} ·
+                                        ${formatRelativeTimestamp(checkpoint.createdAt)}
+                                      </strong>
+                                      <span class="muted session-checkpoint-card__delta">
+                                        ${formatCheckpointDelta(checkpoint)}
+                                      </span>
+                                    </div>
+                                    ${checkpoint.summary
+                                      ? html`<div class="session-checkpoint-card__summary">
+                                          ${checkpoint.summary}
+                                        </div>`
+                                      : html`
+                                          <div class="muted">${t("sessionsView.noSummary")}</div>
+                                        `}
+                                    <div class="session-checkpoint-card__actions">
+                                      <button
+                                        class="btn btn--sm"
+                                        ?disabled=${props.checkpointBusyKey ===
+                                        checkpoint.checkpointId}
+                                        @click=${() =>
+                                          props.onBranchFromCheckpoint(
+                                            row.key,
+                                            checkpoint.checkpointId,
+                                          )}
+                                      >
+                                        ${t("sessionsView.branchFromCheckpoint")}
+                                      </button>
+                                      <button
+                                        class="btn btn--sm"
+                                        ?disabled=${props.checkpointBusyKey ===
+                                        checkpoint.checkpointId}
+                                        @click=${() =>
+                                          props.onRestoreCheckpoint(
+                                            row.key,
+                                            checkpoint.checkpointId,
+                                          )}
+                                      >
+                                        ${t("sessionsView.restoreCheckpoint")}
+                                      </button>
+                                    </div>
+                                  </div>
+                                `,
+                              )}
+                            </div>
+                          `}
+                </div>
+>>>>>>> upstream/main
               </div>
             </td>
           </tr>`,

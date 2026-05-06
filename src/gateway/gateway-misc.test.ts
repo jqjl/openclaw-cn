@@ -8,6 +8,14 @@ import {
   resetDiagnosticEventsForTest,
   type DiagnosticEventPayload,
 } from "../infra/diagnostic-events.js";
+<<<<<<< HEAD
+=======
+import {
+  _resetActiveManagedProxyStateForTests,
+  registerActiveManagedProxyUrl,
+  stopActiveManagedProxyRegistration,
+} from "../infra/net/proxy/active-proxy-state.js";
+>>>>>>> upstream/main
 import { defaultVoiceWakeTriggers } from "../infra/voicewake.js";
 import { handleControlUiHttpRequest } from "./control-ui.js";
 import {
@@ -35,7 +43,17 @@ function makeControlUiResponse() {
 }
 
 const wsMockState = vi.hoisted(() => ({
+<<<<<<< HEAD
   last: null as { url: unknown; opts: unknown } | null,
+=======
+  last: null as {
+    url: unknown;
+    opts: unknown;
+    noProxyDuringConstruction: unknown;
+    httpProxyDuringConstruction: unknown;
+    httpsProxyDuringConstruction: unknown;
+  } | null,
+>>>>>>> upstream/main
 }));
 
 vi.mock("ws", () => ({
@@ -45,7 +63,27 @@ vi.mock("ws", () => ({
     send = vi.fn();
 
     constructor(url: unknown, opts: unknown) {
+<<<<<<< HEAD
       wsMockState.last = { url, opts };
+=======
+      const agent = (global as Record<string, unknown>)["GLOBAL_AGENT"];
+      wsMockState.last = {
+        url,
+        opts,
+        noProxyDuringConstruction:
+          typeof agent === "object" && agent !== null
+            ? (agent as Record<string, unknown>)["NO_PROXY"]
+            : undefined,
+        httpProxyDuringConstruction:
+          typeof agent === "object" && agent !== null
+            ? (agent as Record<string, unknown>)["HTTP_PROXY"]
+            : undefined,
+        httpsProxyDuringConstruction:
+          typeof agent === "object" && agent !== null
+            ? (agent as Record<string, unknown>)["HTTPS_PROXY"]
+            : undefined,
+      };
+>>>>>>> upstream/main
     }
   },
 }));
@@ -59,6 +97,11 @@ describe("GatewayClient", () => {
 
   beforeEach(() => {
     wsMockState.last = null;
+<<<<<<< HEAD
+=======
+    _resetActiveManagedProxyStateForTests();
+    delete (global as Record<string, unknown>)["GLOBAL_AGENT"];
+>>>>>>> upstream/main
   });
 
   async function withControlUiRoot(
@@ -86,11 +129,16 @@ describe("GatewayClient", () => {
     expect(last?.opts).toEqual(expect.objectContaining({ maxPayload: 25 * 1024 * 1024 }));
   });
 
+<<<<<<< HEAD
   test("uses an explicit direct agent for control-plane WebSocket connections", () => {
+=======
+  test("does not pass an explicit direct agent for loopback control-plane WebSocket connections", () => {
+>>>>>>> upstream/main
     const client = new GatewayClient({ url: "ws://127.0.0.1:1" });
     client.start();
     const last = wsMockState.last as { opts: { agent?: unknown } } | null;
 
+<<<<<<< HEAD
     expect(last?.opts.agent).toBeDefined();
     expect(last?.opts.agent).not.toBe(
       (global as unknown as { GLOBAL_AGENT?: { HTTP_PROXY?: unknown } }).GLOBAL_AGENT,
@@ -98,19 +146,36 @@ describe("GatewayClient", () => {
   });
 
   test("uses an explicit direct agent for IPv6 loopback control-plane WebSocket connections", () => {
+=======
+    expect(last?.opts.agent).toBeUndefined();
+  });
+
+  test("does not pass an explicit direct agent for IPv6 loopback control-plane WebSocket connections", () => {
+>>>>>>> upstream/main
     const client = new GatewayClient({ url: "ws://[::1]:1" });
     client.start();
     const last = wsMockState.last as { opts: { agent?: unknown } } | null;
 
+<<<<<<< HEAD
     expect(last?.opts.agent).toBeDefined();
   });
 
   test("uses the direct control-plane bypass for localhost hostnames", () => {
+=======
+    expect(last?.opts.agent).toBeUndefined();
+  });
+
+  test("does not pass an explicit direct agent for localhost hostnames", () => {
+>>>>>>> upstream/main
     const client = new GatewayClient({ url: "ws://localhost:1" });
     client.start();
     const last = wsMockState.last as { opts: { agent?: unknown } } | null;
 
+<<<<<<< HEAD
     expect(last?.opts.agent).toBeDefined();
+=======
+    expect(last?.opts.agent).toBeUndefined();
+>>>>>>> upstream/main
   });
 
   test("does not force a direct agent for remote Gateway WebSocket connections", () => {
@@ -124,6 +189,63 @@ describe("GatewayClient", () => {
     expect(last?.opts.agent).toBeUndefined();
   });
 
+<<<<<<< HEAD
+=======
+  test("scopes Gateway loopback NO_PROXY to WebSocket construction", () => {
+    const agent = { NO_PROXY: "corp.example.com" };
+    (global as Record<string, unknown>)["GLOBAL_AGENT"] = agent;
+    const registration = registerActiveManagedProxyUrl(
+      new URL("http://127.0.0.1:3128"),
+      "gateway-only",
+    );
+
+    try {
+      const client = new GatewayClient({ url: "ws://127.0.0.1:18789" });
+      client.start();
+      const last = wsMockState.last as { noProxyDuringConstruction: unknown } | null;
+
+      expect(last?.noProxyDuringConstruction).toBe("corp.example.com,127.0.0.1:18789");
+      expect(agent.NO_PROXY).toBe("corp.example.com");
+    } finally {
+      stopActiveManagedProxyRegistration(registration);
+      delete (global as Record<string, unknown>)["GLOBAL_AGENT"];
+    }
+  });
+
+  test("uses a scoped direct construction path for IPv6 loopback in Gateway-only proxy mode", () => {
+    const agent = {
+      NO_PROXY: "corp.example.com",
+      HTTP_PROXY: "http://127.0.0.1:3128",
+      HTTPS_PROXY: "http://127.0.0.1:3128",
+    };
+    (global as Record<string, unknown>)["GLOBAL_AGENT"] = agent;
+    const registration = registerActiveManagedProxyUrl(
+      new URL("http://127.0.0.1:3128"),
+      "gateway-only",
+    );
+
+    try {
+      const client = new GatewayClient({ url: "ws://[::1]:18789" });
+      client.start();
+      const last = wsMockState.last as {
+        noProxyDuringConstruction: unknown;
+        httpProxyDuringConstruction: unknown;
+        httpsProxyDuringConstruction: unknown;
+      } | null;
+
+      expect(last?.noProxyDuringConstruction).toBe("corp.example.com,[::1]:18789");
+      expect(last?.httpProxyDuringConstruction).toBeNull();
+      expect(last?.httpsProxyDuringConstruction).toBeNull();
+      expect(agent.NO_PROXY).toBe("corp.example.com");
+      expect(agent.HTTP_PROXY).toBe("http://127.0.0.1:3128");
+      expect(agent.HTTPS_PROXY).toBe("http://127.0.0.1:3128");
+    } finally {
+      stopActiveManagedProxyRegistration(registration);
+      delete (global as Record<string, unknown>)["GLOBAL_AGENT"];
+    }
+  });
+
+>>>>>>> upstream/main
   it("returns 404 for missing static asset paths instead of SPA fallback", async () => {
     await withControlUiRoot({ faviconSvg: "<svg/>" }, async (tmp) => {
       const { res } = makeControlUiResponse();
@@ -322,7 +444,12 @@ describe("gateway broadcaster", () => {
     expect(readSocket.send).toHaveBeenCalledTimes(0);
 
     broadcastToConnIds("tick", { ts: 1 }, new Set(["c-read"]));
+<<<<<<< HEAD
     expect(readSocket.send).toHaveBeenCalledTimes(1);
+=======
+    broadcastToConnIds("talk.event", { type: "session.ready" }, new Set(["c-read"]));
+    expect(readSocket.send).toHaveBeenCalledTimes(2);
+>>>>>>> upstream/main
     expect(approvalsSocket.send).toHaveBeenCalledTimes(1);
     expect(pairingSocket.send).toHaveBeenCalledTimes(1);
   });

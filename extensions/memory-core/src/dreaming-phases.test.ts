@@ -2586,6 +2586,7 @@ describe("memory-core dreaming phases", () => {
     expect(after1).toHaveLength(1);
     expect(after1[0]?.dailyCount).toBe(1);
 
+<<<<<<< HEAD
     // Clear the daily ingestion checkpoint so the file is re-read on the second
     // sweep (simulating a new day where the same lookback window still covers
     // this file).
@@ -2597,6 +2598,8 @@ describe("memory-core dreaming phases", () => {
     }
 
     // Second ingestion on 2026-04-06 (next day).
+=======
+>>>>>>> upstream/main
     const day2Ms = Date.parse("2026-04-06T10:00:00.000Z");
     const { beforeAgentReply: reply2 } = createHarness(configForTest, workspaceDir);
     await withDreamingTestClock(async () => {
@@ -2615,8 +2618,11 @@ describe("memory-core dreaming phases", () => {
       nowMs: day2Ms,
     });
     expect(after2).toHaveLength(1);
+<<<<<<< HEAD
     // With the fix, dailyCount should be 2 because the ingestion date changed.
     // Before the fix, it stayed at 1 because dayBucket was the file date.
+=======
+>>>>>>> upstream/main
     expect(after2[0]?.dailyCount).toBe(2);
   });
 });

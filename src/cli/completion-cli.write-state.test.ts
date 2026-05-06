@@ -97,7 +97,13 @@ describe("completion-cli write-state", () => {
     expect(await fs.readdir(cacheDir)).toEqual(
       expect.arrayContaining(["openclaw.bash", "openclaw.fish", "openclaw.ps1", "openclaw.zsh"]),
     );
+<<<<<<< HEAD
     expect(registerSubCliByNameMock).toHaveBeenCalledWith(program, "qa");
+=======
+    expect(registerSubCliByNameMock).toHaveBeenCalledWith(program, "qa", expect.any(Array), {
+      purpose: "completion",
+    });
+>>>>>>> upstream/main
     expect(registerPluginCliCommandsFromValidatedConfigMock).toHaveBeenCalledTimes(1);
     expect(stderrWrites).toHaveBeenCalledWith(
       expect.stringContaining("skipping subcommand `qa` while building completion cache"),
@@ -126,7 +132,13 @@ describe("completion-cli write-state", () => {
 
       await program.parseAsync(["completion", "--write-state"], { from: "user" });
 
+<<<<<<< HEAD
       expect(registerSubCliByNameMock).toHaveBeenCalledWith(program, "qa");
+=======
+      expect(registerSubCliByNameMock).toHaveBeenCalledWith(program, "qa", expect.any(Array), {
+        purpose: "completion",
+      });
+>>>>>>> upstream/main
       expect(registerPluginCliCommandsFromValidatedConfigMock).not.toHaveBeenCalled();
       expect(await fs.readdir(path.join(stateDir, "completions"))).toEqual(
         expect.arrayContaining(["openclaw.bash", "openclaw.fish", "openclaw.ps1", "openclaw.zsh"]),

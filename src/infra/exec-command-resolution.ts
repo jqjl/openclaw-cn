@@ -359,6 +359,7 @@ export function matchAllowlist(
     return null;
   }
   const resolvedPath = resolution.resolvedPath;
+<<<<<<< HEAD
   // argPattern matching is currently Windows-only.  On other platforms every
   // path-matched entry is treated as a match regardless of argPattern, which
   // preserves the pre-existing behaviour.
@@ -366,6 +367,8 @@ export function matchAllowlist(
   // a Linux gateway evaluating a Windows node command applies argPattern correctly.
   const effectivePlatform = platform ?? process.platform;
   const useArgPattern = normalizeLowercaseStringOrEmpty(effectivePlatform).startsWith("win");
+=======
+>>>>>>> upstream/main
   let pathOnlyMatch: ExecAllowlistEntry | null = null;
   for (const entry of entries) {
     const pattern = entry.pattern?.trim();
@@ -378,10 +381,13 @@ export function matchAllowlist(
     if (!patternMatches) {
       continue;
     }
+<<<<<<< HEAD
     if (!useArgPattern) {
       // Non-Windows: first path match wins (legacy behaviour).
       return entry;
     }
+=======
+>>>>>>> upstream/main
     if (!entry.argPattern) {
       if (!pathOnlyMatch) {
         pathOnlyMatch = entry;

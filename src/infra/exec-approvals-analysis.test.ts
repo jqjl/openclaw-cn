@@ -881,12 +881,15 @@ describe("windowsEscapeArg", () => {
 });
 
 describe("matchAllowlist with argPattern", () => {
+<<<<<<< HEAD
   // argPattern matching is Windows-only; skip this suite on other platforms.
   if (process.platform !== "win32") {
     it.skip("argPattern tests are Windows-only", () => {});
     return;
   }
 
+=======
+>>>>>>> upstream/main
   const resolution = {
     rawExecutable: "python3",
     resolvedPath: "/usr/bin/python3",
@@ -907,6 +910,7 @@ describe("matchAllowlist with argPattern", () => {
     expect(matchAllowlist(entries, resolution, ["python3", "a.py", "--verbose"])).toBeNull();
   });
 
+<<<<<<< HEAD
   it("prefers argPattern match over path-only match", () => {
     const entries: ExecAllowlistEntry[] = [
       { pattern: "/usr/bin/python3" },
@@ -926,6 +930,59 @@ describe("matchAllowlist with argPattern", () => {
     expect(match).toBeTruthy();
     expect(match!.argPattern).toBeUndefined();
   });
+=======
+  it.each(["linux", "darwin"])("enforces argPattern on %s", (platform) => {
+    const entries: ExecAllowlistEntry[] = [
+      { pattern: "/usr/bin/python3", argPattern: "^safe\\.py$" },
+    ];
+    expect(matchAllowlist(entries, resolution, ["python3", "safe.py"], platform)).toBeTruthy();
+    expect(matchAllowlist(entries, resolution, ["python3", "-c", "print(1)"], platform)).toBeNull();
+  });
+
+  it.each(["linux", "darwin", "win32"])(
+    "prefers argPattern match over path-only match on %s",
+    (platform) => {
+      const entries: ExecAllowlistEntry[] = [
+        { pattern: "/usr/bin/python3" },
+        { pattern: "/usr/bin/python3", argPattern: "^a\\.py$" },
+      ];
+      const match = matchAllowlist(entries, resolution, ["python3", "a.py"], platform);
+      expect(match).toBeTruthy();
+      expect(match!.argPattern).toBe("^a\\.py$");
+    },
+  );
+
+  it.each(["linux", "darwin", "win32"])(
+    "falls back to path-only match when argPattern does not match on %s",
+    (platform) => {
+      const entries: ExecAllowlistEntry[] = [
+        { pattern: "/usr/bin/python3" },
+        { pattern: "/usr/bin/python3", argPattern: "^a\\.py$" },
+      ];
+      const match = matchAllowlist(entries, resolution, ["python3", "b.py"], platform);
+      expect(match).toBeTruthy();
+      expect(match!.argPattern).toBeUndefined();
+    },
+  );
+
+  it.each(["linux", "darwin", "win32"])(
+    "requires argv before matching argPattern entries on %s",
+    (platform) => {
+      const restrictedEntries: ExecAllowlistEntry[] = [
+        { pattern: "/usr/bin/python3", argPattern: "^a\\.py$" },
+      ];
+      expect(matchAllowlist(restrictedEntries, resolution, undefined, platform)).toBeNull();
+
+      const mixedEntries: ExecAllowlistEntry[] = [
+        { pattern: "/usr/bin/python3", argPattern: "^a\\.py$" },
+        { pattern: "/usr/bin/python3" },
+      ];
+      const fallback = matchAllowlist(mixedEntries, resolution, undefined, platform);
+      expect(fallback).toBeTruthy();
+      expect(fallback!.argPattern).toBeUndefined();
+    },
+  );
+>>>>>>> upstream/main
 
   it("handles invalid regex gracefully", () => {
     const entries: ExecAllowlistEntry[] = [{ pattern: "/usr/bin/python3", argPattern: "[invalid" }];

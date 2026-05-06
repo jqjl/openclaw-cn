@@ -13,6 +13,10 @@ import {
 import { resolveGlobalMap } from "openclaw/plugin-sdk/global-singleton";
 import { resolveStateDir } from "openclaw/plugin-sdk/memory-core-host-runtime-core";
 import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
+<<<<<<< HEAD
+=======
+import { pathExists, replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   loadSessionStore,
   resolveStorePath,
@@ -488,6 +492,7 @@ async function assertSafeDreamsPath(dreamsPath: string): Promise<void> {
 
 async function writeDreamsFileAtomic(dreamsPath: string, content: string): Promise<void> {
   await assertSafeDreamsPath(dreamsPath);
+<<<<<<< HEAD
   const existing = await fs.stat(dreamsPath).catch((err: NodeJS.ErrnoException) => {
     if (err.code === "ENOENT") {
       return null;
@@ -511,6 +516,16 @@ async function writeDreamsFileAtomic(dreamsPath: string, content: string): Promi
     }
     throw err;
   }
+=======
+  await replaceFileAtomic({
+    filePath: dreamsPath,
+    content,
+    mode: 0o600,
+    preserveExistingMode: true,
+    tempPrefix: `${path.basename(dreamsPath)}.dreams`,
+    throwOnCleanupError: true,
+  });
+>>>>>>> upstream/main
 }
 
 async function updateDreamsFile<T>(params: {
@@ -710,6 +725,7 @@ export async function appendNarrativeEntry(params: {
 
 // ── Orchestrator ───────────────────────────────────────────────────────
 
+<<<<<<< HEAD
 async function safePathExists(pathname: string): Promise<boolean> {
   try {
     await fs.stat(pathname);
@@ -719,6 +735,8 @@ async function safePathExists(pathname: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 function normalizeComparablePath(pathname: string): string {
   return process.platform === "win32" ? pathname.toLowerCase() : pathname;
 }
@@ -814,7 +832,11 @@ async function scrubDreamingNarrativeArtifacts(logger: Logger): Promise<void> {
       if (!isDreamingSessionStoreKey(key)) {
         continue;
       }
+<<<<<<< HEAD
       if (!normalizedSessionFile || !(await safePathExists(normalizedSessionFile))) {
+=======
+      if (!normalizedSessionFile || !(await pathExists(normalizedSessionFile))) {
+>>>>>>> upstream/main
         needsStoreUpdate = true;
       }
     }
@@ -834,7 +856,11 @@ async function scrubDreamingNarrativeArtifacts(logger: Logger): Promise<void> {
           if (!isDreamingSessionStoreKey(key)) {
             continue;
           }
+<<<<<<< HEAD
           if (!normalizedSessionFile || !(await safePathExists(normalizedSessionFile))) {
+=======
+          if (!normalizedSessionFile || !(await pathExists(normalizedSessionFile))) {
+>>>>>>> upstream/main
             delete lockedStore[key];
             prunedForAgent += 1;
           }

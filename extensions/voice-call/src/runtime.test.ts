@@ -20,8 +20,12 @@ const mocks = vi.hoisted(() => ({
   realtimeHandlerRegisterToolHandler: vi.fn(),
   realtimeHandlerSetPublicUrl: vi.fn(),
   resolveConfiguredRealtimeVoiceProvider: vi.fn(),
+<<<<<<< HEAD
   getActiveMemorySearchManager: vi.fn(),
   memorySearch: vi.fn(),
+=======
+  resolveRealtimeFastContextConsult: vi.fn(),
+>>>>>>> upstream/main
   startTunnel: vi.fn(),
   setupTailscaleExposure: vi.fn(),
   cleanupTailscaleExposure: vi.fn(),
@@ -74,6 +78,13 @@ vi.mock("./realtime-voice.runtime.js", () => ({
   resolveConfiguredRealtimeVoiceProvider: mocks.resolveConfiguredRealtimeVoiceProvider,
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("./realtime-fast-context.js", () => ({
+  resolveRealtimeFastContextConsult: mocks.resolveRealtimeFastContextConsult,
+}));
+
+>>>>>>> upstream/main
 vi.mock("./webhook/realtime-handler.js", () => ({
   RealtimeCallHandler: class {
     constructor(...args: unknown[]) {
@@ -84,10 +95,13 @@ vi.mock("./webhook/realtime-handler.js", () => ({
   },
 }));
 
+<<<<<<< HEAD
 vi.mock("openclaw/plugin-sdk/memory-host-search", () => ({
   getActiveMemorySearchManager: mocks.getActiveMemorySearchManager,
 }));
 
+=======
+>>>>>>> upstream/main
 vi.mock("./tunnel.js", () => ({
   startTunnel: mocks.startTunnel,
 }));
@@ -155,6 +169,7 @@ describe("createVoiceCallRuntime lifecycle", () => {
       provider: { id: "openai" },
       providerConfig: { model: "gpt-realtime" },
     });
+<<<<<<< HEAD
     mocks.getActiveMemorySearchManager.mockReset();
     mocks.memorySearch.mockReset();
     mocks.getActiveMemorySearchManager.mockResolvedValue({
@@ -163,6 +178,10 @@ describe("createVoiceCallRuntime lifecycle", () => {
       },
     });
     mocks.memorySearch.mockResolvedValue([]);
+=======
+    mocks.resolveRealtimeFastContextConsult.mockReset();
+    mocks.resolveRealtimeFastContextConsult.mockResolvedValue({ handled: false });
+>>>>>>> upstream/main
     mocks.startTunnel.mockResolvedValue(null);
     mocks.setupTailscaleExposure.mockResolvedValue(null);
     mocks.cleanupTailscaleExposure.mockResolvedValue(undefined);
@@ -347,6 +366,10 @@ describe("createVoiceCallRuntime lifecycle", () => {
       direction: "outbound",
       from: "+15550001234",
       to: "+15550009999",
+<<<<<<< HEAD
+=======
+      metadata: { requesterSessionKey: "agent:main:discord:channel:general" },
+>>>>>>> upstream/main
       transcript: [{ speaker: "user", text: "Can you check shipment status?" }],
     });
 
@@ -384,6 +407,10 @@ describe("createVoiceCallRuntime lifecycle", () => {
     expect(runEmbeddedPiAgent).toHaveBeenCalledWith(
       expect.objectContaining({
         sessionKey: "voice:15550009999",
+<<<<<<< HEAD
+=======
+        spawnedBy: "agent:main:discord:channel:general",
+>>>>>>> upstream/main
         messageProvider: "voice",
         lane: "voice",
         provider: "openai",
@@ -497,6 +524,7 @@ describe("createVoiceCallRuntime lifecycle", () => {
       to: "+15550009999",
       transcript: [],
     });
+<<<<<<< HEAD
     mocks.memorySearch.mockResolvedValue([
       {
         source: "memory",
@@ -507,6 +535,14 @@ describe("createVoiceCallRuntime lifecycle", () => {
         snippet: "The caller's basement lights are on.",
       },
     ]);
+=======
+    mocks.resolveRealtimeFastContextConsult.mockResolvedValue({
+      handled: true,
+      result: {
+        text: "Fast OpenClaw memory or session context found.\nThe caller's basement lights are on.",
+      },
+    });
+>>>>>>> upstream/main
 
     await createVoiceCallRuntime({
       config,
@@ -526,10 +562,26 @@ describe("createVoiceCallRuntime lifecycle", () => {
         text: expect.stringContaining("The caller's basement lights are on."),
       },
     );
+<<<<<<< HEAD
     expect(mocks.memorySearch).toHaveBeenCalledWith("Are the basement lights on?", {
       maxResults: 2,
       sessionKey: "voice:15550001234",
       sources: ["memory"],
+=======
+    expect(mocks.resolveRealtimeFastContextConsult).toHaveBeenCalledWith({
+      cfg: {},
+      agentId: "main",
+      args: { question: "Are the basement lights on?" },
+      config: {
+        enabled: true,
+        fallbackToConsult: false,
+        maxResults: 2,
+        sources: ["memory"],
+        timeoutMs: 800,
+      },
+      logger: expect.any(Object),
+      sessionKey: "voice:15550001234",
+>>>>>>> upstream/main
     });
     expect(runEmbeddedPiAgent).not.toHaveBeenCalled();
   });

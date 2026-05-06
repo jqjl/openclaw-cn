@@ -35,9 +35,26 @@ const shards = [
   },
 ];
 
+<<<<<<< HEAD
 const results = await Promise.all(shards.map((shard) => runShard(shard)));
 process.exitCode = results.find((status) => status !== 0) ?? 0;
 
+=======
+const runSerial = process.env.OPENCLAW_OXLINT_SHARDS_SERIAL === "1";
+const results = runSerial
+  ? await runShardsSerial(shards)
+  : await Promise.all(shards.map((shard) => runShard(shard)));
+process.exitCode = results.find((status) => status !== 0) ?? 0;
+
+async function runShardsSerial(entries) {
+  const results = [];
+  for (const shard of entries) {
+    results.push(await runShard(shard));
+  }
+  return results;
+}
+
+>>>>>>> upstream/main
 async function runShard(shard) {
   console.error(`[oxlint:${shard.name}] starting`);
   const child = spawn(process.execPath, [runner, ...shard.args, ...extraArgs], {

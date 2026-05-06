@@ -65,6 +65,7 @@ import {
   ChannelsStartParamsSchema,
   ChannelsStopParamsSchema,
   ChannelsLogoutParamsSchema,
+<<<<<<< HEAD
   TalkConfigParamsSchema,
   TalkConfigResultSchema,
   TalkRealtimeRelayAudioParamsSchema,
@@ -74,6 +75,29 @@ import {
   TalkRealtimeRelayToolResultParamsSchema,
   TalkRealtimeSessionParamsSchema,
   TalkRealtimeSessionResultSchema,
+=======
+  TalkEventSchema,
+  TalkCatalogParamsSchema,
+  TalkCatalogResultSchema,
+  TalkClientCreateParamsSchema,
+  TalkClientCreateResultSchema,
+  TalkClientToolCallParamsSchema,
+  TalkClientToolCallResultSchema,
+  TalkConfigParamsSchema,
+  TalkConfigResultSchema,
+  TalkSessionAppendAudioParamsSchema,
+  TalkSessionCancelOutputParamsSchema,
+  TalkSessionCancelTurnParamsSchema,
+  TalkSessionCloseParamsSchema,
+  TalkSessionCreateParamsSchema,
+  TalkSessionCreateResultSchema,
+  TalkSessionJoinParamsSchema,
+  TalkSessionJoinResultSchema,
+  TalkSessionOkResultSchema,
+  TalkSessionSubmitToolResultParamsSchema,
+  TalkSessionTurnResultSchema,
+  TalkSessionTurnParamsSchema,
+>>>>>>> upstream/main
   TalkSpeakParamsSchema,
   TalkSpeakResultSchema,
   ChannelsStatusParamsSchema,
@@ -121,6 +145,17 @@ import {
   DeviceTokenRotateParamsSchema,
 } from "./devices.js";
 import {
+<<<<<<< HEAD
+=======
+  EnvironmentSummarySchema,
+  EnvironmentsListParamsSchema,
+  EnvironmentsListResultSchema,
+  EnvironmentsStatusParamsSchema,
+  EnvironmentsStatusResultSchema,
+  EnvironmentStatusSchema,
+} from "./environments.js";
+import {
+>>>>>>> upstream/main
   ExecApprovalsGetParamsSchema,
   ExecApprovalsNodeGetParamsSchema,
   ExecApprovalsNodeSetParamsSchema,
@@ -240,6 +275,15 @@ export const ProtocolSchemas = {
   StateVersion: StateVersionSchema,
   Snapshot: SnapshotSchema,
   ErrorShape: ErrorShapeSchema,
+<<<<<<< HEAD
+=======
+  EnvironmentStatus: EnvironmentStatusSchema,
+  EnvironmentSummary: EnvironmentSummarySchema,
+  EnvironmentsListParams: EnvironmentsListParamsSchema,
+  EnvironmentsListResult: EnvironmentsListResultSchema,
+  EnvironmentsStatusParams: EnvironmentsStatusParamsSchema,
+  EnvironmentsStatusResult: EnvironmentsStatusResultSchema,
+>>>>>>> upstream/main
   AgentEvent: AgentEventSchema,
   MessageActionParams: MessageActionParamsSchema,
   SendParams: SendParamsSchema,
@@ -319,6 +363,7 @@ export const ProtocolSchemas = {
   WizardStartResult: WizardStartResultSchema,
   WizardStatusResult: WizardStatusResultSchema,
   TalkModeParams: TalkModeParamsSchema,
+<<<<<<< HEAD
   TalkConfigParams: TalkConfigParamsSchema,
   TalkConfigResult: TalkConfigResultSchema,
   TalkRealtimeSessionParams: TalkRealtimeSessionParamsSchema,
@@ -328,6 +373,29 @@ export const ProtocolSchemas = {
   TalkRealtimeRelayStopParams: TalkRealtimeRelayStopParamsSchema,
   TalkRealtimeRelayToolResultParams: TalkRealtimeRelayToolResultParamsSchema,
   TalkRealtimeRelayOkResult: TalkRealtimeRelayOkResultSchema,
+=======
+  TalkEvent: TalkEventSchema,
+  TalkCatalogParams: TalkCatalogParamsSchema,
+  TalkCatalogResult: TalkCatalogResultSchema,
+  TalkClientCreateParams: TalkClientCreateParamsSchema,
+  TalkClientCreateResult: TalkClientCreateResultSchema,
+  TalkClientToolCallParams: TalkClientToolCallParamsSchema,
+  TalkClientToolCallResult: TalkClientToolCallResultSchema,
+  TalkConfigParams: TalkConfigParamsSchema,
+  TalkConfigResult: TalkConfigResultSchema,
+  TalkSessionAppendAudioParams: TalkSessionAppendAudioParamsSchema,
+  TalkSessionCancelOutputParams: TalkSessionCancelOutputParamsSchema,
+  TalkSessionCancelTurnParams: TalkSessionCancelTurnParamsSchema,
+  TalkSessionCreateParams: TalkSessionCreateParamsSchema,
+  TalkSessionCreateResult: TalkSessionCreateResultSchema,
+  TalkSessionJoinParams: TalkSessionJoinParamsSchema,
+  TalkSessionJoinResult: TalkSessionJoinResultSchema,
+  TalkSessionTurnParams: TalkSessionTurnParamsSchema,
+  TalkSessionTurnResult: TalkSessionTurnResultSchema,
+  TalkSessionSubmitToolResultParams: TalkSessionSubmitToolResultParamsSchema,
+  TalkSessionCloseParams: TalkSessionCloseParamsSchema,
+  TalkSessionOkResult: TalkSessionOkResultSchema,
+>>>>>>> upstream/main
   TalkSpeakParams: TalkSpeakParamsSchema,
   TalkSpeakResult: TalkSpeakResultSchema,
   ChannelsStatusParams: ChannelsStatusParamsSchema,

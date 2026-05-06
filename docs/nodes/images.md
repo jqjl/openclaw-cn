@@ -51,7 +51,11 @@ The WhatsApp channel runs via **Baileys Web**. This document captures the curren
   - If the active primary image model already supports vision natively, OpenClaw skips the `[Image]` summary block and passes the original image to the model instead.
 - By default only the first matching image/audio/video attachment is processed; set `tools.media.<cap>.attachments` to process multiple attachments.
 
+<<<<<<< HEAD
 ## Limits & Errors
+=======
+## Limits and errors
+>>>>>>> upstream/main
 
 **Outbound send caps (WhatsApp web send)**
 

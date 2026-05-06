@@ -381,7 +381,11 @@ BlueBubbles supports advanced message actions when enabled in config:
     - **reply**: Reply to a specific message (`messageId`, `text`, `to`).
     - **sendWithEffect**: Send with iMessage effect (`text`, `to`, `effectId`).
     - **renameGroup**: Rename a group chat (`chatGuid`, `displayName`).
+<<<<<<< HEAD
     - **setGroupIcon**: Set a group chat's icon/photo (`chatGuid`, `media`) — flaky on macOS 26 Tahoe (API may return success but the icon does not sync).
+=======
+    - **setGroupIcon**: Set a group chat's icon/photo (`chatGuid`, `media`) - flaky on macOS 26 Tahoe (API may return success but the icon does not sync).
+>>>>>>> upstream/main
     - **addParticipant**: Add someone to a group (`chatGuid`, `address`).
     - **removeParticipant**: Remove someone from a group (`chatGuid`, `address`).
     - **leaveGroup**: Leave a group chat (`chatGuid`).
@@ -389,6 +393,7 @@ BlueBubbles supports advanced message actions when enabled in config:
       - Voice memos: set `asVoice: true` with **MP3** or **CAF** audio to send as an iMessage voice message. BlueBubbles converts MP3 → CAF when sending voice memos.
     - Legacy alias: `sendAttachment` still works, but `upload-file` is the canonical action name.
 
+<<<<<<< HEAD
 - **react**: Add/remove tapback reactions (`messageId`, `emoji`, `remove`)
 - **edit**: Edit a sent message (`messageId`, `text`)
 - **unsend**: Unsend a message (`messageId`)
@@ -402,6 +407,10 @@ BlueBubbles supports advanced message actions when enabled in config:
 - **upload-file**: Send media/files (`to`, `buffer`, `filename`, `asVoice`)
   - Voice memos: set `asVoice: true` with **MP3** or **CAF** audio to send as an iMessage voice message. BlueBubbles converts MP3 → CAF when sending voice memos.
 - Legacy alias: `sendAttachment` still works, but `upload-file` is the canonical action name.
+=======
+  </Accordion>
+</AccordionGroup>
+>>>>>>> upstream/main
 
 ### Message IDs (short vs full)
 
@@ -419,14 +428,26 @@ Use full IDs for durable automations and storage:
 
 See [Configuration](/gateway/configuration) for template variables.
 
+<<<<<<< HEAD
 ## Coalescing split-send DMs (command + URL in one composition)
 
 When a user types a command and a URL together in iMessage — e.g. `Dump https://example.com/article` — Apple splits the send into **two separate webhook deliveries**:
+=======
+<a id="coalescing-split-send-dms-command--url-in-one-composition"></a>
+
+## Coalescing split-send DMs (command + URL in one composition)
+
+When a user types a command and a URL together in iMessage - e.g. `Dump https://example.com/article` - Apple splits the send into **two separate webhook deliveries**:
+>>>>>>> upstream/main
 
 1. A text message (`"Dump"`).
 2. A URL-preview balloon (`"https://..."`) with OG-preview images as attachments.
 
+<<<<<<< HEAD
 The two webhooks arrive at OpenClaw ~0.8-2.0 s apart on most setups. Without coalescing, the agent receives the command alone on turn 1, replies (often "send me the URL"), and only sees the URL on turn 2 — at which point the command context is already lost.
+=======
+The two webhooks arrive at OpenClaw ~0.8-2.0 s apart on most setups. Without coalescing, the agent receives the command alone on turn 1, replies (often "send me the URL"), and only sees the URL on turn 2 - at which point the command context is already lost.
+>>>>>>> upstream/main
 
 `channels.bluebubbles.coalesceSameSenderDms` opts a DM into merging consecutive same-sender webhooks into a single agent turn. Group chats continue to key per-message so multi-user turn structure is preserved.
 
@@ -455,7 +476,11 @@ The two webhooks arrive at OpenClaw ~0.8-2.0 s apart on most setups. Without coa
     }
     ```
 
+<<<<<<< HEAD
     With the flag on and no explicit `messages.inbound.byChannel.bluebubbles`, the debounce window widens to **2500 ms** (the default for non-coalescing is 500 ms). The wider window is required — Apple's split-send cadence of 0.8-2.0 s does not fit in the tighter default.
+=======
+    With the flag on and no explicit `messages.inbound.byChannel.bluebubbles`, the debounce window widens to **2500 ms** (the default for non-coalescing is 500 ms). The wider window is required - Apple's split-send cadence of 0.8-2.0 s does not fit in the tighter default.
+>>>>>>> upstream/main
 
     To tune the window yourself:
 
@@ -476,7 +501,11 @@ The two webhooks arrive at OpenClaw ~0.8-2.0 s apart on most setups. Without coa
   </Tab>
   <Tab title="Trade-offs">
     - **Added latency for DM control commands.** With the flag on, DM control-command messages (like `Dump`, `Save`, etc.) now wait up to the debounce window before dispatching, in case a payload webhook is coming. Group-chat commands keep instant dispatch.
+<<<<<<< HEAD
     - **Merged output is bounded** — merged text caps at 4000 chars with an explicit `…[truncated]` marker; attachments cap at 20; source entries cap at 10 (first-plus-latest retained beyond that). Every source `messageId` still reaches inbound-dedupe so a later MessagePoller replay of any individual event is recognized as a duplicate.
+=======
+    - **Merged output is bounded** - merged text caps at 4000 chars with an explicit `…[truncated]` marker; attachments cap at 20; source entries cap at 10 (first-plus-latest retained beyond that). Every source `messageId` still reaches inbound-dedupe so a later MessagePoller replay of any individual event is recognized as a duplicate.
+>>>>>>> upstream/main
     - **Opt-in, per-channel.** Other channels (Telegram, WhatsApp, Slack, …) are unaffected.
 
   </Tab>
@@ -503,7 +532,11 @@ If the flag is on and split-sends still arrive as two turns, check each layer:
     grep coalesceSameSenderDms ~/.openclaw/openclaw.json
     ```
 
+<<<<<<< HEAD
     Then `openclaw gateway restart` — the flag is read at debouncer-registry creation.
+=======
+    Then `openclaw gateway restart` - the flag is read at debouncer-registry creation.
+>>>>>>> upstream/main
 
   </Accordion>
   <Accordion title="Debounce window wide enough for your setup">
@@ -517,13 +550,21 @@ If the flag is on and split-sends still arrive as two turns, check each layer:
 
   </Accordion>
   <Accordion title="Session JSONL timestamps ≠ webhook arrival">
+<<<<<<< HEAD
     Session event timestamps (`~/.openclaw/agents/<id>/sessions/*.jsonl`) reflect when the gateway hands a message to the agent, **not** when the webhook arrived. A queued-second message tagged `[Queued messages while agent was busy]` means the first turn was still running when the second webhook arrived — the coalesce bucket had already flushed. Tune the window against the BB server log, not the session log.
+=======
+    Session event timestamps (`~/.openclaw/agents/<id>/sessions/*.jsonl`) reflect when the gateway hands a message to the agent, **not** when the webhook arrived. A queued-second message tagged `[Queued messages while agent was busy]` means the first turn was still running when the second webhook arrived - the coalesce bucket had already flushed. Tune the window against the BB server log, not the session log.
+>>>>>>> upstream/main
   </Accordion>
   <Accordion title="Memory pressure slowing reply dispatch">
     On smaller machines (8 GB), agent turns can take long enough that the coalesce bucket flushes before the reply completes, and the URL lands as a queued second turn. Check `memory_pressure` and `ps -o rss -p $(pgrep openclaw-gateway)`; if the gateway is over ~500 MB RSS and the compressor is active, close other heavy processes or bump to a larger host.
   </Accordion>
   <Accordion title="Reply-quote sends are a different path">
+<<<<<<< HEAD
     If the user tapped `Dump` as a **reply** to an existing URL-balloon (iMessage shows a "1 Reply" badge on the Dump bubble), the URL lives in `replyToBody`, not in a second webhook. Coalescing does not apply — that's a skill/prompt concern, not a debouncer concern.
+=======
+    If the user tapped `Dump` as a **reply** to an existing URL-balloon (iMessage shows a "1 Reply" badge on the Dump bubble), the URL lives in `replyToBody`, not in a second webhook. Coalescing does not apply - that's a skill/prompt concern, not a debouncer concern.
+>>>>>>> upstream/main
   </Accordion>
 </AccordionGroup>
 
@@ -607,6 +648,13 @@ Prefer `chat_guid` for stable routing:
 - Direct handles: `+15555550123`, `user@example.com`
   - If a direct handle does not have an existing DM chat, OpenClaw will create one via `POST /api/v1/chat/new`. This requires the BlueBubbles Private API to be enabled.
 
+<<<<<<< HEAD
+=======
+### iMessage vs SMS routing
+
+When the same handle has both an iMessage and an SMS chat on the Mac (for example a phone number that is iMessage-registered but has also received green-bubble fallbacks), OpenClaw prefers the iMessage chat and never silently downgrades to SMS. To force the SMS chat, use an explicit `sms:` target prefix (for example `sms:+15555550123`). Handles without a matching iMessage chat still send through whatever chat BlueBubbles reports.
+
+>>>>>>> upstream/main
 ## Security
 
 - Webhook requests are authenticated by comparing `guid`/`password` query params or headers against `channels.bluebubbles.password`.
@@ -622,15 +670,27 @@ Prefer `chat_guid` for stable routing:
 - Edit/unsend require macOS 13+ and a compatible BlueBubbles server version. On macOS 26 (Tahoe), edit is currently broken due to private API changes.
 - Group icon updates can be flaky on macOS 26 (Tahoe): the API may return success but the new icon does not sync.
 - OpenClaw auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
+<<<<<<< HEAD
 - `coalesceSameSenderDms` enabled but split-sends (e.g. `Dump` + URL) still arrive as two turns: see the [split-send coalescing troubleshooting](#split-send-coalescing-troubleshooting) checklist — common causes are too-tight debounce window, session-log timestamps misread as webhook arrival, or a reply-quote send (which uses `replyToBody`, not a second webhook).
+=======
+- `coalesceSameSenderDms` enabled but split-sends (e.g. `Dump` + URL) still arrive as two turns: see the [split-send coalescing troubleshooting](#split-send-coalescing-troubleshooting) checklist - common causes are too-tight debounce window, session-log timestamps misread as webhook arrival, or a reply-quote send (which uses `replyToBody`, not a second webhook).
+>>>>>>> upstream/main
 - For status/health info: `openclaw status --all` or `openclaw status --deep`.
 
 For general channel workflow reference, see [Channels](/channels) and the [Plugins](/tools/plugin) guide.
 
 ## Related
 
+<<<<<<< HEAD
 - [Channel Routing](/channels/channel-routing) — session routing for messages
 - [Channels Overview](/channels) — all supported channels
 - [Groups](/channels/groups) — group chat behavior and mention gating
 - [Pairing](/channels/pairing) — DM authentication and pairing flow
 - [Security](/gateway/security) — access model and hardening
+=======
+- [Channel Routing](/channels/channel-routing) - session routing for messages
+- [Channels Overview](/channels) - all supported channels
+- [Groups](/channels/groups) - group chat behavior and mention gating
+- [Pairing](/channels/pairing) - DM authentication and pairing flow
+- [Security](/gateway/security) - access model and hardening
+>>>>>>> upstream/main

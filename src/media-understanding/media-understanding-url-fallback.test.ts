@@ -19,9 +19,17 @@ async function withBlockedLocalAttachmentFallback(
   run: (params: { cache: MediaAttachmentCache; fallbackUrl: string }) => Promise<void>,
 ) {
   await withTempDir({ prefix }, async (base) => {
+<<<<<<< HEAD
     const allowedRoot = path.join(base, "allowed");
     const attachmentPath = path.join(allowedRoot, "voice-note.m4a");
     const fallbackUrl = "https://example.com/fallback.jpg";
+=======
+    const attachmentRoot = path.join(base, "attachment");
+    const allowedRoot = path.join(base, "allowed");
+    const attachmentPath = path.join(attachmentRoot, "voice-note.m4a");
+    const fallbackUrl = "https://example.com/fallback.jpg";
+    await fs.mkdir(attachmentRoot, { recursive: true });
+>>>>>>> upstream/main
     await fs.mkdir(allowedRoot, { recursive: true });
     await fs.writeFile(attachmentPath, "ok");
 
@@ -31,13 +39,17 @@ async function withBlockedLocalAttachmentFallback(
         localPathRoots: [allowedRoot],
       },
     );
+<<<<<<< HEAD
     const originalRealpath = fs.realpath.bind(fs);
+=======
+>>>>>>> upstream/main
     fetchRemoteMediaMock.mockResolvedValue({
       buffer: Buffer.from("fallback-buffer"),
       contentType: "image/jpeg",
       fileName: "fallback.jpg",
     });
 
+<<<<<<< HEAD
     vi.spyOn(fs, "realpath").mockImplementation(async (candidatePath) => {
       if (String(candidatePath) === attachmentPath) {
         throw new Error("EACCES");
@@ -45,6 +57,8 @@ async function withBlockedLocalAttachmentFallback(
       return await originalRealpath(candidatePath);
     });
 
+=======
+>>>>>>> upstream/main
     await run({ cache, fallbackUrl });
   });
 }

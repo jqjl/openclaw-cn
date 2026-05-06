@@ -48,6 +48,17 @@ function normalizeIMessageTestHandle(raw: string): string {
 
 const defaultIMessageOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
+<<<<<<< HEAD
+=======
+  deliveryCapabilities: {
+    durableFinal: {
+      text: true,
+      media: true,
+      replyTo: true,
+      messageSendingHooks: true,
+    },
+  },
+>>>>>>> upstream/main
   sendText: async ({ to, text, accountId, replyToId, deps, cfg }) => {
     const sendIMessage = resolveOutboundSendDep<
       (

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -8,6 +9,13 @@ import {
 } from "openclaw/plugin-sdk/file-access-runtime";
 import { resolveChannelMediaMaxBytes } from "openclaw/plugin-sdk/media-runtime";
 import { lowercasePreservingWhitespace } from "openclaw/plugin-sdk/text-runtime";
+=======
+import {
+  basenameFromMediaSource,
+  readLocalFileFromRoots,
+} from "openclaw/plugin-sdk/file-access-runtime";
+import { resolveChannelMediaMaxBytes } from "openclaw/plugin-sdk/media-runtime";
+>>>>>>> upstream/main
 import { resolveBlueBubblesAccount } from "./accounts.js";
 import { sendBlueBubblesAttachment } from "./attachments.js";
 import { resolveBlueBubblesMessageId } from "./monitor-reply-cache.js";
@@ -31,6 +39,7 @@ function assertMediaWithinLimit(sizeBytes: number, maxBytes?: number): void {
   throw new Error(`Media exceeds ${maxLabel}MB limit (got ${sizeLabel}MB)`);
 }
 
+<<<<<<< HEAD
 function resolveLocalMediaPath(source: string): string {
   if (!source.startsWith("file://")) {
     return source;
@@ -86,6 +95,8 @@ function isPathInsideRoot(candidate: string, root: string): boolean {
   return normalizedCandidate === normalizedRoot || normalizedCandidate.startsWith(rootWithSep);
 }
 
+=======
+>>>>>>> upstream/main
 function resolveMediaLocalRoots(params: { cfg: OpenClawConfig; accountId?: string }): string[] {
   const account = resolveBlueBubblesAccount({
     cfg: params.cfg,
@@ -111,6 +122,7 @@ async function assertLocalMediaPathAllowed(params: {
     );
   }
 
+<<<<<<< HEAD
   const resolvedLocalPath = path.resolve(params.localPath);
   const supportsNoFollow = process.platform !== "win32" && "O_NOFOLLOW" in fsConstants;
   const openFlags = fsConstants.O_RDONLY | (supportsNoFollow ? fsConstants.O_NOFOLLOW : 0);
@@ -165,6 +177,19 @@ async function assertLocalMediaPathAllowed(params: {
         await handle.close().catch(() => {});
       }
     }
+=======
+  const localFile = await readLocalFileFromRoots({
+    filePath: params.localPath,
+    roots: params.localRoots,
+    label: "mediaLocalRoots",
+  });
+  if (localFile) {
+    return {
+      data: localFile.buffer,
+      realPath: localFile.realPath,
+      sizeBytes: localFile.stat.size,
+    };
+>>>>>>> upstream/main
   }
 
   throw new Error(
@@ -244,9 +269,14 @@ export async function sendBlueBubblesMedia(params: {
       resolvedContentType = resolvedContentType ?? fetched.contentType ?? undefined;
       resolvedFilename = resolvedFilename ?? fetched.fileName;
     } else {
+<<<<<<< HEAD
       const localPath = expandHomePath(resolveLocalMediaPath(source));
       const localFile = await assertLocalMediaPathAllowed({
         localPath,
+=======
+      const localFile = await assertLocalMediaPathAllowed({
+        localPath: source,
+>>>>>>> upstream/main
         localRoots: mediaLocalRoots,
         accountId,
       });

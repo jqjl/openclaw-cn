@@ -47,6 +47,12 @@ const { registerPluginsCli, registerPluginCliCommandsFromValidatedConfig } = vi.
   }),
   registerPluginCliCommandsFromValidatedConfig: vi.fn(async () => null),
 }));
+<<<<<<< HEAD
+=======
+const { registerChannelsCli } = vi.hoisted(() => ({
+  registerChannelsCli: vi.fn(async () => undefined),
+}));
+>>>>>>> upstream/main
 const { addGatewayRunCommand, gatewayRunAction, registerGatewayCli } = vi.hoisted(() => {
   const runAction = vi.fn();
   return {
@@ -69,6 +75,10 @@ vi.mock("../gateway-cli/run.js", () => ({ addGatewayRunCommand }));
 vi.mock("../nodes-cli.js", () => ({ registerNodesCli }));
 vi.mock("../capability-cli.js", () => ({ registerCapabilityCli }));
 vi.mock("../plugins-cli.js", () => ({ registerPluginsCli }));
+<<<<<<< HEAD
+=======
+vi.mock("../channels-cli.js", () => ({ registerChannelsCli }));
+>>>>>>> upstream/main
 vi.mock("../../plugins/cli.js", () => ({ registerPluginCliCommandsFromValidatedConfig }));
 vi.mock("./private-qa-cli.js", async () => {
   const actual = await vi.importActual<typeof import("./private-qa-cli.js")>("./private-qa-cli.js");
@@ -110,6 +120,10 @@ describe("registerSubCliCommands", () => {
     inferAction.mockClear();
     registerPluginsCli.mockClear();
     registerPluginCliCommandsFromValidatedConfig.mockClear();
+<<<<<<< HEAD
+=======
+    registerChannelsCli.mockClear();
+>>>>>>> upstream/main
     addGatewayRunCommand.mockClear();
     gatewayRunAction.mockClear();
     registerGatewayCli.mockClear();
@@ -218,6 +232,20 @@ describe("registerSubCliCommands", () => {
     expect(registerGatewayCli).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
+=======
+  it("passes completion context to channel registration", async () => {
+    const argv = ["node", "openclaw", "completion", "--write-state"];
+    const program = new Command().name("openclaw");
+
+    await registerSubCliByName(program, "channels", argv, { purpose: "completion" });
+
+    expect(registerChannelsCli).toHaveBeenCalledWith(program, argv, {
+      includeSetupOptions: true,
+    });
+  });
+
+>>>>>>> upstream/main
   it.each([
     ["plugins update", ["plugins", "update", "lossless-claw"]],
     ["plugins update --all", ["plugins", "update", "--all"]],

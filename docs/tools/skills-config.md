@@ -48,7 +48,11 @@ auth/API key. Typical examples: `GEMINI_API_KEY` or `GOOGLE_API_KEY` for
 
 Examples:
 
+<<<<<<< HEAD
 - Native Nano Banana-style setup: `agents.defaults.imageGenerationModel.primary: "google/gemini-3.1-flash-image-preview"`
+=======
+- Native Nano Banana Pro-style setup: `agents.defaults.imageGenerationModel.primary: "google/gemini-3-pro-image-preview"`
+>>>>>>> upstream/main
 - Native fal setup: `agents.defaults.imageGenerationModel.primary: "fal/fal-ai/flux/dev"`
 
 ## Agent skill allowlists
@@ -104,7 +108,11 @@ Rules:
 
 Per-skill fields:
 
+<<<<<<< HEAD
 - `enabled`: set `false` to disable a skill even if it’s bundled/installed.
+=======
+- `enabled`: set `false` to disable a skill even if it's bundled/installed.
+>>>>>>> upstream/main
 - `env`: environment variables injected for the agent run (only if not already set).
 - `apiKey`: optional convenience for skills that declare a primary env var.
   Supports plaintext string or SecretRef object (`{ source, provider, id }`).
@@ -118,6 +126,7 @@ Per-skill fields:
   `skills.load.extraDirs`.
 - Changes to skills are picked up on the next agent turn when the watcher is enabled.
 
+<<<<<<< HEAD
 ### Sandboxed skills + env vars
 
 When a session is **sandboxed**, skill processes run inside the configured
@@ -135,3 +144,34 @@ Global `env` and `skills.entries.<skill>.env/apiKey` apply to **host** runs only
 - [Skills](/tools/skills)
 - [Creating skills](/tools/creating-skills)
 - [Slash commands](/tools/slash-commands)
+=======
+### Sandboxed skills and env vars
+
+When a session is **sandboxed**, skill processes run inside the configured sandbox backend. The sandbox does **not** inherit the host `process.env`.
+
+<Warning>
+  Global `env` and `skills.entries.<skill>.env`/`apiKey` apply to **host** runs only. Inside a sandbox they have no effect, so a skill that depends on `GEMINI_API_KEY` will fail with `apiKey not configured` unless the sandbox is given the variable separately.
+</Warning>
+
+Use one of:
+
+- `agents.defaults.sandbox.docker.env` for the Docker backend (or per-agent `agents.list[].sandbox.docker.env`).
+- Bake the env into your custom sandbox image or remote sandbox environment.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Skills" href="/tools/skills" icon="puzzle-piece">
+    What skills are and how they load.
+  </Card>
+  <Card title="Creating skills" href="/tools/creating-skills" icon="hammer">
+    Authoring custom skill packs.
+  </Card>
+  <Card title="Slash commands" href="/tools/slash-commands" icon="terminal">
+    Native command catalog and chat directives.
+  </Card>
+  <Card title="Configuration reference" href="/gateway/configuration-reference" icon="gear">
+    Full `skills` and `agents.skills` schema.
+  </Card>
+</CardGroup>
+>>>>>>> upstream/main

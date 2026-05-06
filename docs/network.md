@@ -7,8 +7,11 @@ read_when:
 title: "Network"
 ---
 
+<<<<<<< HEAD
 # Network hub
 
+=======
+>>>>>>> upstream/main
 This hub links the core docs for how OpenClaw connects, pairs, and secures
 devices across localhost, LAN, and tailnet.
 
@@ -49,7 +52,11 @@ Local trust:
 
 ## Discovery + transports
 
+<<<<<<< HEAD
 - [Discovery & transports](/gateway/discovery)
+=======
+- [Discovery and transports](/gateway/discovery)
+>>>>>>> upstream/main
 - [Bonjour / mDNS](/gateway/bonjour)
 - [Remote access (SSH)](/gateway/remote)
 - [Tailscale](/gateway/tailscale)
@@ -70,5 +77,9 @@ Local trust:
 
 ## Related
 
+<<<<<<< HEAD
 - [Gateway network model](/gateway/network-model)
+=======
+- [Gateway runbook](/gateway)
+>>>>>>> upstream/main
 - [Remote access](/gateway/remote)

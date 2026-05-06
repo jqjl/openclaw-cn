@@ -120,6 +120,20 @@ export const discordOutbound: ChannelOutboundAdapter = {
     context: true,
     divider: true,
   },
+<<<<<<< HEAD
+=======
+  deliveryCapabilities: {
+    durableFinal: {
+      text: true,
+      media: true,
+      payload: true,
+      silent: true,
+      replyTo: true,
+      thread: true,
+      messageSendingHooks: true,
+    },
+  },
+>>>>>>> upstream/main
   renderPresentation: async ({ payload, presentation }) => {
     return await buildDiscordPresentationPayload({
       payload,

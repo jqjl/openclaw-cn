@@ -1,6 +1,10 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import type { MemoryCitationsMode } from "../../config/types.memory.js";
 import type { ContextEngine, ContextEngineRuntimeContext } from "../../context-engine/types.js";
+<<<<<<< HEAD
+=======
+import { stripRuntimeContextCustomMessages } from "../internal-runtime-context.js";
+>>>>>>> upstream/main
 import { runContextEngineMaintenance } from "../pi-embedded-runner/context-engine-maintenance.js";
 import {
   buildAfterTurnRuntimeContext,
@@ -71,10 +75,18 @@ export async function assembleHarnessContextEngine(params: {
   if (!params.contextEngine) {
     return undefined;
   }
+<<<<<<< HEAD
   return await params.contextEngine.assemble({
     sessionId: params.sessionId,
     sessionKey: params.sessionKey,
     messages: params.messages,
+=======
+  const messages = stripRuntimeContextCustomMessages(params.messages);
+  return await params.contextEngine.assemble({
+    sessionId: params.sessionId,
+    sessionKey: params.sessionKey,
+    messages,
+>>>>>>> upstream/main
     tokenBudget: params.tokenBudget,
     ...(params.availableTools ? { availableTools: params.availableTools } : {}),
     ...(params.citationsMode ? { citationsMode: params.citationsMode } : {}),
@@ -107,6 +119,13 @@ export async function finalizeHarnessContextEngineTurn(params: {
     return { postTurnFinalizationSucceeded: true };
   }
 
+<<<<<<< HEAD
+=======
+  const conversationSnapshot = buildContextEngineConversationSnapshot({
+    messagesSnapshot: params.messagesSnapshot,
+    prePromptMessageCount: params.prePromptMessageCount,
+  });
+>>>>>>> upstream/main
   let postTurnFinalizationSucceeded = true;
 
   if (typeof params.contextEngine.afterTurn === "function") {
@@ -115,8 +134,13 @@ export async function finalizeHarnessContextEngineTurn(params: {
         sessionId: params.sessionIdUsed,
         sessionKey: params.sessionKey,
         sessionFile: params.sessionFile,
+<<<<<<< HEAD
         messages: params.messagesSnapshot,
         prePromptMessageCount: params.prePromptMessageCount,
+=======
+        messages: conversationSnapshot.messages,
+        prePromptMessageCount: conversationSnapshot.prePromptMessageCount,
+>>>>>>> upstream/main
         tokenBudget: params.tokenBudget,
         runtimeContext: params.runtimeContext,
       });
@@ -125,7 +149,13 @@ export async function finalizeHarnessContextEngineTurn(params: {
       params.warn(`context engine afterTurn failed: ${String(afterTurnErr)}`);
     }
   } else {
+<<<<<<< HEAD
     const newMessages = params.messagesSnapshot.slice(params.prePromptMessageCount);
+=======
+    const newMessages = conversationSnapshot.messages.slice(
+      conversationSnapshot.prePromptMessageCount,
+    );
+>>>>>>> upstream/main
     if (newMessages.length > 0) {
       if (typeof params.contextEngine.ingestBatch === "function") {
         try {
@@ -176,6 +206,25 @@ export async function finalizeHarnessContextEngineTurn(params: {
   return { postTurnFinalizationSucceeded };
 }
 
+<<<<<<< HEAD
+=======
+function buildContextEngineConversationSnapshot(params: {
+  messagesSnapshot: AgentMessage[];
+  prePromptMessageCount: number;
+}): { messages: AgentMessage[]; prePromptMessageCount: number } {
+  const prePromptMessages = stripRuntimeContextCustomMessages(
+    params.messagesSnapshot.slice(0, params.prePromptMessageCount),
+  );
+  const turnMessages = stripRuntimeContextCustomMessages(
+    params.messagesSnapshot.slice(params.prePromptMessageCount),
+  );
+  return {
+    messages: [...prePromptMessages, ...turnMessages],
+    prePromptMessageCount: prePromptMessages.length,
+  };
+}
+
+>>>>>>> upstream/main
 /**
  * Build runtime context passed into harness context-engine hooks.
  */

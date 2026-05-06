@@ -25,6 +25,10 @@ import {
   buildFullSuiteVitestRunPlans,
   createVitestRunSpecs,
   listFullExtensionVitestProjectConfigs,
+<<<<<<< HEAD
+=======
+  orderFullSuiteSpecsForParallelRun,
+>>>>>>> upstream/main
   parseTestProjectsArgs,
   resolveParallelFullSuiteConcurrency,
   resolveChangedTargetArgs,
@@ -38,6 +42,7 @@ import {
 let releaseLock = () => {};
 let lockReleased = false;
 
+<<<<<<< HEAD
 const FULL_SUITE_CONFIG_WEIGHT = new Map([
   ["test/vitest/vitest.gateway.config.ts", 180],
   ["test/vitest/vitest.gateway-server.config.ts", 180],
@@ -102,6 +107,8 @@ const FULL_SUITE_CONFIG_WEIGHT = new Map([
   ["test/vitest/vitest.extension-memory.config.ts", 6],
   ["test/vitest/vitest.extension-msteams.config.ts", 4],
 ]);
+=======
+>>>>>>> upstream/main
 const releaseLockOnce = () => {
   if (lockReleased) {
     return;
@@ -198,6 +205,7 @@ async function runLoggedVitestSpec(spec) {
   };
 }
 
+<<<<<<< HEAD
 function resolveConfigSortWeight(config, shardTimings) {
   return shardTimings.get(config) ?? (FULL_SUITE_CONFIG_WEIGHT.get(config) ?? 0) * 1000;
 }
@@ -231,6 +239,8 @@ function orderFullSuiteSpecsForParallelRun(specs, shardTimings = new Map()) {
   return hasMatchingShardTiming ? interleaveSlowAndFastSpecs(sortedSpecs) : sortedSpecs;
 }
 
+=======
+>>>>>>> upstream/main
 function isFullExtensionsProjectRun(specs) {
   const fullExtensionProjectConfigs = new Set(listFullExtensionVitestProjectConfigs());
   return (

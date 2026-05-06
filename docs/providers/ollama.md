@@ -3,6 +3,10 @@ summary: "Run OpenClaw with Ollama (cloud and local models)"
 read_when:
   - You want to run OpenClaw with cloud or local models via Ollama
   - You need Ollama setup and configuration guidance
+<<<<<<< HEAD
+=======
+  - You want Ollama vision models for image understanding
+>>>>>>> upstream/main
 title: "Ollama"
 ---
 
@@ -164,6 +168,11 @@ Choose your preferred setup method and mode.
 
     Use **Cloud only** during setup. OpenClaw prompts for `OLLAMA_API_KEY`, sets `baseUrl: "https://ollama.com"`, and seeds the hosted cloud model list. This path does **not** require a local Ollama server or `ollama signin`.
 
+<<<<<<< HEAD
+=======
+    The cloud model list shown during `openclaw onboard` is populated live from `https://ollama.com/api/tags`, capped at 500 entries, so the picker reflects the current hosted catalog rather than a static seed. If `ollama.com` is unreachable or returns no models at setup time, OpenClaw falls back to the previous hardcoded suggestions so onboarding still completes.
+
+>>>>>>> upstream/main
   </Tab>
 
   <Tab title="Local only">
@@ -269,6 +278,101 @@ The new model will be automatically discovered and available to use.
 If you set `models.providers.ollama` explicitly, or configure a custom remote provider such as `models.providers.ollama-cloud` with `api: "ollama"`, auto-discovery is skipped and you must define models manually. Loopback custom providers such as `http://127.0.0.2:11434` are still treated as local. See the explicit config section below.
 </Note>
 
+<<<<<<< HEAD
+=======
+## Vision and image description
+
+The bundled Ollama plugin registers Ollama as an image-capable media-understanding provider. This lets OpenClaw route explicit image-description requests and configured image-model defaults through local or hosted Ollama vision models.
+
+For local vision, pull a model that supports images:
+
+```bash
+ollama pull qwen2.5vl:7b
+export OLLAMA_API_KEY="ollama-local"
+```
+
+Then verify with the infer CLI:
+
+```bash
+openclaw infer image describe \
+  --file ./photo.jpg \
+  --model ollama/qwen2.5vl:7b \
+  --json
+```
+
+`--model` must be a full `<provider/model>` ref. When it is set, `openclaw infer image describe` runs that model directly instead of skipping description because the model supports native vision.
+
+Use `infer image describe` when you want OpenClaw's image-understanding provider flow, configured `agents.defaults.imageModel`, and image-description output shape. Use `infer model run --file` when you want a raw multimodal model probe with a custom prompt and one or more images.
+
+To make Ollama the default image-understanding model for inbound media, configure `agents.defaults.imageModel`:
+
+```json5
+{
+  agents: {
+    defaults: {
+      imageModel: {
+        primary: "ollama/qwen2.5vl:7b",
+      },
+    },
+  },
+}
+```
+
+Prefer the full `ollama/<model>` ref. If the same model is listed under `models.providers.ollama.models` with `input: ["text", "image"]` and no other configured image provider exposes that bare model ID, OpenClaw also normalizes a bare `imageModel` ref such as `qwen2.5vl:7b` to `ollama/qwen2.5vl:7b`. If more than one configured image provider has the same bare ID, use the provider prefix explicitly.
+
+Slow local vision models can need a longer image-understanding timeout than cloud models. They can also crash or stop when Ollama tries to allocate the full advertised vision context on constrained hardware. Set a capability timeout, and cap `num_ctx` on the model entry when you only need a normal image-description turn:
+
+```json5
+{
+  models: {
+    providers: {
+      ollama: {
+        models: [
+          {
+            id: "qwen2.5vl:7b",
+            name: "qwen2.5vl:7b",
+            input: ["text", "image"],
+            params: { num_ctx: 2048, keep_alive: "1m" },
+          },
+        ],
+      },
+    },
+  },
+  tools: {
+    media: {
+      image: {
+        timeoutSeconds: 180,
+        models: [{ provider: "ollama", model: "qwen2.5vl:7b", timeoutSeconds: 300 }],
+      },
+    },
+  },
+}
+```
+
+This timeout applies to inbound image understanding and to the explicit `image` tool the agent can call during a turn. Provider-level `models.providers.ollama.timeoutSeconds` still controls the underlying Ollama HTTP request guard for normal model calls.
+
+Live-verify the explicit image tool against local Ollama with:
+
+```bash
+OPENCLAW_LIVE_TEST=1 OPENCLAW_LIVE_OLLAMA_IMAGE=1 \
+  pnpm test:live -- src/agents/tools/image-tool.ollama.live.test.ts
+```
+
+If you define `models.providers.ollama.models` manually, mark vision models with image input support:
+
+```json5
+{
+  id: "qwen2.5vl:7b",
+  name: "qwen2.5vl:7b",
+  input: ["text", "image"],
+  contextWindow: 128000,
+  maxTokens: 8192,
+}
+```
+
+OpenClaw rejects image-description requests for models that are not marked image-capable. With implicit discovery, OpenClaw reads this from Ollama when `/api/show` reports a vision capability.
+
+>>>>>>> upstream/main
 ## Configuration
 
 <Tabs>
@@ -868,6 +972,11 @@ For the full setup and behavior details, see [Ollama Web Search](/tools/ollama-s
   <Accordion title="Streaming configuration">
     OpenClaw's Ollama integration uses the **native Ollama API** (`/api/chat`) by default, which fully supports streaming and tool calling simultaneously. No special configuration is needed.
 
+<<<<<<< HEAD
+=======
+    For native `/api/chat` requests, OpenClaw also forwards thinking control directly to Ollama: `/think off` and `openclaw agent --thinking off` send top-level `think: false` unless an explicit model `params.think`/`params.thinking` value is configured, while `/think low|medium|high` send the matching top-level `think` effort string. `/think max` maps to Ollama's highest native effort, `think: "high"`.
+
+>>>>>>> upstream/main
     <Tip>
     If you need to use the OpenAI-compatible endpoint, see the "Legacy OpenAI-compatible mode" section above. Streaming and tool calling may not work simultaneously in that mode.
     </Tip>

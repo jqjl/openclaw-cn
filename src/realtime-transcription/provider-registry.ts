@@ -1,5 +1,12 @@
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
 import { resolvePluginCapabilityProviders } from "../plugins/capability-provider-runtime.js";
+=======
+import {
+  resolvePluginCapabilityProvider,
+  resolvePluginCapabilityProviders,
+} from "../plugins/capability-provider-runtime.js";
+>>>>>>> upstream/main
 import {
   buildCapabilityProviderMaps,
   normalizeCapabilityProviderId,
@@ -43,6 +50,17 @@ export function getRealtimeTranscriptionProvider(
   if (!normalized) {
     return undefined;
   }
+<<<<<<< HEAD
+=======
+  const directProvider = resolvePluginCapabilityProvider({
+    key: "realtimeTranscriptionProviders",
+    providerId: normalized,
+    cfg,
+  });
+  if (directProvider) {
+    return directProvider;
+  }
+>>>>>>> upstream/main
   return buildProviderMaps(cfg).aliases.get(normalized);
 }
 

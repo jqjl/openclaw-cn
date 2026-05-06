@@ -3,6 +3,13 @@ import {
   primeChannelOutboundSendMock,
   type OutboundPayloadHarnessParams,
 } from "openclaw/plugin-sdk/channel-contract-testing";
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  verifyChannelMessageAdapterCapabilityProofs,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import "./accounts.test-mocks.js";
 import "./zalo-js.test-mocks.js";
@@ -12,8 +19,13 @@ import { setZalouserRuntime } from "./runtime.js";
 import * as sendModule from "./send.js";
 
 vi.mock("./send.js", () => ({
+<<<<<<< HEAD
   sendMessageZalouser: vi.fn().mockResolvedValue({ ok: true, messageId: "zlu-1" }),
   sendReactionZalouser: vi.fn().mockResolvedValue({ ok: true }),
+=======
+  sendMessageZalouser: vi.fn().mockResolvedValue({ ok: true, messageId: "zlu-1" } as never),
+  sendReactionZalouser: vi.fn().mockResolvedValue({ ok: true } as never),
+>>>>>>> upstream/main
 }));
 
 function baseCtx(payload: ReplyPayload) {
@@ -42,7 +54,11 @@ describe("zalouserPlugin outbound sendPayload", () => {
   });
 
   it("group target delegates with isGroup=true and stripped threadId", async () => {
+<<<<<<< HEAD
     mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-g1" });
+=======
+    mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-g1" } as never);
+>>>>>>> upstream/main
 
     const result = await zalouserPlugin.outbound!.sendPayload!({
       ...baseCtx({ text: "hello group" }),
@@ -58,7 +74,11 @@ describe("zalouserPlugin outbound sendPayload", () => {
   });
 
   it("treats bare numeric targets as direct chats for backward compatibility", async () => {
+<<<<<<< HEAD
     mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-d1" });
+=======
+    mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-d1" } as never);
+>>>>>>> upstream/main
 
     const result = await zalouserPlugin.outbound!.sendPayload!({
       ...baseCtx({ text: "hello" }),
@@ -74,7 +94,11 @@ describe("zalouserPlugin outbound sendPayload", () => {
   });
 
   it("preserves provider-native group ids when sending to raw g- targets", async () => {
+<<<<<<< HEAD
     mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-g-native" });
+=======
+    mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-g-native" } as never);
+>>>>>>> upstream/main
 
     const result = await zalouserPlugin.outbound!.sendPayload!({
       ...baseCtx({ text: "hello native group" }),
@@ -91,7 +115,11 @@ describe("zalouserPlugin outbound sendPayload", () => {
 
   it("passes long markdown through once so formatting happens before chunking", async () => {
     const text = `**${"a".repeat(2501)}**`;
+<<<<<<< HEAD
     mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-code" });
+=======
+    mockedSend.mockResolvedValue({ ok: true, messageId: "zlu-code" } as never);
+>>>>>>> upstream/main
 
     const result = await zalouserPlugin.outbound!.sendPayload!({
       ...baseCtx({ text }),
@@ -111,6 +139,68 @@ describe("zalouserPlugin outbound sendPayload", () => {
     );
     expect(result).toMatchObject({ channel: "zalouser", messageId: "zlu-code" });
   });
+<<<<<<< HEAD
+=======
+
+  it("declares message adapter durable text and media with receipt proofs", async () => {
+    mockedSend.mockImplementation(async (_threadId, _text, opts: { mediaUrl?: string } = {}) =>
+      opts.mediaUrl
+        ? {
+            ok: true,
+            messageId: "zlu-media-1",
+            receipt: createMessageReceiptFromOutboundResults({
+              results: [{ channel: "zalouser", messageId: "zlu-media-1" }],
+              kind: "media",
+            }),
+          }
+        : {
+            ok: true,
+            messageId: "zlu-text-1",
+            receipt: createMessageReceiptFromOutboundResults({
+              results: [{ channel: "zalouser", messageId: "zlu-text-1" }],
+              kind: "text",
+            }),
+          },
+    );
+
+    await expect(
+      verifyChannelMessageAdapterCapabilityProofs({
+        adapterName: "zalouser",
+        adapter: zalouserPlugin.message!,
+        proofs: {
+          text: async () => {
+            const result = await zalouserPlugin.message?.send?.text?.({
+              cfg: {},
+              to: "user:987654321",
+              text: "hello",
+            });
+            expect(result?.receipt.platformMessageIds).toEqual(["zlu-text-1"]);
+          },
+          media: async () => {
+            const result = await zalouserPlugin.message?.send?.media?.({
+              cfg: {},
+              to: "user:987654321",
+              text: "image",
+              mediaUrl: "https://example.com/image.png",
+            });
+            expect(result?.receipt.platformMessageIds).toEqual(["zlu-media-1"]);
+          },
+          messageSendingHooks: () => {
+            expect(zalouserPlugin.message?.durableFinal?.capabilities?.messageSendingHooks).toBe(
+              true,
+            );
+          },
+        },
+      }),
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        { capability: "text", status: "verified" },
+        { capability: "media", status: "verified" },
+        { capability: "messageSendingHooks", status: "verified" },
+      ]),
+    );
+  });
+>>>>>>> upstream/main
 });
 
 describe("zalouserPlugin outbound payload contract", () => {

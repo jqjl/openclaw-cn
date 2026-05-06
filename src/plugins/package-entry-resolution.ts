@@ -1,11 +1,19 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
+<<<<<<< HEAD
   matchBoundaryFileOpenFailure,
   openBoundaryFile,
   openBoundaryFileSync,
 } from "../infra/boundary-file-read.js";
 import { resolveBoundaryPath, resolveBoundaryPathSync } from "../infra/boundary-path.js";
+=======
+  matchRootFileOpenFailure,
+  openRootFile,
+  openRootFileSync,
+} from "../infra/boundary-file-read.js";
+import { resolveRootPath, resolveRootPathSync } from "../infra/boundary-path.js";
+>>>>>>> upstream/main
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import type { PluginDiagnostic } from "./manifest-types.js";
 import { getPackageManifestMetadata, type PackageManifest } from "./manifest.js";
@@ -87,7 +95,11 @@ function missingCompiledRuntimeEntryMessage(params: {
   entry: string;
   candidates: readonly string[];
 }): string {
+<<<<<<< HEAD
   return `${params.label} requires compiled runtime output for TypeScript entry ${params.entry}: expected ${params.candidates.join(", ")}`;
+=======
+  return `${params.label} requires compiled runtime output for TypeScript entry ${params.entry}: expected ${params.candidates.join(", ")}. This is a plugin packaging issue, not a local config problem; update or reinstall the plugin after the publisher ships compiled JavaScript, or disable/uninstall the plugin until then. TypeScript source fallback is only supported for source checkouts and local development paths.`;
+>>>>>>> upstream/main
 }
 
 async function validatePackageExtensionEntry(params: {
@@ -98,7 +110,11 @@ async function validatePackageExtensionEntry(params: {
 }): Promise<ExtensionEntryValidation> {
   const absolutePath = path.resolve(params.packageDir, params.entry);
   try {
+<<<<<<< HEAD
     const resolved = await resolveBoundaryPath({
+=======
+    const resolved = await resolveRootPath({
+>>>>>>> upstream/main
       absolutePath,
       rootPath: params.packageDir,
       boundaryLabel: "plugin package directory",
@@ -115,13 +131,21 @@ async function validatePackageExtensionEntry(params: {
     };
   }
 
+<<<<<<< HEAD
   const opened = await openBoundaryFile({
+=======
+  const opened = await openRootFile({
+>>>>>>> upstream/main
     absolutePath,
     rootPath: params.packageDir,
     boundaryLabel: "plugin package directory",
   });
   if (!opened.ok) {
+<<<<<<< HEAD
     return matchBoundaryFileOpenFailure(opened, {
+=======
+    return matchRootFileOpenFailure(opened, {
+>>>>>>> upstream/main
       path: () => ({ ok: false, error: `${params.label} not found: ${params.entry}` }),
       io: () => ({ ok: false, error: `${params.label} unreadable: ${params.entry}` }),
       validation: () => ({
@@ -326,7 +350,11 @@ function resolvePackageEntrySource(params: {
   const rejectHardlinks = params.rejectHardlinks ?? true;
   const candidates = [source];
   const openCandidate = (absolutePath: string): string | null => {
+<<<<<<< HEAD
     const opened = openBoundaryFileSync({
+=======
+    const opened = openRootFileSync({
+>>>>>>> upstream/main
       absolutePath,
       rootPath: params.packageDir,
       ...(params.packageRootRealPath !== undefined
@@ -336,7 +364,11 @@ function resolvePackageEntrySource(params: {
       rejectHardlinks,
     });
     if (!opened.ok) {
+<<<<<<< HEAD
       return matchBoundaryFileOpenFailure(opened, {
+=======
+      return matchRootFileOpenFailure(opened, {
+>>>>>>> upstream/main
         path: () => null,
         io: () => {
           params.diagnostics.push({
@@ -415,7 +447,11 @@ function resolveSafePackageEntry(params: {
   }
 
   try {
+<<<<<<< HEAD
     resolveBoundaryPathSync({
+=======
+    resolveRootPathSync({
+>>>>>>> upstream/main
       absolutePath,
       rootPath: params.packageDir,
       ...(params.packageRootRealPath !== undefined

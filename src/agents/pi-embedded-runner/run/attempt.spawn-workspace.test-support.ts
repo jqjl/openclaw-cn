@@ -60,6 +60,10 @@ type AttemptSpawnWorkspaceHoisted = {
   sessionManagerOpenMock: UnknownMock;
   resolveSandboxContextMock: UnknownMock;
   ensureGlobalUndiciEnvProxyDispatcherMock: UnknownMock;
+<<<<<<< HEAD
+=======
+  ensureGlobalUndiciDispatcherStreamTimeoutsMock: UnknownMock;
+>>>>>>> upstream/main
   ensureGlobalUndiciStreamTimeoutsMock: UnknownMock;
   buildEmbeddedMessageActionDiscoveryInputMock: UnknownMock;
   createOpenClawCodingToolsMock: UnknownMock;
@@ -125,6 +129,10 @@ const hoisted = vi.hoisted((): AttemptSpawnWorkspaceHoisted => {
   const sessionManagerOpenMock = vi.fn();
   const resolveSandboxContextMock = vi.fn();
   const ensureGlobalUndiciEnvProxyDispatcherMock = vi.fn();
+<<<<<<< HEAD
+=======
+  const ensureGlobalUndiciDispatcherStreamTimeoutsMock = vi.fn();
+>>>>>>> upstream/main
   const ensureGlobalUndiciStreamTimeoutsMock = vi.fn();
   const buildEmbeddedMessageActionDiscoveryInputMock = vi.fn((params: unknown) => params);
   const createOpenClawCodingToolsMock = vi.fn(() => []);
@@ -193,6 +201,10 @@ const hoisted = vi.hoisted((): AttemptSpawnWorkspaceHoisted => {
     sessionManagerOpenMock,
     resolveSandboxContextMock,
     ensureGlobalUndiciEnvProxyDispatcherMock,
+<<<<<<< HEAD
+=======
+    ensureGlobalUndiciDispatcherStreamTimeoutsMock,
+>>>>>>> upstream/main
     ensureGlobalUndiciStreamTimeoutsMock,
     buildEmbeddedMessageActionDiscoveryInputMock,
     createOpenClawCodingToolsMock,
@@ -287,6 +299,11 @@ vi.mock("../../../infra/net/undici-global-dispatcher.js", () => ({
   DEFAULT_UNDICI_STREAM_TIMEOUT_MS: 120_000,
   ensureGlobalUndiciEnvProxyDispatcher: (...args: unknown[]) =>
     hoisted.ensureGlobalUndiciEnvProxyDispatcherMock(...args),
+<<<<<<< HEAD
+=======
+  ensureGlobalUndiciDispatcherStreamTimeouts: (...args: unknown[]) =>
+    hoisted.ensureGlobalUndiciDispatcherStreamTimeoutsMock(...args),
+>>>>>>> upstream/main
   ensureGlobalUndiciStreamTimeouts: (...args: unknown[]) =>
     hoisted.ensureGlobalUndiciStreamTimeoutsMock(...args),
 }));
@@ -350,6 +367,10 @@ vi.mock("../../pi-settings.js", () => ({
     },
   }),
   isSilentOverflowProneModel: () => false,
+<<<<<<< HEAD
+=======
+  resolveEffectiveCompactionMode: () => "default",
+>>>>>>> upstream/main
 }));
 
 vi.mock("../extensions.js", () => ({
@@ -791,6 +812,10 @@ export function resetEmbeddedAttemptHarness(
   hoisted.sessionManagerOpenMock.mockReset().mockReturnValue(hoisted.sessionManager);
   hoisted.resolveSandboxContextMock.mockReset();
   hoisted.ensureGlobalUndiciEnvProxyDispatcherMock.mockReset();
+<<<<<<< HEAD
+=======
+  hoisted.ensureGlobalUndiciDispatcherStreamTimeoutsMock.mockReset();
+>>>>>>> upstream/main
   hoisted.ensureGlobalUndiciStreamTimeoutsMock.mockReset();
   hoisted.buildEmbeddedMessageActionDiscoveryInputMock
     .mockReset()
@@ -1026,6 +1051,10 @@ export async function createContextEngineAttemptRunner(params: {
   sessionPrompt?: SessionPromptOverride;
   sessionKey: string;
   tempPaths: string[];
+<<<<<<< HEAD
+=======
+  trajectory?: boolean;
+>>>>>>> upstream/main
 }) {
   const { maintain: rawMaintain, ...contextEngineRest } = params.contextEngine;
   const workspaceDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-ctx-engine-workspace-"));
@@ -1061,6 +1090,7 @@ export async function createContextEngineAttemptRunner(params: {
     }),
   }));
 
+<<<<<<< HEAD
   return await (
     await loadRunEmbeddedAttempt()
   )({
@@ -1107,4 +1137,65 @@ export async function createContextEngineAttemptRunner(params: {
     },
     ...params.attemptOverrides,
   });
+=======
+  const previousTrajectoryEnv = process.env.OPENCLAW_TRAJECTORY;
+  if (params.trajectory !== true) {
+    process.env.OPENCLAW_TRAJECTORY = "0";
+  }
+  try {
+    return await (
+      await loadRunEmbeddedAttempt()
+    )({
+      sessionId: "embedded-session",
+      sessionKey: params.sessionKey,
+      sessionFile,
+      workspaceDir,
+      agentDir,
+      config: {},
+      prompt: "hello",
+      timeoutMs: 10_000,
+      runId: "run-context-engine-forwarding",
+      provider: "openai",
+      modelId: "gpt-test",
+      model: testModel,
+      authStorage: testAuthStorage as never,
+      authProfileStore: { version: 1, profiles: {} },
+      modelRegistry: {} as never,
+      thinkLevel: "off",
+      senderIsOwner: true,
+      disableTools: true,
+      disableMessageTool: true,
+      contextTokenBudget: 2048,
+      contextEngine: {
+        ...contextEngineRest,
+        ingest:
+          params.contextEngine.ingest ??
+          (async () => ({
+            ingested: true,
+          })),
+        compact:
+          params.contextEngine.compact ??
+          (async () => ({
+            ok: false,
+            compacted: false,
+            reason: "not used in this test",
+          })),
+        ...(maintain ? { maintain } : {}),
+        info: {
+          ...params.contextEngine.info,
+          id: infoId,
+          name: infoName,
+          version: infoVersion,
+        },
+      },
+      ...params.attemptOverrides,
+    });
+  } finally {
+    if (previousTrajectoryEnv === undefined) {
+      delete process.env.OPENCLAW_TRAJECTORY;
+    } else {
+      process.env.OPENCLAW_TRAJECTORY = previousTrajectoryEnv;
+    }
+  }
+>>>>>>> upstream/main
 }

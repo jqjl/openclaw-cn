@@ -4,6 +4,7 @@ import path from "node:path";
 import { beforeEach, expect, vi, type Mock } from "vitest";
 
 type ExecDockerRawFn = typeof import("./docker.js").execDockerRaw;
+<<<<<<< HEAD
 type OpenBoundaryFileFn = typeof import("./fs-bridge-path-safety.runtime.js").openBoundaryFile;
 type ExecDockerArgs = Parameters<ExecDockerRawFn>[0];
 type ExecDockerRawMock = Mock<ExecDockerRawFn>;
@@ -14,11 +15,27 @@ type FsBridgeHoisted = {
 };
 
 let actualOpenBoundaryFile: OpenBoundaryFileFn | undefined;
+=======
+type OpenRootFileFn = typeof import("./fs-bridge-path-safety.runtime.js").openRootFile;
+type ExecDockerArgs = Parameters<ExecDockerRawFn>[0];
+type ExecDockerRawMock = Mock<ExecDockerRawFn>;
+type OpenRootFileMock = Mock<OpenRootFileFn>;
+type FsBridgeHoisted = {
+  execDockerRaw: ExecDockerRawMock;
+  openRootFile: OpenRootFileMock;
+};
+
+let actualOpenRootFile: OpenRootFileFn | undefined;
+>>>>>>> upstream/main
 
 const hoisted = vi.hoisted(
   (): FsBridgeHoisted => ({
     execDockerRaw: vi.fn(),
+<<<<<<< HEAD
     openBoundaryFile: vi.fn(),
+=======
+    openRootFile: vi.fn(),
+>>>>>>> upstream/main
   }),
 );
 
@@ -31,11 +48,18 @@ vi.mock("./fs-bridge-path-safety.runtime.js", async () => {
   const actual = await vi.importActual<typeof import("./fs-bridge-path-safety.runtime.js")>(
     "./fs-bridge-path-safety.runtime.js",
   );
+<<<<<<< HEAD
   actualOpenBoundaryFile = actual.openBoundaryFile;
   return {
     ...actual,
     openBoundaryFile: (params: Parameters<OpenBoundaryFileFn>[0]) =>
       hoisted.openBoundaryFile(params),
+=======
+  actualOpenRootFile = actual.openRootFile;
+  return {
+    ...actual,
+    openRootFile: (params: Parameters<OpenRootFileFn>[0]) => hoisted.openRootFile(params),
+>>>>>>> upstream/main
   };
 });
 
@@ -54,11 +78,18 @@ async function loadFreshFsBridgeModuleForTest() {
     const actual = await vi.importActual<typeof import("./fs-bridge-path-safety.runtime.js")>(
       "./fs-bridge-path-safety.runtime.js",
     );
+<<<<<<< HEAD
     actualOpenBoundaryFile = actual.openBoundaryFile;
     return {
       ...actual,
       openBoundaryFile: (params: Parameters<OpenBoundaryFileFn>[0]) =>
         hoisted.openBoundaryFile(params),
+=======
+    actualOpenRootFile = actual.openRootFile;
+    return {
+      ...actual,
+      openRootFile: (params: Parameters<OpenRootFileFn>[0]) => hoisted.openRootFile(params),
+>>>>>>> upstream/main
     };
   });
   ({ createSandboxFsBridge: createSandboxFsBridgeImpl } = await import("./fs-bridge.js"));
@@ -74,7 +105,11 @@ export function createSandboxFsBridge(
 }
 
 export const mockedExecDockerRaw: ExecDockerRawMock = hoisted.execDockerRaw;
+<<<<<<< HEAD
 export const mockedOpenBoundaryFile: OpenBoundaryFileMock = hoisted.openBoundaryFile;
+=======
+export const mockedOpenRootFile: OpenRootFileMock = hoisted.openRootFile;
+>>>>>>> upstream/main
 const DOCKER_SCRIPT_INDEX = 5;
 const DOCKER_FIRST_SCRIPT_ARG_INDEX = 7;
 
@@ -206,7 +241,11 @@ export async function expectMkdirpAllowsExistingDirectory(params?: {
     await fs.mkdir(nestedDir, { recursive: true });
 
     if (params?.forceBoundaryIoFallback) {
+<<<<<<< HEAD
       mockedOpenBoundaryFile.mockImplementationOnce(async () => ({
+=======
+      mockedOpenRootFile.mockImplementationOnce(async () => ({
+>>>>>>> upstream/main
         ok: false,
         reason: "io",
         error: Object.assign(new Error("EISDIR"), { code: "EISDIR" }),
@@ -239,9 +278,15 @@ export function installFsBridgeTestHarness() {
   beforeEach(async () => {
     await loadFreshFsBridgeModuleForTest();
     mockedExecDockerRaw.mockClear();
+<<<<<<< HEAD
     mockedOpenBoundaryFile.mockClear();
     if (actualOpenBoundaryFile) {
       mockedOpenBoundaryFile.mockImplementation(actualOpenBoundaryFile);
+=======
+    mockedOpenRootFile.mockClear();
+    if (actualOpenRootFile) {
+      mockedOpenRootFile.mockImplementation(actualOpenRootFile);
+>>>>>>> upstream/main
     }
     installDockerReadMock();
   });

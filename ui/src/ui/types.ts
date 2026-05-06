@@ -19,6 +19,11 @@ export type ChannelsStatusSnapshot = {
   channels: Record<string, unknown>;
   channelAccounts: Record<string, ChannelAccountSnapshot[]>;
   channelDefaultAccountId: Record<string, string>;
+<<<<<<< HEAD
+=======
+  partial?: boolean;
+  warnings?: string[];
+>>>>>>> upstream/main
 };
 
 export type ChannelUiMetaEntry = {

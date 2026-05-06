@@ -21,7 +21,11 @@ export {
   runPassiveAccountLifecycle,
 } from "openclaw/plugin-sdk/channel-lifecycle";
 export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
+<<<<<<< HEAD
 export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+export { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 export {
   evaluateGroupRouteAccessForPolicy,
   resolveDmGroupAccessWithLists,

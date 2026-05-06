@@ -5,7 +5,11 @@ import { createTempHomeEnv, type TempHomeEnv } from "../test-utils/temp-home.js"
 
 const mocks = vi.hoisted(() => ({
   readLocalFileSafely: vi.fn(),
+<<<<<<< HEAD
   isSafeOpenError: vi.fn(
+=======
+  isFsSafeError: vi.fn(
+>>>>>>> upstream/main
     (error: unknown) => typeof error === "object" && error !== null && "code" in error,
   ),
 }));
@@ -13,7 +17,11 @@ const mocks = vi.hoisted(() => ({
 vi.mock("./store.runtime.js", () => {
   return {
     readLocalFileSafely: mocks.readLocalFileSafely,
+<<<<<<< HEAD
     isSafeOpenError: mocks.isSafeOpenError,
+=======
+    isFsSafeError: mocks.isFsSafeError,
+>>>>>>> upstream/main
   };
 });
 

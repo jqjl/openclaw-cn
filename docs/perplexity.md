@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 summary: "Perplexity Search API and Sonar/OpenRouter compatibility for web_search"
 read_when:
   - You want to use Perplexity Search for web search
@@ -184,3 +185,15 @@ See [Perplexity Search API docs](https://docs.perplexity.ai/docs/search/quicksta
 
 - [Perplexity search](/tools/perplexity-search)
 - [Web search](/tools/web)
+=======
+summary: "Redirect to /tools/perplexity-search"
+title: "Perplexity search"
+redirect: /tools/perplexity-search
+---
+
+This page has moved to [Perplexity search](/tools/perplexity-search).
+
+## Related
+
+- [Web tools](/tools/web)
+>>>>>>> upstream/main

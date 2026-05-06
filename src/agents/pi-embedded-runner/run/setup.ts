@@ -117,6 +117,10 @@ export function buildBeforeModelResolveAttachments(
 export function resolveEffectiveRuntimeModel(params: {
   cfg: OpenClawConfig | undefined;
   provider: string;
+<<<<<<< HEAD
+=======
+  contextConfigProvider?: string;
+>>>>>>> upstream/main
   modelId: string;
   runtimeModel: ProviderRuntimeModel;
 }): {
@@ -125,7 +129,11 @@ export function resolveEffectiveRuntimeModel(params: {
 } {
   const ctxInfo = resolveContextWindowInfo({
     cfg: params.cfg,
+<<<<<<< HEAD
     provider: params.provider,
+=======
+    provider: params.contextConfigProvider ?? params.provider,
+>>>>>>> upstream/main
     modelId: params.modelId,
     modelContextTokens: readPiModelContextTokens(params.runtimeModel),
     modelContextWindow: params.runtimeModel.contextWindow,

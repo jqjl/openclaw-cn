@@ -27,8 +27,13 @@ Only clients that explicitly call `node.pair.*` use this flow.
 1. A node connects to the Gateway WS and requests pairing.
 2. The Gateway stores a **pending request** and emits `node.pair.requested`.
 3. You approve or reject the request (CLI or UI).
+<<<<<<< HEAD
 4. On approval, the Gateway issues a **new token** (tokens are rotated on re‑pair).
 5. The node reconnects using the token and is now “paired”.
+=======
+4. On approval, the Gateway issues a **new token** (tokens are rotated on re-pair).
+5. The node reconnects using the token and is now "paired".
+>>>>>>> upstream/main
 
 Pending requests expire automatically after **5 minutes**.
 
@@ -49,6 +54,7 @@ openclaw nodes rename --node <id|name|ip> --name "Living Room iPad"
 
 Events:
 
+<<<<<<< HEAD
 - `node.pair.requested` — emitted when a new pending request is created.
 - `node.pair.resolved` — emitted when a request is approved/rejected/expired.
 
@@ -60,6 +66,19 @@ Methods:
 - `node.pair.reject` — reject a pending request.
 - `node.pair.remove` — remove a stale paired node entry.
 - `node.pair.verify` — verify `{ nodeId, token }`.
+=======
+- `node.pair.requested` - emitted when a new pending request is created.
+- `node.pair.resolved` - emitted when a request is approved/rejected/expired.
+
+Methods:
+
+- `node.pair.request` - create or reuse a pending request.
+- `node.pair.list` - list pending + paired nodes (`operator.pairing`).
+- `node.pair.approve` - approve a pending request (issues token).
+- `node.pair.reject` - reject a pending request.
+- `node.pair.remove` - remove a stale paired node entry.
+- `node.pair.verify` - verify `{ nodeId, token }`.
+>>>>>>> upstream/main
 
 Notes:
 
@@ -120,7 +139,70 @@ The macOS app can optionally attempt a **silent approval** when:
 - the request is marked `silent`, and
 - the app can verify an SSH connection to the gateway host using the same user.
 
+<<<<<<< HEAD
 If silent approval fails, it falls back to the normal “Approve/Reject” prompt.
+=======
+If silent approval fails, it falls back to the normal "Approve/Reject" prompt.
+
+## Trusted-CIDR device auto-approval
+
+WS device pairing for `role: node` remains manual by default. For private
+node networks where the Gateway already trusts the network path, operators can
+opt in with explicit CIDRs or exact IPs:
+
+```json5
+{
+  gateway: {
+    nodes: {
+      pairing: {
+        autoApproveCidrs: ["192.168.1.0/24"],
+      },
+    },
+  },
+}
+```
+
+Security boundary:
+
+- Disabled when `gateway.nodes.pairing.autoApproveCidrs` is unset.
+- No blanket LAN or private-network auto-approve mode exists.
+- Only fresh `role: node` device pairing with no requested scopes is eligible.
+- Operator, browser, Control UI, and WebChat clients stay manual.
+- Role, scope, metadata, and public-key upgrades stay manual.
+- Same-host loopback trusted-proxy header paths are not eligible because that
+  path can be spoofed by local callers.
+
+## Metadata-upgrade auto-approval
+
+When an already paired device reconnects with only non-sensitive metadata
+changes (for example, display name or client platform hints), OpenClaw treats
+that as a `metadata-upgrade`. Silent auto-approval is narrow: it applies only
+to trusted non-browser local reconnects that already proved possession of local
+or shared credentials, including same-host native app reconnects after OS
+version metadata changes. Browser/Control UI clients and remote clients still
+use the explicit re-approval flow. Scope upgrades (read to write/admin) and
+public key changes are **not** eligible for metadata-upgrade auto-approval -
+they stay as explicit re-approval requests.
+
+## QR pairing helpers
+
+`/pair qr` renders the pairing payload as structured media so mobile and
+browser clients can scan it directly.
+
+Deleting a device also sweeps any stale pending pairing requests for that
+device id, so `nodes pending` does not show orphaned rows after a revoke.
+
+## Locality and forwarded headers
+
+Gateway pairing treats a connection as loopback only when both the raw socket
+and any upstream proxy evidence agree. If a request arrives on loopback but
+carries `X-Forwarded-For` / `X-Forwarded-Host` / `X-Forwarded-Proto` headers
+that point at a non-local origin, that forwarded-header evidence disqualifies
+the loopback locality claim. The pairing path then requires explicit approval
+instead of silently treating the request as a same-host connect. See
+[Trusted Proxy Auth](/gateway/trusted-proxy-auth) for the equivalent rule on
+operator auth.
+>>>>>>> upstream/main
 
 ## Storage (local, private)
 
@@ -140,7 +222,11 @@ Security notes:
 
 - The transport is **stateless**; it does not store membership.
 - If the Gateway is offline or pairing is disabled, nodes cannot pair.
+<<<<<<< HEAD
 - If the Gateway is in remote mode, pairing still happens against the remote Gateway’s store.
+=======
+- If the Gateway is in remote mode, pairing still happens against the remote Gateway's store.
+>>>>>>> upstream/main
 
 ## Related
 

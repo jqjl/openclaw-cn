@@ -194,7 +194,15 @@ export async function monitorMSTeamsProvider(
       }
     }
   } catch (err) {
+<<<<<<< HEAD
     runtime.log?.(`msteams resolve failed; using config entries. ${formatUnknownError(err)}`);
+=======
+    // Log at error (not log) — allowlist resolution failures leave the bot in a
+    // degraded state where Graph-resolved IDs are missing (#77674).
+    runtime?.error(
+      `msteams resolve failed; falling back to raw config entries — allowlist members resolved via Graph may be missing. ${formatUnknownError(err)}`,
+    );
+>>>>>>> upstream/main
   }
 
   msteamsCfg = {
@@ -300,7 +308,27 @@ export async function monitorMSTeamsProvider(
         next();
       })
       .catch((err) => {
+<<<<<<< HEAD
         log.debug?.(`JWT validation error: ${formatUnknownError(err)}`);
+=======
+        // Network-level failures (DNS, firewall, TLS toward login.botframework.com)
+        // are rethrown by the validator so we can log them visibly. Without this,
+        // they look identical to a bad credential at default log levels (#77674).
+        const isNetworkFailure =
+          err instanceof Error &&
+          /ECONNREFUSED|ENOTFOUND|EHOSTUNREACH|ETIMEDOUT|ECONNRESET/i.test(
+            (err as NodeJS.ErrnoException).code ?? err.message,
+          );
+        if (isNetworkFailure) {
+          // Network failure fetching JWKS keys — log visibly so operators can
+          // identify egress blocks to login.botframework.com (#77674).
+          runtime?.error(
+            `msteams: JWKS key fetch failed — check egress to login.botframework.com:443 (firewall or DNS may be blocking it). Bot will 401 all inbound requests until this is resolved. Error: ${formatUnknownError(err)}`,
+          );
+        } else {
+          log.debug?.(`JWT validation error: ${formatUnknownError(err)}`);
+        }
+>>>>>>> upstream/main
         res.status(401).json({ error: "Unauthorized" });
       });
   });

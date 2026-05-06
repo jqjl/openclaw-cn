@@ -20,7 +20,15 @@ try {
 
   for (const schema of selectedCodexAppServerJsonSchemas) {
     await fs.mkdir(path.dirname(path.join(targetRoot, "json", schema)), { recursive: true });
+<<<<<<< HEAD
     await fs.copyFile(path.join(source.jsonRoot, schema), path.join(targetRoot, "json", schema));
+=======
+    const schemaSource = await fs.readFile(path.join(source.jsonRoot, schema), "utf8");
+    await fs.writeFile(
+      path.join(targetRoot, "json", schema),
+      `${JSON.stringify(JSON.parse(schemaSource))}\n`,
+    );
+>>>>>>> upstream/main
   }
 } finally {
   await source.cleanup();

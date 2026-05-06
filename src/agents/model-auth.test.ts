@@ -124,6 +124,10 @@ vi.mock("../plugins/provider-runtime.js", async () => {
 let applyAuthHeaderOverride: typeof import("./model-auth.js").applyAuthHeaderOverride;
 let applyLocalNoAuthHeaderOverride: typeof import("./model-auth.js").applyLocalNoAuthHeaderOverride;
 let hasUsableCustomProviderApiKey: typeof import("./model-auth.js").hasUsableCustomProviderApiKey;
+<<<<<<< HEAD
+=======
+let hasSyntheticLocalProviderAuthConfig: typeof import("./model-auth.js").hasSyntheticLocalProviderAuthConfig;
+>>>>>>> upstream/main
 let requireApiKey: typeof import("./model-auth.js").requireApiKey;
 let resolveApiKeyForProvider: typeof import("./model-auth.js").resolveApiKeyForProvider;
 let resolveAwsSdkEnvVarName: typeof import("./model-auth.js").resolveAwsSdkEnvVarName;
@@ -140,6 +144,10 @@ beforeAll(async () => {
   ({
     applyAuthHeaderOverride,
     applyLocalNoAuthHeaderOverride,
+<<<<<<< HEAD
+=======
+    hasSyntheticLocalProviderAuthConfig,
+>>>>>>> upstream/main
     hasUsableCustomProviderApiKey,
     requireApiKey,
     resolveApiKeyForProvider,
@@ -862,6 +870,36 @@ describe("resolveApiKeyForProvider", () => {
 });
 
 describe("resolveApiKeyForProvider – synthetic local auth for custom providers", () => {
+<<<<<<< HEAD
+=======
+  it("recognizes local baseUrl variants for synthetic auth config", () => {
+    const localBaseUrls = [
+      "http://127.0.0.1:8080/v1",
+      "http://192.168.0.222:11434/v1",
+      "http://localhost:11434/v1",
+      "http://[::1]:8080/v1",
+      "http://0.0.0.0:11434/v1",
+      "http://[::ffff:127.0.0.1]:8080/v1",
+    ];
+
+    for (const baseUrl of localBaseUrls) {
+      expect(
+        hasSyntheticLocalProviderAuthConfig({
+          provider: "custom-local",
+          cfg: {
+            models: {
+              providers: {
+                "custom-local": createCustomProviderConfig(baseUrl),
+              },
+            },
+          },
+        }),
+        baseUrl,
+      ).toBe(true);
+    }
+  });
+
+>>>>>>> upstream/main
   it("synthesizes a local auth marker for custom providers with a local baseUrl and no apiKey", async () => {
     const auth = await resolveCustomProviderAuth(
       "custom-127-0-0-1-8080",
@@ -873,6 +911,7 @@ describe("resolveApiKeyForProvider – synthetic local auth for custom providers
     expect(auth.source).toContain("synthetic local key");
   });
 
+<<<<<<< HEAD
   it("synthesizes a local auth marker for private LAN custom providers with no apiKey", async () => {
     const auth = await resolveCustomProviderAuth(
       "custom-192-168-0-222-11434",
@@ -910,6 +949,22 @@ describe("resolveApiKeyForProvider – synthetic local auth for custom providers
   });
 
   it("does not synthesize auth for remote custom providers without apiKey", async () => {
+=======
+  it("does not synthesize auth for remote custom providers without apiKey", async () => {
+    expect(
+      hasSyntheticLocalProviderAuthConfig({
+        provider: "my-remote",
+        cfg: {
+          models: {
+            providers: {
+              "my-remote": createCustomProviderConfig("https://api.example.com/v1"),
+            },
+          },
+        },
+      }),
+    ).toBe(false);
+
+>>>>>>> upstream/main
     await expect(
       resolveApiKeyForProvider({
         provider: "my-remote",

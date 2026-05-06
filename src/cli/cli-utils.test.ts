@@ -4,7 +4,14 @@ import { registerDnsCli } from "./dns-cli.js";
 import { parseCanvasSnapshotPayload } from "./nodes-canvas.js";
 import { parseByteSize } from "./parse-bytes.js";
 import { parseDurationMs } from "./parse-duration.js";
+<<<<<<< HEAD
 import { shouldSkipRespawnForArgv } from "./respawn-policy.js";
+=======
+import {
+  shouldSkipRespawnForArgv,
+  shouldSkipStartupEnvironmentRespawnForArgv,
+} from "./respawn-policy.js";
+>>>>>>> upstream/main
 import { waitForever } from "./wait.js";
 
 describe("waitForever", () => {
@@ -21,6 +28,12 @@ describe("shouldSkipRespawnForArgv", () => {
   it.each([
     { argv: ["node", "openclaw", "--help"] },
     { argv: ["node", "openclaw", "-V"] },
+<<<<<<< HEAD
+=======
+    { argv: ["node", "openclaw", "tui"] },
+    { argv: ["node", "openclaw", "terminal"] },
+    { argv: ["node", "openclaw", "chat"] },
+>>>>>>> upstream/main
     { argv: ["node", "openclaw", "gateway"] },
     { argv: ["node", "openclaw", "gateway", "--port", "14720", "--bind", "loopback"] },
     { argv: ["node", "openclaw", "gateway", "run", "--port=14720", "--bind", "loopback"] },
@@ -40,6 +53,28 @@ describe("shouldSkipRespawnForArgv", () => {
   });
 });
 
+<<<<<<< HEAD
+=======
+describe("shouldSkipStartupEnvironmentRespawnForArgv", () => {
+  it.each([
+    { argv: ["node", "openclaw", "--help"] },
+    { argv: ["node", "openclaw", "gateway"] },
+    { argv: ["node", "openclaw", "gateway", "run", "--port=14720"] },
+  ] as const)("skips startup env respawn for argv %j", ({ argv }) => {
+    expect(shouldSkipStartupEnvironmentRespawnForArgv([...argv]), argv.join(" ")).toBe(true);
+  });
+
+  it.each([
+    { argv: ["node", "openclaw", "tui"] },
+    { argv: ["node", "openclaw", "terminal"] },
+    { argv: ["node", "openclaw", "chat"] },
+    { argv: ["node", "openclaw", "status"] },
+  ] as const)("allows startup env respawn for argv %j", ({ argv }) => {
+    expect(shouldSkipStartupEnvironmentRespawnForArgv([...argv]), argv.join(" ")).toBe(false);
+  });
+});
+
+>>>>>>> upstream/main
 describe("nodes canvas helpers", () => {
   it("parses canvas.snapshot payload", () => {
     expect(parseCanvasSnapshotPayload({ format: "png", base64: "aGk=" })).toEqual({

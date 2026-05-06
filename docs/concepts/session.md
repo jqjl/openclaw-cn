@@ -83,6 +83,13 @@ rolls the session, queued system-event notices for the old session are
 discarded so stale background updates are not prepended to the first prompt in
 the new session.
 
+<<<<<<< HEAD
+=======
+Sessions with an active provider-owned CLI session are not cut by the implicit
+daily default. Use `/reset` or configure `session.reset` explicitly when those
+sessions should expire on a timer.
+
+>>>>>>> upstream/main
 ## Where state lives
 
 All session state is owned by the **gateway**. UI clients query the gateway for

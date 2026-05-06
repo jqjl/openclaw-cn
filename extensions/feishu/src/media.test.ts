@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { realpathSync } from "node:fs";
+>>>>>>> upstream/main
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
@@ -61,7 +65,11 @@ function expectPathIsolatedToTmpRoot(pathValue: string, key: string): void {
   expect(pathValue).not.toContain(key);
   expect(pathValue).not.toContain("..");
 
+<<<<<<< HEAD
   const tmpRoot = path.resolve(resolvePreferredOpenClawTmpDir());
+=======
+  const tmpRoot = realpathSync(resolvePreferredOpenClawTmpDir());
+>>>>>>> upstream/main
   const resolved = path.resolve(pathValue);
   const rel = path.relative(tmpRoot, resolved);
   expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);

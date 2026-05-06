@@ -32,6 +32,10 @@ type ExternalOptionFunction = (
 const env = {
   NODE_ENV: "production",
 };
+<<<<<<< HEAD
+=======
+const OUTPUT_SOURCE_MAPS = process.env.OUTPUT_SOURCE_MAPS === "1";
+>>>>>>> upstream/main
 
 const SUPPRESSED_EVAL_WARNING_PATHS = [
   "@protobufjs/inquire/index.js",
@@ -122,6 +126,10 @@ function nodeBuildConfig(config: UserConfig): UserConfig {
     env,
     fixedExtension: false,
     platform: "node",
+<<<<<<< HEAD
+=======
+    sourcemap: OUTPUT_SOURCE_MAPS,
+>>>>>>> upstream/main
     inputOptions: buildInputOptions,
   };
 }
@@ -172,6 +180,13 @@ function shouldNeverBundleDependency(id: string): boolean {
   });
 }
 
+<<<<<<< HEAD
+=======
+function shouldAlwaysBundleDependency(id: string): boolean {
+  return id === "@openclaw/fs-safe" || id.startsWith("@openclaw/fs-safe/");
+}
+
+>>>>>>> upstream/main
 function listBundledPluginEntrySources(
   entries: Array<{
     id: string;
@@ -295,6 +310,10 @@ export default defineConfig([
     clean: true,
     entry: buildUnifiedDistEntries(),
     deps: {
+<<<<<<< HEAD
+=======
+      alwaysBundle: shouldAlwaysBundleDependency,
+>>>>>>> upstream/main
       neverBundle: shouldNeverBundleDependency,
     },
   }),

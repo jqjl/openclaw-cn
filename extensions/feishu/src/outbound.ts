@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import fs from "node:fs";
+=======
+>>>>>>> upstream/main
 import path from "node:path";
 import {
   attachChannelToResult,
@@ -18,6 +21,10 @@ import {
   sendPayloadMediaSequenceAndFinalize,
   sendTextMediaPayload,
 } from "openclaw/plugin-sdk/reply-payload";
+<<<<<<< HEAD
+=======
+import { statRegularFileSync } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
 import { resolveFeishuAccount } from "./accounts.js";
 import { createFeishuCardInteractionEnvelope } from "./card-interaction.js";
@@ -66,6 +73,7 @@ function normalizePossibleLocalImagePath(text: string | undefined): string | nul
   if (!path.isAbsolute(raw)) {
     return null;
   }
+<<<<<<< HEAD
   if (!fs.existsSync(raw)) {
     return null;
   }
@@ -78,6 +86,14 @@ function normalizePossibleLocalImagePath(text: string | undefined): string | nul
     }
   } catch {
     // File may have been deleted or became inaccessible between checks
+=======
+  try {
+    const stat = statRegularFileSync(raw);
+    if (stat.missing) {
+      return null;
+    }
+  } catch {
+>>>>>>> upstream/main
     return null;
   }
 

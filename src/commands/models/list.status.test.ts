@@ -35,7 +35,10 @@ const mocks = vi.hoisted(() => {
 
   return {
     store,
+<<<<<<< HEAD
     resolveOpenClawAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
+=======
+>>>>>>> upstream/main
     resolveAgentDir: vi.fn().mockReturnValue("/tmp/openclaw-agent"),
     resolveAgentWorkspaceDir: vi.fn().mockReturnValue("/tmp/openclaw-agent/workspace"),
     resolveDefaultAgentId: vi.fn().mockReturnValue("main"),
@@ -139,9 +142,12 @@ const mocks = vi.hoisted(() => {
   };
 });
 
+<<<<<<< HEAD
 vi.mock("../../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
 }));
+=======
+>>>>>>> upstream/main
 vi.mock("../../agents/agent-scope.js", () => ({
   resolveAgentDir: mocks.resolveAgentDir,
   resolveAgentWorkspaceDir: mocks.resolveAgentWorkspaceDir,
@@ -310,7 +316,11 @@ describe("modelsStatusCommand auth overview", () => {
     await modelsStatusCommand({ json: true }, runtime as never);
     const payload = JSON.parse(String((runtime.log as Mock).mock.calls[0]?.[0]));
 
+<<<<<<< HEAD
     expect(mocks.resolveOpenClawAgentDir).toHaveBeenCalled();
+=======
+    expect(mocks.resolveAgentDir).toHaveBeenCalledWith(expect.anything(), "main");
+>>>>>>> upstream/main
     expect(mocks.ensureAuthProfileStore).toHaveBeenCalled();
     expect(payload.defaultModel).toBe("anthropic/claude-opus-4-6");
     expect(payload.configPath).toBe("/tmp/openclaw-dev/openclaw.json");
@@ -362,6 +372,31 @@ describe("modelsStatusCommand auth overview", () => {
     ).toBe(true);
   });
 
+<<<<<<< HEAD
+=======
+  it("honors OPENCLAW_AGENT_DIR when no --agent override is provided", async () => {
+    const localRuntime = createRuntime();
+    const previous = process.env.OPENCLAW_AGENT_DIR;
+    process.env.OPENCLAW_AGENT_DIR = "/tmp/openclaw-isolated-agent";
+    mocks.resolveAgentDir.mockClear();
+    try {
+      await modelsStatusCommand({ json: true }, localRuntime as never);
+    } finally {
+      if (previous === undefined) {
+        delete process.env.OPENCLAW_AGENT_DIR;
+      } else {
+        process.env.OPENCLAW_AGENT_DIR = previous;
+      }
+    }
+
+    expect(mocks.resolveAgentDir).not.toHaveBeenCalled();
+    expect(mocks.ensureAuthProfileStore).toHaveBeenCalledWith("/tmp/openclaw-isolated-agent");
+    const payload = JSON.parse(String((localRuntime.log as Mock).mock.calls[0]?.[0]));
+    expect(payload.agentDir).toBe("/tmp/openclaw-isolated-agent");
+    expect(payload.auth.storePath).toBe("/tmp/openclaw-isolated-agent/auth-profiles.json");
+  });
+
+>>>>>>> upstream/main
   it("uses agent overrides and reports sources", async () => {
     const localRuntime = createRuntime();
     await withAgentScopeOverrides(

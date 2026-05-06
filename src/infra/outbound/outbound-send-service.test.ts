@@ -1,4 +1,13 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import type { ChannelPlugin } from "../../channels/plugins/types.public.js";
+import { setActivePluginRegistry } from "../../plugins/runtime.js";
+import {
+  createChannelTestPluginBase,
+  createTestRegistry,
+} from "../../test-utils/channel-plugins.js";
+>>>>>>> upstream/main
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../../utils/message-channel.js";
 
 const getDefaultMediaLocalRootsMock = vi.hoisted(() => vi.fn(() => []));
@@ -175,6 +184,10 @@ describe("executeSendAction", () => {
   });
 
   beforeEach(() => {
+<<<<<<< HEAD
+=======
+    setActivePluginRegistry(createTestRegistry([]));
+>>>>>>> upstream/main
     mocks.dispatchChannelMessageAction.mockClear();
     mocks.sendMessage.mockClear();
     mocks.sendPoll.mockClear();
@@ -589,6 +602,95 @@ describe("executeSendAction", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("routes prepared plugin send payloads through core best-effort delivery by default", async () => {
+    const prepareSendPayload = vi.fn(({ payload }) => ({
+      ...payload,
+      channelData: { prepared: true },
+    }));
+    const plugin: ChannelPlugin = {
+      ...createChannelTestPluginBase({ id: "discord" }),
+      actions: {
+        describeMessageTool: () => ({ actions: ["send"] }),
+        prepareSendPayload,
+        handleAction: async () => ({ content: [], details: { ok: true } }),
+      },
+      outbound: { deliveryMode: "direct" },
+    };
+    setActivePluginRegistry(createTestRegistry([{ pluginId: "discord", plugin, source: "test" }]));
+    mocks.sendMessage.mockResolvedValue({
+      channel: "discord",
+      to: "channel:123",
+      via: "direct",
+      mediaUrl: null,
+    });
+
+    await executeSendAction({
+      ctx: {
+        cfg: {},
+        channel: "discord",
+        params: { to: "channel:123", message: "hello" },
+        dryRun: false,
+      },
+      to: "channel:123",
+      message: "hello",
+    });
+
+    expect(prepareSendPayload).toHaveBeenCalled();
+    expect(mocks.dispatchChannelMessageAction).not.toHaveBeenCalled();
+    expect(mocks.sendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "discord",
+        queuePolicy: "best_effort",
+        payloads: [expect.objectContaining({ channelData: { prepared: true } })],
+      }),
+    );
+  });
+
+  it("uses required core delivery only when the send action opts out of best-effort", async () => {
+    const prepareSendPayload = vi.fn(({ payload }) => ({
+      ...payload,
+      channelData: { prepared: true },
+    }));
+    const plugin: ChannelPlugin = {
+      ...createChannelTestPluginBase({ id: "discord" }),
+      actions: {
+        describeMessageTool: () => ({ actions: ["send"] }),
+        prepareSendPayload,
+        handleAction: async () => ({ content: [], details: { ok: true } }),
+      },
+      outbound: { deliveryMode: "direct" },
+    };
+    setActivePluginRegistry(createTestRegistry([{ pluginId: "discord", plugin, source: "test" }]));
+    mocks.sendMessage.mockResolvedValue({
+      channel: "discord",
+      to: "channel:123",
+      via: "direct",
+      mediaUrl: null,
+    });
+
+    await executeSendAction({
+      ctx: {
+        cfg: {},
+        channel: "discord",
+        params: { to: "channel:123", message: "hello" },
+        dryRun: false,
+      },
+      to: "channel:123",
+      message: "hello",
+      bestEffort: false,
+    });
+
+    expect(mocks.sendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "discord",
+        queuePolicy: "required",
+      }),
+    );
+  });
+
+>>>>>>> upstream/main
   it("forwards poll args to sendPoll on core outbound path", async () => {
     mocks.dispatchChannelMessageAction.mockResolvedValue(null);
     mocks.sendPoll.mockResolvedValue({

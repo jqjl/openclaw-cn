@@ -3,6 +3,10 @@ import { discordQaCliRegistration } from "./discord/cli.js";
 import type { LiveTransportQaCliRegistration } from "./shared/live-transport-cli.js";
 import { slackQaCliRegistration } from "./slack/cli.js";
 import { telegramQaCliRegistration } from "./telegram/cli.js";
+<<<<<<< HEAD
+=======
+import { whatsappQaCliRegistration } from "./whatsapp/cli.js";
+>>>>>>> upstream/main
 
 function createBlockedQaRunnerCliRegistration(params: {
   commandName: string;
@@ -40,6 +44,10 @@ const LIVE_TRANSPORT_QA_CLI_REGISTRATIONS: readonly LiveTransportQaCliRegistrati
   telegramQaCliRegistration,
   discordQaCliRegistration,
   slackQaCliRegistration,
+<<<<<<< HEAD
+=======
+  whatsappQaCliRegistration,
+>>>>>>> upstream/main
 ];
 
 export function listLiveTransportQaCliRegistrations(): readonly LiveTransportQaCliRegistration[] {

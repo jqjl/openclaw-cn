@@ -63,6 +63,10 @@ describe("status.command-sections", () => {
           updatedAt: 1,
           age: 5_000,
           model: "gpt-5.4",
+<<<<<<< HEAD
+=======
+          runtime: "OpenAI Codex",
+>>>>>>> upstream/main
           totalTokens: null,
           totalTokensFresh: false,
           remainingTokens: null,
@@ -76,6 +80,10 @@ describe("status.command-sections", () => {
           updatedAt: 2,
           age: 7_000,
           model: "gpt-5.5",
+<<<<<<< HEAD
+=======
+          runtime: "OpenClaw Pi Default",
+>>>>>>> upstream/main
           totalTokens: null,
           totalTokensFresh: false,
           remainingTokens: null,
@@ -98,6 +106,10 @@ describe("status.command-sections", () => {
         Kind: "direct",
         Age: "5000ms",
         Model: "gpt-5.4",
+<<<<<<< HEAD
+=======
+        Runtime: "OpenAI Codex",
+>>>>>>> upstream/main
         Tokens: "12k",
         Cache: "cache ok",
       },
@@ -106,6 +118,10 @@ describe("status.command-sections", () => {
         Kind: "cron",
         Age: "7000ms",
         Model: "gpt-5.5",
+<<<<<<< HEAD
+=======
+        Runtime: "OpenClaw Pi Default",
+>>>>>>> upstream/main
         Tokens: "12k",
         Cache: "cache ok",
       },
@@ -127,6 +143,10 @@ describe("status.command-sections", () => {
         Kind: "",
         Age: "",
         Model: "",
+<<<<<<< HEAD
+=======
+        Runtime: "",
+>>>>>>> upstream/main
         Tokens: "",
         Cache: "",
       },

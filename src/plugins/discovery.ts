@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { PluginInstallRecord } from "../config/types.plugins.js";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { readRootJsonObjectSync } from "../infra/json-files.js";
+import { tryReadJsonSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -414,6 +419,7 @@ function readPackageManifest(
   rejectHardlinks = true,
   rootRealPath?: string,
 ): PackageManifest | null {
+<<<<<<< HEAD
   const manifestPath = path.join(dir, "package.json");
   const opened = openBoundaryFileSync({
     absolutePath: manifestPath,
@@ -441,6 +447,20 @@ function readTrustedPackageManifest(dir: string): PackageManifest | null {
   } catch {
     return null;
   }
+=======
+  const result = readRootJsonObjectSync({
+    rootDir: dir,
+    ...(rootRealPath !== undefined ? { rootRealPath } : {}),
+    relativePath: "package.json",
+    boundaryLabel: "plugin package directory",
+    rejectHardlinks,
+  });
+  return result.ok ? (result.value as PackageManifest) : null;
+}
+
+function readTrustedPackageManifest(dir: string): PackageManifest | null {
+  return tryReadJsonSync<PackageManifest>(path.join(dir, "package.json"));
+>>>>>>> upstream/main
 }
 
 function readCandidatePackageManifest(params: {

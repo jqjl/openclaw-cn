@@ -534,6 +534,10 @@ describeLive("android node capability integration (preconditioned)", () => {
     const allowlist = resolveNodeCommandAllowlist(cfg, {
       platform: target.platform,
       deviceFamily: target.deviceFamily,
+<<<<<<< HEAD
+=======
+      commands,
+>>>>>>> upstream/main
     });
 
     commandsToRun = commands.filter(

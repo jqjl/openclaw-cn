@@ -13,14 +13,24 @@ title: "macOS logging"
 OpenClaw routes macOS app logs through swift-log (unified logging by default) and can write a local, rotating file log to disk when you need a durable capture.
 
 - Verbosity: **Debug pane → Logs → App logging → Verbosity**
+<<<<<<< HEAD
 - Enable: **Debug pane → Logs → App logging → “Write rolling diagnostics log (JSONL)”**
 - Location: `~/Library/Logs/OpenClaw/diagnostics.jsonl` (rotates automatically; old files are suffixed with `.1`, `.2`, …)
 - Clear: **Debug pane → Logs → App logging → “Clear”**
+=======
+- Enable: **Debug pane → Logs → App logging → "Write rolling diagnostics log (JSONL)"**
+- Location: `~/Library/Logs/OpenClaw/diagnostics.jsonl` (rotates automatically; old files are suffixed with `.1`, `.2`, …)
+- Clear: **Debug pane → Logs → App logging → "Clear"**
+>>>>>>> upstream/main
 
 Notes:
 
 - This is **off by default**. Enable only while actively debugging.
+<<<<<<< HEAD
 - Treat the file as sensitive; don’t share it without review.
+=======
+- Treat the file as sensitive; don't share it without review.
+>>>>>>> upstream/main
 
 ## Unified logging private data on macOS
 

@@ -102,7 +102,11 @@
     },
     {
       "source": "/tools/capability-cookbook",
+<<<<<<< HEAD
       "destination": "/plugins/architecture"
+=======
+      "destination": "/plugins/adding-capabilities"
+>>>>>>> upstream/main
     },
     {
       "source": "/brave-search",
@@ -1163,6 +1167,10 @@
                 "group": "Messages and delivery",
                 "pages": [
                   "concepts/messages",
+<<<<<<< HEAD
+=======
+                  "concepts/message-lifecycle-refactor",
+>>>>>>> upstream/main
                   "concepts/streaming",
                   "concepts/progress-drafts",
                   "concepts/retry",
@@ -1205,7 +1213,13 @@
                       "plugins/building-plugins",
                       "plugins/hooks",
                       "plugins/sdk-channel-plugins",
+<<<<<<< HEAD
                       "plugins/sdk-provider-plugins",
+=======
+                      "plugins/sdk-channel-message",
+                      "plugins/sdk-provider-plugins",
+                      "plugins/adding-capabilities",
+>>>>>>> upstream/main
                       "plugins/compatibility",
                       "plugins/sdk-migration"
                     ]
@@ -1302,6 +1316,7 @@
                       "tools/searxng-search",
                       "tools/tavily"
                     ]
+<<<<<<< HEAD
                   },
                   "tools/btw",
                   "tools/code-execution",
@@ -1318,6 +1333,9 @@
                   "tools/reactions",
                   "tools/thinking",
                   "tools/video-generation"
+=======
+                  }
+>>>>>>> upstream/main
                 ]
               },
               {
@@ -1361,6 +1379,10 @@
                   "providers/deepgram",
                   "providers/deepinfra",
                   "providers/deepseek",
+<<<<<<< HEAD
+=======
+                  "providers/elevenlabs",
+>>>>>>> upstream/main
                   "providers/fal",
                   "providers/fireworks",
                   "providers/github-copilot",
@@ -1391,6 +1413,10 @@
                   "providers/sglang",
                   "providers/stepfun",
                   "providers/synthetic",
+<<<<<<< HEAD
+=======
+                  "providers/tencent",
+>>>>>>> upstream/main
                   "providers/together",
                   "providers/venice",
                   "providers/vercel-ai-gateway",
@@ -1511,6 +1537,10 @@
                     "group": "Security and sandboxing",
                     "pages": [
                       "gateway/security/index",
+<<<<<<< HEAD
+=======
+                      "gateway/security/secure-file-operations",
+>>>>>>> upstream/main
                       "gateway/security/audit-checks",
                       "gateway/operator-scopes",
                       "gateway/sandboxing",
@@ -1532,6 +1562,7 @@
                   },
                   {
                     "group": "Networking and discovery",
+<<<<<<< HEAD
                     "pages": [
                       "network",
                       "gateway/network-model",
@@ -1539,6 +1570,9 @@
                       "gateway/discovery",
                       "gateway/bonjour"
                     ]
+=======
+                    "pages": ["network", "gateway/pairing", "gateway/discovery", "gateway/bonjour"]
+>>>>>>> upstream/main
                   }
                 ]
               },
@@ -1622,7 +1656,12 @@
                       "cli/message",
                       "cli/models",
                       "cli/sessions",
+<<<<<<< HEAD
                       "cli/system"
+=======
+                      "cli/system",
+                      "cli/tasks"
+>>>>>>> upstream/main
                     ]
                   },
                   {

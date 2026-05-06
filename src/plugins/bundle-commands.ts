@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { readRootJsonObjectSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { parseFrontmatterBlock } from "../markdown/frontmatter.js";
 import { isPathInsideWithRealpath } from "../security/scan-paths.js";
 import {
@@ -55,6 +59,7 @@ function stripFrontmatter(content: string): string {
 }
 
 function readClaudeBundleManifest(rootDir: string): Record<string, unknown> {
+<<<<<<< HEAD
   const manifestPath = path.join(rootDir, CLAUDE_BUNDLE_MANIFEST_RELATIVE_PATH);
   const opened = openBoundaryFileSync({
     absolutePath: manifestPath,
@@ -75,6 +80,15 @@ function readClaudeBundleManifest(rootDir: string): Record<string, unknown> {
   } finally {
     fs.closeSync(opened.fd);
   }
+=======
+  const result = readRootJsonObjectSync({
+    rootDir,
+    relativePath: CLAUDE_BUNDLE_MANIFEST_RELATIVE_PATH,
+    boundaryLabel: "plugin root",
+    rejectHardlinks: true,
+  });
+  return result.ok ? result.value : {};
+>>>>>>> upstream/main
 }
 
 function resolveClaudeCommandRootDirs(rootDir: string): string[] {

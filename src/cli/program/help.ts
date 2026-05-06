@@ -122,7 +122,11 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
   }
 
   program.addHelpText("beforeAll", () => {
+<<<<<<< HEAD
     if (hasEmittedCliBanner()) {
+=======
+    if (hasEmittedCliBanner() || process.env.OPENCLAW_SUPPRESS_HELP_BANNER === "1") {
+>>>>>>> upstream/main
       return "";
     }
     const rich = isRich();

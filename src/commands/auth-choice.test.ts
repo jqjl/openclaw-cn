@@ -14,7 +14,10 @@ import {
   createAuthTestLifecycle,
   createExitThrowingRuntime,
   createWizardPrompter,
+<<<<<<< HEAD
   requireOpenClawAgentDir,
+=======
+>>>>>>> upstream/main
   setupAuthTestEnv,
 } from "./test-wizard-helpers.js";
 
@@ -72,6 +75,7 @@ vi.mock("../plugins/provider-zai-endpoint.js", () => ({
   detectZaiEndpoint,
 }));
 
+<<<<<<< HEAD
 vi.mock("../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir: () => process.env.OPENCLAW_AGENT_DIR ?? "/tmp/openclaw-agent",
 }));
@@ -79,6 +83,12 @@ vi.mock("../agents/agent-paths.js", () => ({
 vi.mock("../agents/agent-scope.js", () => ({
   resolveDefaultAgentId: () => "main",
   resolveAgentDir: (_config: unknown, agentId: string) => `/tmp/openclaw-agents/${agentId}`,
+=======
+vi.mock("../agents/agent-scope.js", () => ({
+  resolveDefaultAgentId: () => "main",
+  resolveAgentDir: (_config: unknown, agentId: string) =>
+    `${process.env.OPENCLAW_STATE_DIR ?? "/tmp/openclaw-state"}/agents/${agentId}/agent`,
+>>>>>>> upstream/main
   resolveAgentWorkspaceDir: (_config: unknown, agentId: string) =>
     `/tmp/openclaw-workspaces/${agentId}`,
 }));
@@ -606,7 +616,11 @@ describe("applyAuthChoice", () => {
     };
   }
   async function readAuthProfiles() {
+<<<<<<< HEAD
     return readTestAuthProfileStore(requireOpenClawAgentDir());
+=======
+    return readTestAuthProfileStore(resolveAgentDir({} as OpenClawConfig, "main"));
+>>>>>>> upstream/main
   }
   async function readAuthProfilesForAgentDir(agentDir: string) {
     return readTestAuthProfileStore(agentDir);

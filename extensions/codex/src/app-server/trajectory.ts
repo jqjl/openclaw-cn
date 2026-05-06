@@ -6,6 +6,13 @@ import type {
   EmbeddedRunAttemptResult,
 } from "openclaw/plugin-sdk/agent-harness";
 import { resolveUserPath } from "openclaw/plugin-sdk/agent-harness";
+<<<<<<< HEAD
+=======
+import {
+  appendRegularFile,
+  resolveRegularFileAppendFlags,
+} from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 
 type CodexTrajectoryRecorder = {
   filePath: string;
@@ -39,6 +46,7 @@ type CodexTrajectoryOpenFlagConstants = Pick<
 export function resolveCodexTrajectoryAppendFlags(
   constants: CodexTrajectoryOpenFlagConstants = nodeFs.constants,
 ): number {
+<<<<<<< HEAD
   const noFollow = constants.O_NOFOLLOW;
   return (
     constants.O_CREAT |
@@ -46,6 +54,9 @@ export function resolveCodexTrajectoryAppendFlags(
     constants.O_WRONLY |
     (typeof noFollow === "number" ? noFollow : 0)
   );
+=======
+  return resolveRegularFileAppendFlags(constants);
+>>>>>>> upstream/main
 }
 
 export function resolveCodexTrajectoryPointerFlags(
@@ -60,6 +71,7 @@ export function resolveCodexTrajectoryPointerFlags(
   );
 }
 
+<<<<<<< HEAD
 async function assertNoSymlinkParents(filePath: string): Promise<void> {
   const resolvedDir = path.resolve(path.dirname(filePath));
   const parsed = path.parse(resolvedDir);
@@ -132,6 +144,15 @@ async function safeAppendTrajectoryFile(filePath: string, line: string): Promise
   } finally {
     await handle.close();
   }
+=======
+async function safeAppendTrajectoryFile(filePath: string, line: string): Promise<void> {
+  await appendRegularFile({
+    filePath,
+    content: line,
+    maxFileBytes: TRAJECTORY_RUNTIME_FILE_MAX_BYTES,
+    rejectSymlinkParents: true,
+  });
+>>>>>>> upstream/main
 }
 
 function boundedTrajectoryLine(event: Record<string, unknown>): string | undefined {

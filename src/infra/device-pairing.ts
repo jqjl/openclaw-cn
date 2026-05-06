@@ -13,11 +13,19 @@ import {
 import {
   createAsyncLock,
   pruneExpiredPending,
+<<<<<<< HEAD
   readDurableJsonFile,
   reconcilePendingPairingRequests,
   coercePairingStateRecord,
   resolvePairingPaths,
   writeJsonAtomic,
+=======
+  readJsonIfExists,
+  reconcilePendingPairingRequests,
+  coercePairingStateRecord,
+  resolvePairingPaths,
+  writeJson,
+>>>>>>> upstream/main
 } from "./pairing-files.js";
 import { rejectPendingPairingRequest } from "./pairing-pending.js";
 import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
@@ -154,8 +162,13 @@ export function formatDevicePairingForbiddenMessage(result: DevicePairingForbidd
 async function loadState(baseDir?: string): Promise<DevicePairingStateFile> {
   const { pendingPath, pairedPath } = resolvePairingPaths(baseDir, "devices");
   const [pending, paired] = await Promise.all([
+<<<<<<< HEAD
     readDurableJsonFile<unknown>(pendingPath),
     readDurableJsonFile<unknown>(pairedPath),
+=======
+    readJsonIfExists<unknown>(pendingPath),
+    readJsonIfExists<unknown>(pairedPath),
+>>>>>>> upstream/main
   ]);
   const state: DevicePairingStateFile = {
     pendingById: coercePairingStateRecord<DevicePairingPendingRequest>(pending),
@@ -174,6 +187,7 @@ async function persistState(
 ) {
   const { pendingPath, pairedPath } = resolvePairingPaths(baseDir, "devices");
   if (target === "pending") {
+<<<<<<< HEAD
     await writeJsonAtomic(pendingPath, state.pendingById);
     return;
   }
@@ -184,6 +198,18 @@ async function persistState(
   await Promise.all([
     writeJsonAtomic(pendingPath, state.pendingById),
     writeJsonAtomic(pairedPath, state.pairedByDeviceId),
+=======
+    await writeJson(pendingPath, state.pendingById);
+    return;
+  }
+  if (target === "paired") {
+    await writeJson(pairedPath, state.pairedByDeviceId);
+    return;
+  }
+  await Promise.all([
+    writeJson(pendingPath, state.pendingById),
+    writeJson(pairedPath, state.pairedByDeviceId),
+>>>>>>> upstream/main
   ]);
 }
 

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import nodeFs from "node:fs";
+=======
+>>>>>>> upstream/main
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -201,6 +204,7 @@ afterEach(async () => {
   await Promise.all(tempDirs.splice(0).map((dir) => fs.rm(dir, { recursive: true, force: true })));
 });
 
+<<<<<<< HEAD
 function cloneStatWithDev<T extends nodeFs.Stats | nodeFs.BigIntStats>(
   stat: T,
   dev: number | bigint,
@@ -217,6 +221,8 @@ function cloneStatWithDev<T extends nodeFs.Stats | nodeFs.BigIntStats>(
   ) as T;
 }
 
+=======
+>>>>>>> upstream/main
 function createMirrorBackendMock(): OpenShellSandboxBackend {
   return {
     id: "openshell",
@@ -324,12 +330,20 @@ describe("openshell fs bridges", () => {
     expect(backend.syncLocalPathToRemote).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("rejects a parent symlink swap that lands outside the sandbox root", async () => {
     const workspaceDir = await makeTempDir("openclaw-openshell-fs-");
     const outsideDir = await makeTempDir("openclaw-openshell-outside-");
     await fs.mkdir(path.join(workspaceDir, "subdir"), { recursive: true });
     await fs.writeFile(path.join(workspaceDir, "subdir", "secret.txt"), "inside", "utf8");
     await fs.writeFile(path.join(outsideDir, "secret.txt"), "outside", "utf8");
+=======
+  it("rejects a parent symlink that lands outside the sandbox root", async () => {
+    const workspaceDir = await makeTempDir("openclaw-openshell-fs-");
+    const outsideDir = await makeTempDir("openclaw-openshell-outside-");
+    await fs.writeFile(path.join(outsideDir, "secret.txt"), "outside", "utf8");
+    await fs.symlink(outsideDir, path.join(workspaceDir, "subdir"));
+>>>>>>> upstream/main
     const backend = createMirrorBackendMock();
     const sandbox = createSandboxTestContext({
       overrides: {
@@ -342,6 +356,7 @@ describe("openshell fs bridges", () => {
 
     const { createOpenShellFsBridge } = await import("./fs-bridge.js");
     const bridge = createOpenShellFsBridge({ sandbox, backend });
+<<<<<<< HEAD
     const originalOpen = fs.open.bind(fs);
     const targetPath = path.join(workspaceDir, "subdir", "secret.txt");
     let swapped = false;
@@ -366,6 +381,15 @@ describe("openshell fs bridges", () => {
   });
 
   it("falls back to inode checks when fd path resolution is unavailable", async () => {
+=======
+
+    await expect(bridge.readFile({ filePath: "subdir/secret.txt" })).rejects.toThrow(
+      "Sandbox boundary checks failed",
+    );
+  });
+
+  it("reads regular files through the shared safe fs root", async () => {
+>>>>>>> upstream/main
     const workspaceDir = await makeTempDir("openclaw-openshell-fs-");
     await fs.mkdir(path.join(workspaceDir, "subdir"), { recursive: true });
     await fs.writeFile(path.join(workspaceDir, "subdir", "secret.txt"), "inside", "utf8");
@@ -382,6 +406,7 @@ describe("openshell fs bridges", () => {
 
     const { createOpenShellFsBridge } = await import("./fs-bridge.js");
     const bridge = createOpenShellFsBridge({ sandbox, backend });
+<<<<<<< HEAD
     const readlinkSpy = vi
       .spyOn(fs, "readlink")
       .mockRejectedValue(new Error("fd path unavailable"));
@@ -495,14 +520,26 @@ describe("openshell fs bridges", () => {
   });
 
   it("rejects fallback reads of a symlinked leaf when O_NOFOLLOW is unavailable", async () => {
+=======
+
+    await expect(bridge.readFile({ filePath: "subdir/secret.txt" })).resolves.toEqual(
+      Buffer.from("inside"),
+    );
+  });
+
+  it("rejects reads of a symlinked leaf", async () => {
+>>>>>>> upstream/main
     const workspaceDir = await makeTempDir("openclaw-openshell-fs-");
     const outsideDir = await makeTempDir("openclaw-openshell-outside-");
     await fs.mkdir(path.join(workspaceDir, "subdir"), { recursive: true });
     await fs.writeFile(path.join(outsideDir, "secret.txt"), "outside", "utf8");
+<<<<<<< HEAD
     // The workspace contains a symlink as the FINAL path component pointing
     // out-of-root. On Windows `O_NOFOLLOW` is `undefined`, so `open` would
     // silently traverse the symlink to the outside file; the ancestor walk
     // must lstat the leaf in that case to fail closed.
+=======
+>>>>>>> upstream/main
     await fs.symlink(
       path.join(outsideDir, "secret.txt"),
       path.join(workspaceDir, "subdir", "secret.txt"),
@@ -518,6 +555,7 @@ describe("openshell fs bridges", () => {
       },
     });
 
+<<<<<<< HEAD
     const { createOpenShellFsBridge, setReadOpenFlagsResolverForTest } =
       await import("./fs-bridge.js");
     const bridge = createOpenShellFsBridge({ sandbox, backend });
@@ -542,6 +580,14 @@ describe("openshell fs bridges", () => {
       setReadOpenFlagsResolverForTest(undefined);
       readlinkSpy.mockRestore();
     }
+=======
+    const { createOpenShellFsBridge } = await import("./fs-bridge.js");
+    const bridge = createOpenShellFsBridge({ sandbox, backend });
+
+    await expect(bridge.readFile({ filePath: "subdir/secret.txt" })).rejects.toThrow(
+      "Sandbox boundary checks failed",
+    );
+>>>>>>> upstream/main
   });
 
   it("rejects hardlinked files inside the sandbox root", async () => {

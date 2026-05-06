@@ -17,7 +17,11 @@ export {
   type ChannelStatusIssue,
   chunkTextForOutbound,
   createChannelPairingController,
+<<<<<<< HEAD
   createChannelReplyPipeline,
+=======
+  createChannelMessageReplyPipeline,
+>>>>>>> upstream/main
   createDedupeCache,
   createFixedWindowRateLimiter,
   createWebhookAnomalyTracker,

@@ -139,7 +139,16 @@ describe("sendMessageDiscord", () => {
       token: "t",
       cfg: DISCORD_TEST_CFG,
     });
+<<<<<<< HEAD
     expect(res).toEqual({ messageId: "msg1", channelId: "789" });
+=======
+    expect(res).toMatchObject({ messageId: "msg1", channelId: "789" });
+    expect(res.receipt).toMatchObject({
+      primaryPlatformMessageId: "msg1",
+      platformMessageIds: ["msg1"],
+      parts: [expect.objectContaining({ platformMessageId: "msg1", kind: "text" })],
+    });
+>>>>>>> upstream/main
     expect(postMock).toHaveBeenCalledWith(
       Routes.channelMessages("789"),
       expect.objectContaining({ body: { content: "hello world" } }),
@@ -245,7 +254,16 @@ describe("sendMessageDiscord", () => {
       token: "t",
       cfg: DISCORD_TEST_CFG,
     });
+<<<<<<< HEAD
     expect(res).toEqual({ messageId: "starter1", channelId: "thread1" });
+=======
+    expect(res).toMatchObject({ messageId: "starter1", channelId: "thread1" });
+    expect(res.receipt).toMatchObject({
+      threadId: "thread1",
+      platformMessageIds: ["starter1"],
+      parts: [expect.objectContaining({ platformMessageId: "starter1", kind: "text" })],
+    });
+>>>>>>> upstream/main
     // Should POST to threads route, not channelMessages.
     expect(postMock).toHaveBeenCalledWith(
       Routes.threads("forum1"),
@@ -266,7 +284,16 @@ describe("sendMessageDiscord", () => {
       cfg: DISCORD_TEST_CFG,
       mediaUrl: "file:///tmp/photo.jpg",
     });
+<<<<<<< HEAD
     expect(res).toEqual({ messageId: "starter1", channelId: "thread1" });
+=======
+    expect(res).toMatchObject({ messageId: "starter1", channelId: "thread1" });
+    expect(res.receipt).toMatchObject({
+      threadId: "thread1",
+      platformMessageIds: ["starter1"],
+      parts: [expect.objectContaining({ platformMessageId: "starter1", kind: "media" })],
+    });
+>>>>>>> upstream/main
     expect(postMock).toHaveBeenNthCalledWith(
       1,
       Routes.threads("forum1"),

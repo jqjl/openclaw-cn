@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../../infra/boundary-file-read.js";
+=======
+import { openRootFileSync } from "../../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 import { isJavaScriptModulePath } from "../../plugins/native-module-require.js";
 import {
   getCachedPluginModuleLoader,
@@ -88,7 +92,11 @@ export function loadChannelPluginModule(params: {
   boundaryRootDir?: string;
   boundaryLabel?: string;
 }): unknown {
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
+=======
+  const opened = openRootFileSync({
+>>>>>>> upstream/main
     absolutePath: params.modulePath,
     rootPath: params.boundaryRootDir ?? params.rootDir,
     boundaryLabel: params.boundaryLabel ?? "plugin root",

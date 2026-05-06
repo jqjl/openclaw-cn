@@ -5,8 +5,13 @@ const mockState = vi.hoisted(() => ({
   resolveGatewayConnectionAuth: vi.fn(),
 }));
 
+<<<<<<< HEAD
 vi.mock("./call.js", () => ({
   buildGatewayConnectionDetails: (...args: unknown[]) =>
+=======
+vi.mock("./connection-details.js", () => ({
+  buildGatewayConnectionDetailsWithResolvers: (...args: unknown[]) =>
+>>>>>>> upstream/main
     mockState.buildGatewayConnectionDetails(...args),
 }));
 
@@ -37,7 +42,11 @@ describe("resolveGatewayClientBootstrap", () => {
   });
 
   it("passes cli override context into shared auth resolution", async () => {
+<<<<<<< HEAD
     mockState.buildGatewayConnectionDetails.mockReturnValue({
+=======
+    mockState.buildGatewayConnectionDetails.mockReturnValueOnce({
+>>>>>>> upstream/main
       url: "wss://override.example/ws",
       urlSource: "cli --url",
     });

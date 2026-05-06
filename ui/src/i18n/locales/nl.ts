@@ -206,13 +206,35 @@ export const nl: TranslationMap = {
     autoThreshold: "automatische drempel",
     overflowRetry: "overloop opnieuw proberen",
     timeoutRetry: "opnieuw proberen na time-out",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} tokens",
+=======
+    tokenRange: "{before} to {after} tokens",
+>>>>>>> upstream/main
     tokensBefore: "{count} tokens ervoor",
     tokenDeltaUnavailable: "tokenverschil niet beschikbaar",
     checkpoints: "{count} controlepunten",
     checkpoint: "{count} controlepunt",
+<<<<<<< HEAD
     showCheckpoints: "Controlepunten tonen",
     hideCheckpoints: "Controlepunten verbergen",
+=======
+    showSessionDetails: "Sessiedetails tonen voor {count}",
+    hideSessionDetails: "Sessiedetails verbergen voor {count}",
+    sessionDetails: "Sessiedetails",
+    compactionHistory: "Compactiegeschiedenis",
+    status: "Status",
+    model: "Model",
+    provider: "Provider",
+    runtime: "Runtime",
+    surface: "Oppervlak",
+    subject: "Onderwerp",
+    room: "Ruimte",
+    space: "Space",
+    sessionId: "Sessie-ID",
+    activeRun: "Actieve uitvoering",
+    archived: "Gearchiveerd",
+>>>>>>> upstream/main
     loadingCheckpoints: "Controlepunten laden…",
     noCheckpoints: "Geen compactiecontrolepunten vastgelegd voor deze sessie.",
     noSummary: "Geen samenvatting vastgelegd.",

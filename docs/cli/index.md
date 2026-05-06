@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 summary: "OpenClaw CLI reference for `openclaw` commands, subcommands, and options"
 read_when:
   - Adding or modifying CLI commands or options
@@ -98,6 +99,64 @@ Palette source of truth: `src/terminal/palette.ts` (the “lobster palette”).
 
 ## Command tree
 
+=======
+summary: "OpenClaw CLI index: command list, global flags, and links to per-command pages"
+read_when:
+  - Finding the right `openclaw` subcommand
+  - Looking up global flags or output styling rules
+title: "CLI reference"
+---
+
+`openclaw` is the main CLI entry point. Each core command has either a
+dedicated reference page or is documented with the command it aliases; this
+index lists the commands, the global flags, and the output styling rules that
+apply across the CLI.
+
+## Command pages
+
+| Area                 | Commands                                                                                                                                                                                                                                  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Setup and onboarding | [`crestodian`](/cli/crestodian) · [`setup`](/cli/setup) · [`onboard`](/cli/onboard) · [`configure`](/cli/configure) · [`config`](/cli/config) · [`completion`](/cli/completion) · [`doctor`](/cli/doctor) · [`dashboard`](/cli/dashboard) |
+| Reset and uninstall  | [`backup`](/cli/backup) · [`reset`](/cli/reset) · [`uninstall`](/cli/uninstall) · [`update`](/cli/update)                                                                                                                                 |
+| Messaging and agents | [`message`](/cli/message) · [`agent`](/cli/agent) · [`agents`](/cli/agents) · [`acp`](/cli/acp) · [`mcp`](/cli/mcp)                                                                                                                       |
+| Health and sessions  | [`status`](/cli/status) · [`health`](/cli/health) · [`sessions`](/cli/sessions)                                                                                                                                                           |
+| Gateway and logs     | [`gateway`](/cli/gateway) · [`logs`](/cli/logs) · [`system`](/cli/system)                                                                                                                                                                 |
+| Models and inference | [`models`](/cli/models) · [`infer`](/cli/infer) · `capability` (alias for [`infer`](/cli/infer)) · [`memory`](/cli/memory) · [`commitments`](/cli/commitments) · [`wiki`](/cli/wiki)                                                      |
+| Network and nodes    | [`directory`](/cli/directory) · [`nodes`](/cli/nodes) · [`devices`](/cli/devices) · [`node`](/cli/node)                                                                                                                                   |
+| Runtime and sandbox  | [`approvals`](/cli/approvals) · `exec-policy` (see [`approvals`](/cli/approvals)) · [`sandbox`](/cli/sandbox) · [`tui`](/cli/tui) · `chat`/`terminal` (aliases for [`tui --local`](/cli/tui)) · [`browser`](/cli/browser)                 |
+| Automation           | [`cron`](/cli/cron) · [`tasks`](/cli/tasks) · [`hooks`](/cli/hooks) · [`webhooks`](/cli/webhooks)                                                                                                                                         |
+| Discovery and docs   | [`dns`](/cli/dns) · [`docs`](/cli/docs)                                                                                                                                                                                                   |
+| Pairing and channels | [`pairing`](/cli/pairing) · [`qr`](/cli/qr) · [`channels`](/cli/channels)                                                                                                                                                                 |
+| Security and plugins | [`security`](/cli/security) · [`secrets`](/cli/secrets) · [`skills`](/cli/skills) · [`plugins`](/cli/plugins) · [`proxy`](/cli/proxy)                                                                                                     |
+| Legacy aliases       | [`daemon`](/cli/daemon) (gateway service) · [`clawbot`](/cli/clawbot) (namespace)                                                                                                                                                         |
+| Plugins (optional)   | [`voicecall`](/cli/voicecall) (if installed)                                                                                                                                                                                              |
+
+## Global flags
+
+| Flag                    | Purpose                                                               |
+| ----------------------- | --------------------------------------------------------------------- |
+| `--dev`                 | Isolate state under `~/.openclaw-dev` and shift default ports         |
+| `--profile <name>`      | Isolate state under `~/.openclaw-<name>`                              |
+| `--container <name>`    | Target a named container for execution                                |
+| `--no-color`            | Disable ANSI colors (`NO_COLOR=1` is also respected)                  |
+| `--update`              | Shorthand for [`openclaw update`](/cli/update) (source installs only) |
+| `-V`, `--version`, `-v` | Print version and exit                                                |
+
+## Output modes
+
+- ANSI colors and progress indicators render only in TTY sessions.
+- OSC-8 hyperlinks render as clickable links where supported; otherwise the
+  CLI falls back to plain URLs.
+- `--json` (and `--plain` where supported) disables styling for clean output.
+- Long-running commands show a progress indicator (OSC 9;4 when supported).
+
+Palette source of truth: `src/terminal/palette.ts`.
+
+## Command tree
+
+<Accordion title="Full command tree">
+
+>>>>>>> upstream/main
 ```
 openclaw [--dev] [--profile <name>] <command>
   crestodian
@@ -164,6 +223,12 @@ openclaw [--dev] [--profile <name>] <command>
     status
     index
     search
+<<<<<<< HEAD
+=======
+  commitments
+    list
+    dismiss
+>>>>>>> upstream/main
   wiki
     status
     doctor
@@ -325,6 +390,13 @@ openclaw [--dev] [--profile <name>] <command>
     get
     set
     allowlist add|remove
+<<<<<<< HEAD
+=======
+  exec-policy
+    show
+    preset
+    set
+>>>>>>> upstream/main
   browser
     status
     start
@@ -364,6 +436,17 @@ openclaw [--dev] [--profile <name>] <command>
     update
   webhooks
     gmail setup|run
+<<<<<<< HEAD
+=======
+  proxy
+    start
+    run
+    coverage
+    sessions
+    query
+    blob
+    purge
+>>>>>>> upstream/main
   pairing
     list
     approve
@@ -374,6 +457,7 @@ openclaw [--dev] [--profile <name>] <command>
   dns
     setup
   tui
+<<<<<<< HEAD
 ```
 
 Note: plugins can add additional top-level commands (for example `openclaw voicecall`).
@@ -1843,3 +1927,39 @@ Options:
 - `--message <text>`
 - `--timeout-ms <ms>` (defaults to `agents.defaults.timeoutSeconds`)
 - `--history-limit <n>`
+=======
+  chat (alias: tui --local)
+  terminal (alias: tui --local)
+```
+
+Plugins can add additional top-level commands (for example `openclaw voicecall`).
+
+</Accordion>
+
+## Chat slash commands
+
+Chat messages support `/...` commands. See [slash commands](/tools/slash-commands).
+
+Highlights:
+
+- `/status` — quick diagnostics.
+- `/trace` — session-scoped plugin trace/debug lines.
+- `/config` — persisted config changes.
+- `/debug` — runtime-only config overrides (memory, not disk; requires `commands.debug: true`).
+
+## Usage tracking
+
+`openclaw status --usage` and the Control UI surface provider usage/quota when
+OAuth/API credentials are available. Data comes directly from provider usage
+endpoints and is normalized to `X% left`. Providers with current usage
+windows: Anthropic, GitHub Copilot, Gemini CLI, OpenAI Codex, MiniMax,
+Xiaomi, and z.ai.
+
+See [Usage tracking](/concepts/usage-tracking) for details.
+
+## Related
+
+- [Slash commands](/tools/slash-commands)
+- [Configuration](/gateway/configuration)
+- [Environment](/help/environment)
+>>>>>>> upstream/main

@@ -14,7 +14,10 @@ const readConfigFileSnapshotForWrite = vi.fn().mockResolvedValue({
   writeOptions: {},
 });
 const setRuntimeConfigSnapshot = vi.fn();
+<<<<<<< HEAD
 const resolveOpenClawAgentDir = vi.fn().mockReturnValue("/tmp/openclaw-agent");
+=======
+>>>>>>> upstream/main
 const ensureAuthProfileStore = vi.fn().mockReturnValue({ version: 1, profiles: {} });
 const listProfilesForProvider = vi.fn().mockReturnValue([]);
 const resolveEnvApiKey = vi.fn().mockReturnValue(undefined);
@@ -55,10 +58,13 @@ vi.mock("./models/load-config.js", () => ({
   }),
 }));
 
+<<<<<<< HEAD
 vi.mock("../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir,
 }));
 
+=======
+>>>>>>> upstream/main
 vi.mock("../agents/auth-profiles/profile-list.js", () => ({
   listProfilesForProvider,
 }));
@@ -190,6 +196,11 @@ async function loadSourceConfigSnapshotForTest(fallback: unknown): Promise<unkno
 beforeEach(() => {
   previousExitCode = process.exitCode;
   process.exitCode = undefined;
+<<<<<<< HEAD
+=======
+  modelRegistryState.models = [];
+  modelRegistryState.available = [];
+>>>>>>> upstream/main
   modelRegistryState.getAllError = undefined;
   modelRegistryState.getAvailableError = undefined;
   modelRegistryState.findError = undefined;
@@ -510,7 +521,14 @@ describe("models list/status", () => {
     loadProviderCatalogModelsForList.mockResolvedValueOnce([MOONSHOT_MODEL]);
     const runtime = makeRuntime();
 
+<<<<<<< HEAD
     await modelsListCommand({ all: true, provider: "moonshot", json: true }, runtime);
+=======
+    await withEnvAsync(
+      { KIMI_API_KEY: undefined, KIMICODE_API_KEY: undefined, MOONSHOT_API_KEY: undefined },
+      () => modelsListCommand({ all: true, provider: "moonshot", json: true }, runtime),
+    );
+>>>>>>> upstream/main
 
     const payload = parseJsonLog(runtime);
     expect(loadModelCatalog).not.toHaveBeenCalled();

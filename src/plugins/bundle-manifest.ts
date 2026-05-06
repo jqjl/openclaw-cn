@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import JSON5 from "json5";
+<<<<<<< HEAD
 import { matchBoundaryFileOpenFailure, openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { matchRootFileOpenFailure } from "../infra/boundary-file-read.js";
+import { readRootStructuredFileSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -98,6 +103,7 @@ function loadBundleManifestFile(params: {
   allowMissing?: boolean;
 }): BundleManifestFileLoadResult {
   const manifestPath = path.join(params.rootDir, params.manifestRelativePath);
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
     absolutePath: manifestPath,
     rootPath: params.rootDir,
@@ -107,6 +113,19 @@ function loadBundleManifestFile(params: {
   });
   if (!opened.ok) {
     return matchBoundaryFileOpenFailure(opened, {
+=======
+  const result = readRootStructuredFileSync<Record<string, unknown>>({
+    rootDir: params.rootDir,
+    ...(params.rootRealPath !== undefined ? { rootRealPath: params.rootRealPath } : {}),
+    relativePath: params.manifestRelativePath,
+    boundaryLabel: "plugin root",
+    rejectHardlinks: params.rejectHardlinks,
+    parse: (raw) => JSON5.parse(raw),
+    validate: isRecord,
+  });
+  if (!result.ok && result.reason === "open") {
+    return matchRootFileOpenFailure(result.failure, {
+>>>>>>> upstream/main
       path: () => {
         if (params.allowMissing) {
           return { ok: true, raw: {}, manifestPath };
@@ -120,6 +139,7 @@ function loadBundleManifestFile(params: {
       }),
     });
   }
+<<<<<<< HEAD
   try {
     const raw = JSON5.parse(fs.readFileSync(opened.fd, "utf-8")) as unknown;
     if (!isRecord(raw)) {
@@ -135,6 +155,19 @@ function loadBundleManifestFile(params: {
   } finally {
     fs.closeSync(opened.fd);
   }
+=======
+  if (!result.ok) {
+    return {
+      ok: false,
+      error:
+        result.reason === "invalid"
+          ? "plugin manifest must be an object"
+          : `failed to parse plugin manifest: ${result.error}`,
+      manifestPath,
+    };
+  }
+  return { ok: true, raw: result.value, manifestPath };
+>>>>>>> upstream/main
 }
 
 function resolveCodexSkillDirs(raw: Record<string, unknown>, rootDir: string): string[] {

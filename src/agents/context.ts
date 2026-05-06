@@ -8,7 +8,11 @@ import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { computeBackoff, type BackoffPolicy } from "../infra/backoff.js";
 import { consumeRootOptionToken, FLAG_TERMINATOR } from "../infra/cli-root-options.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+=======
+import { resolveDefaultAgentDir } from "./agent-scope.js";
+>>>>>>> upstream/main
 import { lookupCachedContextTokens, MODEL_CONTEXT_TOKEN_CACHE } from "./context-cache.js";
 import { CONTEXT_WINDOW_RUNTIME_STATE } from "./context-runtime-state.js";
 import { normalizeProviderId } from "./model-selection.js";
@@ -240,7 +244,11 @@ function ensureContextWindowCacheLoaded(): Promise<void> {
     try {
       const { discoverAuthStorage, discoverModels } =
         await import("./pi-model-discovery-runtime.js");
+<<<<<<< HEAD
       const agentDir = resolveOpenClawAgentDir();
+=======
+      const agentDir = resolveDefaultAgentDir(cfg);
+>>>>>>> upstream/main
       const authStorage = discoverAuthStorage(agentDir);
       const modelRegistry = discoverModels(authStorage, agentDir, {
         normalizeModels: false,

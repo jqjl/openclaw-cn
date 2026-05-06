@@ -46,12 +46,20 @@ describe("media reference helpers", () => {
     const filePath = path.join(stateDir, "media", "inbound", id);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, Buffer.from("png"));
+<<<<<<< HEAD
+=======
+    const realFilePath = await fs.realpath(filePath);
+>>>>>>> upstream/main
 
     try {
       await expect(resolveInboundMediaReference(`media://inbound/${id}`)).resolves.toMatchObject({
         id,
         normalizedSource: `media://inbound/${id}`,
+<<<<<<< HEAD
         physicalPath: filePath,
+=======
+        physicalPath: realFilePath,
+>>>>>>> upstream/main
         sourceType: "uri",
       });
     } finally {
@@ -65,9 +73,18 @@ describe("media reference helpers", () => {
     const filePath = path.join(stateDir, "media", "inbound", id);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, Buffer.from("png"));
+<<<<<<< HEAD
 
     try {
       await expect(resolveMediaReferenceLocalPath(`media://inbound/${id}`)).resolves.toBe(filePath);
+=======
+    const realFilePath = await fs.realpath(filePath);
+
+    try {
+      await expect(resolveMediaReferenceLocalPath(`media://inbound/${id}`)).resolves.toBe(
+        realFilePath,
+      );
+>>>>>>> upstream/main
       await expect(resolveMediaReferenceLocalPath("  MEDIA: ./out.png")).resolves.toBe("./out.png");
     } finally {
       await fs.rm(filePath, { force: true });
@@ -80,11 +97,19 @@ describe("media reference helpers", () => {
     const filePath = path.join(stateDir, "media", "inbound", id);
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, Buffer.from("png"));
+<<<<<<< HEAD
+=======
+    const realFilePath = await fs.realpath(filePath);
+>>>>>>> upstream/main
 
     try {
       await expect(resolveInboundMediaReference(filePath)).resolves.toMatchObject({
         id,
+<<<<<<< HEAD
         physicalPath: filePath,
+=======
+        physicalPath: realFilePath,
+>>>>>>> upstream/main
         sourceType: "path",
       });
       await expect(

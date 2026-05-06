@@ -1,5 +1,10 @@
 import fs from "node:fs";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../infra/json-files.js";
+import { replaceFileAtomicSync } from "../infra/replace-file.js";
+>>>>>>> upstream/main
 import { isRecord } from "../utils.js";
 import {
   listProviderEnvAuthLookupKeys,
@@ -63,12 +68,16 @@ export function scrubLegacyStaticAuthJsonEntriesForDiscovery(pathname: string): 
     return;
   }
 
+<<<<<<< HEAD
   let parsed: unknown;
   try {
     parsed = JSON.parse(fs.readFileSync(pathname, "utf8")) as unknown;
   } catch {
     return;
   }
+=======
+  const parsed = tryReadJsonSync(pathname);
+>>>>>>> upstream/main
   if (!isRecord(parsed)) {
     return;
   }
@@ -94,6 +103,16 @@ export function scrubLegacyStaticAuthJsonEntriesForDiscovery(pathname: string): 
     return;
   }
 
+<<<<<<< HEAD
   fs.writeFileSync(pathname, `${JSON.stringify(parsed, null, 2)}\n`, "utf8");
   fs.chmodSync(pathname, 0o600);
+=======
+  replaceFileAtomicSync({
+    filePath: pathname,
+    content: `${JSON.stringify(parsed, null, 2)}\n`,
+    dirMode: 0o700,
+    mode: 0o600,
+    tempPrefix: ".pi-auth",
+  });
+>>>>>>> upstream/main
 }

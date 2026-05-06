@@ -33,7 +33,11 @@ describe("createGatewayRequestContext", () => {
       nodeSubscribe: vi.fn(),
       nodeUnsubscribe: vi.fn(),
       nodeUnsubscribeAll: vi.fn(),
+<<<<<<< HEAD
       hasConnectedMobileNode: vi.fn(() => false),
+=======
+      hasConnectedTalkNode: vi.fn(() => false),
+>>>>>>> upstream/main
       clients: new Set(),
       enforceSharedGatewayAuthGenerationForConfigWrite: vi.fn(),
       nodeRegistry: {} as never,

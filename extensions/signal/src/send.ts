@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptPartKind,
+  type MessageReceiptSourceResult,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
 import { kindFromMime } from "openclaw/plugin-sdk/media-runtime";
@@ -30,6 +39,10 @@ export type SignalSendOpts = {
 export type SignalSendResult = {
   messageId: string;
   timestamp?: number;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 export type SignalRpcOpts = Pick<
@@ -122,6 +135,46 @@ function buildTargetParams(
   return null;
 }
 
+<<<<<<< HEAD
+=======
+function createSignalSendReceipt(params: {
+  messageId: string;
+  timestamp?: number;
+  target: SignalTarget;
+  kind: MessageReceiptPartKind;
+}): MessageReceipt {
+  const messageId = params.messageId.trim();
+  const results: MessageReceiptSourceResult[] =
+    messageId && messageId !== "unknown"
+      ? [
+          {
+            channel: "signal",
+            messageId,
+            meta: {
+              targetType: params.target.type,
+            },
+          },
+        ]
+      : [];
+  if (results[0]) {
+    if (params.timestamp != null) {
+      results[0].timestamp = params.timestamp;
+    }
+    if (params.target.type === "group") {
+      results[0].chatId = params.target.groupId;
+    } else if (params.target.type === "recipient") {
+      results[0].toJid = params.target.recipient;
+    } else {
+      results[0].toJid = params.target.username;
+    }
+  }
+  return createMessageReceiptFromOutboundResults({
+    results,
+    kind: params.kind,
+  });
+}
+
+>>>>>>> upstream/main
 export async function sendMessageSignal(
   to: string,
   text: string,
@@ -214,9 +267,22 @@ export async function sendMessageSignal(
     timeoutMs: opts.timeoutMs,
   });
   const timestamp = result?.timestamp;
+<<<<<<< HEAD
   return {
     messageId: timestamp ? String(timestamp) : "unknown",
     timestamp,
+=======
+  const messageId = timestamp ? String(timestamp) : "unknown";
+  return {
+    messageId,
+    timestamp,
+    receipt: createSignalSendReceipt({
+      messageId,
+      target,
+      kind: attachments && attachments.length > 0 ? "media" : "text",
+      ...(timestamp != null ? { timestamp } : {}),
+    }),
+>>>>>>> upstream/main
   };
 }
 

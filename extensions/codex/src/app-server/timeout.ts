@@ -1,8 +1,14 @@
+<<<<<<< HEAD
+=======
+import { withTimeout as withSharedTimeout } from "openclaw/plugin-sdk/security-runtime";
+
+>>>>>>> upstream/main
 export async function withTimeout<T>(
   promise: Promise<T>,
   timeoutMs: number,
   timeoutMessage: string,
 ): Promise<T> {
+<<<<<<< HEAD
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
     return await promise;
   }
@@ -19,4 +25,7 @@ export async function withTimeout<T>(
       clearTimeout(timeout);
     }
   }
+=======
+  return await withSharedTimeout(promise, timeoutMs, { message: timeoutMessage });
+>>>>>>> upstream/main
 }

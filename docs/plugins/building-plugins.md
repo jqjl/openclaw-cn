@@ -36,7 +36,11 @@ install from npm during the launch cutover.
     Add a model provider (LLM, proxy, or custom endpoint)
   </Card>
   <Card title="Tool / hook plugin" icon="wrench" href="/plugins/hooks">
+<<<<<<< HEAD
     Register agent tools, event hooks, or services — continue below
+=======
+    Register agent tools, event hooks, or services - continue below
+>>>>>>> upstream/main
   </Card>
 </CardGroup>
 
@@ -126,7 +130,11 @@ and provider plugins have dedicated guides linked above.
     ```
 
     `definePluginEntry` is for non-channel plugins. For channels, use
+<<<<<<< HEAD
     `defineChannelPluginEntry` — see [Channel Plugins](/plugins/sdk-channel-plugins).
+=======
+    `defineChannelPluginEntry` - see [Channel Plugins](/plugins/sdk-channel-plugins).
+>>>>>>> upstream/main
     For full entry point options, see [Entry Points](/plugins/sdk-entrypoints).
 
   </Step>
@@ -144,7 +152,11 @@ and provider plugins have dedicated guides linked above.
     Bare package specs like `@myorg/openclaw-my-plugin` install from npm during
     the launch cutover. Use `clawhub:` when you want ClawHub resolution.
 
+<<<<<<< HEAD
     **In-repo plugins:** place under the bundled plugin workspace tree — automatically discovered.
+=======
+    **In-repo plugins:** place under the bundled plugin workspace tree - automatically discovered.
+>>>>>>> upstream/main
 
     ```bash
     pnpm test -- <bundled-plugin-root>/my-plugin/
@@ -171,6 +183,10 @@ A single plugin can register any number of capabilities via the `api` object:
 | Video generation       | `api.registerVideoGenerationProvider(...)`       | [Provider Plugins](/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
 | Web fetch              | `api.registerWebFetchProvider(...)`              | [Provider Plugins](/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
 | Web search             | `api.registerWebSearchProvider(...)`             | [Provider Plugins](/plugins/sdk-provider-plugins#step-5-add-extra-capabilities) |
+<<<<<<< HEAD
+=======
+| Tool-result middleware | `api.registerAgentToolResultMiddleware(...)`     | [SDK Overview](/plugins/sdk-overview#registration-api)                          |
+>>>>>>> upstream/main
 | Agent tools            | `api.registerTool(...)`                          | Below                                                                           |
 | Custom commands        | `api.registerCommand(...)`                       | [Entry Points](/plugins/sdk-entrypoints)                                        |
 | Plugin hooks           | `api.on(...)`                                    | [Plugin hooks](/plugins/hooks)                                                  |
@@ -180,6 +196,16 @@ A single plugin can register any number of capabilities via the `api` object:
 
 For the full registration API, see [SDK Overview](/plugins/sdk-overview#registration-api).
 
+<<<<<<< HEAD
+=======
+Bundled plugins can use `api.registerAgentToolResultMiddleware(...)` when they
+need async tool-result rewriting before the model sees the output. Declare the
+targeted runtimes in `contracts.agentToolResultMiddleware`, for example
+`["pi", "codex"]`. This is a trusted bundled-plugin seam; external
+plugins should prefer regular OpenClaw plugin hooks unless OpenClaw grows an
+explicit trust policy for this capability.
+
+>>>>>>> upstream/main
 If your plugin registers custom gateway RPC methods, keep them on a
 plugin-specific prefix. Core admin namespaces (`config.*`,
 `exec.approvals.*`, `wizard.*`, `update.*`) stay reserved and always resolve to
@@ -194,6 +220,11 @@ Hook guard semantics to keep in mind:
 - `before_install`: `{ block: false }` is treated as no decision.
 - `message_sending`: `{ cancel: true }` is terminal and stops lower-priority handlers.
 - `message_sending`: `{ cancel: false }` is treated as no decision.
+<<<<<<< HEAD
+=======
+- `message_received`: prefer the typed `threadId` field when you need inbound thread/topic routing. Keep `metadata` for channel-specific extras.
+- `message_sending`: prefer typed `replyToId` / `threadId` routing fields over channel-specific metadata keys.
+>>>>>>> upstream/main
 
 The `/approve` command handles both exec and plugin approvals with bounded fallback: when an exec approval id is not found, OpenClaw retries the same id through plugin approvals. Plugin approval forwarding can be configured independently via `approvals.plugin` in config.
 
@@ -210,7 +241,11 @@ available) or optional (user opt-in):
 
 ```typescript
 register(api) {
+<<<<<<< HEAD
   // Required tool — always available
+=======
+  // Required tool - always available
+>>>>>>> upstream/main
   api.registerTool({
     name: "my_tool",
     description: "Do a thing",
@@ -220,7 +255,11 @@ register(api) {
     },
   });
 
+<<<<<<< HEAD
   // Optional tool — user must add to allowlist
+=======
+  // Optional tool - user must add to allowlist
+>>>>>>> upstream/main
   api.registerTool(
     {
       name: "workflow_tool",
@@ -328,7 +367,11 @@ import { ... } from "openclaw/plugin-sdk";
 For the full subpath reference, see [SDK Overview](/plugins/sdk-overview).
 
 Within your plugin, use local barrel files (`api.ts`, `runtime-api.ts`) for
+<<<<<<< HEAD
 internal imports — never import your own plugin through its SDK path.
+=======
+internal imports - never import your own plugin through its SDK path.
+>>>>>>> upstream/main
 
 For provider plugins, keep provider-specific helpers in those package-root
 barrels unless the seam is truly generic. Current bundled examples:
@@ -388,8 +431,16 @@ reserved surfaces, not as the default pattern for new third-party plugins.
 
 ## Related
 
+<<<<<<< HEAD
 - [Plugin Architecture](/plugins/architecture) — internal architecture deep dive
 - [SDK Overview](/plugins/sdk-overview) — Plugin SDK reference
 - [Manifest](/plugins/manifest) — plugin manifest format
 - [Channel Plugins](/plugins/sdk-channel-plugins) — building channel plugins
 - [Provider Plugins](/plugins/sdk-provider-plugins) — building provider plugins
+=======
+- [Plugin Architecture](/plugins/architecture) - internal architecture deep dive
+- [SDK Overview](/plugins/sdk-overview) - Plugin SDK reference
+- [Manifest](/plugins/manifest) - plugin manifest format
+- [Channel Plugins](/plugins/sdk-channel-plugins) - building channel plugins
+- [Provider Plugins](/plugins/sdk-provider-plugins) - building provider plugins
+>>>>>>> upstream/main

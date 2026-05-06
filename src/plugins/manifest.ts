@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import type { ChannelConfigRuntimeSchema } from "../channels/plugins/types.config.js";
 import { MANIFEST_KEY } from "../compat/legacy-names.js";
+<<<<<<< HEAD
 import { matchBoundaryFileOpenFailure, openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { matchRootFileOpenFailure, openRootFileSync } from "../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
 import {
   normalizeModelCatalog,
@@ -1513,7 +1517,11 @@ export function loadPluginManifest(
   rootRealPath?: string,
 ): PluginManifestLoadResult {
   const manifestPath = resolvePluginManifestPath(rootDir);
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
+=======
+  const opened = openRootFileSync({
+>>>>>>> upstream/main
     absolutePath: manifestPath,
     rootPath: rootDir,
     ...(rootRealPath !== undefined ? { rootRealPath } : {}),
@@ -1522,7 +1530,11 @@ export function loadPluginManifest(
     rejectHardlinks,
   });
   if (!opened.ok) {
+<<<<<<< HEAD
     return matchBoundaryFileOpenFailure(opened, {
+=======
+    return matchRootFileOpenFailure(opened, {
+>>>>>>> upstream/main
       path: () => ({
         ok: false,
         error: `plugin manifest not found: ${manifestPath}`,

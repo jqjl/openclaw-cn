@@ -29,7 +29,11 @@ export {
   resolveEffectiveAllowFromLists,
 } from "openclaw/plugin-sdk/channel-policy";
 export { resolveControlCommandGate } from "openclaw/plugin-sdk/command-auth";
+<<<<<<< HEAD
 export { dispatchInboundReplyWithBase } from "openclaw/plugin-sdk/inbound-reply-dispatch";
+=======
+export { dispatchChannelMessageReplyWithBase } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";
 export {
   deliverFormattedTextWithAttachments,

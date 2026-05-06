@@ -33,6 +33,10 @@ export default definePluginEntry({
         createWikiSearchTool(config, api.config, {
           agentId: ctx.agentId,
           agentSessionKey: ctx.sessionKey,
+<<<<<<< HEAD
+=======
+          sandboxed: ctx.sandboxed,
+>>>>>>> upstream/main
         }),
       { name: "wiki_search" },
     );
@@ -41,6 +45,10 @@ export default definePluginEntry({
         createWikiGetTool(config, api.config, {
           agentId: ctx.agentId,
           agentSessionKey: ctx.sessionKey,
+<<<<<<< HEAD
+=======
+          sandboxed: ctx.sandboxed,
+>>>>>>> upstream/main
         }),
       { name: "wiki_get" },
     );

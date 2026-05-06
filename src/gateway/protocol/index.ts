@@ -61,10 +61,28 @@ import {
   ChannelsStopParamsSchema,
   type ChannelsLogoutParams,
   ChannelsLogoutParamsSchema,
+<<<<<<< HEAD
+=======
+  type TalkEvent,
+  TalkEventSchema,
+  type TalkCatalogParams,
+  TalkCatalogParamsSchema,
+  type TalkCatalogResult,
+  TalkCatalogResultSchema,
+  type TalkClientCreateParams,
+  TalkClientCreateParamsSchema,
+  type TalkClientCreateResult,
+  TalkClientCreateResultSchema,
+  type TalkClientToolCallParams,
+  TalkClientToolCallParamsSchema,
+  type TalkClientToolCallResult,
+  TalkClientToolCallResultSchema,
+>>>>>>> upstream/main
   type TalkConfigParams,
   TalkConfigParamsSchema,
   type TalkConfigResult,
   TalkConfigResultSchema,
+<<<<<<< HEAD
   type TalkRealtimeRelayAudioParams,
   TalkRealtimeRelayAudioParamsSchema,
   type TalkRealtimeRelayMarkParams,
@@ -79,6 +97,32 @@ import {
   TalkRealtimeSessionParamsSchema,
   type TalkRealtimeSessionResult,
   TalkRealtimeSessionResultSchema,
+=======
+  type TalkSessionAppendAudioParams,
+  TalkSessionAppendAudioParamsSchema,
+  type TalkSessionCancelOutputParams,
+  TalkSessionCancelOutputParamsSchema,
+  type TalkSessionCancelTurnParams,
+  TalkSessionCancelTurnParamsSchema,
+  type TalkSessionCloseParams,
+  TalkSessionCloseParamsSchema,
+  type TalkSessionCreateParams,
+  TalkSessionCreateParamsSchema,
+  type TalkSessionCreateResult,
+  TalkSessionCreateResultSchema,
+  type TalkSessionJoinParams,
+  TalkSessionJoinParamsSchema,
+  type TalkSessionJoinResult,
+  TalkSessionJoinResultSchema,
+  type TalkSessionOkResult,
+  TalkSessionOkResultSchema,
+  type TalkSessionSubmitToolResultParams,
+  TalkSessionSubmitToolResultParamsSchema,
+  type TalkSessionTurnResult,
+  TalkSessionTurnResultSchema,
+  type TalkSessionTurnParams,
+  TalkSessionTurnParamsSchema,
+>>>>>>> upstream/main
   type TalkSpeakParams,
   TalkSpeakParamsSchema,
   type TalkSpeakResult,
@@ -171,6 +215,21 @@ import {
   type PluginsUiDescriptorsParams,
   PluginsUiDescriptorsParamsSchema,
   ErrorCodes,
+<<<<<<< HEAD
+=======
+  type EnvironmentSummary,
+  EnvironmentSummarySchema,
+  type EnvironmentsListParams,
+  EnvironmentsListParamsSchema,
+  type EnvironmentsListResult,
+  EnvironmentsListResultSchema,
+  type EnvironmentsStatusParams,
+  EnvironmentsStatusParamsSchema,
+  type EnvironmentsStatusResult,
+  EnvironmentsStatusResultSchema,
+  type EnvironmentStatus,
+  EnvironmentStatusSchema,
+>>>>>>> upstream/main
   type ErrorShape,
   ErrorShapeSchema,
   type EventFrame,
@@ -411,6 +470,15 @@ export const validateNodePairVerifyParams = ajv.compile<NodePairVerifyParams>(
 );
 export const validateNodeRenameParams = ajv.compile<NodeRenameParams>(NodeRenameParamsSchema);
 export const validateNodeListParams = ajv.compile<NodeListParams>(NodeListParamsSchema);
+<<<<<<< HEAD
+=======
+export const validateEnvironmentsListParams = ajv.compile<EnvironmentsListParams>(
+  EnvironmentsListParamsSchema,
+);
+export const validateEnvironmentsStatusParams = ajv.compile<EnvironmentsStatusParams>(
+  EnvironmentsStatusParamsSchema,
+);
+>>>>>>> upstream/main
 export const validateNodePendingAckParams = ajv.compile<NodePendingAckParams>(
   NodePendingAckParamsSchema,
 );
@@ -514,6 +582,7 @@ export const validateWizardNextParams = ajv.compile<WizardNextParams>(WizardNext
 export const validateWizardCancelParams = ajv.compile<WizardCancelParams>(WizardCancelParamsSchema);
 export const validateWizardStatusParams = ajv.compile<WizardStatusParams>(WizardStatusParamsSchema);
 export const validateTalkModeParams = ajv.compile<TalkModeParams>(TalkModeParamsSchema);
+<<<<<<< HEAD
 export const validateTalkConfigParams = ajv.compile<TalkConfigParams>(TalkConfigParamsSchema);
 export const validateTalkConfigResult = ajv.compile<TalkConfigResult>(TalkConfigResultSchema);
 export const validateTalkRealtimeSessionParams = ajv.compile<TalkRealtimeSessionParams>(
@@ -533,6 +602,59 @@ export const validateTalkRealtimeRelayStopParams = ajv.compile<TalkRealtimeRelay
 );
 export const validateTalkRealtimeRelayToolResultParams =
   ajv.compile<TalkRealtimeRelayToolResultParams>(TalkRealtimeRelayToolResultParamsSchema);
+=======
+export const validateTalkEvent = ajv.compile<TalkEvent>(TalkEventSchema);
+export const validateTalkCatalogParams = ajv.compile<TalkCatalogParams>(TalkCatalogParamsSchema);
+export const validateTalkCatalogResult = ajv.compile<TalkCatalogResult>(TalkCatalogResultSchema);
+export const validateTalkConfigParams = ajv.compile<TalkConfigParams>(TalkConfigParamsSchema);
+export const validateTalkConfigResult = ajv.compile<TalkConfigResult>(TalkConfigResultSchema);
+export const validateTalkClientCreateParams = ajv.compile<TalkClientCreateParams>(
+  TalkClientCreateParamsSchema,
+);
+export const validateTalkClientCreateResult = ajv.compile<TalkClientCreateResult>(
+  TalkClientCreateResultSchema,
+);
+export const validateTalkClientToolCallParams = ajv.compile<TalkClientToolCallParams>(
+  TalkClientToolCallParamsSchema,
+);
+export const validateTalkClientToolCallResult = ajv.compile<TalkClientToolCallResult>(
+  TalkClientToolCallResultSchema,
+);
+export const validateTalkSessionCreateParams = ajv.compile<TalkSessionCreateParams>(
+  TalkSessionCreateParamsSchema,
+);
+export const validateTalkSessionCreateResult = ajv.compile<TalkSessionCreateResult>(
+  TalkSessionCreateResultSchema,
+);
+export const validateTalkSessionJoinParams = ajv.compile<TalkSessionJoinParams>(
+  TalkSessionJoinParamsSchema,
+);
+export const validateTalkSessionJoinResult = ajv.compile<TalkSessionJoinResult>(
+  TalkSessionJoinResultSchema,
+);
+export const validateTalkSessionAppendAudioParams = ajv.compile<TalkSessionAppendAudioParams>(
+  TalkSessionAppendAudioParamsSchema,
+);
+export const validateTalkSessionTurnParams = ajv.compile<TalkSessionTurnParams>(
+  TalkSessionTurnParamsSchema,
+);
+export const validateTalkSessionCancelTurnParams = ajv.compile<TalkSessionCancelTurnParams>(
+  TalkSessionCancelTurnParamsSchema,
+);
+export const validateTalkSessionCancelOutputParams = ajv.compile<TalkSessionCancelOutputParams>(
+  TalkSessionCancelOutputParamsSchema,
+);
+export const validateTalkSessionTurnResult = ajv.compile<TalkSessionTurnResult>(
+  TalkSessionTurnResultSchema,
+);
+export const validateTalkSessionSubmitToolResultParams =
+  ajv.compile<TalkSessionSubmitToolResultParams>(TalkSessionSubmitToolResultParamsSchema);
+export const validateTalkSessionCloseParams = ajv.compile<TalkSessionCloseParams>(
+  TalkSessionCloseParamsSchema,
+);
+export const validateTalkSessionOkResult =
+  ajv.compile<TalkSessionOkResult>(TalkSessionOkResultSchema);
+>>>>>>> upstream/main
 export const validateTalkSpeakParams = ajv.compile<TalkSpeakParams>(TalkSpeakParamsSchema);
 export const validateTalkSpeakResult = ajv.compile<TalkSpeakResult>(TalkSpeakResultSchema);
 export const validateChannelsStatusParams = ajv.compile<ChannelsStatusParams>(
@@ -670,6 +792,15 @@ export {
   PresenceEntrySchema,
   SnapshotSchema,
   ErrorShapeSchema,
+<<<<<<< HEAD
+=======
+  EnvironmentStatusSchema,
+  EnvironmentSummarySchema,
+  EnvironmentsListParamsSchema,
+  EnvironmentsListResultSchema,
+  EnvironmentsStatusParamsSchema,
+  EnvironmentsStatusResultSchema,
+>>>>>>> upstream/main
   StateVersionSchema,
   AgentEventSchema,
   MessageActionParamsSchema,
@@ -741,6 +872,7 @@ export {
   WizardNextResultSchema,
   WizardStartResultSchema,
   WizardStatusResultSchema,
+<<<<<<< HEAD
   TalkConfigParamsSchema,
   TalkConfigResultSchema,
   TalkRealtimeSessionParamsSchema,
@@ -750,6 +882,29 @@ export {
   TalkRealtimeRelayStopParamsSchema,
   TalkRealtimeRelayToolResultParamsSchema,
   TalkRealtimeRelayOkResultSchema,
+=======
+  TalkEventSchema,
+  TalkCatalogParamsSchema,
+  TalkCatalogResultSchema,
+  TalkClientCreateParamsSchema,
+  TalkClientCreateResultSchema,
+  TalkClientToolCallParamsSchema,
+  TalkClientToolCallResultSchema,
+  TalkConfigParamsSchema,
+  TalkConfigResultSchema,
+  TalkSessionAppendAudioParamsSchema,
+  TalkSessionCancelOutputParamsSchema,
+  TalkSessionCancelTurnParamsSchema,
+  TalkSessionCreateParamsSchema,
+  TalkSessionCreateResultSchema,
+  TalkSessionJoinParamsSchema,
+  TalkSessionJoinResultSchema,
+  TalkSessionTurnParamsSchema,
+  TalkSessionTurnResultSchema,
+  TalkSessionSubmitToolResultParamsSchema,
+  TalkSessionCloseParamsSchema,
+  TalkSessionOkResultSchema,
+>>>>>>> upstream/main
   TalkSpeakParamsSchema,
   TalkSpeakResultSchema,
   ChannelsStatusParamsSchema,
@@ -855,6 +1010,7 @@ export type {
   WizardNextResult,
   WizardStartResult,
   WizardStatusResult,
+<<<<<<< HEAD
   TalkConfigParams,
   TalkConfigResult,
   TalkRealtimeSessionParams,
@@ -864,6 +1020,28 @@ export type {
   TalkRealtimeRelayStopParams,
   TalkRealtimeRelayToolResultParams,
   TalkRealtimeRelayOkResult,
+=======
+  TalkCatalogParams,
+  TalkCatalogResult,
+  TalkClientCreateParams,
+  TalkClientCreateResult,
+  TalkClientToolCallParams,
+  TalkClientToolCallResult,
+  TalkConfigParams,
+  TalkConfigResult,
+  TalkSessionAppendAudioParams,
+  TalkSessionCancelOutputParams,
+  TalkSessionCancelTurnParams,
+  TalkSessionCreateParams,
+  TalkSessionCreateResult,
+  TalkSessionJoinParams,
+  TalkSessionJoinResult,
+  TalkSessionTurnParams,
+  TalkSessionTurnResult,
+  TalkSessionSubmitToolResultParams,
+  TalkSessionCloseParams,
+  TalkSessionOkResult,
+>>>>>>> upstream/main
   TalkSpeakParams,
   TalkSpeakResult,
   TalkModeParams,
@@ -915,6 +1093,15 @@ export type {
   SkillsDetailResult,
   SkillsInstallParams,
   SkillsUpdateParams,
+<<<<<<< HEAD
+=======
+  EnvironmentStatus,
+  EnvironmentSummary,
+  EnvironmentsListParams,
+  EnvironmentsListResult,
+  EnvironmentsStatusParams,
+  EnvironmentsStatusResult,
+>>>>>>> upstream/main
   NodePairRejectParams,
   NodePairRemoveParams,
   NodePairVerifyParams,

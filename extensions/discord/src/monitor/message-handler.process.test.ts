@@ -96,7 +96,11 @@ type DispatchInboundParams = {
     sendFinalReply: (payload: ReplyPayload) => boolean | Promise<boolean>;
   };
   replyOptions?: {
+<<<<<<< HEAD
     onReasoningStream?: () => Promise<void> | void;
+=======
+    onReasoningStream?: (payload?: { text?: string }) => Promise<void> | void;
+>>>>>>> upstream/main
     onReasoningEnd?: () => Promise<void> | void;
     onToolStart?: (payload: {
       name?: string;
@@ -105,6 +109,10 @@ type DispatchInboundParams = {
       detailMode?: "explain" | "raw";
     }) => Promise<void> | void;
     onItemEvent?: (payload: {
+<<<<<<< HEAD
+=======
+      kind?: string;
+>>>>>>> upstream/main
       progressText?: string;
       summary?: string;
       title?: string;
@@ -1616,6 +1624,75 @@ describe("processDiscordMessage draft streaming", () => {
     expect(draftStream.update).toHaveBeenCalledWith("Shelling\n🛠️ Exec\n• done");
   });
 
+<<<<<<< HEAD
+=======
+  it("shows reasoning text instead of a bare Reasoning progress line", async () => {
+    const draftStream = createMockDraftStreamForTest();
+
+    dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
+      await params?.replyOptions?.onToolStart?.({ name: "exec", phase: "start" });
+      await params?.replyOptions?.onItemEvent?.({
+        kind: "analysis",
+        title: "Reasoning",
+      });
+      await params?.replyOptions?.onReasoningStream?.({ text: "Reading " });
+      await params?.replyOptions?.onReasoningStream?.({ text: "the event projector" });
+      return createNoQueuedDispatchResult();
+    });
+
+    const ctx = await createAutomaticSourceDeliveryContext({
+      discordConfig: {
+        streaming: {
+          mode: "progress",
+          progress: {
+            label: "Clawing...",
+          },
+        },
+      },
+    });
+
+    await runProcessDiscordMessage(ctx);
+
+    expect(draftStream.update).toHaveBeenCalledWith(
+      "Clawing...\n🛠️ Exec\n• Reading the event projector",
+    );
+    expect(draftStream.update).not.toHaveBeenCalledWith(expect.stringContaining("Reasoning"));
+  });
+
+  it("replaces reasoning snapshots instead of appending duplicates", async () => {
+    const draftStream = createMockDraftStreamForTest();
+
+    dispatchInboundMessage.mockImplementationOnce(async (params?: DispatchInboundParams) => {
+      await params?.replyOptions?.onToolStart?.({ name: "exec", phase: "start" });
+      await params?.replyOptions?.onReasoningStream?.({ text: "Reasoning:\n_Checking files_" });
+      await params?.replyOptions?.onReasoningStream?.({
+        text: "Reasoning:\n_Checking files and tests_",
+      });
+      return createNoQueuedDispatchResult();
+    });
+
+    const ctx = await createAutomaticSourceDeliveryContext({
+      discordConfig: {
+        streaming: {
+          mode: "progress",
+          progress: {
+            label: "Clawing...",
+          },
+        },
+      },
+    });
+
+    await runProcessDiscordMessage(ctx);
+
+    expect(draftStream.update).toHaveBeenCalledWith(
+      "Clawing...\n🛠️ Exec\n• _Checking files and tests_",
+    );
+    expect(draftStream.update).not.toHaveBeenCalledWith(
+      expect.stringContaining("_Checking files_Reasoning:"),
+    );
+  });
+
+>>>>>>> upstream/main
   it("keeps Discord progress lines across assistant boundaries", async () => {
     const draftStream = createMockDraftStreamForTest();
 

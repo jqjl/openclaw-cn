@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptSourceResult,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { MarkdownTableMode } from "openclaw/plugin-sdk/config-types";
 import { chunkMarkdownTextWithMode, type ChunkMode } from "openclaw/plugin-sdk/reply-chunking";
 import type { ReplyPayload } from "openclaw/plugin-sdk/reply-chunking";
@@ -7,6 +15,10 @@ import {
 } from "openclaw/plugin-sdk/reply-payload";
 import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
 import type { WhatsAppSendResult } from "../inbound/send-result.js";
+<<<<<<< HEAD
+=======
+import { listWhatsAppSendResultMessageIds } from "../inbound/send-result.js";
+>>>>>>> upstream/main
 import { loadWebMedia } from "../media.js";
 import {
   type DeliverableWhatsAppOutboundPayload,
@@ -26,10 +38,64 @@ import { elide } from "./util.js";
 
 export type WhatsAppReplyDeliveryResult = {
   results: WhatsAppSendResult[];
+<<<<<<< HEAD
   messageIds: string[];
   providerAccepted: boolean;
 };
 
+=======
+  receipt: MessageReceipt;
+  providerAccepted: boolean;
+};
+
+function resolveWhatsAppReceiptKind(
+  results: readonly WhatsAppSendResult[],
+): Parameters<typeof createMessageReceiptFromOutboundResults>[0]["kind"] {
+  if (results.length > 0 && results.every((result) => result.kind === "text")) {
+    return "text";
+  }
+  if (results.length > 0 && results.every((result) => result.kind === "media")) {
+    return "media";
+  }
+  return "unknown";
+}
+
+function createWhatsAppReplyDeliveryReceipt(
+  results: readonly WhatsAppSendResult[],
+): MessageReceipt {
+  const receiptResultsById = new Map<string, MessageReceiptSourceResult>();
+  for (const result of results) {
+    if (result.receipt?.parts.length) {
+      for (const part of result.receipt.parts) {
+        receiptResultsById.set(part.platformMessageId, {
+          ...(part.raw ?? { channel: "whatsapp", messageId: part.platformMessageId }),
+          meta: {
+            ...part.raw?.meta,
+            kind: result.kind,
+            providerAccepted: result.providerAccepted,
+          },
+        });
+      }
+      continue;
+    }
+    for (const messageId of listWhatsAppSendResultMessageIds(result)) {
+      receiptResultsById.set(messageId, {
+        channel: "whatsapp",
+        messageId,
+        meta: {
+          kind: result.kind,
+          providerAccepted: result.providerAccepted,
+        },
+      });
+    }
+  }
+  return createMessageReceiptFromOutboundResults({
+    results: [...receiptResultsById.values()],
+    kind: resolveWhatsAppReceiptKind(results),
+  });
+}
+
+>>>>>>> upstream/main
 export async function deliverWebReply(params: {
   replyResult: ReplyPayload;
   normalizedReplyResult?: DeliverableWhatsAppOutboundPayload<ReplyPayload>;
@@ -55,10 +121,17 @@ export async function deliverWebReply(params: {
     }
   };
   const finishDelivery = (): WhatsAppReplyDeliveryResult => {
+<<<<<<< HEAD
     const messageIds = [...new Set(sendResults.flatMap((result) => result.messageIds))];
     return {
       results: sendResults,
       messageIds,
+=======
+    const receipt = createWhatsAppReplyDeliveryReceipt(sendResults);
+    return {
+      results: sendResults,
+      receipt,
+>>>>>>> upstream/main
       providerAccepted: sendResults.some((result) => result.providerAccepted),
     };
   };

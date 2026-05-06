@@ -118,7 +118,11 @@ Permission model (client debug mode):
 - `read` auto-approval is scoped to the current working directory (`--cwd` when set).
 - ACP only auto-approves narrow readonly classes: scoped `read` calls under the active cwd plus readonly search tools (`search`, `web_search`, `memory_search`). Unknown/non-core tools, out-of-scope reads, exec-capable tools, control-plane tools, mutating tools, and interactive flows always require explicit prompt approval.
 - Server-provided `toolCall.kind` is treated as untrusted metadata (not an authorization source).
+<<<<<<< HEAD
 - This ACP bridge policy is separate from ACPX harness permissions. If you run OpenClaw through the `acpx` backend, `plugins.entries.acpx.config.permissionMode=approve-all` is the break-glass “yolo” switch for that harness session.
+=======
+- This ACP bridge policy is separate from ACPX harness permissions. If you run OpenClaw through the `acpx` backend, `plugins.entries.acpx.config.permissionMode=approve-all` is the break-glass "yolo" switch for that harness session.
+>>>>>>> upstream/main
 
 ## How to use this
 
@@ -164,9 +168,17 @@ Per-session `mcpServers` are not supported in bridge mode. If an ACP client
 sends them during `newSession` or `loadSession`, the bridge returns a clear
 error instead of silently ignoring them.
 
+<<<<<<< HEAD
 If you want ACPX-backed sessions to see OpenClaw plugin tools, enable the
 gateway-side ACPX plugin bridge instead of trying to pass per-session
 `mcpServers`. See [ACP Agents](/tools/acp-agents#plugin-tools-mcp-bridge).
+=======
+If you want ACPX-backed sessions to see OpenClaw plugin tools or selected
+built-in tools such as `cron`, enable the gateway-side ACPX MCP bridges instead
+of trying to pass per-session `mcpServers`. See
+[ACP Agents](/tools/acp-agents-setup#plugin-tools-mcp-bridge) and
+[OpenClaw tools MCP bridge](/tools/acp-agents-setup#openclaw-tools-mcp-bridge).
+>>>>>>> upstream/main
 
 ## Use from `acpx` (Codex, Claude, other ACP clients)
 
@@ -216,7 +228,11 @@ pull contextual information from an OpenClaw agent without scraping a terminal.
 
 ## Zed editor setup
 
+<<<<<<< HEAD
 Add a custom ACP agent in `~/.config/zed/settings.json` (or use Zed’s Settings UI):
+=======
+Add a custom ACP agent in `~/.config/zed/settings.json` (or use Zed's Settings UI):
+>>>>>>> upstream/main
 
 ```json
 {
@@ -254,7 +270,11 @@ To target a specific Gateway or agent:
 }
 ```
 
+<<<<<<< HEAD
 In Zed, open the Agent panel and select “OpenClaw ACP” to start a thread.
+=======
+In Zed, open the Agent panel and select "OpenClaw ACP" to start a thread.
+>>>>>>> upstream/main
 
 ## Session mapping
 

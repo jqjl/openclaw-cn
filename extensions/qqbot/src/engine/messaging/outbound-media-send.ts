@@ -2,8 +2,16 @@
  * Low-level outbound media sends (photo, voice, video, document) and path resolution.
  */
 
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
+=======
+import path from "node:path";
+import {
+  pathExistsSync,
+  resolveLocalPathFromRootsSync,
+} from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import type { GatewayAccount } from "../types.js";
 import { MediaFileType } from "../types.js";
 import {
@@ -98,6 +106,7 @@ function isHttpOrDataSource(pathValue: string): boolean {
   );
 }
 
+<<<<<<< HEAD
 function isPathWithinRoot(candidate: string, root: string): boolean {
   const relative = path.relative(root, candidate);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
@@ -142,12 +151,28 @@ function resolveMissingPathWithinMediaRoot(normalizedPath: string): string | nul
     missingSegments.length > 0 ? path.join(canonicalCursor, ...missingSegments) : canonicalCursor;
 
   return isPathWithinRoot(canonicalCandidate, canonicalAllowedRoot) ? canonicalCandidate : null;
+=======
+function resolveMissingPathWithinMediaRoot(normalizedPath: string): string | null {
+  const resolvedCandidate = path.resolve(normalizedPath);
+  if (pathExistsSync(resolvedCandidate)) {
+    return null;
+  }
+  return (
+    resolveLocalPathFromRootsSync({
+      filePath: resolvedCandidate,
+      roots: [getQQBotMediaDir()],
+      label: "QQ Bot media storage",
+      allowMissing: true,
+    })?.path ?? null
+  );
+>>>>>>> upstream/main
 }
 
 function resolveExistingPathWithinRoots(
   normalizedPath: string,
   allowedRoots: readonly string[],
 ): string | null {
+<<<<<<< HEAD
   const resolvedCandidate = path.resolve(normalizedPath);
   if (!fs.existsSync(resolvedCandidate)) {
     return null;
@@ -171,6 +196,15 @@ function resolveExistingPathWithinRoots(
   }
 
   return null;
+=======
+  return (
+    resolveLocalPathFromRootsSync({
+      filePath: normalizedPath,
+      roots: allowedRoots,
+      label: "QQ Bot local roots",
+    })?.path ?? null
+  );
+>>>>>>> upstream/main
 }
 
 export function resolveOutboundMediaPath(

@@ -181,14 +181,30 @@ export async function expectChannelDirectoryBaseContract(params: {
 }) {
   const directory = params.plugin.directory;
   expect(directory).toBeDefined();
+<<<<<<< HEAD
+=======
+  const cfg =
+    params.cfg ??
+    ({
+      channels: {
+        [params.plugin.id]: { enabled: false },
+      },
+    } as unknown as OpenClawConfig);
+  const accountId = params.accountId ?? "default";
+>>>>>>> upstream/main
 
   if (params.coverage === "presence") {
     return;
   }
   const runtime = await getDirectoryContractRuntime();
   const self = await directory?.self?.({
+<<<<<<< HEAD
     cfg: params.cfg ?? ({} as OpenClawConfig),
     accountId: params.accountId ?? "default",
+=======
+    cfg,
+    accountId,
+>>>>>>> upstream/main
     runtime,
   });
   if (self) {
@@ -197,8 +213,13 @@ export async function expectChannelDirectoryBaseContract(params: {
 
   const peers =
     (await directory?.listPeers?.({
+<<<<<<< HEAD
       cfg: params.cfg ?? ({} as OpenClawConfig),
       accountId: params.accountId ?? "default",
+=======
+      cfg,
+      accountId,
+>>>>>>> upstream/main
       query: "",
       limit: 5,
       runtime,
@@ -210,8 +231,13 @@ export async function expectChannelDirectoryBaseContract(params: {
 
   const groups =
     (await directory?.listGroups?.({
+<<<<<<< HEAD
       cfg: params.cfg ?? ({} as OpenClawConfig),
       accountId: params.accountId ?? "default",
+=======
+      cfg,
+      accountId,
+>>>>>>> upstream/main
       query: "",
       limit: 5,
       runtime,
@@ -223,8 +249,13 @@ export async function expectChannelDirectoryBaseContract(params: {
 
   if (directory?.listGroupMembers && groups[0]?.id) {
     const members = await directory.listGroupMembers({
+<<<<<<< HEAD
       cfg: params.cfg ?? ({} as OpenClawConfig),
       accountId: params.accountId ?? "default",
+=======
+      cfg,
+      accountId,
+>>>>>>> upstream/main
       groupId: groups[0].id,
       limit: 5,
       runtime,

@@ -164,6 +164,7 @@ vi.mock("../infra/json-files.js", async () => {
     writeTextAtomic: async (
       filePath: string,
       content: string,
+<<<<<<< HEAD
       options?: { mode?: number; ensureDirMode?: number; appendTrailingNewline?: boolean },
     ) => {
       const payload =
@@ -171,6 +172,15 @@ vi.mock("../infra/json-files.js", async () => {
       await fs.promises.mkdir(path.dirname(filePath), {
         recursive: true,
         ...(typeof options?.ensureDirMode === "number" ? { mode: options.ensureDirMode } : {}),
+=======
+      options?: { mode?: number; dirMode?: number; trailingNewline?: boolean },
+    ) => {
+      const payload =
+        options?.trailingNewline && !content.endsWith("\n") ? `${content}\n` : content;
+      await fs.promises.mkdir(path.dirname(filePath), {
+        recursive: true,
+        ...(typeof options?.dirMode === "number" ? { mode: options.dirMode } : {}),
+>>>>>>> upstream/main
       });
       await fs.promises.writeFile(filePath, payload, {
         encoding: "utf8",

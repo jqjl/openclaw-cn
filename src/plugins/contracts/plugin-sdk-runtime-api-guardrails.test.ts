@@ -47,7 +47,11 @@ const RUNTIME_API_EXPORT_GUARDS: Record<string, readonly string[]> = {
     'export { missingTargetError } from "openclaw/plugin-sdk/channel-feedback";',
     'export { createAccountStatusSink, runPassiveAccountLifecycle } from "openclaw/plugin-sdk/channel-lifecycle";',
     'export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";',
+<<<<<<< HEAD
     'export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";',
+=======
+    'export { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";',
+>>>>>>> upstream/main
     'export { evaluateGroupRouteAccessForPolicy, resolveDmGroupAccessWithLists, resolveSenderScopedGroupPolicy } from "openclaw/plugin-sdk/channel-policy";',
     'export { PAIRING_APPROVED_MESSAGE } from "openclaw/plugin-sdk/channel-status";',
     'export { chunkTextForOutbound } from "openclaw/plugin-sdk/text-chunking";',
@@ -77,7 +81,11 @@ const RUNTIME_API_EXPORT_GUARDS: Record<string, readonly string[]> = {
     'export { logTypingFailure } from "openclaw/plugin-sdk/channel-logging";',
     'export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";',
     'export { evaluateSenderGroupAccessForPolicy, readStoreAllowFromForDmPolicy, resolveDmGroupAccessWithLists, resolveEffectiveAllowFromLists, resolveSenderScopedGroupPolicy, resolveToolsBySender } from "openclaw/plugin-sdk/channel-policy";',
+<<<<<<< HEAD
     'export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";',
+=======
+    'export { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";',
+>>>>>>> upstream/main
     'export { PAIRING_APPROVED_MESSAGE, buildProbeChannelStatusSummary, createDefaultChannelRuntimeState } from "openclaw/plugin-sdk/channel-status";',
     'export { buildChannelKeyCandidates, normalizeChannelSlug, resolveChannelEntryMatchWithFallback, resolveNestedAllowlistDecision } from "openclaw/plugin-sdk/channel-targets";',
     'export type { GroupPolicy, GroupToolPolicyConfig, MSTeamsChannelConfig, MSTeamsConfig, MSTeamsReplyStyle, MSTeamsTeamConfig, MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";',
@@ -133,7 +141,11 @@ const RUNTIME_API_EXPORT_GUARDS: Record<string, readonly string[]> = {
     'export { readStoreAllowFromForDmPolicy, resolveDmGroupAccessWithCommandGate } from "openclaw/plugin-sdk/channel-policy";',
     'export type { BlockStreamingCoalesceConfig, DmConfig, DmPolicy, GroupPolicy, GroupToolPolicyConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";',
     'export { GROUP_POLICY_BLOCKED_LABEL, resolveAllowlistProviderRuntimeGroupPolicy, resolveDefaultGroupPolicy, warnMissingProviderGroupPolicyFallbackOnce } from "openclaw/plugin-sdk/runtime-group-policy";',
+<<<<<<< HEAD
     'export { dispatchInboundReplyWithBase } from "openclaw/plugin-sdk/inbound-reply-dispatch";',
+=======
+    'export { dispatchChannelMessageReplyWithBase } from "openclaw/plugin-sdk/channel-message";',
+>>>>>>> upstream/main
     'export type { OutboundReplyPayload } from "openclaw/plugin-sdk/reply-payload";',
     'export { deliverFormattedTextWithAttachments } from "openclaw/plugin-sdk/reply-payload";',
     'export type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";',

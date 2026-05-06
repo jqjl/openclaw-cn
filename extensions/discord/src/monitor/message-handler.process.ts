@@ -6,11 +6,20 @@ import {
   logTypingFailure,
   shouldAckReaction as shouldAckReactionGate,
 } from "openclaw/plugin-sdk/channel-feedback";
+<<<<<<< HEAD
 import { deliverFinalizableDraftPreview } from "openclaw/plugin-sdk/channel-lifecycle";
 import {
   createChannelReplyPipeline,
   resolveChannelSourceReplyDeliveryMode,
 } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+import {
+  createChannelMessageReplyPipeline,
+  defineFinalizableLivePreviewAdapter,
+  deliverWithFinalizableLivePreviewAdapter,
+  resolveChannelMessageSourceReplyDeliveryMode,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import {
   formatChannelProgressDraftLine,
   formatChannelProgressDraftLineForEntry,
@@ -173,7 +182,11 @@ export async function processDiscordMessage(
   }
   const { createReplyDispatcherWithTyping, dispatchInboundMessage, settleReplyDispatcher } =
     await loadReplyRuntime();
+<<<<<<< HEAD
   const sourceReplyDeliveryMode = resolveChannelSourceReplyDeliveryMode({
+=======
+  const sourceReplyDeliveryMode = resolveChannelMessageSourceReplyDeliveryMode({
+>>>>>>> upstream/main
     cfg,
     ctx: { ChatType: isGuildMessage ? "channel" : undefined },
   });
@@ -364,7 +377,11 @@ export async function processDiscordMessage(
     ? deliverTarget.slice("channel:".length)
     : messageChannelId;
 
+<<<<<<< HEAD
   const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
+=======
+  const { onModelSelected, ...replyPipeline } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
     cfg,
     agentId: route.agentId,
     channel: "discord",
@@ -455,6 +472,7 @@ export async function processDiscordMessage(
             Boolean(payload.replyToTag || payload.replyToCurrent) ||
             (typeof finalText === "string" && /\[\[\s*reply_to(?:_current|\s*:)/i.test(finalText));
 
+<<<<<<< HEAD
           const result = await deliverFinalizableDraftPreview({
             kind: info.kind,
             payload,
@@ -488,6 +506,53 @@ export async function processDiscordMessage(
                 rest: deliveryRest,
               });
             },
+=======
+          const result = await deliverWithFinalizableLivePreviewAdapter({
+            kind: info.kind,
+            payload,
+            adapter: defineFinalizableLivePreviewAdapter({
+              draft: {
+                flush: () => draftPreview.flush(),
+                clear: () => draftStream.clear(),
+                discardPending: () => draftStream.discardPending(),
+                seal: () => draftStream.seal(),
+                id: draftStream.messageId,
+              },
+              buildFinalEdit: () => {
+                if (
+                  draftPreview.finalizedViaPreviewMessage ||
+                  hasMedia ||
+                  typeof previewFinalText !== "string" ||
+                  hasExplicitReplyDirective ||
+                  payload.isError
+                ) {
+                  return undefined;
+                }
+                return { content: previewFinalText };
+              },
+              editFinal: async (previewMessageId, edit) => {
+                if (isProcessAborted(abortSignal)) {
+                  throw new Error("process aborted");
+                }
+                notifyFinalReplyStart();
+                await editMessageDiscord(deliverChannelId, previewMessageId, edit, {
+                  cfg,
+                  accountId,
+                  rest: deliveryRest,
+                });
+              },
+              onPreviewFinalized: () => {
+                draftPreview.markPreviewFinalized();
+                replyReference.markSent();
+                observer?.onFinalReplyDelivered?.();
+              },
+              logPreviewEditFailure: (err) => {
+                logVerbose(
+                  `discord: preview final edit failed; falling back to standard send (${String(err)})`,
+                );
+              },
+            }),
+>>>>>>> upstream/main
             deliverNormally: async () => {
               if (isProcessAborted(abortSignal)) {
                 return false;
@@ -516,6 +581,7 @@ export async function processDiscordMessage(
               observer?.onFinalReplyDelivered?.();
               return true;
             },
+<<<<<<< HEAD
             onPreviewFinalized: () => {
               draftPreview.markPreviewFinalized();
               replyReference.markSent();
@@ -528,6 +594,10 @@ export async function processDiscordMessage(
             },
           });
           if (result !== "normal-skipped") {
+=======
+          });
+          if (result.kind !== "normal-skipped") {
+>>>>>>> upstream/main
             return;
           }
         }
@@ -660,8 +730,14 @@ export async function processDiscordMessage(
                 onModelSelected,
                 suppressDefaultToolProgressMessages:
                   draftPreview.suppressDefaultToolProgressMessages ? true : undefined,
+<<<<<<< HEAD
                 onReasoningStream: async () => {
                   await statusReactions.setThinking();
+=======
+                onReasoningStream: async (payload) => {
+                  await statusReactions.setThinking();
+                  await draftPreview.pushReasoningProgress(payload?.text);
+>>>>>>> upstream/main
                 },
                 onToolStart: async (payload) => {
                   if (isProcessAborted(abortSignal)) {

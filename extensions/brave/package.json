@@ -1,6 +1,10 @@
 {
   "name": "@openclaw/brave-plugin",
+<<<<<<< HEAD
   "version": "2026.5.4",
+=======
+  "version": "2026.5.6",
+>>>>>>> upstream/main
   "description": "OpenClaw Brave plugin",
   "repository": {
     "type": "git",
@@ -20,10 +24,17 @@
       "minHostVersion": ">=2026.4.10"
     },
     "compat": {
+<<<<<<< HEAD
       "pluginApi": ">=2026.5.4"
     },
     "build": {
       "openclawVersion": "2026.5.4"
+=======
+      "pluginApi": ">=2026.5.6"
+    },
+    "build": {
+      "openclawVersion": "2026.5.6"
+>>>>>>> upstream/main
     },
     "release": {
       "publishToClawHub": true,

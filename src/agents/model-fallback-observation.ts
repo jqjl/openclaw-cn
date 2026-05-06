@@ -6,6 +6,13 @@ import type { FailoverReason } from "./pi-embedded-helpers.js";
 
 const decisionLog = createSubsystemLogger("model-fallback").child("decision");
 
+<<<<<<< HEAD
+=======
+export function isModelFallbackDecisionLogEnabled(): boolean {
+  return decisionLog.isEnabled("warn");
+}
+
+>>>>>>> upstream/main
 function buildErrorObservationFields(error?: string): {
   errorPreview?: string;
   errorHash?: string;

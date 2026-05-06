@@ -5,8 +5,13 @@
  * built-ins + log + platform (both zero plugin-sdk).
  */
 
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
+=======
+import path from "node:path";
+import { privateFileStoreSync } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import type { ChatScope } from "../types.js";
 import { formatErrorMessage } from "../utils/format.js";
 import { debugLog, debugError } from "../utils/log.js";
@@ -49,9 +54,16 @@ function loadUsersFromFile(): Map<string, KnownUser> {
   usersCache = new Map();
   try {
     const knownUsersFile = getKnownUsersFile();
+<<<<<<< HEAD
     if (fs.existsSync(knownUsersFile)) {
       const data = fs.readFileSync(knownUsersFile, "utf-8");
       const users = JSON.parse(data) as KnownUser[];
+=======
+    const users = privateFileStoreSync(path.dirname(knownUsersFile)).readJsonIfExists<KnownUser[]>(
+      path.basename(knownUsersFile),
+    );
+    if (users) {
+>>>>>>> upstream/main
       for (const user of users) {
         usersCache.set(makeUserKey(user), user);
       }
@@ -80,10 +92,17 @@ function doSaveUsersToFile(): void {
   }
   try {
     ensureDir();
+<<<<<<< HEAD
     fs.writeFileSync(
       getKnownUsersFile(),
       JSON.stringify(Array.from(usersCache.values()), null, 2),
       "utf-8",
+=======
+    const filePath = getKnownUsersFile();
+    privateFileStoreSync(path.dirname(filePath)).writeJson(
+      path.basename(filePath),
+      Array.from(usersCache.values()),
+>>>>>>> upstream/main
     );
     isDirty = false;
   } catch (err) {

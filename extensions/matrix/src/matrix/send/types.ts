@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { MessageReceipt } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { CoreConfig } from "../../types.js";
 import { MATRIX_ANNOTATION_RELATION_TYPE, MATRIX_REACTION_EVENT_TYPE } from "../reaction-common.js";
 import type {
@@ -79,7 +83,11 @@ export type MatrixSendResult = {
   messageId: string;
   roomId: string;
   primaryMessageId?: string;
+<<<<<<< HEAD
   messageIds?: string[];
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 export type MatrixSendOpts = {

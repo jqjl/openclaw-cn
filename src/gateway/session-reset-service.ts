@@ -433,7 +433,11 @@ export async function cleanupSessionBeforeMutation(params: {
   });
 }
 
+<<<<<<< HEAD
 async function emitGatewayBeforeResetPluginHook(params: {
+=======
+export async function emitGatewayBeforeResetPluginHook(params: {
+>>>>>>> upstream/main
   cfg: OpenClawConfig;
   key: string;
   target: ReturnType<typeof resolveGatewaySessionStoreTarget>;

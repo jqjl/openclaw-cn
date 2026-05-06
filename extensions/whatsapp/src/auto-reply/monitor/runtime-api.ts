@@ -3,9 +3,15 @@ export { formatInboundEnvelope } from "openclaw/plugin-sdk/channel-envelope";
 export { resolveInboundSessionEnvelopeContext } from "openclaw/plugin-sdk/channel-inbound";
 export { toLocationContext } from "openclaw/plugin-sdk/channel-location";
 export {
+<<<<<<< HEAD
   createChannelReplyPipeline,
   resolveChannelSourceReplyDeliveryMode,
 } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+  createChannelMessageReplyPipeline,
+  resolveChannelMessageSourceReplyDeliveryMode,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 export { shouldComputeCommandAuthorized } from "openclaw/plugin-sdk/command-detection";
 export { resolveChannelContextVisibilityMode } from "../config.runtime.js";
 export { getAgentScopedMediaLocalRoots } from "openclaw/plugin-sdk/media-runtime";

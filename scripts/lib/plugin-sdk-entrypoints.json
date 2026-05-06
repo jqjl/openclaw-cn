@@ -176,6 +176,11 @@
   "channel-location",
   "channel-mention-gating",
   "channel-lifecycle",
+<<<<<<< HEAD
+=======
+  "channel-message",
+  "channel-message-runtime",
+>>>>>>> upstream/main
   "channel-pairing",
   "channel-pairing-paths",
   "channel-policy",

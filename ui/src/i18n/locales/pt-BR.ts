@@ -204,13 +204,35 @@ export const pt_BR: TranslationMap = {
     autoThreshold: "limite automático",
     overflowRetry: "nova tentativa por estouro",
     timeoutRetry: "nova tentativa por tempo limite",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} tokens",
+=======
+    tokenRange: "{before} to {after} tokens",
+>>>>>>> upstream/main
     tokensBefore: "{count} tokens antes",
     tokenDeltaUnavailable: "delta de tokens indisponível",
     checkpoints: "{count} checkpoints",
     checkpoint: "{count} checkpoint",
+<<<<<<< HEAD
     showCheckpoints: "Mostrar checkpoints",
     hideCheckpoints: "Ocultar checkpoints",
+=======
+    showSessionDetails: "Mostrar detalhes da sessão para {count}",
+    hideSessionDetails: "Ocultar detalhes da sessão para {count}",
+    sessionDetails: "Detalhes da sessão",
+    compactionHistory: "Histórico de compactação",
+    status: "Status",
+    model: "Modelo",
+    provider: "Provedor",
+    runtime: "Runtime",
+    surface: "Superfície",
+    subject: "Assunto",
+    room: "Sala",
+    space: "Espaço",
+    sessionId: "ID da sessão",
+    activeRun: "Execução ativa",
+    archived: "Arquivada",
+>>>>>>> upstream/main
     loadingCheckpoints: "Carregando checkpoints…",
     noCheckpoints: "Nenhum checkpoint de compactação registrado para esta sessão.",
     noSummary: "Nenhum resumo capturado.",

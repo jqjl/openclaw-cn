@@ -6,7 +6,11 @@ read_when:
 title: "OpenResponses API"
 ---
 
+<<<<<<< HEAD
 OpenClaw’s Gateway can serve an OpenResponses-compatible `POST /v1/responses` endpoint.
+=======
+OpenClaw's Gateway can serve an OpenResponses-compatible `POST /v1/responses` endpoint.
+>>>>>>> upstream/main
 
 This endpoint is **disabled by default**. Enable it in config first.
 
@@ -95,7 +99,11 @@ Supported:
 Roles: `system`, `developer`, `user`, `assistant`.
 
 - `system` and `developer` are appended to the system prompt.
+<<<<<<< HEAD
 - The most recent `user` or `function_call_output` item becomes the “current message.”
+=======
+- The most recent `user` or `function_call_output` item becomes the "current message."
+>>>>>>> upstream/main
 - Earlier user/assistant messages are included as history for context.
 
 ### `function_call_output` (turn-based tools)

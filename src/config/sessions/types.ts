@@ -277,6 +277,11 @@ export type SessionEntry = {
   pendingFinalDeliveryText?: string | null;
   /** Original delivery context (channel, recipient, etc). */
   pendingFinalDeliveryContext?: DeliveryContext;
+<<<<<<< HEAD
+=======
+  /** Durable send intent backing pending final delivery, when already created. */
+  pendingFinalDeliveryIntentId?: string | null;
+>>>>>>> upstream/main
   /**
    * Whether totalTokens reflects a fresh context snapshot for the latest run.
    * Undefined means legacy/unknown freshness; false forces consumers to treat

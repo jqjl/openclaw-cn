@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+=======
+import fs from "node:fs/promises";
+import { FsSafeError, root as fsRoot } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   setImportedSourceEntry,
   shouldSkipImportedSourceWrite,
@@ -9,6 +14,7 @@ import {
 } from "./source-sync-state.js";
 
 type ImportedSourceState = Parameters<typeof shouldSkipImportedSourceWrite>[0]["state"];
+<<<<<<< HEAD
 type FileStats = Awaited<ReturnType<typeof fs.lstat>>;
 
 function isPathInside(parent: string, child: string): boolean {
@@ -126,6 +132,8 @@ async function writeFileAtomicInVault(params: {
     }
   }
 }
+=======
+>>>>>>> upstream/main
 
 export async function writeImportedSourcePage(params: {
   vaultRoot: string;
@@ -139,6 +147,7 @@ export async function writeImportedSourcePage(params: {
   state: ImportedSourceState;
   buildRendered: (raw: string, updatedAt: string) => string;
 }): Promise<{ pagePath: string; changed: boolean; created: boolean }> {
+<<<<<<< HEAD
   const {
     pageAbsPath,
     pageDir,
@@ -148,6 +157,17 @@ export async function writeImportedSourcePage(params: {
   } = await resolveWritableVaultPagePath({
     vaultRoot: params.vaultRoot,
     pagePath: params.pagePath,
+=======
+  const vault = await fsRoot(params.vaultRoot);
+  const pageStat = await vault.stat(params.pagePath).catch((error: unknown) => {
+    if (
+      error instanceof FsSafeError &&
+      (error.code === "not-found" || error.code === "path-alias")
+    ) {
+      return null;
+    }
+    throw error;
+>>>>>>> upstream/main
   });
   const created = !pageStat;
   const updatedAt = new Date(params.sourceUpdatedAtMs).toISOString();
@@ -167,6 +187,7 @@ export async function writeImportedSourcePage(params: {
 
   const raw = await fs.readFile(params.sourcePath, "utf8");
   const rendered = params.buildRendered(raw, updatedAt);
+<<<<<<< HEAD
   const existing = pageStat ? await fs.readFile(pageAbsPath, "utf8").catch(() => "") : "";
   if (existing !== rendered) {
     await writeFileAtomicInVault({
@@ -177,6 +198,24 @@ export async function writeImportedSourcePage(params: {
       pagePath: params.pagePath,
       content: rendered,
     });
+=======
+  const existing = pageStat ? await vault.readText(params.pagePath).catch(() => "") : "";
+  if (existing !== rendered) {
+    try {
+      if (pageStat && pageStat.nlink > 1) {
+        await vault.remove(params.pagePath);
+      }
+      await vault.write(params.pagePath, rendered);
+    } catch (error) {
+      if (error instanceof FsSafeError) {
+        throw new Error(
+          `Refusing to write imported source page through symlink: ${params.pagePath}`,
+          { cause: error },
+        );
+      }
+      throw error;
+    }
+>>>>>>> upstream/main
   }
 
   setImportedSourceEntry({

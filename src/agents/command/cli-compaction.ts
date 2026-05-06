@@ -1,6 +1,10 @@
 import type { AgentMessage } from "@mariozechner/pi-agent-core";
 import { SessionManager } from "@mariozechner/pi-coding-agent";
 import type { SessionEntry } from "../../config/sessions/types.js";
+<<<<<<< HEAD
+=======
+import type { AgentCompactionMode } from "../../config/types.agent-defaults.js";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import { resolveContextEngine as resolveContextEngineImpl } from "../../context-engine/registry.js";
 import type { ContextEngine } from "../../context-engine/types.js";
@@ -10,7 +14,14 @@ import { runContextEngineMaintenance as runContextEngineMaintenanceImpl } from "
 import { shouldPreemptivelyCompactBeforePrompt as shouldPreemptivelyCompactBeforePromptImpl } from "../pi-embedded-runner/run/preemptive-compaction.js";
 import { resolveLiveToolResultMaxChars as resolveLiveToolResultMaxCharsImpl } from "../pi-embedded-runner/tool-result-truncation.js";
 import { createPreparedEmbeddedPiSettingsManager as createPreparedEmbeddedPiSettingsManagerImpl } from "../pi-project-settings.js";
+<<<<<<< HEAD
 import { applyPiAutoCompactionGuard as applyPiAutoCompactionGuardImpl } from "../pi-settings.js";
+=======
+import {
+  applyPiAutoCompactionGuard as applyPiAutoCompactionGuardImpl,
+  resolveEffectiveCompactionMode,
+} from "../pi-settings.js";
+>>>>>>> upstream/main
 import type { SkillSnapshot } from "../skills.js";
 import { recordCliCompactionInStore as recordCliCompactionInStoreImpl } from "./session-store.js";
 
@@ -38,6 +49,10 @@ type CliCompactionDeps = {
   applyPiAutoCompactionGuard: (params: {
     settingsManager: SettingsManagerLike;
     contextEngineInfo?: ContextEngine["info"];
+<<<<<<< HEAD
+=======
+    compactionMode?: AgentCompactionMode;
+>>>>>>> upstream/main
   }) => unknown;
   shouldPreemptivelyCompactBeforePrompt: typeof shouldPreemptivelyCompactBeforePromptImpl;
   resolveLiveToolResultMaxChars: typeof resolveLiveToolResultMaxCharsImpl;
@@ -207,6 +222,10 @@ export async function runCliTurnCompactionLifecycle(params: {
   await cliCompactionDeps.applyPiAutoCompactionGuard({
     settingsManager,
     contextEngineInfo: contextEngine.info,
+<<<<<<< HEAD
+=======
+    compactionMode: resolveEffectiveCompactionMode(params.cfg),
+>>>>>>> upstream/main
   });
 
   const preemptiveCompaction = cliCompactionDeps.shouldPreemptivelyCompactBeforePrompt({

@@ -3,7 +3,18 @@ import type { MigrationItem, MigrationPlan } from "../../plugins/types.js";
 import {
   applyMigrationSelectedSkillItemIds,
   applyMigrationSkillSelection,
+<<<<<<< HEAD
   MIGRATION_SKILL_NOT_SELECTED_REASON,
+=======
+  getDefaultMigrationSkillSelectionValues,
+  MIGRATION_SKILL_SELECTION_SKIP,
+  MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF,
+  MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+  MIGRATION_SKILL_NOT_SELECTED_REASON,
+  reconcileInteractiveMigrationShortcutValues,
+  reconcileInteractiveMigrationSkillToggleValues,
+  resolveInteractiveMigrationSkillSelection,
+>>>>>>> upstream/main
 } from "./selection.js";
 
 function skillItem(params: {
@@ -136,6 +147,154 @@ describe("applyMigrationSkillSelection", () => {
     expect(selected.items.every((item) => item.status === "skipped")).toBe(true);
   });
 
+<<<<<<< HEAD
+=======
+  it("defaults interactive selection to planned skills only", () => {
+    expect(
+      getDefaultMigrationSkillSelectionValues([
+        skillItem({ id: "skill:alpha", name: "alpha" }),
+        skillItem({
+          id: "skill:beta",
+          name: "beta",
+          status: "conflict",
+          reason: "target exists",
+        }),
+      ]),
+    ).toEqual(["skill:alpha"]);
+  });
+
+  it("resolves interactive special options with skip and toggle-off precedence", () => {
+    const items = [
+      skillItem({ id: "skill:alpha", name: "alpha" }),
+      skillItem({
+        id: "skill:beta",
+        name: "beta",
+        status: "conflict",
+        reason: "target exists",
+      }),
+    ];
+
+    expect(
+      resolveInteractiveMigrationSkillSelection(items, [
+        MIGRATION_SKILL_SELECTION_SKIP,
+        MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+      ]),
+    ).toEqual({ action: "skip" });
+    expect(
+      resolveInteractiveMigrationSkillSelection(items, [
+        MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+        MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF,
+      ]),
+    ).toEqual({ action: "select", selectedItemIds: new Set() });
+    expect(
+      resolveInteractiveMigrationSkillSelection(items, [MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON]),
+    ).toEqual({
+      action: "select",
+      selectedItemIds: new Set(["skill:alpha", "skill:beta"]),
+    });
+    expect(
+      resolveInteractiveMigrationSkillSelection(items, [
+        MIGRATION_SKILL_SELECTION_SKIP,
+        "skill:alpha",
+      ]),
+    ).toEqual({
+      action: "select",
+      selectedItemIds: new Set(["skill:alpha"]),
+    });
+  });
+
+  it("reconciles live interactive bulk toggle checkbox state", () => {
+    const selectable = ["skill:alpha", "skill:beta"];
+
+    expect(
+      reconcileInteractiveMigrationSkillToggleValues(
+        [MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON],
+        MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+        selectable,
+      ),
+    ).toEqual([MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON, "skill:alpha", "skill:beta"]);
+
+    expect(
+      reconcileInteractiveMigrationSkillToggleValues(
+        [
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+          "skill:alpha",
+          "skill:beta",
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF,
+        ],
+        MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF,
+        selectable,
+      ),
+    ).toEqual([MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF]);
+
+    expect(
+      reconcileInteractiveMigrationSkillToggleValues(
+        [MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF, "skill:alpha"],
+        "skill:alpha",
+        selectable,
+      ),
+    ).toEqual(["skill:alpha"]);
+
+    expect(
+      reconcileInteractiveMigrationSkillToggleValues(
+        [
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+          "skill:alpha",
+          "skill:beta",
+          MIGRATION_SKILL_SELECTION_SKIP,
+        ],
+        MIGRATION_SKILL_SELECTION_SKIP,
+        selectable,
+      ),
+    ).toEqual([MIGRATION_SKILL_SELECTION_SKIP]);
+
+    expect(
+      reconcileInteractiveMigrationSkillToggleValues(
+        [MIGRATION_SKILL_SELECTION_SKIP, "skill:alpha"],
+        "skill:alpha",
+        selectable,
+      ),
+    ).toEqual(["skill:alpha"]);
+
+    expect(
+      reconcileInteractiveMigrationShortcutValues(
+        ["skill:alpha", "skill:beta"],
+        [
+          MIGRATION_SKILL_SELECTION_SKIP,
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF,
+          "skill:alpha",
+          "skill:beta",
+        ],
+        selectable,
+        "a",
+      ),
+    ).toEqual([MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF]);
+
+    expect(
+      reconcileInteractiveMigrationShortcutValues(
+        [MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF],
+        [
+          MIGRATION_SKILL_SELECTION_SKIP,
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF,
+          MIGRATION_SKILL_SELECTION_TOGGLE_ALL_ON,
+        ],
+        selectable,
+        "i",
+      ),
+    ).toEqual([MIGRATION_SKILL_SELECTION_TOGGLE_ALL_OFF]);
+
+    expect(
+      reconcileInteractiveMigrationShortcutValues(
+        [MIGRATION_SKILL_SELECTION_SKIP],
+        [MIGRATION_SKILL_SELECTION_SKIP, "skill:beta"],
+        selectable,
+        "i",
+      ),
+    ).toEqual(["skill:beta"]);
+  });
+
+>>>>>>> upstream/main
   it("rejects unknown explicit skill selectors with available choices", () => {
     expect(() =>
       applyMigrationSkillSelection(

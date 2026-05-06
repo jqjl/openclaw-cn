@@ -39,14 +39,22 @@ stay consistent across channels.
 Input Markdown:
 
 ```markdown
+<<<<<<< HEAD
 Hello **world** — see [docs](https://docs.openclaw.ai).
+=======
+Hello **world** - see [docs](https://docs.openclaw.ai).
+>>>>>>> upstream/main
 ```
 
 IR (schematic):
 
 ```json
 {
+<<<<<<< HEAD
   "text": "Hello world — see docs.",
+=======
+  "text": "Hello world - see docs.",
+>>>>>>> upstream/main
   "styles": [{ "start": 6, "end": 11, "style": "bold" }],
   "links": [{ "start": 19, "end": 23, "href": "https://docs.openclaw.ai" }]
 }
@@ -129,5 +137,16 @@ SPOILER style ranges. Other channels treat them as plain text.
 
 ## Related
 
+<<<<<<< HEAD
 - [Streaming and chunking](/concepts/streaming)
 - [System prompt](/concepts/system-prompt)
+=======
+<CardGroup cols={2}>
+  <Card title="Streaming and chunking" href="/concepts/streaming" icon="bars-staggered">
+    Outbound streaming behavior, chunk boundaries, and channel-specific delivery.
+  </Card>
+  <Card title="System prompt" href="/concepts/system-prompt" icon="message-lines">
+    What the model sees before the conversation, including injected workspace files.
+  </Card>
+</CardGroup>
+>>>>>>> upstream/main

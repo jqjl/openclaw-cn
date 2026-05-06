@@ -51,6 +51,10 @@ export function createVoiceCallBaseConfig(params?: {
       streamPath: "/voice/stream/realtime",
       instructions: DEFAULT_VOICE_CALL_REALTIME_INSTRUCTIONS,
       toolPolicy: "safe-read-only",
+<<<<<<< HEAD
+=======
+      consultPolicy: "auto",
+>>>>>>> upstream/main
       tools: [],
       fastContext: {
         enabled: false,
@@ -59,6 +63,17 @@ export function createVoiceCallBaseConfig(params?: {
         sources: ["memory", "sessions"],
         fallbackToConsult: false,
       },
+<<<<<<< HEAD
+=======
+      agentContext: {
+        enabled: false,
+        maxChars: 6000,
+        includeIdentity: true,
+        includeSystemPrompt: true,
+        includeWorkspaceFiles: true,
+        files: ["SOUL.md", "IDENTITY.md", "USER.md"],
+      },
+>>>>>>> upstream/main
       providers: {},
     },
     skipSignatureVerification: false,

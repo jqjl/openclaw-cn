@@ -9,9 +9,14 @@
  *
  * - `url` — remote http(s) URL that the QQ server can fetch directly.
  * - `base64` — in-memory base64 string (typically from a `data:` URL).
+<<<<<<< HEAD
  * - `localPath` — on-disk file; kept as a path so a future chunked-upload
  *   implementation can stream it via `fs.createReadStream` without the 4/3×
  *   base64 memory overhead.
+=======
+ * - `localPath` — on-disk file; kept as a path plus an optional verified
+ *   descriptor so uploaders can avoid reopening a path after validation.
+>>>>>>> upstream/main
  * - `buffer` — in-memory raw bytes (e.g. TTS output, downloaded url-fallback).
  *
  * ## Security baseline (localPath branch)
@@ -29,7 +34,12 @@
  * reading the whole file first.
  */
 
+<<<<<<< HEAD
 import * as fs from "node:fs";
+=======
+import type { FileHandle } from "node:fs/promises";
+import { FsSafeError, openLocalFileSafely } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { MAX_UPLOAD_SIZE, formatFileSize, getMimeType } from "../utils/file-utils.js";
 
 // ============ Types ============
@@ -39,14 +49,23 @@ import { MAX_UPLOAD_SIZE, formatFileSize, getMimeType } from "../utils/file-util
  *
  * - `url`: remote URL — upload via `file_data=null; url=...`.
  * - `base64`: already-encoded base64 — upload via `file_data=...`.
+<<<<<<< HEAD
  * - `localPath`: on-disk file — one-shot path reads it into a buffer;
  *   chunked path (future) streams it via `fs.createReadStream`.
+=======
+ * - `localPath`: on-disk file — uploaders should prefer `opened` when present
+ *   and only reopen `path` for direct, already-normalized test/helper calls.
+>>>>>>> upstream/main
  * - `buffer`: raw bytes in memory — same as above minus disk I/O.
  */
 export type MediaSource =
   | { kind: "url"; url: string }
   | { kind: "base64"; data: string; mime?: string }
+<<<<<<< HEAD
   | { kind: "localPath"; path: string; size: number; mime?: string }
+=======
+  | { kind: "localPath"; path: string; size: number; mime?: string; opened?: OpenedLocalFile }
+>>>>>>> upstream/main
   | { kind: "buffer"; buffer: Buffer; fileName?: string; mime?: string };
 
 /**
@@ -92,8 +111,13 @@ function tryParseDataUrl(value: string): { mime: string; data: string } | null {
  *
  * Callers MUST call {@link OpenedLocalFile.close} (typically in a `finally`).
  */
+<<<<<<< HEAD
 interface OpenedLocalFile {
   handle: fs.promises.FileHandle;
+=======
+export interface OpenedLocalFile {
+  handle: FileHandle;
+>>>>>>> upstream/main
   size: number;
   close(): Promise<void>;
 }
@@ -120,6 +144,7 @@ export async function openLocalFile(
   opts: { maxSize?: number } = {},
 ): Promise<OpenedLocalFile> {
   const maxSize = opts.maxSize ?? MAX_UPLOAD_SIZE;
+<<<<<<< HEAD
   const openFlags =
     fs.constants.O_RDONLY | ("O_NOFOLLOW" in fs.constants ? fs.constants.O_NOFOLLOW : 0);
   const handle = await fs.promises.open(filePath, openFlags);
@@ -141,6 +166,28 @@ export async function openLocalFile(
   } catch (err) {
     // Close the handle on any validation failure to avoid fd leaks.
     await handle.close().catch(() => undefined);
+=======
+  const opened = await openLocalFileSafely({ filePath }).catch((err: unknown) => {
+    if (err instanceof FsSafeError && err.code === "not-file") {
+      throw new Error("Path is not a regular file", { cause: err });
+    }
+    throw err;
+  });
+  try {
+    if (opened.stat.size > maxSize) {
+      throw new Error(
+        `File is too large (${formatFileSize(opened.stat.size)}); QQ Bot API limit is ${formatFileSize(maxSize)}`,
+      );
+    }
+    return {
+      handle: opened.handle,
+      size: opened.stat.size,
+      close: () => opened.handle.close(),
+    };
+  } catch (err) {
+    // Close the handle on any validation failure to avoid fd leaks.
+    await opened.handle.close().catch(() => undefined);
+>>>>>>> upstream/main
     throw err;
   }
 }
@@ -153,10 +200,16 @@ export async function openLocalFile(
  * - Strings passed via `{ url }` that start with `data:` are auto-resolved
  *   to a `base64` branch (this is the unified `data:` URL support that was
  *   previously only implemented in `sendImage`).
+<<<<<<< HEAD
  * - `localPath` branches open the file with {@link openLocalFile} solely to
  *   validate size / regular-file / O_NOFOLLOW invariants. The handle is
  *   closed immediately — actual reading is deferred to the uploader so
  *   the chunked path can stream without double-reading.
+=======
+ * - `localPath` branches open the file with {@link openLocalFile} and carry
+ *   that descriptor to the uploader, so later reads use the exact file that
+ *   passed regular-file / O_NOFOLLOW / size validation.
+>>>>>>> upstream/main
  * - `buffer` branches enforce the same ceiling inline.
  *
  * `maxSize` defaults to {@link MAX_UPLOAD_SIZE} (20MB, one-shot upload limit).
@@ -188,6 +241,7 @@ export async function normalizeSource(
 
   if ("localPath" in raw) {
     const opened = await openLocalFile(raw.localPath, { maxSize });
+<<<<<<< HEAD
     try {
       return {
         kind: "localPath",
@@ -198,6 +252,15 @@ export async function normalizeSource(
     } finally {
       await opened.close();
     }
+=======
+    return {
+      kind: "localPath",
+      path: raw.localPath,
+      size: opened.size,
+      mime: getMimeType(raw.localPath),
+      opened,
+    };
+>>>>>>> upstream/main
   }
 
   // buffer branch

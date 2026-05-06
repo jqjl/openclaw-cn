@@ -30,6 +30,10 @@ import {
   buildLiveCronProbeMessage,
   createLiveCronProbeSpec,
   runOpenClawCliJson,
+<<<<<<< HEAD
+=======
+  shouldRunLiveImageProbe,
+>>>>>>> upstream/main
 } from "./live-agent-probes.js";
 import { renderCatFacePngBase64 } from "./live-image-probe.js";
 import { startGatewayServer } from "./server.js";
@@ -907,6 +911,7 @@ describeLive("gateway live (ACP bind)", () => {
         expect(boundHistory.matchedAssistantText).toContain(`ACP-BIND-MEMORY-${memoryNonce}`);
         logLiveStep("bound session transcript contains the final marker token");
 
+<<<<<<< HEAD
         const markerAssistantCount = assistantTexts.length;
         let imageHistory: Awaited<ReturnType<typeof waitForAssistantTurn>> | null = null;
         for (let attempt = 0; attempt < 2 && !imageHistory; attempt += 1) {
@@ -949,6 +954,59 @@ describeLive("gateway live (ACP bind)", () => {
         if (imageHistory) {
           assertLiveImageProbeReply(imageHistory.lastAssistantText);
           logLiveStep("bound session classified the probe image");
+=======
+        if (
+          shouldRunLiveImageProbe({
+            agent: liveAgent,
+            override: process.env.OPENCLAW_LIVE_ACP_BIND_IMAGE_PROBE,
+          })
+        ) {
+          const markerAssistantCount = assistantTexts.length;
+          let imageHistory: Awaited<ReturnType<typeof waitForAssistantTurn>> | null = null;
+          for (let attempt = 0; attempt < 2 && !imageHistory; attempt += 1) {
+            await sendChatAndWait({
+              client,
+              sessionKey: originalSessionKey,
+              idempotencyKey: `idem-image-${attempt}-${randomUUID()}`,
+              message:
+                "What animal is drawn in the attached image? Reply with only the lowercase animal name.",
+              originatingChannel: "slack",
+              originatingTo: conversationId,
+              originatingAccountId: accountId,
+              attachments: [
+                {
+                  mimeType: "image/png",
+                  fileName: `probe-${randomUUID()}.png`,
+                  content: renderCatFacePngBase64(),
+                },
+              ],
+            });
+            logLiveStep(`image turn completed (attempt ${String(attempt + 1)})`);
+
+            try {
+              imageHistory = await waitForAssistantTurn({
+                client,
+                sessionKey: spawnedSessionKey,
+                minAssistantCount: markerAssistantCount + 1,
+                timeoutMs: liveAgent === "claude" ? 60_000 : 45_000,
+              });
+            } catch {
+              if (attempt === 1) {
+                logLiveStep(
+                  "bound session image reply not observed; continuing to cron verification",
+                );
+                break;
+              }
+              logLiveStep("bound session image reply not observed yet; retrying");
+            }
+          }
+          if (imageHistory) {
+            assertLiveImageProbeReply(imageHistory.lastAssistantText);
+            logLiveStep("bound session classified the probe image");
+          }
+        } else {
+          logLiveStep(`skipping image probe for ${liveAgent}`);
+>>>>>>> upstream/main
         }
 
         const requireCronMcpProbe = shouldRequireCronMcpProbe();

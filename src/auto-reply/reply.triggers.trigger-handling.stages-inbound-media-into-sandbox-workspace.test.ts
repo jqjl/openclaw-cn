@@ -17,19 +17,33 @@ const childProcessMocks = vi.hoisted(() => ({
   spawn: vi.fn(),
 }));
 const fsSafeMocks = vi.hoisted(() => {
+<<<<<<< HEAD
   class MockSafeOpenError extends Error {
+=======
+  class MockFsSafeError extends Error {
+>>>>>>> upstream/main
     readonly code: string;
 
     constructor(code: string, message: string) {
       super(message);
+<<<<<<< HEAD
       this.name = "SafeOpenError";
+=======
+      this.name = "FsSafeError";
+>>>>>>> upstream/main
       this.code = code;
     }
   }
 
   return {
+<<<<<<< HEAD
     SafeOpenError: MockSafeOpenError,
     copyFileWithinRoot: vi.fn(),
+=======
+    FsSafeError: MockFsSafeError,
+    rootCopyFrom: vi.fn(),
+    root: vi.fn(),
+>>>>>>> upstream/main
     readLocalFileSafely: vi.fn(),
   };
 });
@@ -51,7 +65,11 @@ vi.mock("node:child_process", async () => {
 vi.mock("../infra/fs-safe.js", () => fsSafeMocks);
 vi.mock("../media/channel-inbound-roots.js", () => mediaRootMocks);
 
+<<<<<<< HEAD
 async function copyFileWithinRootForTest({
+=======
+async function rootCopyFromForTest({
+>>>>>>> upstream/main
   sourcePath,
   rootDir,
   relativePath,
@@ -64,7 +82,11 @@ async function copyFileWithinRootForTest({
 }) {
   const sourceStat = await fs.stat(sourcePath);
   if (typeof maxBytes === "number" && sourceStat.size > maxBytes) {
+<<<<<<< HEAD
     throw new fsSafeMocks.SafeOpenError(
+=======
+    throw new fsSafeMocks.FsSafeError(
+>>>>>>> upstream/main
       "too-large",
       `file exceeds limit of ${maxBytes} bytes (got ${sourceStat.size})`,
     );
@@ -75,7 +97,11 @@ async function copyFileWithinRootForTest({
   const destPath = path.resolve(rootReal, relativePath);
   const rootPrefix = `${rootReal}${path.sep}`;
   if (destPath !== rootReal && !destPath.startsWith(rootPrefix)) {
+<<<<<<< HEAD
     throw new fsSafeMocks.SafeOpenError("outside-workspace", "file is outside workspace root");
+=======
+    throw new fsSafeMocks.FsSafeError("outside-workspace", "file is outside workspace root");
+>>>>>>> upstream/main
   }
 
   const parentDir = dirname(destPath);
@@ -87,7 +113,11 @@ async function copyFileWithinRootForTest({
       try {
         const stat = await fs.lstat(cursor);
         if (stat.isSymbolicLink()) {
+<<<<<<< HEAD
           throw new fsSafeMocks.SafeOpenError("symlink", "symlink not allowed");
+=======
+          throw new fsSafeMocks.FsSafeError("symlink", "symlink not allowed");
+>>>>>>> upstream/main
         }
       } catch (error) {
         if ((error as NodeJS.ErrnoException).code === "ENOENT") {
@@ -102,7 +132,11 @@ async function copyFileWithinRootForTest({
   try {
     const destStat = await fs.lstat(destPath);
     if (destStat.isSymbolicLink()) {
+<<<<<<< HEAD
       throw new fsSafeMocks.SafeOpenError("symlink", "symlink not allowed");
+=======
+      throw new fsSafeMocks.FsSafeError("symlink", "symlink not allowed");
+>>>>>>> upstream/main
     }
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
@@ -117,7 +151,20 @@ beforeEach(() => {
   sandboxMocks.ensureSandboxWorkspaceForSession.mockReset();
   sandboxMocks.assertSandboxPath.mockReset().mockResolvedValue({ resolved: "", relative: "" });
   childProcessMocks.spawn.mockClear();
+<<<<<<< HEAD
   fsSafeMocks.copyFileWithinRoot.mockReset().mockImplementation(copyFileWithinRootForTest);
+=======
+  fsSafeMocks.rootCopyFrom.mockReset().mockImplementation(rootCopyFromForTest);
+  fsSafeMocks.root.mockReset().mockImplementation(async (rootDir: string) => ({
+    copyIn: async (relativePath: string, sourcePath: string, options?: { maxBytes?: number }) =>
+      await rootCopyFromForTest({
+        sourcePath,
+        rootDir,
+        relativePath,
+        maxBytes: options?.maxBytes,
+      }),
+  }));
+>>>>>>> upstream/main
   mediaRootMocks.resolveChannelRemoteInboundAttachmentRoots
     .mockReset()
     .mockReturnValue(["/Users/demo/Library/Messages/Attachments"]);

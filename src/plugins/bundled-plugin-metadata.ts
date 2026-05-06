@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { collectBundledChannelConfigs } from "./bundled-channel-config-metadata.js";
 import {
   collectBundledPluginPublicSurfaceArtifacts,
@@ -51,6 +55,7 @@ export type BundledPluginMetadata = {
 
 function readPackageManifest(pluginDir: string): PackageManifest | undefined {
   const packagePath = path.join(pluginDir, "package.json");
+<<<<<<< HEAD
   if (!fs.existsSync(packagePath)) {
     return undefined;
   }
@@ -59,6 +64,9 @@ function readPackageManifest(pluginDir: string): PackageManifest | undefined {
   } catch {
     return undefined;
   }
+=======
+  return tryReadJsonSync<PackageManifest>(packagePath) ?? undefined;
+>>>>>>> upstream/main
 }
 
 function resolveBundledPluginMetadataScanDir(

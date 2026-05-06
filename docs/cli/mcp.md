@@ -69,12 +69,16 @@ Use [`openclaw acp`](/cli/acp) instead when OpenClaw should host the coding runt
   </Accordion>
 </AccordionGroup>
 
+<<<<<<< HEAD
 - live queue state starts when the bridge connects
 - older transcript history is read with `messages_read`
 - Claude push notifications only exist while the MCP session is alive
 - when the client disconnects, the bridge exits and the live queue is gone
 
 ## Choose a client mode
+=======
+### Choose a client mode
+>>>>>>> upstream/main
 
 Use the same bridge in two different ways:
 
@@ -368,12 +372,17 @@ Those saved definitions are for runtimes that OpenClaw launches or configures la
     - embedded Pi exposes configured MCP tools in normal `coding` and `messaging` tool profiles; `minimal` still hides them, and `tools.deny: ["bundle-mcp"]` disables them explicitly
     - session-scoped bundled MCP runtimes are reaped after `mcp.sessionIdleTtlMs` milliseconds of idle time (default 10 minutes; set `0` to disable) and one-shot embedded runs clean them up at run end
 
+<<<<<<< HEAD
 - these commands only read or write OpenClaw config
 - they do not connect to the target MCP server
 - they do not validate whether the command, URL, or remote transport is
   reachable right now
 - runtime adapters decide which transport shapes they actually support at
   execution time
+=======
+  </Accordion>
+</AccordionGroup>
+>>>>>>> upstream/main
 
 Runtime adapters may normalize this shared registry into the shape their downstream client expects. For example, embedded Pi consumes OpenClaw `transport` values directly, while Claude Code and Gemini receive CLI-native `type` values such as `http`, `sse`, or `stdio`.
 
@@ -436,6 +445,17 @@ Launches a local child process and communicates over stdin/stdout.
 | `env`                      | Extra environment variables       |
 | `cwd` / `workingDirectory` | Working directory for the process |
 
+<<<<<<< HEAD
+=======
+<Warning>
+**Stdio env safety filter**
+
+OpenClaw rejects interpreter-startup env keys that can alter how a stdio MCP server starts up before the first RPC, even if they appear in a server's `env` block. Blocked keys include `NODE_OPTIONS`, `PYTHONSTARTUP`, `PYTHONPATH`, `PERL5OPT`, `RUBYOPT`, `SHELLOPTS`, `PS4`, and similar runtime-control variables. Startup rejects these with a configuration error so they cannot inject an implicit prelude, swap the interpreter, or enable a debugger against the stdio process. Ordinary credential, proxy, and server-specific env vars (`GITHUB_TOKEN`, `HTTP_PROXY`, custom `*_API_KEY`, etc.) are unaffected.
+
+If your MCP server genuinely needs one of the blocked variables, set it on the gateway host process instead of under the stdio server's `env`.
+</Warning>
+
+>>>>>>> upstream/main
 ### SSE / HTTP transport
 
 Connects to a remote MCP server over HTTP Server-Sent Events.

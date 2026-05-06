@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+=======
+import path from "node:path";
+import { tempWorkspace } from "../infra/private-temp-workspace.js";
+>>>>>>> upstream/main
 import { loadQrCodeRuntime, normalizeQrText } from "./qr-runtime.ts";
 
 const DEFAULT_QR_PNG_SCALE = 6;
@@ -102,6 +107,7 @@ export async function writeQrPngTempFile(
   const dirPrefix = resolveQrTempPathSegment("dirPrefix", opts.dirPrefix);
   const fileName = resolveQrTempPathSegment("fileName", opts.fileName ?? "qr.png");
   const pngBase64 = await renderQrPngBase64(input, opts);
+<<<<<<< HEAD
   const dirPath = await mkdtemp(path.join(opts.tmpRoot, dirPrefix));
   const filePath = path.join(dirPath, fileName);
   try {
@@ -115,4 +121,19 @@ export async function writeQrPngTempFile(
     dirPath,
     mediaLocalRoots: [dirPath],
   };
+=======
+  const workspace = await tempWorkspace({ rootDir: opts.tmpRoot, prefix: dirPrefix });
+  const dirPath = workspace.dir;
+  try {
+    const filePath = await workspace.write(fileName, Buffer.from(pngBase64, "base64"));
+    return {
+      filePath,
+      dirPath,
+      mediaLocalRoots: [dirPath],
+    };
+  } catch (err) {
+    await workspace.cleanup();
+    throw err;
+  }
+>>>>>>> upstream/main
 }

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+=======
+import { createRequire } from "node:module";
+import path from "node:path";
+import { loadJsonFile } from "openclaw/plugin-sdk/json-store";
+>>>>>>> upstream/main
 import {
   buildExecRemoteCommand,
   createSshSandboxSessionFromConfigText,
@@ -37,11 +43,19 @@ function resolveBundledOpenShellCommand(): string | null {
   }
   try {
     const packageJsonPath = require.resolve("openshell/package.json");
+<<<<<<< HEAD
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
       bin?: string | Record<string, string>;
     };
     const relativeBin =
       typeof packageJson.bin === "string" ? packageJson.bin : packageJson.bin?.openshell;
+=======
+    const packageJson = loadJsonFile<{
+      bin?: string | Record<string, string>;
+    }>(packageJsonPath);
+    const relativeBin =
+      typeof packageJson?.bin === "string" ? packageJson.bin : packageJson?.bin?.openshell;
+>>>>>>> upstream/main
     cachedBundledOpenShellCommand = relativeBin
       ? path.resolve(path.dirname(packageJsonPath), relativeBin)
       : null;

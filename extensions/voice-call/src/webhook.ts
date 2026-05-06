@@ -2,6 +2,10 @@ import http from "node:http";
 import { URL } from "node:url";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import { resolveConfiguredCapabilityProvider } from "openclaw/plugin-sdk/provider-selection-runtime";
+<<<<<<< HEAD
+=======
+import type { TalkEvent } from "openclaw/plugin-sdk/realtime-voice";
+>>>>>>> upstream/main
 import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
 import {
   createWebhookInFlightLimiter,
@@ -77,6 +81,31 @@ function sanitizeTranscriptForLog(value: string): string {
   return `${sanitized.slice(0, TRANSCRIPT_LOG_MAX_CHARS)}...`;
 }
 
+<<<<<<< HEAD
+=======
+function appendRecentTalkEventMetadata(call: CallRecord, event: TalkEvent): void {
+  const metadata = call.metadata ?? {};
+  const recent = Array.isArray(metadata.recentTalkEvents)
+    ? metadata.recentTalkEvents.filter(
+        (entry): entry is { at: string; type: string; sessionId: string; turnId?: string } =>
+          !!entry && typeof entry === "object" && !Array.isArray(entry),
+      )
+    : [];
+  recent.push({
+    at: event.timestamp,
+    type: event.type,
+    sessionId: event.sessionId,
+    turnId: event.turnId,
+  });
+  call.metadata = {
+    ...metadata,
+    lastTalkEventAt: event.timestamp,
+    lastTalkEventType: event.type,
+    recentTalkEvents: recent.slice(-10),
+  };
+}
+
+>>>>>>> upstream/main
 function buildRequestUrl(
   requestUrl: string | undefined,
   requestHost: string | undefined,
@@ -400,6 +429,15 @@ export class VoiceCallWebhookServer {
         const safePartial = sanitizeTranscriptForLog(partial);
         console.log(`[voice-call] Partial for ${callId}: ${safePartial} (chars=${partial.length})`);
       },
+<<<<<<< HEAD
+=======
+      onTalkEvent: (providerCallId, _streamSid, event) => {
+        const call = this.manager.getCallByProviderCallId(providerCallId);
+        if (call) {
+          appendRecentTalkEventMetadata(call, event);
+        }
+      },
+>>>>>>> upstream/main
       onConnect: (callId, streamSid) => {
         console.log(`[voice-call] Media stream connected: ${callId} -> ${streamSid}`);
         this.clearPendingDisconnectHangup(callId);

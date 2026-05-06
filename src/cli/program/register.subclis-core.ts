@@ -25,7 +25,19 @@ import {
 
 export { getSubCliCommandsWithSubcommands };
 
+<<<<<<< HEAD
 type SubCliRegistrar = (program: Command) => Promise<void> | void;
+=======
+export type SubCliRegistrationContext = {
+  purpose?: "runtime" | "completion";
+};
+
+type SubCliRegistrar = (
+  program: Command,
+  argv: string[],
+  context: SubCliRegistrationContext,
+) => Promise<void> | void;
+>>>>>>> upstream/main
 
 function shouldRegisterGatewayRunOnly(name: string, argv: string[]): boolean {
   if (name !== "gateway") {
@@ -216,12 +228,25 @@ const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
       );
     },
   },
+<<<<<<< HEAD
   ...defineImportedProgramCommandGroupSpecs([
     {
       commandNames: ["channels"],
       loadModule: () => import("../channels-cli.js"),
       exportName: "registerChannelsCli",
     },
+=======
+  {
+    commandNames: ["channels"],
+    register: async (program, argv, context) => {
+      const mod = await import("../channels-cli.js");
+      await mod.registerChannelsCli(program, argv, {
+        includeSetupOptions: context.purpose === "completion",
+      });
+    },
+  },
+  ...defineImportedProgramCommandGroupSpecs([
+>>>>>>> upstream/main
     {
       commandNames: ["directory"],
       loadModule: () => import("../directory-cli.js"),
@@ -250,13 +275,26 @@ const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
   ]),
 ];
 
+<<<<<<< HEAD
 function resolveSubCliCommandGroups(): CommandGroupEntry[] {
+=======
+function resolveSubCliCommandGroups(
+  argv: string[],
+  context: SubCliRegistrationContext = {},
+): CommandGroupEntry[] {
+>>>>>>> upstream/main
   const descriptors = getSubCliEntryDescriptors();
   const descriptorNames = new Set(descriptors.map((descriptor) => descriptor.name));
   return buildCommandGroupEntries(
     descriptors,
     entrySpecs.filter((spec) => spec.commandNames.every((name) => descriptorNames.has(name))),
+<<<<<<< HEAD
     (register) => register,
+=======
+    (register) => async (program) => {
+      await register(program, argv, context);
+    },
+>>>>>>> upstream/main
   );
 }
 
@@ -268,17 +306,29 @@ export async function registerSubCliByName(
   program: Command,
   name: string,
   argv: string[] = process.argv,
+<<<<<<< HEAD
+=======
+  context: SubCliRegistrationContext = {},
+>>>>>>> upstream/main
 ): Promise<boolean> {
   if (shouldRegisterGatewayRunOnly(name, argv)) {
     await registerGatewayRunOnly(program);
     return true;
   }
+<<<<<<< HEAD
   return registerCommandGroupByName(program, resolveSubCliCommandGroups(), name);
+=======
+  return registerCommandGroupByName(program, resolveSubCliCommandGroups(argv, context), name);
+>>>>>>> upstream/main
 }
 
 export function registerSubCliCommands(program: Command, argv: string[] = process.argv) {
   const { primary } = resolveCliArgvInvocation(argv);
+<<<<<<< HEAD
   registerCommandGroups(program, resolveSubCliCommandGroups(), {
+=======
+  registerCommandGroups(program, resolveSubCliCommandGroups(argv), {
+>>>>>>> upstream/main
     eager: shouldEagerRegisterSubcommands(),
     primary,
     registerPrimaryOnly: Boolean(primary && shouldRegisterPrimarySubcommandOnly(argv)),

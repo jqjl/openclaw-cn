@@ -466,7 +466,11 @@ describe("gateway hot reload", () => {
       hoisted.providerManager.startChannel.mockClear();
       hoisted.activeEmbeddedRunCount.value = 1;
       embeddedRunMock.activeIds.add("reload-active");
+<<<<<<< HEAD
       const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+=======
+      vi.useFakeTimers();
+>>>>>>> upstream/main
       const reloadPromise = onHotReload?.(
         {
           changedPaths: ["channels.discord.token"],
@@ -486,16 +490,30 @@ describe("gateway hot reload", () => {
         },
       );
       try {
+<<<<<<< HEAD
         await delay(550);
+=======
+        await Promise.resolve();
+        await vi.advanceTimersByTimeAsync(500);
+>>>>>>> upstream/main
         expect(hoisted.providerManager.stopChannel).not.toHaveBeenCalled();
         expect(hoisted.providerManager.startChannel).not.toHaveBeenCalled();
 
         hoisted.activeEmbeddedRunCount.value = 0;
         embeddedRunMock.activeIds.clear();
+<<<<<<< HEAD
+=======
+        await vi.advanceTimersByTimeAsync(500);
+>>>>>>> upstream/main
         await reloadPromise;
       } finally {
         hoisted.activeEmbeddedRunCount.value = 0;
         embeddedRunMock.activeIds.clear();
+<<<<<<< HEAD
+=======
+        await vi.advanceTimersByTimeAsync(500).catch(() => {});
+        vi.useRealTimers();
+>>>>>>> upstream/main
         await reloadPromise?.catch(() => {});
       }
 

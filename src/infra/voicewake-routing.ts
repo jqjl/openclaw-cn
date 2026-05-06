@@ -5,7 +5,11 @@ import {
   isValidAgentId,
   normalizeAgentId,
 } from "../routing/session-key.js";
+<<<<<<< HEAD
 import { createAsyncLock, readJsonFile, writeJsonAtomic } from "./json-files.js";
+=======
+import { createAsyncLock, tryReadJson, writeJson } from "./json-files.js";
+>>>>>>> upstream/main
 
 type VoiceWakeRouteTarget =
   | { mode: "current"; agentId?: undefined; sessionKey?: undefined }
@@ -265,7 +269,11 @@ export async function loadVoiceWakeRoutingConfig(
   baseDir?: string,
 ): Promise<VoiceWakeRoutingConfig> {
   const filePath = resolvePath(baseDir);
+<<<<<<< HEAD
   const existing = await readJsonFile<unknown>(filePath);
+=======
+  const existing = await tryReadJson<unknown>(filePath);
+>>>>>>> upstream/main
   if (!existing) {
     return { ...DEFAULT_ROUTING };
   }
@@ -283,7 +291,11 @@ export async function setVoiceWakeRoutingConfig(
       ...normalized,
       updatedAtMs: Date.now(),
     };
+<<<<<<< HEAD
     await writeJsonAtomic(filePath, next);
+=======
+    await writeJson(filePath, next);
+>>>>>>> upstream/main
     return next;
   });
 }

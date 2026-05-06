@@ -42,6 +42,10 @@ async function resolveTelegramSendContext(params: {
   accountId?: string | null;
   replyToId?: string | null;
   threadId?: string | number | null;
+<<<<<<< HEAD
+=======
+  silent?: boolean;
+>>>>>>> upstream/main
   gatewayClientScopes?: readonly string[];
 }): Promise<{
   send: TelegramSendFn;
@@ -52,6 +56,10 @@ async function resolveTelegramSendContext(params: {
     messageThreadId?: number;
     replyToMessageId?: number;
     accountId?: string;
+<<<<<<< HEAD
+=======
+    silent?: boolean;
+>>>>>>> upstream/main
     gatewayClientScopes?: readonly string[];
   };
 }> {
@@ -67,6 +75,10 @@ async function resolveTelegramSendContext(params: {
       messageThreadId: parseTelegramThreadId(params.threadId),
       replyToMessageId: parseTelegramReplyToMessageId(params.replyToId),
       accountId: params.accountId ?? undefined,
+<<<<<<< HEAD
+=======
+      silent: params.silent,
+>>>>>>> upstream/main
       gatewayClientScopes: params.gatewayClientScopes,
     },
   };
@@ -135,6 +147,20 @@ export const telegramOutbound: ChannelOutboundAdapter = {
   },
   deliveryCapabilities: {
     pin: true,
+<<<<<<< HEAD
+=======
+    durableFinal: {
+      text: true,
+      media: true,
+      payload: true,
+      silent: true,
+      replyTo: true,
+      thread: true,
+      nativeQuote: false,
+      messageSendingHooks: true,
+      batch: true,
+    },
+>>>>>>> upstream/main
   },
   renderPresentation: ({ payload, presentation }) => ({
     ...payload,
@@ -161,6 +187,10 @@ export const telegramOutbound: ChannelOutboundAdapter = {
       deps,
       replyToId,
       threadId,
+<<<<<<< HEAD
+=======
+      silent,
+>>>>>>> upstream/main
       gatewayClientScopes,
     }) => {
       const { send, baseOpts } = await resolveTelegramSendContext({
@@ -169,6 +199,10 @@ export const telegramOutbound: ChannelOutboundAdapter = {
         accountId,
         replyToId,
         threadId,
+<<<<<<< HEAD
+=======
+        silent,
+>>>>>>> upstream/main
         gatewayClientScopes,
       });
       return await send(to, text, {
@@ -187,6 +221,10 @@ export const telegramOutbound: ChannelOutboundAdapter = {
       replyToId,
       threadId,
       forceDocument,
+<<<<<<< HEAD
+=======
+      silent,
+>>>>>>> upstream/main
       gatewayClientScopes,
     }) => {
       const { send, baseOpts } = await resolveTelegramSendContext({
@@ -195,6 +233,10 @@ export const telegramOutbound: ChannelOutboundAdapter = {
         accountId,
         replyToId,
         threadId,
+<<<<<<< HEAD
+=======
+        silent,
+>>>>>>> upstream/main
         gatewayClientScopes,
       });
       return await send(to, text, {
@@ -217,6 +259,10 @@ export const telegramOutbound: ChannelOutboundAdapter = {
     replyToId,
     threadId,
     forceDocument,
+<<<<<<< HEAD
+=======
+    silent,
+>>>>>>> upstream/main
     gatewayClientScopes,
   }) => {
     const { send, baseOpts } = await resolveTelegramSendContext({
@@ -225,6 +271,10 @@ export const telegramOutbound: ChannelOutboundAdapter = {
       accountId,
       replyToId,
       threadId,
+<<<<<<< HEAD
+=======
+      silent,
+>>>>>>> upstream/main
       gatewayClientScopes,
     });
     const result = await sendTelegramPayloadMessages({

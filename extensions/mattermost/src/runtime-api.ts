@@ -18,7 +18,11 @@ export {
   clearHistoryEntriesIfEnabled,
   createAccountStatusSink,
   createChannelPairingController,
+<<<<<<< HEAD
   createChannelReplyPipeline,
+=======
+  createChannelMessageReplyPipeline,
+>>>>>>> upstream/main
   createDedupeCache,
   DEFAULT_ACCOUNT_ID,
   DEFAULT_GROUP_HISTORY_LIMIT,

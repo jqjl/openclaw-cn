@@ -400,6 +400,7 @@ describe("secret ref resolver", () => {
       }),
     );
 
+<<<<<<< HEAD
     const originalReadFile = fs.readFile.bind(fs);
     const readFileSpy = vi.spyOn(fs, "readFile").mockImplementation(((
       targetPath: Parameters<typeof fs.readFile>[0],
@@ -410,6 +411,16 @@ describe("secret ref resolver", () => {
       }
       return originalReadFile(targetPath, options);
     }) as typeof fs.readFile);
+=======
+    const sampleHandle = await fs.open(filePath, "r");
+    const fileHandlePrototype = Object.getPrototypeOf(sampleHandle) as {
+      readFile: typeof sampleHandle.readFile;
+    };
+    await sampleHandle.close();
+    const readFileSpy = vi
+      .spyOn(fileHandlePrototype, "readFile")
+      .mockImplementation(() => new Promise<Buffer>(() => {}) as never);
+>>>>>>> upstream/main
 
     try {
       await expect(

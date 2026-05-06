@@ -5,6 +5,10 @@ import {
   NODE_SYSTEM_RUN_COMMANDS,
 } from "../infra/node-commands.js";
 import { getActiveRuntimePluginRegistry } from "../plugins/active-runtime-registry.js";
+<<<<<<< HEAD
+=======
+import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
+>>>>>>> upstream/main
 import { normalizeDeviceMetadataForPolicy } from "./device-metadata-normalization.js";
 import type { NodeSession } from "./node-registry.js";
 
@@ -49,6 +53,11 @@ const MOTION_COMMANDS = ["motion.activity", "motion.pedometer"];
 
 const SMS_DANGEROUS_COMMANDS = ["sms.send", "sms.search"];
 
+<<<<<<< HEAD
+=======
+const TALK_PTT_COMMANDS = ["talk.ptt.start", "talk.ptt.stop", "talk.ptt.cancel", "talk.ptt.once"];
+
+>>>>>>> upstream/main
 // iOS nodes don't implement system.run/which, but they do support notifications.
 const IOS_SYSTEM_COMMANDS = [NODE_SYSTEM_NOTIFY_COMMAND];
 
@@ -197,17 +206,48 @@ export function listDangerousPluginNodeCommands(): string[] {
   return [...new Set(commands.map((command) => command.trim()).filter(Boolean))];
 }
 
+<<<<<<< HEAD
 export function resolveNodeCommandAllowlist(
   cfg: OpenClawConfig,
   node?: Pick<NodeSession, "platform" | "deviceFamily">,
 ): Set<string> {
   const platformId = normalizePlatformId(node?.platform, node?.deviceFamily);
   const base = PLATFORM_DEFAULTS[platformId] ?? PLATFORM_DEFAULTS.unknown;
+=======
+type NodeCommandPolicyNode = Pick<NodeSession, "platform" | "deviceFamily"> &
+  Partial<Pick<NodeSession, "caps" | "commands">>;
+
+function hasTalkSurface(node?: NodeCommandPolicyNode): boolean {
+  if (!node) {
+    return false;
+  }
+  return (
+    (node.caps ?? []).some(
+      (capability) => normalizeOptionalLowercaseString(capability) === "talk",
+    ) ||
+    (node.commands ?? []).some((command) =>
+      normalizeOptionalLowercaseString(command)?.startsWith("talk."),
+    )
+  );
+}
+
+export function resolveNodeCommandAllowlist(
+  cfg: OpenClawConfig,
+  node?: NodeCommandPolicyNode,
+): Set<string> {
+  const platformId = normalizePlatformId(node?.platform, node?.deviceFamily);
+  const base = PLATFORM_DEFAULTS[platformId] ?? PLATFORM_DEFAULTS.unknown;
+  const talkCommands = hasTalkSurface(node) ? TALK_PTT_COMMANDS : [];
+>>>>>>> upstream/main
   const extra = cfg.gateway?.nodes?.allowCommands ?? [];
   const deny = new Set(cfg.gateway?.nodes?.denyCommands ?? []);
   const dangerousPluginCommands = new Set(listDangerousPluginNodeCommands());
   const allow = new Set(
+<<<<<<< HEAD
     [...base, ...extra]
+=======
+    [...base, ...talkCommands, ...extra]
+>>>>>>> upstream/main
       .map((cmd) => cmd.trim())
       .filter((cmd) => cmd && !dangerousPluginCommands.has(cmd)),
   );

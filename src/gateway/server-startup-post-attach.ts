@@ -271,13 +271,20 @@ async function prewarmConfiguredPrimaryModel(params: {
     return;
   }
   const [
+<<<<<<< HEAD
     { resolveOpenClawAgentDir },
     { resolveAgentWorkspaceDir, resolveDefaultAgentId },
+=======
+    { resolveAgentWorkspaceDir, resolveDefaultAgentDir, resolveDefaultAgentId },
+>>>>>>> upstream/main
     { DEFAULT_MODEL, DEFAULT_PROVIDER },
     { isCliProvider, resolveConfiguredModelRef },
     { resolveEmbeddedAgentRuntime },
   ] = await Promise.all([
+<<<<<<< HEAD
     import("../agents/agent-paths.js"),
+=======
+>>>>>>> upstream/main
     import("../agents/agent-scope.js"),
     import("../agents/defaults.js"),
     import("../agents/model-selection.js"),
@@ -297,7 +304,11 @@ async function prewarmConfiguredPrimaryModel(params: {
   }
   // Keep startup prewarm metadata-only; resolving models can import provider runtimes and block readiness.
   const { ensureOpenClawModelsJson } = await import("../agents/models-config.js");
+<<<<<<< HEAD
   const agentDir = resolveOpenClawAgentDir();
+=======
+  const agentDir = resolveDefaultAgentDir(params.cfg);
+>>>>>>> upstream/main
   const workspaceDir =
     params.workspaceDir ?? resolveAgentWorkspaceDir(params.cfg, resolveDefaultAgentId(params.cfg));
   try {

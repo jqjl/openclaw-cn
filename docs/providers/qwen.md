@@ -184,7 +184,11 @@ thinking sends `enable_thinking: false`; other thinking levels send
 
 ## Multimodal add-ons
 
+<<<<<<< HEAD
 The `qwen` extension also exposes multimodal capabilities on the **Standard**
+=======
+The `qwen` plugin also exposes multimodal capabilities on the **Standard**
+>>>>>>> upstream/main
 DashScope endpoints (not the Coding Plan endpoints):
 
 - **Video understanding** via `qwen-vl-max-latest`
@@ -244,7 +248,11 @@ See [Video Generation](/tools/video-generation) for shared tool parameters, prov
   </Accordion>
 
   <Accordion title="Capability plan">
+<<<<<<< HEAD
     The `qwen` extension is being positioned as the vendor home for the full Qwen
+=======
+    The `qwen` plugin is being positioned as the vendor home for the full Qwen
+>>>>>>> upstream/main
     Cloud surface, not just coding/text models.
 
     - **Text/chat models:** bundled now

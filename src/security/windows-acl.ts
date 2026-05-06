@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os from "node:os";
 import path from "node:path";
 import { getWindowsInstallRoots } from "../infra/windows-install-roots.js";
@@ -413,3 +414,17 @@ export function createIcaclsResetCommand(
     display: formatIcaclsResetCommand(targetPath, opts),
   };
 }
+=======
+export {
+  createIcaclsResetCommand,
+  formatIcaclsResetCommand,
+  formatWindowsAclSummary,
+  inspectWindowsAcl,
+  parseIcaclsOutput,
+  resolveWindowsUserPrincipal,
+  summarizeWindowsAcl,
+  type ExecFn,
+  type WindowsAclEntry,
+  type WindowsAclSummary,
+} from "../infra/permissions.js";
+>>>>>>> upstream/main

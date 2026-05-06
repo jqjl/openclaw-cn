@@ -42,7 +42,26 @@ describe("zalo send", () => {
       undefined,
     );
     expect(sendPhotoMock).not.toHaveBeenCalled();
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "z-msg-1" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "z-msg-1" });
+    expect(result.receipt).toMatchObject({
+      primaryPlatformMessageId: "z-msg-1",
+      platformMessageIds: ["z-msg-1"],
+      parts: [
+        {
+          platformMessageId: "z-msg-1",
+          kind: "text",
+          raw: {
+            channel: "zalo",
+            chatId: "dm-chat-1",
+            messageId: "z-msg-1",
+          },
+        },
+      ],
+    });
+>>>>>>> upstream/main
   });
 
   it("routes media-bearing sends through the photo API and uses text as caption", async () => {
@@ -67,6 +86,7 @@ describe("zalo send", () => {
       undefined,
     );
     expect(sendMessageMock).not.toHaveBeenCalled();
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "z-photo-1" });
   });
 
@@ -84,6 +104,37 @@ describe("zalo send", () => {
       ok: false,
       error: "No photo URL provided",
     });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "z-photo-1" });
+    expect(result.receipt).toMatchObject({
+      primaryPlatformMessageId: "z-photo-1",
+      platformMessageIds: ["z-photo-1"],
+      parts: [
+        {
+          platformMessageId: "z-photo-1",
+          kind: "media",
+        },
+      ],
+    });
+  });
+
+  it("fails fast for missing token or blank photo URLs", async () => {
+    const missingToken = await sendMessageZalo("dm-chat-3", "hello", {});
+    expect(missingToken).toMatchObject({
+      ok: false,
+      error: "No Zalo bot token configured",
+    });
+    expect(missingToken.receipt.platformMessageIds).toEqual([]);
+
+    const blankPhoto = await sendPhotoZalo("dm-chat-4", "   ", {
+      token: "zalo-token",
+    });
+    expect(blankPhoto).toMatchObject({
+      ok: false,
+      error: "No photo URL provided",
+    });
+    expect(blankPhoto.receipt.platformMessageIds).toEqual([]);
+>>>>>>> upstream/main
 
     expect(sendMessageMock).not.toHaveBeenCalled();
     expect(sendPhotoMock).not.toHaveBeenCalled();
@@ -115,6 +166,11 @@ describe("zalo send", () => {
       },
       undefined,
     );
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "z-photo-2" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "z-photo-2" });
+    expect(result.receipt.platformMessageIds).toEqual(["z-photo-2"]);
+>>>>>>> upstream/main
   });
 });

@@ -9,7 +9,11 @@ import {
   validateAnthropicSetupToken,
 } from "../commands/auth-token.js";
 import { getRuntimeConfig } from "../config/config.js";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+=======
+import { resolveDefaultAgentDir } from "./agent-scope.js";
+>>>>>>> upstream/main
 import {
   type AuthProfileCredential,
   ensureAuthProfileStore,
@@ -95,7 +99,11 @@ async function resolveTokenSource(): Promise<TokenSource> {
     };
   }
 
+<<<<<<< HEAD
   const agentDir = resolveOpenClawAgentDir();
+=======
+  const agentDir = resolveDefaultAgentDir(getRuntimeConfig());
+>>>>>>> upstream/main
   const store = ensureAuthProfileStore(agentDir, {
     allowKeychainPrompt: false,
   });

@@ -234,7 +234,15 @@ export async function resolveRuntimeWebProviderSurface<
   ) {
     configuredBundledPluginId = undefined;
   }
+<<<<<<< HEAD
   if (params.rawProvider && !configuredBundledPluginId) {
+=======
+  if (
+    params.rawProvider &&
+    !configuredBundledPluginId &&
+    !allProviders.some((provider) => provider.id === params.rawProvider)
+  ) {
+>>>>>>> upstream/main
     const resolveManifestContractOwnerPluginId = await loadResolveManifestContractOwnerPluginId();
     configuredBundledPluginId = resolveManifestContractOwnerPluginId({
       contract: params.contract,

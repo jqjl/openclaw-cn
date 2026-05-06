@@ -6,6 +6,10 @@ import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
 import { resolveLineAccount } from "./accounts.js";
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
 import { validateLineMediaUrl } from "./outbound-media.js";
+<<<<<<< HEAD
+=======
+import { createLineSendReceipt } from "./send-receipt.js";
+>>>>>>> upstream/main
 import type { LineSendResult } from "./types.js";
 
 type Message = messagingApi.Message;
@@ -177,6 +181,26 @@ function recordLineOutboundActivity(accountId: string): void {
   });
 }
 
+<<<<<<< HEAD
+=======
+function resolveLineReceiptKind(messages: readonly Message[]) {
+  const types = new Set(messages.map((message) => message.type));
+  if (types.has("audio")) {
+    return "voice";
+  }
+  if (types.has("image") || types.has("video")) {
+    return "media";
+  }
+  if (types.has("flex") || types.has("template") || types.has("location")) {
+    return "card";
+  }
+  if (types.has("text")) {
+    return "text";
+  }
+  return "unknown";
+}
+
+>>>>>>> upstream/main
 async function pushLineMessages(
   to: string,
   messages: Message[],
@@ -214,6 +238,15 @@ async function pushLineMessages(
   return {
     messageId: "push",
     chatId,
+<<<<<<< HEAD
+=======
+    receipt: createLineSendReceipt({
+      messageId: "push",
+      chatId,
+      kind: resolveLineReceiptKind(messages),
+      messageCount: messages.length,
+    }),
+>>>>>>> upstream/main
   };
 }
 
@@ -293,6 +326,15 @@ export async function sendMessageLine(
     return {
       messageId: "reply",
       chatId,
+<<<<<<< HEAD
+=======
+      receipt: createLineSendReceipt({
+        messageId: "reply",
+        chatId,
+        kind: resolveLineReceiptKind(messages),
+        messageCount: messages.length,
+      }),
+>>>>>>> upstream/main
     };
   }
 

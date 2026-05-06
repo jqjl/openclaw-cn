@@ -1,6 +1,11 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { SafeOpenError, openFileWithinRoot, type SafeOpenResult } from "../infra/fs-safe.js";
+=======
+import path from "node:path";
+import { root as fsRoot, FsSafeError, type OpenResult } from "../infra/fs-safe.js";
+>>>>>>> upstream/main
 
 export function normalizeUrlPath(rawPath: string): string {
   const decoded = decodeURIComponent(rawPath || "/");
@@ -11,18 +16,32 @@ export function normalizeUrlPath(rawPath: string): string {
 export async function resolveFileWithinRoot(
   rootReal: string,
   urlPath: string,
+<<<<<<< HEAD
 ): Promise<SafeOpenResult | null> {
+=======
+): Promise<OpenResult | null> {
+>>>>>>> upstream/main
   const normalized = normalizeUrlPath(urlPath);
   const rel = normalized.replace(/^\/+/, "");
   if (rel.split("/").some((p) => p === "..")) {
     return null;
   }
+<<<<<<< HEAD
 
   const tryOpen = async (relative: string) => {
     try {
       return await openFileWithinRoot({ rootDir: rootReal, relativePath: relative });
     } catch (err) {
       if (err instanceof SafeOpenError) {
+=======
+  const root = await fsRoot(rootReal);
+
+  const tryOpen = async (relative: string) => {
+    try {
+      return await root.open(relative);
+    } catch (err) {
+      if (err instanceof FsSafeError) {
+>>>>>>> upstream/main
         return null;
       }
       throw err;
@@ -33,6 +52,7 @@ export async function resolveFileWithinRoot(
     return await tryOpen(path.posix.join(rel, "index.html"));
   }
 
+<<<<<<< HEAD
   const candidate = path.join(rootReal, rel);
   try {
     const st = await fs.lstat(candidate);
@@ -44,6 +64,21 @@ export async function resolveFileWithinRoot(
     }
   } catch {
     // ignore
+=======
+  try {
+    const st = await root.stat(rel);
+    if (st.isSymbolicLink) {
+      return null;
+    }
+    if (st.isDirectory) {
+      return await tryOpen(path.posix.join(rel, "index.html"));
+    }
+  } catch (err) {
+    if (err instanceof FsSafeError) {
+      return null;
+    }
+    throw err;
+>>>>>>> upstream/main
   }
 
   return await tryOpen(rel);

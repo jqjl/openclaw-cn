@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 summary: "OpenClaw on Oracle Cloud (Always Free ARM)"
 read_when:
   - Setting up OpenClaw on Oracle Cloud
@@ -303,3 +304,16 @@ openclaw backup create
 - [Gateway configuration](/gateway/configuration) — all config options
 - [DigitalOcean guide](/platforms/digitalocean) — if you want paid + easier signup
 - [Hetzner guide](/install/hetzner) — Docker-based alternative
+=======
+summary: "Redirect to /install/oracle"
+title: "Oracle Cloud (platform)"
+redirect: /install/oracle
+---
+
+This page has moved to [Oracle Cloud](/install/oracle).
+
+## Related
+
+- [Install overview](/install)
+- [VPS hosting](/vps)
+>>>>>>> upstream/main

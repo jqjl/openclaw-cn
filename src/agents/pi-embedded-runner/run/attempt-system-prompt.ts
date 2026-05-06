@@ -30,15 +30,44 @@ export type AttemptSystemPrompt = {
   systemPromptOverride: (defaultPrompt?: string) => string;
 };
 
+<<<<<<< HEAD
+=======
+function appendRuntimeExtraSystemPrompt(params: {
+  systemPrompt: string;
+  extraSystemPrompt?: string;
+  promptMode?: EmbeddedSystemPromptParams["promptMode"];
+}): string {
+  const extraSystemPrompt = params.extraSystemPrompt?.trim();
+  if (!extraSystemPrompt || params.promptMode === "none") {
+    return params.systemPrompt;
+  }
+  const contextHeader =
+    params.promptMode === "minimal" ? "## Subagent Context" : "## Group Chat Context";
+  return `${params.systemPrompt.trimEnd()}\n\n${contextHeader}\n${extraSystemPrompt}\n`;
+}
+
+>>>>>>> upstream/main
 export function buildAttemptSystemPrompt(
   params: BuildAttemptSystemPromptParams,
 ): AttemptSystemPrompt {
   const baseSystemPrompt = params.systemPromptOverrideText
+<<<<<<< HEAD
     ? appendAgentBootstrapSystemPromptSupplement({
         systemPrompt: params.systemPromptOverrideText,
         bootstrapMode: params.embeddedSystemPrompt.bootstrapMode,
         bootstrapTruncationNotice: params.embeddedSystemPrompt.bootstrapTruncationNotice,
         contextFiles: params.embeddedSystemPrompt.contextFiles,
+=======
+    ? appendRuntimeExtraSystemPrompt({
+        systemPrompt: appendAgentBootstrapSystemPromptSupplement({
+          systemPrompt: params.systemPromptOverrideText,
+          bootstrapMode: params.embeddedSystemPrompt.bootstrapMode,
+          bootstrapTruncationNotice: params.embeddedSystemPrompt.bootstrapTruncationNotice,
+          contextFiles: params.embeddedSystemPrompt.contextFiles,
+        }),
+        extraSystemPrompt: params.embeddedSystemPrompt.extraSystemPrompt,
+        promptMode: params.embeddedSystemPrompt.promptMode,
+>>>>>>> upstream/main
       })
     : buildEmbeddedSystemPrompt(params.embeddedSystemPrompt);
 

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> upstream/main
 import {
   HEARTBEAT_SKIP_CRON_IN_PROGRESS,
   HEARTBEAT_SKIP_REQUESTS_IN_FLIGHT,
@@ -7,6 +11,7 @@ import {
 } from "../infra/heartbeat-wake.js";
 import type { CronEvent, CronServiceDeps } from "./service.js";
 import { CronService } from "./service.js";
+<<<<<<< HEAD
 import { createDeferred, createNoopLogger, installCronTestHooks } from "./service.test-harness.js";
 
 const noopLogger = createNoopLogger();
@@ -185,6 +190,19 @@ beforeEach(() => {
   fsState.entries.clear();
   fsState.nowMs = 0;
   ensureDir(fixturesRoot);
+=======
+import {
+  createCronStoreHarness,
+  createDeferred,
+  createNoopLogger,
+  installCronTestHooks,
+} from "./service.test-harness.js";
+
+const noopLogger = createNoopLogger();
+installCronTestHooks({ logger: noopLogger });
+const { makeStorePath } = createCronStoreHarness({
+  prefix: "openclaw-cron-runs-one-shot-",
+>>>>>>> upstream/main
 });
 
 function createCronEventHarness() {
@@ -229,7 +247,10 @@ type CronHarnessOptions = {
 };
 
 async function createCronHarness(options: CronHarnessOptions = {}) {
+<<<<<<< HEAD
   ensureDir(fixturesRoot);
+=======
+>>>>>>> upstream/main
   const store = await makeStorePath();
   const enqueueSystemEvent = vi.fn();
   const requestHeartbeat = vi.fn();
@@ -377,6 +398,10 @@ function expectMainSystemEventPosted(enqueueSystemEvent: unknown, text: string) 
 }
 
 async function stopCronAndCleanup(cron: CronService, store: { cleanup: () => Promise<void> }) {
+<<<<<<< HEAD
+=======
+  await cron.status();
+>>>>>>> upstream/main
   cron.stop();
   await store.cleanup();
 }
@@ -678,7 +703,10 @@ describe("CronService", () => {
   });
 
   it("rejects unsupported session/payload combinations", async () => {
+<<<<<<< HEAD
     ensureDir(fixturesRoot);
+=======
+>>>>>>> upstream/main
     const store = await makeStorePath();
 
     const cron = createStartedCronService(
@@ -712,7 +740,11 @@ describe("CronService", () => {
       }),
     ).rejects.toThrow(/isolated.*cron jobs require/);
 
+<<<<<<< HEAD
     cron.stop();
     await store.cleanup();
+=======
+    await stopCronAndCleanup(cron, store);
+>>>>>>> upstream/main
   });
 });

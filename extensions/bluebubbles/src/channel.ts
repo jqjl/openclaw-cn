@@ -3,10 +3,26 @@ import { createScopedDmSecurityResolver } from "openclaw/plugin-sdk/channel-conf
 import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
 import { createAccountStatusSink } from "openclaw/plugin-sdk/channel-lifecycle";
 import {
+<<<<<<< HEAD
+=======
+  createMessageReceiptFromOutboundResults,
+  defineChannelMessageAdapter,
+  type ChannelMessageSendAttemptContext,
+  type ChannelMessageSendFailureContext,
+  type ChannelMessageSendSuccessContext,
+  type ChannelMessageSendResult,
+  type MessageReceiptPartKind,
+} from "openclaw/plugin-sdk/channel-message";
+import {
+>>>>>>> upstream/main
   createOpenGroupPolicyRestrictSendersWarningCollector,
   projectAccountWarningCollector,
 } from "openclaw/plugin-sdk/channel-policy";
 import { buildProbeChannelStatusSummary } from "openclaw/plugin-sdk/channel-status";
+<<<<<<< HEAD
+=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+>>>>>>> upstream/main
 import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
 import {
   createComputedAccountStatusAdapter,
@@ -61,6 +77,172 @@ const loadBlueBubblesChannelRuntime = createLazyRuntimeNamedExport(
   "blueBubblesChannelRuntime",
 );
 
+<<<<<<< HEAD
+=======
+type BlueBubblesRuntime = Awaited<ReturnType<typeof loadBlueBubblesChannelRuntime>>;
+type BlueBubblesMediaExtras = {
+  mediaPath?: string;
+  mediaBuffer?: Uint8Array;
+  contentType?: string;
+  filename?: string;
+  caption?: string;
+};
+type BlueBubblesMessageLifecycleDeps = {
+  beforeSendAttempt?: (ctx: ChannelMessageSendAttemptContext) => unknown;
+  afterSendSuccess?: (ctx: ChannelMessageSendSuccessContext) => Promise<void> | void;
+  afterSendFailure?: (ctx: ChannelMessageSendFailureContext) => Promise<void> | void;
+};
+
+function resolveBlueBubblesMessageLifecycleDeps(
+  ctx:
+    | ChannelMessageSendAttemptContext
+    | ChannelMessageSendSuccessContext
+    | ChannelMessageSendFailureContext,
+): BlueBubblesMessageLifecycleDeps | undefined {
+  const candidate = ctx.deps?.bluebubblesMessageLifecycle;
+  if (!candidate || typeof candidate !== "object") {
+    return undefined;
+  }
+  return candidate as BlueBubblesMessageLifecycleDeps;
+}
+
+function resolveBlueBubblesReplyToMessageGuid(params: {
+  runtime: BlueBubblesRuntime;
+  to: string;
+  replyToId?: string | null;
+}): string | undefined {
+  const rawReplyToId = normalizeOptionalString(params.replyToId) ?? "";
+  if (!rawReplyToId) {
+    return undefined;
+  }
+  return (
+    params.runtime.resolveBlueBubblesMessageId(rawReplyToId, {
+      requireKnownShortId: true,
+      chatContext: buildBlueBubblesChatContextFromTarget(params.to),
+    }) || undefined
+  );
+}
+
+async function sendBlueBubblesTextWithRuntime(params: {
+  cfg: OpenClawConfig;
+  to: string;
+  text: string;
+  accountId?: string;
+  replyToId?: string | null;
+}) {
+  const runtime = await loadBlueBubblesChannelRuntime();
+  return await runtime.sendMessageBlueBubbles(params.to, params.text, {
+    cfg: params.cfg,
+    accountId: params.accountId,
+    replyToMessageGuid: resolveBlueBubblesReplyToMessageGuid({
+      runtime,
+      to: params.to,
+      replyToId: params.replyToId,
+    }),
+  });
+}
+
+async function sendBlueBubblesMediaWithRuntime(params: {
+  cfg: OpenClawConfig;
+  to: string;
+  text?: string;
+  mediaUrl: string;
+  accountId?: string;
+  replyToId?: string | null;
+  audioAsVoice?: boolean;
+  extras?: BlueBubblesMediaExtras;
+}) {
+  const runtime = await loadBlueBubblesChannelRuntime();
+  return await runtime.sendBlueBubblesMedia({
+    cfg: params.cfg,
+    to: params.to,
+    mediaUrl: params.mediaUrl,
+    mediaPath: params.extras?.mediaPath,
+    mediaBuffer: params.extras?.mediaBuffer,
+    contentType: params.extras?.contentType,
+    filename: params.extras?.filename,
+    caption: params.extras?.caption ?? params.text ?? undefined,
+    replyToId:
+      resolveBlueBubblesReplyToMessageGuid({
+        runtime,
+        to: params.to,
+        replyToId: params.replyToId,
+      }) ?? null,
+    accountId: params.accountId,
+    asVoice: params.audioAsVoice === true,
+  });
+}
+
+function toBlueBubblesMessageSendResult(
+  result: { messageId?: string; receipt?: ChannelMessageSendResult["receipt"] },
+  kind: MessageReceiptPartKind,
+  replyToId?: string | null,
+): ChannelMessageSendResult {
+  const receipt =
+    result.receipt ??
+    createMessageReceiptFromOutboundResults({
+      results: result.messageId ? [{ channel: "bluebubbles", messageId: result.messageId }] : [],
+      kind,
+      ...(replyToId ? { replyToId } : {}),
+    });
+  return {
+    messageId: result.messageId || receipt.primaryPlatformMessageId,
+    receipt,
+  };
+}
+
+const bluebubblesMessageAdapter = defineChannelMessageAdapter({
+  id: "bluebubbles",
+  durableFinal: {
+    capabilities: {
+      text: true,
+      media: true,
+      replyTo: true,
+      messageSendingHooks: true,
+      afterSendSuccess: true,
+    },
+  },
+  send: {
+    lifecycle: {
+      beforeSendAttempt: async (ctx) =>
+        await resolveBlueBubblesMessageLifecycleDeps(ctx)?.beforeSendAttempt?.(ctx),
+      afterSendSuccess: async (ctx) => {
+        await resolveBlueBubblesMessageLifecycleDeps(ctx)?.afterSendSuccess?.(ctx);
+      },
+      afterSendFailure: async (ctx) => {
+        await resolveBlueBubblesMessageLifecycleDeps(ctx)?.afterSendFailure?.(ctx);
+      },
+    },
+    text: async (ctx) =>
+      toBlueBubblesMessageSendResult(
+        await sendBlueBubblesTextWithRuntime({
+          cfg: ctx.cfg,
+          to: ctx.to,
+          text: ctx.text,
+          accountId: ctx.accountId ?? undefined,
+          replyToId: ctx.replyToId,
+        }),
+        "text",
+        ctx.replyToId,
+      ),
+    media: async (ctx) =>
+      toBlueBubblesMessageSendResult(
+        await sendBlueBubblesMediaWithRuntime({
+          cfg: ctx.cfg,
+          to: ctx.to,
+          text: ctx.text,
+          mediaUrl: ctx.mediaUrl,
+          accountId: ctx.accountId ?? undefined,
+          replyToId: ctx.replyToId,
+          audioAsVoice: ctx.audioAsVoice,
+        }),
+        "media",
+        ctx.replyToId,
+      ),
+  },
+});
+
+>>>>>>> upstream/main
 const resolveBlueBubblesDmPolicy = createScopedDmSecurityResolver<ResolvedBlueBubblesAccount>({
   channelKey: "bluebubbles",
   resolvePolicy: (account) => account.config.dmPolicy,
@@ -281,6 +463,10 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount, BlueBu
           }
         },
       },
+<<<<<<< HEAD
+=======
+      message: bluebubblesMessageAdapter,
+>>>>>>> upstream/main
     },
     security: {
       resolveDmPolicy: resolveBlueBubblesDmPolicy,
@@ -318,6 +504,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount, BlueBu
       },
       attachedResults: {
         channel: "bluebubbles",
+<<<<<<< HEAD
         sendText: async ({ cfg, to, text, accountId, replyToId }) => {
           const runtime = await loadBlueBubblesChannelRuntime();
           const rawReplyToId = normalizeOptionalString(replyToId) ?? "";
@@ -336,6 +523,21 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount, BlueBu
         sendMedia: async (ctx) => {
           const runtime = await loadBlueBubblesChannelRuntime();
           const { cfg, to, text, mediaUrl, accountId, replyToId, audioAsVoice } = ctx;
+=======
+        sendText: async ({ cfg, to, text, accountId, replyToId }) =>
+          await sendBlueBubblesTextWithRuntime({
+            cfg,
+            to,
+            text,
+            accountId: accountId ?? undefined,
+            replyToId,
+          }),
+        sendMedia: async (ctx) => {
+          const { cfg, to, text, mediaUrl, accountId, replyToId, audioAsVoice } = ctx;
+          if (!mediaUrl) {
+            throw new Error("BlueBubbles media send requires mediaUrl");
+          }
+>>>>>>> upstream/main
           const { mediaPath, mediaBuffer, contentType, filename, caption } = ctx as {
             mediaPath?: string;
             mediaBuffer?: Uint8Array;
@@ -343,6 +545,7 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount, BlueBu
             filename?: string;
             caption?: string;
           };
+<<<<<<< HEAD
           return await runtime.sendBlueBubblesMedia({
             cfg: cfg,
             to,
@@ -355,6 +558,17 @@ export const bluebubblesPlugin: ChannelPlugin<ResolvedBlueBubblesAccount, BlueBu
             replyToId: replyToId ?? null,
             accountId: accountId ?? undefined,
             asVoice: audioAsVoice === true,
+=======
+          return await sendBlueBubblesMediaWithRuntime({
+            cfg,
+            to,
+            text,
+            mediaUrl,
+            accountId: accountId ?? undefined,
+            replyToId,
+            audioAsVoice,
+            extras: { mediaPath, mediaBuffer, contentType, filename, caption },
+>>>>>>> upstream/main
           });
         },
       },

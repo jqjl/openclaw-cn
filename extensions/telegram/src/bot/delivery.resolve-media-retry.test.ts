@@ -6,10 +6,24 @@ import type { TelegramContext } from "./types.js";
 
 const saveMediaBuffer = vi.fn();
 const fetchRemoteMedia = vi.fn();
+<<<<<<< HEAD
 const readFileWithinRoot = vi.fn();
 
 vi.mock("openclaw/plugin-sdk/file-access-runtime", () => ({
   readFileWithinRoot: (...args: unknown[]) => readFileWithinRoot(...args),
+=======
+const rootRead = vi.fn();
+
+vi.mock("openclaw/plugin-sdk/file-access-runtime", () => ({
+  root: async (rootDir: string) => ({
+    read: async (relativePath: string, options?: { maxBytes?: number }) =>
+      await rootRead({
+        rootDir,
+        relativePath,
+        maxBytes: options?.maxBytes,
+      }),
+  }),
+>>>>>>> upstream/main
 }));
 
 vi.mock("./delivery.resolve-media.runtime.js", () => {
@@ -201,7 +215,11 @@ describe("resolveMedia getFile retry", () => {
     vi.useFakeTimers();
     fetchRemoteMedia.mockReset();
     saveMediaBuffer.mockReset();
+<<<<<<< HEAD
     readFileWithinRoot.mockReset();
+=======
+    rootRead.mockReset();
+>>>>>>> upstream/main
   });
 
   afterEach(() => {
@@ -435,7 +453,11 @@ describe("resolveMedia getFile retry", () => {
 
   it("copies trusted local absolute file paths into inbound media storage for media downloads", async () => {
     const getFile = vi.fn().mockResolvedValue({ file_path: "/var/lib/telegram-bot-api/file.pdf" });
+<<<<<<< HEAD
     readFileWithinRoot.mockResolvedValueOnce({
+=======
+    rootRead.mockResolvedValueOnce({
+>>>>>>> upstream/main
       buffer: Buffer.from("pdf-data"),
       realPath: "/var/lib/telegram-bot-api/file.pdf",
       stat: { size: 8 },
@@ -451,7 +473,11 @@ describe("resolveMedia getFile retry", () => {
     );
 
     expect(fetchRemoteMedia).not.toHaveBeenCalled();
+<<<<<<< HEAD
     expect(readFileWithinRoot).toHaveBeenCalledWith({
+=======
+    expect(rootRead).toHaveBeenCalledWith({
+>>>>>>> upstream/main
       rootDir: "/var/lib/telegram-bot-api",
       relativePath: "file.pdf",
       maxBytes: MAX_MEDIA_BYTES,
@@ -476,7 +502,11 @@ describe("resolveMedia getFile retry", () => {
     const getFile = vi
       .fn()
       .mockResolvedValue({ file_path: "/var/lib/telegram-bot-api/sticker.webp" });
+<<<<<<< HEAD
     readFileWithinRoot.mockResolvedValueOnce({
+=======
+    rootRead.mockResolvedValueOnce({
+>>>>>>> upstream/main
       buffer: Buffer.from("sticker-data"),
       realPath: "/var/lib/telegram-bot-api/sticker.webp",
       stat: { size: 12 },
@@ -491,7 +521,11 @@ describe("resolveMedia getFile retry", () => {
     });
 
     expect(fetchRemoteMedia).not.toHaveBeenCalled();
+<<<<<<< HEAD
     expect(readFileWithinRoot).toHaveBeenCalledWith({
+=======
+    expect(rootRead).toHaveBeenCalledWith({
+>>>>>>> upstream/main
       rootDir: "/var/lib/telegram-bot-api",
       relativePath: "sticker.webp",
       maxBytes: MAX_MEDIA_BYTES,
@@ -513,7 +547,11 @@ describe("resolveMedia getFile retry", () => {
 
   it("maps trusted local absolute path read failures to MediaFetchError", async () => {
     const getFile = vi.fn().mockResolvedValue({ file_path: "/var/lib/telegram-bot-api/file.pdf" });
+<<<<<<< HEAD
     readFileWithinRoot.mockRejectedValueOnce(new Error("file not found"));
+=======
+    rootRead.mockRejectedValueOnce(new Error("file not found"));
+>>>>>>> upstream/main
 
     await expect(
       resolveMediaWithDefaults(makeCtx("document", getFile, { mime_type: "application/pdf" }), {
@@ -530,7 +568,11 @@ describe("resolveMedia getFile retry", () => {
 
   it("maps oversized trusted local absolute path reads to MediaFetchError", async () => {
     const getFile = vi.fn().mockResolvedValue({ file_path: "/var/lib/telegram-bot-api/file.pdf" });
+<<<<<<< HEAD
     readFileWithinRoot.mockRejectedValueOnce(new Error("file exceeds limit"));
+=======
+    rootRead.mockRejectedValueOnce(new Error("file exceeds limit"));
+>>>>>>> upstream/main
 
     await expect(
       resolveMediaWithDefaults(makeCtx("document", getFile, { mime_type: "application/pdf" }), {
@@ -558,7 +600,11 @@ describe("resolveMedia getFile retry", () => {
       }),
     );
 
+<<<<<<< HEAD
     expect(readFileWithinRoot).not.toHaveBeenCalled();
+=======
+    expect(rootRead).not.toHaveBeenCalled();
+>>>>>>> upstream/main
     expect(fetchRemoteMedia).not.toHaveBeenCalled();
   });
 });

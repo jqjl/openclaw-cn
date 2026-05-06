@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+=======
+>>>>>>> upstream/main
 import {
   resolveDefaultAgentId,
   resolveAgentDir,
@@ -221,12 +224,16 @@ export async function runProviderPluginAuthMethod(params: {
   opts?: Partial<ProviderAuthOptionBag>;
 }): Promise<{ config: OpenClawConfig; defaultModel?: string }> {
   const agentId = params.agentId ?? resolveDefaultAgentId(params.config);
+<<<<<<< HEAD
   const defaultAgentId = resolveDefaultAgentId(params.config);
   const agentDir =
     params.agentDir ??
     (agentId === defaultAgentId
       ? resolveOpenClawAgentDir()
       : resolveAgentDir(params.config, agentId));
+=======
+  const agentDir = params.agentDir ?? resolveAgentDir(params.config, agentId);
+>>>>>>> upstream/main
   const workspaceDir =
     params.workspaceDir ??
     resolveAgentWorkspaceDir(params.config, agentId) ??
@@ -469,10 +476,14 @@ export async function applyAuthChoicePluginProvider(
   }
 
   const agentId = params.agentId ?? resolveDefaultAgentId(nextConfig);
+<<<<<<< HEAD
   const defaultAgentId = resolveDefaultAgentId(nextConfig);
   const agentDir =
     params.agentDir ??
     (agentId === defaultAgentId ? resolveOpenClawAgentDir() : resolveAgentDir(nextConfig, agentId));
+=======
+  const agentDir = params.agentDir ?? resolveAgentDir(nextConfig, agentId);
+>>>>>>> upstream/main
   const workspaceDir =
     resolveAgentWorkspaceDir(nextConfig, agentId) ?? resolveDefaultAgentWorkspaceDir();
 

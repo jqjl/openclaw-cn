@@ -2,6 +2,10 @@ import { constants as fsConstants } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import * as fsSafe from "../infra/fs-safe.js";
+>>>>>>> upstream/main
 import { withTempDir } from "../test-helpers/temp-dir.js";
 import { withFetchPreconnect } from "../test-utils/fetch-mock.js";
 import { MediaAttachmentCache } from "./attachments.js";
@@ -222,6 +226,7 @@ describe("media understanding attachments SSRF", () => {
       const cache = new MediaAttachmentCache([{ index: 0, path: attachmentPath }], {
         localPathRoots: [allowedRoot],
       });
+<<<<<<< HEAD
       const originalRealpath = fs.realpath.bind(fs);
 
       vi.spyOn(fs, "realpath").mockImplementation(async (candidatePath) => {
@@ -229,6 +234,13 @@ describe("media understanding attachments SSRF", () => {
           throw new Error("EACCES");
         }
         return await originalRealpath(candidatePath);
+=======
+      vi.spyOn(fsSafe, "openLocalFileSafely").mockImplementation(async (params) => {
+        if (params.filePath === attachmentPath) {
+          throw new Error("EACCES");
+        }
+        throw new Error(`Unexpected attachment path: ${params.filePath}`);
+>>>>>>> upstream/main
       });
 
       await expect(

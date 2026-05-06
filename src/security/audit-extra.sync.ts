@@ -133,6 +133,15 @@ function listKnownNodeCommands(cfg: OpenClawConfig): Set<string> {
       }
     }
   }
+<<<<<<< HEAD
+=======
+  for (const cmd of resolveNodeCommandAllowlist(baseCfg, { caps: ["talk"] })) {
+    const normalized = normalizeNodeCommand(cmd);
+    if (normalized) {
+      out.add(normalized);
+    }
+  }
+>>>>>>> upstream/main
   for (const cmd of DEFAULT_DANGEROUS_NODE_COMMANDS) {
     const normalized = normalizeNodeCommand(cmd);
     if (normalized) {

@@ -230,6 +230,7 @@ export async function preflightDiscordMessage(
     includeForwarded: false,
   });
 
+<<<<<<< HEAD
   // Intercept text-only slash commands (e.g. user typing "/reset" instead of using Discord's slash command picker)
   // These should not be forwarded to the agent; proper slash command interactions are handled elsewhere
   if (!isDirectMessage && baseText && hasControlCommand(baseText, params.cfg)) {
@@ -237,6 +238,8 @@ export async function preflightDiscordMessage(
     return null;
   }
 
+=======
+>>>>>>> upstream/main
   recordChannelActivity({
     channel: "discord",
     accountId: params.accountId,

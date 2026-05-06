@@ -1,5 +1,9 @@
 import crypto from "node:crypto";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { sanitizeUntrustedFileName } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -35,9 +39,13 @@ const AUDIO_MIME_MP3 = new Set(["audio/mpeg", "audio/mp3"]);
 const AUDIO_MIME_CAF = new Set(["audio/x-caf", "audio/caf"]);
 
 function sanitizeFilename(input: string | undefined, fallback: string): string {
+<<<<<<< HEAD
   const trimmed = input?.trim() ?? "";
   const base = trimmed ? path.basename(trimmed) : "";
   const name = base || fallback;
+=======
+  const name = sanitizeUntrustedFileName(input ?? "", fallback);
+>>>>>>> upstream/main
   // Strip characters that could enable multipart header injection (CWE-93)
   return name.replace(/[\r\n"\\]/g, "_");
 }

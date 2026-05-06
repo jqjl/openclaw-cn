@@ -51,7 +51,11 @@ type ResolvedGatewayConnection = {
   token?: string;
   password?: string;
   preauthHandshakeTimeoutMs?: number;
+<<<<<<< HEAD
   allowInsecureLocalOperatorUi?: boolean;
+=======
+  allowInsecureLocalOperatorUi: boolean;
+>>>>>>> upstream/main
 };
 
 function throwGatewayAuthResolutionError(reason: string): never {
@@ -163,11 +167,23 @@ export class GatewayChatClient implements TuiBackend {
   start() {
     void startGatewayClientWhenEventLoopReady(this.client, {
       clientOptions: { preauthHandshakeTimeoutMs: this.connection.preauthHandshakeTimeoutMs },
+<<<<<<< HEAD
     }).then((readiness) => {
       if (!readiness.ready && !readiness.aborted) {
         this.onDisconnected?.("gateway event loop readiness timeout");
       }
     });
+=======
+    })
+      .then((readiness) => {
+        if (!readiness.ready && !readiness.aborted) {
+          this.onDisconnected?.("gateway event loop readiness timeout");
+        }
+      })
+      .catch((err: unknown) => {
+        this.onDisconnected?.(err instanceof Error ? err.message : String(err));
+      });
+>>>>>>> upstream/main
   }
 
   stop() {

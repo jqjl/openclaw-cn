@@ -1,6 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { listActiveMemoryPublicArtifacts } from "openclaw/plugin-sdk/memory-host-core";
+<<<<<<< HEAD
+=======
+import { pathExists } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "../api.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import { inferWikiPageKind, toWikiPageSummary, type WikiPageKind } from "./markdown.js";
@@ -65,6 +69,7 @@ type ResolveMemoryWikiStatusDeps = {
   resolveCommand?: (command: string) => Promise<string | null>;
 };
 
+<<<<<<< HEAD
 async function pathExists(inputPath: string): Promise<boolean> {
   try {
     await fs.access(inputPath);
@@ -74,6 +79,8 @@ async function pathExists(inputPath: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 async function collectVaultCounts(vaultPath: string): Promise<{
   pageCounts: Record<WikiPageKind, number>;
   sourceCounts: MemoryWikiStatus["sourceCounts"];

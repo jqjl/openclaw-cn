@@ -499,6 +499,7 @@ export async function loadCompactHooksHarness(): Promise<{
     resolveSkillsPromptForRun: vi.fn(() => undefined),
   }));
 
+<<<<<<< HEAD
   vi.doMock("../agent-paths.js", () => ({
     resolveOpenClawAgentDir: vi.fn(() => "/tmp"),
   }));
@@ -506,6 +507,13 @@ export async function loadCompactHooksHarness(): Promise<{
   vi.doMock("../agent-scope.js", () => ({
     listAgentEntries: vi.fn(() => []),
     resolveAgentConfig: vi.fn(() => undefined),
+=======
+  vi.doMock("../agent-scope.js", () => ({
+    listAgentEntries: vi.fn(() => []),
+    resolveAgentConfig: vi.fn(() => undefined),
+    resolveAgentDir: vi.fn((_cfg: unknown, agentId: string) => `/tmp/agents/${agentId}/agent`),
+    resolveDefaultAgentDir: vi.fn(() => "/tmp/agents/main/agent"),
+>>>>>>> upstream/main
     resolveDefaultAgentId: vi.fn(() => "main"),
     resolveRunModelFallbacksOverride: vi.fn(() => undefined),
     resolveSessionAgentId: resolveSessionAgentIdMock,

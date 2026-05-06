@@ -6,6 +6,10 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vite
 import type { ResolvedDiscordAccount } from "./accounts.js";
 import type { OpenClawConfig } from "./runtime-api.js";
 import * as sendModule from "./send.js";
+<<<<<<< HEAD
+=======
+import { createDiscordSendReceipt } from "./send.receipt.js";
+>>>>>>> upstream/main
 import { EMPTY_DISCORD_TEST_CONFIG } from "./test-support/config.js";
 let discordPlugin: typeof import("./channel.js").discordPlugin;
 let setDiscordRuntime: typeof import("./runtime.js").setDiscordRuntime;
@@ -18,6 +22,17 @@ const collectDiscordAuditChannelIdsMock = vi.hoisted(() =>
 );
 const sleepWithAbortMock = vi.hoisted(() => vi.fn(async () => undefined));
 
+<<<<<<< HEAD
+=======
+function discordTestSendResult(messageId: string, channelId = "channel:thread-123") {
+  return {
+    messageId,
+    channelId,
+    receipt: createDiscordSendReceipt({ platformMessageIds: [messageId], channelId, kind: "text" }),
+  };
+}
+
+>>>>>>> upstream/main
 vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   const actual = await vi.importActual<typeof import("openclaw/plugin-sdk/runtime-env")>(
     "openclaw/plugin-sdk/runtime-env",
@@ -250,8 +265,13 @@ describe("discordPlugin outbound", () => {
   it("splits text and video into separate sends for attached outbound delivery", async () => {
     const sendMessageDiscord = vi
       .fn()
+<<<<<<< HEAD
       .mockResolvedValueOnce({ messageId: "text-1" })
       .mockResolvedValueOnce({ messageId: "video-1" });
+=======
+      .mockResolvedValueOnce(discordTestSendResult("text-1"))
+      .mockResolvedValueOnce(discordTestSendResult("video-1"));
+>>>>>>> upstream/main
 
     const result = await discordPlugin.outbound!.sendMedia!({
       cfg: EMPTY_DISCORD_TEST_CONFIG,
@@ -287,10 +307,14 @@ describe("discordPlugin outbound", () => {
   });
 
   it("threads poll sends through the thread target", async () => {
+<<<<<<< HEAD
     const sendPollDiscord = vi.fn(async () => ({
       channelId: "channel:thread-123",
       messageId: "poll-1",
     }));
+=======
+    const sendPollDiscord = vi.fn(async () => discordTestSendResult("poll-1"));
+>>>>>>> upstream/main
     const sendPollSpy = vi.spyOn(sendModule, "sendPollDiscord").mockImplementation(sendPollDiscord);
     try {
       const result = await discordPlugin.outbound!.sendPoll!({

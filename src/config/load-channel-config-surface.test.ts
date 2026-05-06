@@ -169,16 +169,24 @@ describe("loadChannelConfigSurfaceModule", () => {
     await withTempDir({ prefix: "openclaw-config-surface-" }, async (repoRoot) => {
       const { modulePath } = createDemoConfigSchemaModule(repoRoot, ["export const = ;"]);
 
+<<<<<<< HEAD
       const {
         loadChannelConfigSurfaceModule: loadWithFailingJiti,
         spawnSync,
         createJiti,
       } = await importLoaderWithFailingJitiAndWorkingBun();
+=======
+      const { loadChannelConfigSurfaceModule: loadWithFailingJiti, spawnSync } =
+        await importLoaderWithFailingJitiAndWorkingBun();
+>>>>>>> upstream/main
 
       await expect(loadWithFailingJiti(modulePath, { repoRoot })).resolves.toMatchObject(
         expectedOkSchema("number"),
       );
+<<<<<<< HEAD
       expect(createJiti).toHaveBeenCalled();
+=======
+>>>>>>> upstream/main
       expect(spawnSync).toHaveBeenCalledWith("bun", expect.any(Array), expect.any(Object));
     });
   });

@@ -1,11 +1,32 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+<<<<<<< HEAD
 import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
 import { describe, expect, it } from "vitest";
 import { resolveTelegramConversationBaseSessionKey } from "./conversation-route.js";
+=======
+import {
+  __testing as conversationBindingTesting,
+  registerSessionBindingAdapter,
+  type SessionBindingAdapter,
+} from "openclaw/plugin-sdk/conversation-runtime";
+import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  resolveTelegramConversationBaseSessionKey,
+  resolveTelegramConversationRoute,
+} from "./conversation-route.js";
+>>>>>>> upstream/main
 
 describe("resolveTelegramConversationBaseSessionKey", () => {
   const cfg: OpenClawConfig = {};
 
+<<<<<<< HEAD
+=======
+  beforeEach(() => {
+    conversationBindingTesting.resetSessionBindingAdaptersForTests();
+  });
+
+>>>>>>> upstream/main
   it("keeps default-account DMs on the route session key", () => {
     expect(
       resolveTelegramConversationBaseSessionKey({
@@ -105,4 +126,50 @@ describe("resolveTelegramConversationBaseSessionKey", () => {
       }).sessionKey,
     ).toBe("agent:main:telegram:personal:direct:12345:thread:12345:99");
   });
+<<<<<<< HEAD
+=======
+
+  it("keeps inbound DMs on the main route when a stale runtime binding points at a cron run", () => {
+    const touch = vi.fn<NonNullable<SessionBindingAdapter["touch"]>>();
+    registerSessionBindingAdapter({
+      channel: "telegram",
+      accountId: "default",
+      listBySession: () => [],
+      resolveByConversation: () => ({
+        bindingId: "binding-cron-run",
+        targetSessionKey: "agent:youtube:cron:monthly-report:run:closed-run-1",
+        targetKind: "session",
+        conversation: {
+          channel: "telegram",
+          accountId: "default",
+          conversationId: "12345",
+        },
+        status: "active",
+        boundAt: 1,
+      }),
+      touch,
+    });
+
+    const result = resolveTelegramConversationRoute({
+      cfg: {
+        session: {
+          dmScope: "main",
+        },
+      },
+      accountId: "default",
+      chatId: 12345,
+      isGroup: false,
+      senderId: 12345,
+    });
+
+    expect(touch).not.toHaveBeenCalled();
+    expect(result.configuredBinding).toBeNull();
+    expect(result.configuredBindingSessionKey).toBe("");
+    expect(result.route).toMatchObject({
+      agentId: "main",
+      sessionKey: "agent:main:main",
+      matchedBy: "default",
+    });
+  });
+>>>>>>> upstream/main
 });

@@ -3,11 +3,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { VoiceCallRealtimeFastContextConfig } from "./config.js";
 
 const mocks = vi.hoisted(() => ({
+<<<<<<< HEAD
   getActiveMemorySearchManager: vi.fn(),
 }));
 
 vi.mock("openclaw/plugin-sdk/memory-host-search", () => ({
   getActiveMemorySearchManager: mocks.getActiveMemorySearchManager,
+=======
+  resolveRealtimeVoiceFastContextConsult: vi.fn(),
+}));
+
+vi.mock("openclaw/plugin-sdk/realtime-voice", () => ({
+  resolveRealtimeVoiceFastContextConsult: mocks.resolveRealtimeVoiceFastContextConsult,
+>>>>>>> upstream/main
 }));
 
 import { resolveRealtimeFastContextConsult } from "./realtime-fast-context.js";
@@ -36,16 +44,26 @@ function createLogger() {
 
 describe("resolveRealtimeFastContextConsult", () => {
   beforeEach(() => {
+<<<<<<< HEAD
     mocks.getActiveMemorySearchManager.mockReset();
+=======
+    mocks.resolveRealtimeVoiceFastContextConsult.mockReset();
+>>>>>>> upstream/main
   });
 
   afterEach(() => {
     vi.useRealTimers();
   });
 
+<<<<<<< HEAD
   it("falls back to the full consult when memory manager setup fails", async () => {
     const logger = createLogger();
     mocks.getActiveMemorySearchManager.mockRejectedValue(new Error("memory misconfigured"));
+=======
+  it("passes voice-call labels into the SDK fast context resolver", async () => {
+    const logger = createLogger();
+    mocks.resolveRealtimeVoiceFastContextConsult.mockResolvedValue({ handled: false });
+>>>>>>> upstream/main
 
     await expect(
       resolveRealtimeFastContextConsult({
@@ -58,6 +76,7 @@ describe("resolveRealtimeFastContextConsult", () => {
       }),
     ).resolves.toEqual({ handled: false });
 
+<<<<<<< HEAD
     expect(logger.debug).toHaveBeenCalledWith(expect.stringContaining("memory misconfigured"));
   });
 
@@ -84,5 +103,19 @@ describe("resolveRealtimeFastContextConsult", () => {
       },
     });
     expect(logger.debug).toHaveBeenCalledWith(expect.stringContaining("timed out after 25ms"));
+=======
+    expect(mocks.resolveRealtimeVoiceFastContextConsult).toHaveBeenCalledWith({
+      cfg,
+      agentId: "main",
+      sessionKey: "voice:15550001234",
+      config: createFastContextConfig({ fallbackToConsult: true }),
+      args: { question: "What do you remember?" },
+      logger,
+      labels: {
+        audienceLabel: "caller",
+        contextName: "OpenClaw memory or session context",
+      },
+    });
+>>>>>>> upstream/main
   });
 });

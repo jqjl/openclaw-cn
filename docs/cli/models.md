@@ -13,6 +13,10 @@ Model discovery, scanning, and configuration (default model, fallbacks, auth pro
 Related:
 
 - Providers + models: [Models](/providers/models)
+<<<<<<< HEAD
+=======
+- Model selection concepts + `/models` slash command: [Models concept](/concepts/models)
+>>>>>>> upstream/main
 - Provider auth setup: [Getting started](/start/getting-started)
 
 ## Common commands
@@ -35,7 +39,11 @@ In `--json` output, `auth.providers` is the env/config/store-aware provider
 overview, while `auth.oauth` is auth-store profile health only.
 Add `--probe` to run live auth probes against each configured provider profile.
 Probes are real requests (may consume tokens and trigger rate limits).
+<<<<<<< HEAD
 Use `--agent <id>` to inspect a configured agent’s model/auth state. When omitted,
+=======
+Use `--agent <id>` to inspect a configured agent's model/auth state. When omitted,
+>>>>>>> upstream/main
 the command uses `OPENCLAW_AGENT_DIR`/`PI_CODING_AGENT_DIR` if set, otherwise the
 configured default agent.
 Probe rows can come from auth profiles, env credentials, or `models.json`.
@@ -43,6 +51,38 @@ Probe rows can come from auth profiles, env credentials, or `models.json`.
 Notes:
 
 - `models set <model-or-alias>` accepts `provider/model` or an alias.
+<<<<<<< HEAD
+=======
+- `models list` is read-only: it reads config, auth profiles, existing catalog
+  state, and provider-owned catalog rows, but it does not rewrite
+  `models.json`.
+- The `Auth` column is provider-level and read-only. It is computed from local
+  auth profile metadata, env markers, configured provider keys, local-provider
+  markers, AWS Bedrock env/profile markers, and plugin synthetic-auth metadata;
+  it does not load provider runtime, read keychain secrets, call provider
+  APIs, or prove exact per-model execution readiness.
+- `models list --all --provider <id>` can include provider-owned static catalog
+  rows from plugin manifests or bundled provider catalog metadata even when you
+  have not authenticated with that provider yet. Those rows still show as
+  unavailable until matching auth is configured.
+- `models list` keeps the control plane responsive while provider catalog
+  discovery is slow. The default and configured views fall back to configured or
+  synthetic model rows after a short wait and let discovery finish in the
+  background. Use `--all` when you need the exact full discovered catalog and
+  are willing to wait for provider discovery.
+- Broad `models list --all` merges manifest catalog rows over registry rows
+  without loading provider runtime supplement hooks. Provider-filtered manifest
+  fast paths use only providers marked `static`; providers marked `refreshable`
+  stay registry/cache-backed and append manifest rows as supplements, while
+  providers marked `runtime` stay on registry/runtime discovery.
+- `models list` keeps native model metadata and runtime caps distinct. In table
+  output, `Ctx` shows `contextTokens/contextWindow` when an effective runtime
+  cap differs from the native context window; JSON rows include `contextTokens`
+  when a provider exposes that cap.
+- `models list --provider <id>` filters by provider id, such as `moonshot` or
+  `openai-codex`. It does not accept display labels from interactive provider
+  pickers, such as `Moonshot AI`.
+>>>>>>> upstream/main
 - Model refs are parsed by splitting on the **first** `/`. If the model ID includes `/` (OpenRouter-style), include the provider prefix (example: `openrouter/moonshotai/kimi-k2`).
 - If you omit the provider, OpenClaw resolves the input as an alias first, then
   as a unique configured-provider match for that exact model id, and only then
@@ -146,7 +186,11 @@ provider you choose.
 printing token, API-key, or OAuth secret material. Use `--provider <id>` to
 filter to one provider, such as `openai-codex`, and `--json` for scripting.
 
+<<<<<<< HEAD
 `models auth login` runs a provider plugin’s auth flow (OAuth/API key). Use
+=======
+`models auth login` runs a provider plugin's auth flow (OAuth/API key). Use
+>>>>>>> upstream/main
 `openclaw plugins list` to see which providers are installed.
 Use `openclaw models auth --agent <id> <subcommand>` to write auth results to a
 specific configured agent store. The parent `--agent` flag is honored by

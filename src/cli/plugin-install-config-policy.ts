@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { Command } from "commander";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { findBundledPluginSource } from "../plugins/bundled-sources.js";
 import { loadPluginManifest } from "../plugins/manifest.js";
 import {
@@ -40,6 +44,7 @@ function readBundledInstallRecoveryMetadata(rootDir: string): {
   }
   const manifest = loadPluginManifest(rootDir, false);
   const pluginId = manifest.ok ? manifest.manifest.id : undefined;
+<<<<<<< HEAD
   try {
     const parsed = JSON.parse(fs.readFileSync(packageJsonPath, "utf8")) as {
       openclaw?: {
@@ -58,6 +63,19 @@ function readBundledInstallRecoveryMetadata(rootDir: string): {
       allowInvalidConfigRecovery: false,
     };
   }
+=======
+  const parsed = tryReadJsonSync<{
+    openclaw?: {
+      install?: {
+        allowInvalidConfigRecovery?: boolean;
+      };
+    };
+  }>(packageJsonPath);
+  return {
+    ...(pluginId ? { pluginId } : {}),
+    allowInvalidConfigRecovery: parsed?.openclaw?.install?.allowInvalidConfigRecovery === true,
+  };
+>>>>>>> upstream/main
 }
 
 function resolveBundledInstallRecoveryMetadata(

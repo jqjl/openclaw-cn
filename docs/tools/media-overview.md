@@ -14,6 +14,7 @@ media capabilities are tool-driven: the agent decides when to use them based
 on the conversation, and each tool only appears when at least one backing
 provider is configured.
 
+<<<<<<< HEAD
 ## Capabilities
 
 ## Capabilities at a glance
@@ -47,6 +48,69 @@ This table shows which providers support which media capabilities across the pla
 | Together   |       | Yes   |       |     |                     |                     |
 | Vydra      | Yes   | Yes   |       |     |                     |                     |
 | xAI        |       | Yes   |       |     |                     |                     |
+=======
+Live speech uses the Talk session contract instead of the one-shot media tool
+path. Talk has three modes: provider-native `realtime`, local or streaming
+`stt-tts`, and `transcription` for observe-only speech capture. Those modes
+share provider catalogs, event envelopes, and cancellation semantics with
+telephony, meetings, browser realtime, and native push-to-talk clients.
+
+## Capabilities
+
+<CardGroup cols={2}>
+  <Card title="Image generation" href="/tools/image-generation" icon="image">
+    Create and edit images from text prompts or reference images via
+    `image_generate`. Synchronous — completes inline with the reply.
+  </Card>
+  <Card title="Video generation" href="/tools/video-generation" icon="video">
+    Text-to-video, image-to-video, and video-to-video via `video_generate`.
+    Async — runs in the background and posts the result when ready.
+  </Card>
+  <Card title="Music generation" href="/tools/music-generation" icon="music">
+    Generate music or audio tracks via `music_generate`. Async on shared
+    providers; ComfyUI workflow path runs synchronously.
+  </Card>
+  <Card title="Text-to-speech" href="/tools/tts" icon="microphone">
+    Convert outbound replies to spoken audio via the `tts` tool plus
+    `messages.tts` config. Synchronous.
+  </Card>
+  <Card title="Media understanding" href="/nodes/media-understanding" icon="eye">
+    Summarize inbound images, audio, and video using vision-capable model
+    providers and dedicated media-understanding plugins.
+  </Card>
+  <Card title="Speech-to-text" href="/nodes/audio" icon="ear-listen">
+    Transcribe inbound voice messages through batch STT or Voice Call
+    streaming STT providers.
+  </Card>
+</CardGroup>
+
+## Provider capability matrix
+
+| Provider    | Image | Video | Music | TTS | STT | Realtime voice | Media understanding |
+| ----------- | :---: | :---: | :---: | :-: | :-: | :------------: | :-----------------: |
+| Alibaba     |       |   ✓   |       |     |     |                |                     |
+| BytePlus    |       |   ✓   |       |     |     |                |                     |
+| ComfyUI     |   ✓   |   ✓   |   ✓   |     |     |                |                     |
+| DeepInfra   |   ✓   |   ✓   |       |  ✓  |  ✓  |                |          ✓          |
+| Deepgram    |       |       |       |     |  ✓  |       ✓        |                     |
+| ElevenLabs  |       |       |       |  ✓  |  ✓  |                |                     |
+| fal         |   ✓   |   ✓   |       |     |     |                |                     |
+| Google      |   ✓   |   ✓   |   ✓   |  ✓  |     |       ✓        |          ✓          |
+| Gradium     |       |       |       |  ✓  |     |                |                     |
+| Local CLI   |       |       |       |  ✓  |     |                |                     |
+| Microsoft   |       |       |       |  ✓  |     |                |                     |
+| MiniMax     |   ✓   |   ✓   |   ✓   |  ✓  |     |                |                     |
+| Mistral     |       |       |       |     |  ✓  |                |                     |
+| OpenAI      |   ✓   |   ✓   |       |  ✓  |  ✓  |       ✓        |          ✓          |
+| OpenRouter  |   ✓   |   ✓   |       |  ✓  |     |                |          ✓          |
+| Qwen        |       |   ✓   |       |     |     |                |                     |
+| Runway      |       |   ✓   |       |     |     |                |                     |
+| SenseAudio  |       |       |       |     |  ✓  |                |                     |
+| Together    |       |   ✓   |       |     |     |                |                     |
+| Vydra       |   ✓   |   ✓   |       |  ✓  |     |                |                     |
+| xAI         |   ✓   |   ✓   |       |  ✓  |  ✓  |                |          ✓          |
+| Xiaomi MiMo |   ✓   |       |       |  ✓  |     |                |          ✓          |
+>>>>>>> upstream/main
 
 <Note>
 Media understanding uses any vision-capable or audio-capable model registered
@@ -66,7 +130,10 @@ reply model.
 | Music (shared)  | Asynchronous | Same provider-processing characteristic as video.                                                    |
 | Music (ComfyUI) | Synchronous  | Local workflow runs inline against the configured ComfyUI server.                                    |
 
+<<<<<<< HEAD
 ## Quick links
+=======
+>>>>>>> upstream/main
 For async tools, OpenClaw submits the request to the provider, returns a task
 id immediately, and tracks the job in the task ledger. The agent continues
 responding to other messages while the job runs. When the provider finishes,
@@ -89,6 +156,14 @@ Deepgram, ElevenLabs, Mistral, OpenAI, and xAI also register Voice Call
 streaming STT providers, so live phone audio can be forwarded to the selected
 vendor without waiting for a completed recording.
 
+<<<<<<< HEAD
+=======
+For live user conversations, prefer [Talk mode](/nodes/talk). Batch audio
+attachments stay on the media path; browser realtime, native push-to-talk,
+telephony, and meeting audio should use Talk events and the session-scoped
+catalogs returned by the Gateway.
+
+>>>>>>> upstream/main
 ## Provider mappings (how vendors split across surfaces)
 
 <AccordionGroup>
@@ -123,3 +198,7 @@ vendor without waiting for a completed recording.
 - [Text-to-speech](/tools/tts)
 - [Media understanding](/nodes/media-understanding)
 - [Audio nodes](/nodes/audio)
+<<<<<<< HEAD
+=======
+- [Talk mode](/nodes/talk)
+>>>>>>> upstream/main

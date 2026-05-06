@@ -1,4 +1,8 @@
 import fs from "node:fs";
+<<<<<<< HEAD
+=======
+import fsPromises from "node:fs/promises";
+>>>>>>> upstream/main
 import os from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -116,8 +120,12 @@ describe("buildWebchatAudioContentBlocksFromReplyPayloads", () => {
   });
 
   it("drops tool-result file:// URLs with remote hosts before touching the filesystem", async () => {
+<<<<<<< HEAD
     const statSpy = vi.spyOn(fs, "statSync");
     const readSpy = vi.spyOn(fs, "readFileSync");
+=======
+    const openSpy = vi.spyOn(fsPromises, "open");
+>>>>>>> upstream/main
 
     const blocks = await buildWebchatAudioContentBlocksFromReplyPayloads([
       {
@@ -128,11 +136,17 @@ describe("buildWebchatAudioContentBlocksFromReplyPayloads", () => {
     ]);
 
     expect(blocks).toHaveLength(0);
+<<<<<<< HEAD
     expect(statSpy).not.toHaveBeenCalled();
     expect(readSpy).not.toHaveBeenCalled();
 
     statSpy.mockRestore();
     readSpy.mockRestore();
+=======
+    expect(openSpy).not.toHaveBeenCalled();
+
+    openSpy.mockRestore();
+>>>>>>> upstream/main
   });
 
   it("rejects a local audio file outside configured localRoots", async () => {
@@ -174,6 +188,7 @@ describe("buildWebchatAudioContentBlocksFromReplyPayloads", () => {
     expect((blocks[0] as { type?: string }).type).toBe("audio");
   });
 
+<<<<<<< HEAD
   it("does not read file contents when stat reports size over the cap", async () => {
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-webchat-audio-"));
     const audioPath = path.join(tmpDir, "huge.mp3");
@@ -187,6 +202,13 @@ describe("buildWebchatAudioContentBlocksFromReplyPayloads", () => {
       return origStat(p);
     });
     const readSpy = vi.spyOn(fs, "readFileSync");
+=======
+  it("skips local audio when the opened file stat is over the cap", async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-webchat-audio-"));
+    const audioPath = path.join(tmpDir, "huge.mp3");
+    fs.writeFileSync(audioPath, Buffer.from([0x02]));
+    fs.truncateSync(audioPath, 16 * 1024 * 1024);
+>>>>>>> upstream/main
 
     const blocks = await buildWebchatAudioContentBlocksFromReplyPayloads(
       [{ mediaUrl: audioPath, trustedLocalMedia: true }],
@@ -194,10 +216,13 @@ describe("buildWebchatAudioContentBlocksFromReplyPayloads", () => {
     );
 
     expect(blocks).toHaveLength(0);
+<<<<<<< HEAD
     expect(readSpy).not.toHaveBeenCalled();
 
     statSpy.mockRestore();
     readSpy.mockRestore();
+=======
+>>>>>>> upstream/main
   });
 
   it("rejects untrusted local audio paths", async () => {

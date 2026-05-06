@@ -26,10 +26,13 @@ const providerEnvVarsById = vi.hoisted(
   }),
 );
 
+<<<<<<< HEAD
 vi.mock("../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir: () => process.env.OPENCLAW_AGENT_DIR ?? "/tmp/openclaw-agent",
 }));
 
+=======
+>>>>>>> upstream/main
 vi.mock("../config/paths.js", () => ({
   resolveStateDir: () => process.env.OPENCLAW_STATE_DIR ?? "/tmp/openclaw-state",
 }));
@@ -39,7 +42,12 @@ vi.mock("../agents/auth-profiles/profiles.js", async () => {
   const path = await import("node:path");
   return {
     upsertAuthProfile: (params: { profileId: string; credential: unknown; agentDir?: string }) => {
+<<<<<<< HEAD
       const agentDir = params.agentDir ?? process.env.OPENCLAW_AGENT_DIR ?? "/tmp/openclaw-agent";
+=======
+      const stateDir = process.env.OPENCLAW_STATE_DIR ?? "/tmp/openclaw-state";
+      const agentDir = params.agentDir ?? path.join(stateDir, "agents", "main", "agent");
+>>>>>>> upstream/main
       const file = path.join(agentDir, "auth-profiles.json");
       fs.mkdirSync(agentDir, { recursive: true });
       const existing = (() => {
@@ -99,9 +107,16 @@ describe("writeOAuthCredentials", () => {
     await lifecycle.cleanup();
   });
 
+<<<<<<< HEAD
   it("writes auth-profiles.json under OPENCLAW_AGENT_DIR when set", async () => {
     const env = await setupAuthTestEnv("openclaw-oauth-");
     lifecycle.setStateDir(env.stateDir);
+=======
+  it("writes auth-profiles.json under the default agent dir", async () => {
+    const env = await setupAuthTestEnv("openclaw-oauth-");
+    lifecycle.setStateDir(env.stateDir);
+    const defaultAgentDir = path.join(env.stateDir, "agents", "main", "agent");
+>>>>>>> upstream/main
 
     const creds = {
       refresh: "refresh-token",
@@ -113,7 +128,11 @@ describe("writeOAuthCredentials", () => {
 
     const parsed = await readAuthProfilesForAgent<{
       profiles?: Record<string, OAuthCredentials & { type?: string }>;
+<<<<<<< HEAD
     }>(env.agentDir);
+=======
+    }>(defaultAgentDir);
+>>>>>>> upstream/main
     expect(parsed.profiles?.["openai-codex:default"]).toMatchObject({
       refresh: "refresh-token",
       access: "access-token",
@@ -121,7 +140,11 @@ describe("writeOAuthCredentials", () => {
     });
 
     await expect(
+<<<<<<< HEAD
       fs.readFile(path.join(env.stateDir, "agents", "main", "agent", "auth-profiles.json"), "utf8"),
+=======
+      fs.readFile(path.join(env.agentDir, "auth-profiles.json"), "utf8"),
+>>>>>>> upstream/main
     ).rejects.toThrow();
   });
 
@@ -393,15 +416,26 @@ describe("upsertApiKeyProfile", () => {
     await lifecycle.cleanup();
   });
 
+<<<<<<< HEAD
   it("writes to OPENCLAW_AGENT_DIR when set", async () => {
     const env = await setupAuthTestEnv("openclaw-minimax-", { agentSubdir: "custom-agent" });
     lifecycle.setStateDir(env.stateDir);
+=======
+  it("writes to the default agent dir", async () => {
+    const env = await setupAuthTestEnv("openclaw-minimax-", { agentSubdir: "custom-agent" });
+    lifecycle.setStateDir(env.stateDir);
+    const defaultAgentDir = path.join(env.stateDir, "agents", "main", "agent");
+>>>>>>> upstream/main
 
     upsertApiKeyProfile({ provider: "minimax", input: "sk-minimax-test" });
 
     const parsed = await readAuthProfilesForAgent<{
       profiles?: Record<string, { type?: string; provider?: string; key?: string }>;
+<<<<<<< HEAD
     }>(env.agentDir);
+=======
+    }>(defaultAgentDir);
+>>>>>>> upstream/main
     expect(parsed.profiles?.["minimax:default"]).toMatchObject({
       type: "api_key",
       provider: "minimax",
@@ -409,7 +443,11 @@ describe("upsertApiKeyProfile", () => {
     });
 
     await expect(
+<<<<<<< HEAD
       fs.readFile(path.join(env.stateDir, "agents", "main", "agent", "auth-profiles.json"), "utf8"),
+=======
+      fs.readFile(path.join(env.agentDir, "auth-profiles.json"), "utf8"),
+>>>>>>> upstream/main
     ).rejects.toThrow();
   });
 });

@@ -77,7 +77,11 @@ an unavailable backend.
     - The target id is allowed by `acp.allowedAgents` when that allowlist is set.
     - The harness command can start on the Gateway host.
     - Provider auth is present for that harness (`claude`, `codex`, `gemini`, `opencode`, `droid`, etc.).
+<<<<<<< HEAD
     - The selected model exists for that harness — model ids are not portable across harnesses.
+=======
+    - The selected model exists for that harness - model ids are not portable across harnesses.
+>>>>>>> upstream/main
     - The requested `cwd` exists and is accessible, or omit `cwd` and let the backend use its default.
     - Permission mode matches the work. Non-interactive sessions cannot click native permission prompts, so write/exec-heavy coding runs usually need an ACPX permission profile that can proceed headlessly.
 
@@ -86,7 +90,11 @@ an unavailable backend.
 
 OpenClaw plugin tools and built-in OpenClaw tools are **not** exposed to
 ACP harnesses by default. Enable the explicit MCP bridges in
+<<<<<<< HEAD
 [ACP agents — setup](/tools/acp-agents-setup) only when the harness
+=======
+[ACP agents - setup](/tools/acp-agents-setup) only when the harness
+>>>>>>> upstream/main
 should call those tools directly.
 
 ## Supported harness targets
@@ -182,10 +190,17 @@ Quick `/acp` flow from chat:
 
   </Accordion>
   <Accordion title="Model / provider / runtime selection cheat sheet">
+<<<<<<< HEAD
     - `openai-codex/*` — PI Codex OAuth/subscription route.
     - `openai/*` plus `agentRuntime.id: "codex"` — native Codex app-server embedded runtime.
     - `/codex ...` — native Codex conversation control.
     - `/acp ...` or `runtime: "acp"` — explicit ACP/acpx control.
+=======
+    - `openai-codex/*` - PI Codex OAuth/subscription route.
+    - `openai/*` plus `agentRuntime.id: "codex"` - native Codex app-server embedded runtime.
+    - `/codex ...` - native Codex conversation control.
+    - `/acp ...` or `runtime: "acp"` - explicit ACP/acpx control.
+>>>>>>> upstream/main
 
   </Accordion>
   <Accordion title="ACP-routing natural-language triggers">
@@ -244,7 +259,11 @@ For Claude Code through ACP, the stack is:
 ACP Claude is a **harness session** with ACP controls, session resume,
 background-task tracking, and optional conversation/thread binding.
 
+<<<<<<< HEAD
 CLI backends are separate text-only local fallback runtimes — see
+=======
+CLI backends are separate text-only local fallback runtimes - see
+>>>>>>> upstream/main
 [CLI Backends](/gateway/cli-backends).
 
 For operators, the practical rule is:
@@ -256,15 +275,26 @@ For operators, the practical rule is:
 
 ### Mental model
 
+<<<<<<< HEAD
 - **Chat surface** — where people keep talking (Discord channel, Telegram topic, iMessage chat).
 - **ACP session** — the durable Codex/Claude/Gemini runtime state OpenClaw routes to.
 - **Child thread/topic** — an optional extra messaging surface created only by `--thread ...`.
 - **Runtime workspace** — the filesystem location (`cwd`, repo checkout, backend workspace) where the harness runs. Independent of the chat surface.
+=======
+- **Chat surface** - where people keep talking (Discord channel, Telegram topic, iMessage chat).
+- **ACP session** - the durable Codex/Claude/Gemini runtime state OpenClaw routes to.
+- **Child thread/topic** - an optional extra messaging surface created only by `--thread ...`.
+- **Runtime workspace** - the filesystem location (`cwd`, repo checkout, backend workspace) where the harness runs. Independent of the chat surface.
+>>>>>>> upstream/main
 
 ### Current-conversation binds
 
 `/acp spawn <harness> --bind here` pins the current conversation to the
+<<<<<<< HEAD
 spawned ACP session — no child thread, same chat surface. OpenClaw keeps
+=======
+spawned ACP session - no child thread, same chat surface. OpenClaw keeps
+>>>>>>> upstream/main
 owning transport, auth, safety, and delivery. Follow-up messages in that
 conversation route to the same session; `/new` and `/reset` reset the
 session in place; `/acp close` removes the binding.
@@ -284,9 +314,15 @@ Examples:
   <Accordion title="Binding rules and exclusivity">
     - `--bind here` and `--thread ...` are mutually exclusive.
     - `--bind here` only works on channels that advertise current-conversation binding; OpenClaw returns a clear unsupported message otherwise. Bindings persist across gateway restarts.
+<<<<<<< HEAD
     - On Discord, `spawnSessions` gates child thread creation for `--thread auto|here` — not `--bind here`.
     - If you spawn to a different ACP agent without `--cwd`, OpenClaw inherits the **target agent's** workspace by default. Missing inherited paths (`ENOENT`/`ENOTDIR`) fall back to the backend default; other access errors (e.g. `EACCES`) surface as spawn errors.
     - Gateway management commands stay local in bound conversations — `/acp ...` commands are handled by OpenClaw even when normal follow-up text routes to the bound ACP session; `/status` and `/unfocus` also stay local whenever command handling is enabled for that surface.
+=======
+    - On Discord, `spawnSessions` gates child thread creation for `--thread auto|here` - not `--bind here`.
+    - If you spawn to a different ACP agent without `--cwd`, OpenClaw inherits the **target agent's** workspace by default. Missing inherited paths (`ENOENT`/`ENOTDIR`) fall back to the backend default; other access errors (e.g. `EACCES`) surface as spawn errors.
+    - Gateway management commands stay local in bound conversations - `/acp ...` commands are handled by OpenClaw even when normal follow-up text routes to the bound ACP session; `/status` and `/unfocus` also stay local whenever command handling is enabled for that surface.
+>>>>>>> upstream/main
 
   </Accordion>
   <Accordion title="Thread-bound sessions">
@@ -676,7 +712,11 @@ background work. The delivery path depends on that shape.
 
     ```json
     {
+<<<<<<< HEAD
       "task": "Continue where we left off — fix the remaining test failures",
+=======
+      "task": "Continue where we left off - fix the remaining test failures",
+>>>>>>> upstream/main
       "runtime": "acp",
       "agentId": "codex",
       "resumeSessionId": "<previous-session-id>"
@@ -685,7 +725,11 @@ background work. The delivery path depends on that shape.
 
     Common use cases:
 
+<<<<<<< HEAD
     - Hand off a Codex session from your laptop to your phone — tell your agent to pick up where you left off.
+=======
+    - Hand off a Codex session from your laptop to your phone - tell your agent to pick up where you left off.
+>>>>>>> upstream/main
     - Continue a coding session you started interactively in the CLI, now headlessly through your agent.
     - Pick up work that was interrupted by a gateway restart or idle timeout.
 
@@ -696,7 +740,11 @@ background work. The delivery path depends on that shape.
     - `resumeSessionId` is a host-local ACP/harness resume id, not an OpenClaw channel session key; OpenClaw still checks ACP spawn policy and target agent policy before dispatch, while the ACP backend or harness owns authorization for loading that upstream id.
     - `resumeSessionId` restores the upstream ACP conversation history; `thread` and `mode` still apply normally to the new OpenClaw session you are creating, so `mode: "session"` still requires `thread: true`.
     - The target agent must support `session/load` (Codex and Claude Code do).
+<<<<<<< HEAD
     - If the session id is not found, the spawn fails with a clear error — no silent fallback to a new session.
+=======
+    - If the session id is not found, the spawn fails with a clear error - no silent fallback to a new session.
+>>>>>>> upstream/main
 
   </Accordion>
   <Accordion title="Post-deploy smoke test">
@@ -709,7 +757,11 @@ background work. The delivery path depends on that shape.
     4. Verify `accepted=yes`, a real `childSessionKey`, and no validator error.
     5. Clean up the temporary bridge session.
 
+<<<<<<< HEAD
     Keep the gate on `mode: "run"` and skip `streamTo: "parent"` —
+=======
+    Keep the gate on `mode: "run"` and skip `streamTo: "parent"` -
+>>>>>>> upstream/main
     thread-bound `mode: "session"` and stream-relay paths are separate
     richer integration passes.
 
@@ -793,18 +845,30 @@ operations:
 | ---------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `/acp model <id>`            | runtime config key `model`           | For Codex ACP, OpenClaw normalizes `openai-codex/<model>` to the adapter model id and maps slash reasoning suffixes such as `openai-codex/gpt-5.4/high` to `reasoning_effort`. |
 | `/acp set thinking <level>`  | runtime config key `thinking`        | For Codex ACP, OpenClaw sends the corresponding `reasoning_effort` where the adapter supports one.                                                                             |
+<<<<<<< HEAD
 | `/acp permissions <profile>` | runtime config key `approval_policy` | —                                                                                                                                                                              |
 | `/acp timeout <seconds>`     | runtime config key `timeout`         | —                                                                                                                                                                              |
 | `/acp cwd <path>`            | runtime cwd override                 | Direct update.                                                                                                                                                                 |
 | `/acp set <key> <value>`     | generic                              | `key=cwd` uses the cwd override path.                                                                                                                                          |
 | `/acp reset-options`         | clears all runtime overrides         | —                                                                                                                                                                              |
+=======
+| `/acp permissions <profile>` | runtime config key `approval_policy` | -                                                                                                                                                                              |
+| `/acp timeout <seconds>`     | runtime config key `timeout`         | -                                                                                                                                                                              |
+| `/acp cwd <path>`            | runtime cwd override                 | Direct update.                                                                                                                                                                 |
+| `/acp set <key> <value>`     | generic                              | `key=cwd` uses the cwd override path.                                                                                                                                          |
+| `/acp reset-options`         | clears all runtime overrides         | -                                                                                                                                                                              |
+>>>>>>> upstream/main
 
 ## acpx harness, plugin setup, and permissions
 
 For acpx harness configuration (Claude Code / Codex / Gemini CLI
 aliases), the plugin-tools and OpenClaw-tools MCP bridges, and ACP
 permission modes, see
+<<<<<<< HEAD
 [ACP agents — setup](/tools/acp-agents-setup).
+=======
+[ACP agents - setup](/tools/acp-agents-setup).
+>>>>>>> upstream/main
 
 ## Troubleshooting
 
@@ -835,7 +899,11 @@ permission modes, see
 
 ## Related
 
+<<<<<<< HEAD
 - [ACP agents — setup](/tools/acp-agents-setup)
+=======
+- [ACP agents - setup](/tools/acp-agents-setup)
+>>>>>>> upstream/main
 - [Agent send](/tools/agent-send)
 - [CLI Backends](/gateway/cli-backends)
 - [Codex harness](/plugins/codex-harness)

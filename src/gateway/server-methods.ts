@@ -20,6 +20,10 @@ import { cronHandlers } from "./server-methods/cron.js";
 import { deviceHandlers } from "./server-methods/devices.js";
 import { diagnosticsHandlers } from "./server-methods/diagnostics.js";
 import { doctorHandlers } from "./server-methods/doctor.js";
+<<<<<<< HEAD
+=======
+import { environmentsHandlers } from "./server-methods/environments.js";
+>>>>>>> upstream/main
 import { execApprovalsHandlers } from "./server-methods/exec-approvals.js";
 import { healthHandlers } from "./server-methods/health.js";
 import { logsHandlers } from "./server-methods/logs.js";
@@ -96,6 +100,10 @@ export const coreGatewayHandlers: GatewayRequestHandlers = {
   ...deviceHandlers,
   ...diagnosticsHandlers,
   ...doctorHandlers,
+<<<<<<< HEAD
+=======
+  ...environmentsHandlers,
+>>>>>>> upstream/main
   ...execApprovalsHandlers,
   ...webHandlers,
   ...modelsHandlers,

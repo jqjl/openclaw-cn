@@ -57,6 +57,61 @@ type ChannelStopPayload = {
 const CHANNEL_STATUS_MAX_TIMEOUT_MS = 30_000;
 const CHANNEL_STATUS_PROBE_CONCURRENCY = 5;
 
+<<<<<<< HEAD
+=======
+function channelStatusTimeoutPayload(step: string, timeoutMs: number): Record<string, unknown> {
+  return {
+    ok: false,
+    timedOut: true,
+    error: `${step} timed out after ${timeoutMs}ms`,
+  };
+}
+
+async function runChannelStatusHook(params: {
+  accountId: string;
+  channelId: ChannelId;
+  step: "audit" | "probe";
+  timeoutMs: number;
+  warnings: string[];
+  run: () => Promise<unknown>;
+}): Promise<unknown> {
+  const timeoutMs = Math.max(1, params.timeoutMs);
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  const timeout = new Promise<{ kind: "timeout" }>((resolve) => {
+    timer = setTimeout(() => resolve({ kind: "timeout" }), timeoutMs);
+    if (typeof timer === "object" && "unref" in timer) {
+      timer.unref();
+    }
+  });
+  const result = await Promise.race([
+    Promise.resolve()
+      .then(params.run)
+      .then(
+        (value) => ({ kind: "value" as const, value }),
+        (error) => ({ kind: "error" as const, error }),
+      ),
+    timeout,
+  ]);
+  if (timer) {
+    clearTimeout(timer);
+  }
+  if (result.kind === "value") {
+    return result.value;
+  }
+  const warningPrefix = `${params.channelId}:${params.accountId} ${params.step}`;
+  if (result.kind === "timeout") {
+    params.warnings.push(`${warningPrefix} timed out after ${timeoutMs}ms`);
+    return channelStatusTimeoutPayload(params.step, timeoutMs);
+  }
+  const message = formatForLog(result.error);
+  params.warnings.push(`${warningPrefix} failed: ${message}`);
+  return {
+    ok: false,
+    error: message,
+  };
+}
+
+>>>>>>> upstream/main
 function resolveChannelsStatusTimeoutMs(params: { probe: boolean; timeoutMsRaw: unknown }): number {
   const fallback = params.probe ? CHANNEL_STATUS_MAX_TIMEOUT_MS : 10_000;
   if (typeof params.timeoutMsRaw !== "number" || !Number.isFinite(params.timeoutMsRaw)) {
@@ -198,6 +253,10 @@ export const channelsHandlers: GatewayRequestHandlers = {
     const pluginMap = new Map<ChannelId, ChannelPlugin>(
       plugins.map((plugin) => [plugin.id, plugin]),
     );
+<<<<<<< HEAD
+=======
+    const statusWarnings: string[] = [];
+>>>>>>> upstream/main
 
     const resolveRuntimeSnapshot = (
       channelId: ChannelId,
@@ -237,10 +296,25 @@ export const channelsHandlers: GatewayRequestHandlers = {
           configured = await plugin.config.isConfigured(account, cfg);
         }
         if (configured) {
+<<<<<<< HEAD
           probeResult = await plugin.status.probeAccount({
             account,
             timeoutMs,
             cfg,
+=======
+          probeResult = await runChannelStatusHook({
+            channelId,
+            accountId,
+            step: "probe",
+            timeoutMs,
+            warnings: statusWarnings,
+            run: () =>
+              plugin.status!.probeAccount!({
+                account,
+                timeoutMs,
+                cfg,
+              }),
+>>>>>>> upstream/main
           });
           lastProbeAt = Date.now();
         }
@@ -252,11 +326,27 @@ export const channelsHandlers: GatewayRequestHandlers = {
           configured = await plugin.config.isConfigured(account, cfg);
         }
         if (configured) {
+<<<<<<< HEAD
           auditResult = await plugin.status.auditAccount({
             account,
             timeoutMs,
             cfg,
             probe: probeResult,
+=======
+          auditResult = await runChannelStatusHook({
+            channelId,
+            accountId,
+            step: "audit",
+            timeoutMs,
+            warnings: statusWarnings,
+            run: () =>
+              plugin.status!.auditAccount!({
+                account,
+                timeoutMs,
+                cfg,
+                probe: probeResult,
+              }),
+>>>>>>> upstream/main
           });
         }
       }
@@ -377,6 +467,13 @@ export const channelsHandlers: GatewayRequestHandlers = {
         defaultAccountIdMap[result.pluginId] = result.defaultAccountId;
       }
     }
+<<<<<<< HEAD
+=======
+    if (statusWarnings.length > 0) {
+      payload.partial = true;
+      payload.warnings = statusWarnings.slice(0, 50);
+    }
+>>>>>>> upstream/main
 
     respond(true, payload, undefined);
   },

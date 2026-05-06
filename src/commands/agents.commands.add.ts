@@ -13,6 +13,10 @@ import { resolveAuthStorePath } from "../agents/auth-profiles/paths.js";
 import { loadPersistedAuthProfileStore } from "../agents/auth-profiles/persisted.js";
 import { commitConfigWithPendingPluginInstalls } from "../cli/plugins-install-record-commit.js";
 import { logConfigUpdated } from "../config/logging.js";
+<<<<<<< HEAD
+=======
+import { pathExists } from "../infra/fs-safe.js";
+>>>>>>> upstream/main
 import { saveJsonFile } from "../infra/json-file.js";
 import { DEFAULT_AGENT_ID, normalizeAgentId } from "../routing/session-key.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../runtime.js";
@@ -48,6 +52,7 @@ type AgentsAddOptions = {
   json?: boolean;
 };
 
+<<<<<<< HEAD
 async function fileExists(pathname: string): Promise<boolean> {
   try {
     await fs.stat(pathname);
@@ -57,6 +62,8 @@ async function fileExists(pathname: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 async function copyPortableAuthProfiles(params: {
   destAuthPath: string;
   sourceAgentDir: string;
@@ -291,8 +298,13 @@ export async function agentsAddCommand(
         normalizeLowercaseStringOrEmpty(path.resolve(mainAuthPath));
       if (
         !sameAuthPath &&
+<<<<<<< HEAD
         (await fileExists(sourceAuthPath)) &&
         !(await fileExists(destAuthPath))
+=======
+        (await pathExists(sourceAuthPath)) &&
+        !(await pathExists(destAuthPath))
+>>>>>>> upstream/main
       ) {
         const sourceStore = loadPersistedAuthProfileStore(sourceAgentDir);
         const portable = sourceStore

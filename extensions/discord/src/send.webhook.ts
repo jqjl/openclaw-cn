@@ -10,6 +10,10 @@ import {
   readRetryAfter,
 } from "./internal/rest-errors.js";
 import { rewriteDiscordKnownMentions } from "./mentions.js";
+<<<<<<< HEAD
+=======
+import { createDiscordSendResult } from "./send.receipt.js";
+>>>>>>> upstream/main
 import type { DiscordSendResult } from "./send.types.js";
 
 type DiscordWebhookSendOpts = {
@@ -126,8 +130,18 @@ export async function sendWebhookMessageDiscord(
   } catch {
     // Best-effort telemetry only.
   }
+<<<<<<< HEAD
   return {
     messageId: payload.id || "unknown",
     channelId: payload.channel_id ? payload.channel_id : opts.threadId ? String(opts.threadId) : "",
   };
+=======
+  return createDiscordSendResult({
+    result: payload,
+    fallbackChannelId: opts.threadId ? String(opts.threadId) : "",
+    kind: "text",
+    ...(opts.threadId != null ? { threadId: opts.threadId } : {}),
+    ...(replyTo ? { replyToId: replyTo } : {}),
+  });
+>>>>>>> upstream/main
 }

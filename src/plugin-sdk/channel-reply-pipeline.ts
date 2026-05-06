@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import type { SourceReplyDeliveryMode } from "../auto-reply/get-reply-options.types.js";
 import {
   resolveSourceReplyDeliveryMode,
@@ -85,3 +86,26 @@ export function createChannelReplyPipeline(params: {
         : {}),
   };
 }
+=======
+/**
+ * @deprecated Legacy reply-pipeline subpath. New channel message code should
+ * use `openclaw/plugin-sdk/channel-message`.
+ */
+
+export {
+  createChannelReplyPipeline,
+  createReplyPrefixContext,
+  createReplyPrefixOptions,
+  createTypingCallbacks,
+  resolveChannelSourceReplyDeliveryMode,
+} from "./channel-reply-core.js";
+export type {
+  ChannelReplyPipeline,
+  CreateTypingCallbacksParams,
+  ReplyPrefixContext,
+  ReplyPrefixContextBundle,
+  ReplyPrefixOptions,
+  SourceReplyDeliveryMode,
+  TypingCallbacks,
+} from "./channel-reply-core.js";
+>>>>>>> upstream/main

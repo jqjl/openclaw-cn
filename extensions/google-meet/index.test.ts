@@ -30,6 +30,10 @@ import {
   convertGoogleMeetTtsAudioForBridge,
   extendGoogleMeetOutputEchoSuppression,
   isGoogleMeetLikelyAssistantEchoTranscript,
+<<<<<<< HEAD
+=======
+  GOOGLE_MEET_AGENT_TRANSCRIPT_DEBOUNCE_MS,
+>>>>>>> upstream/main
   resolveGoogleMeetRealtimeProvider,
   resolveGoogleMeetRealtimeTranscriptionProvider,
   startCommandAgentAudioBridge,
@@ -42,7 +46,15 @@ import {
   setupGoogleMeetPlugin,
 } from "./src/test-support/plugin-harness.js";
 import { __testing as chromeTransportTesting } from "./src/transports/chrome.js";
+<<<<<<< HEAD
 import { buildMeetDtmfSequence, normalizeDialInNumber } from "./src/transports/twilio.js";
+=======
+import {
+  buildMeetDtmfSequence,
+  normalizeDialInNumber,
+  prefixDtmfWait,
+} from "./src/transports/twilio.js";
+>>>>>>> upstream/main
 import type { GoogleMeetSession } from "./src/transports/types.js";
 
 const voiceCallMocks = vi.hoisted(() => ({
@@ -52,6 +64,16 @@ const voiceCallMocks = vi.hoisted(() => ({
     introSent: true,
   })),
   endMeetVoiceCallGatewayCall: vi.fn(async () => {}),
+<<<<<<< HEAD
+=======
+  getMeetVoiceCallGatewayCall: vi.fn(
+    async (): Promise<{ found: boolean; call?: { callId: string } }> => ({
+      found: true,
+      call: { callId: "call-1" },
+    }),
+  ),
+  isVoiceCallMissingError: vi.fn((error: unknown) => String(error).includes("Call not found")),
+>>>>>>> upstream/main
   speakMeetViaVoiceCallGateway: vi.fn(async () => {}),
 }));
 
@@ -81,6 +103,11 @@ vi.mock("openclaw/plugin-sdk/ssrf-runtime", async (importOriginal) => {
 vi.mock("./src/voice-call-gateway.js", () => ({
   joinMeetViaVoiceCallGateway: voiceCallMocks.joinMeetViaVoiceCallGateway,
   endMeetVoiceCallGatewayCall: voiceCallMocks.endMeetVoiceCallGatewayCall,
+<<<<<<< HEAD
+=======
+  getMeetVoiceCallGatewayCall: voiceCallMocks.getMeetVoiceCallGatewayCall,
+  isVoiceCallMissingError: voiceCallMocks.isVoiceCallMissingError,
+>>>>>>> upstream/main
   speakMeetViaVoiceCallGateway: voiceCallMocks.speakMeetViaVoiceCallGateway,
 }));
 
@@ -312,9 +339,30 @@ type TestBridgeProcess = {
 describe("google-meet plugin", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+<<<<<<< HEAD
   });
 
   afterEach(() => {
+=======
+    voiceCallMocks.joinMeetViaVoiceCallGateway.mockResolvedValue({
+      callId: "call-1",
+      dtmfSent: true,
+      introSent: true,
+    });
+    voiceCallMocks.endMeetVoiceCallGatewayCall.mockResolvedValue(undefined);
+    voiceCallMocks.getMeetVoiceCallGatewayCall.mockResolvedValue({
+      found: true,
+      call: { callId: "call-1" },
+    });
+    voiceCallMocks.isVoiceCallMissingError.mockImplementation((error: unknown) =>
+      String(error).includes("Call not found"),
+    );
+    voiceCallMocks.speakMeetViaVoiceCallGateway.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+>>>>>>> upstream/main
     vi.unstubAllGlobals();
     chromeTransportTesting.setDepsForTest(null);
     googleMeetPluginTesting.setCallGatewayFromCliForTests();
@@ -386,7 +434,11 @@ describe("google-meet plugin", () => {
       voiceCall: {
         enabled: true,
         requestTimeoutMs: 30000,
+<<<<<<< HEAD
         dtmfDelayMs: 2500,
+=======
+        dtmfDelayMs: 12000,
+>>>>>>> upstream/main
         postDtmfSpeechDelayMs: 5000,
       },
       realtime: {
@@ -1224,6 +1276,10 @@ describe("google-meet plugin", () => {
     expect(normalizeDialInNumber("+1 (555) 123-4567")).toBe("+15551234567");
     expect(buildMeetDtmfSequence({ pin: "123 456" })).toBe("123456#");
     expect(buildMeetDtmfSequence({ dtmfSequence: "ww123#" })).toBe("ww123#");
+<<<<<<< HEAD
+=======
+    expect(prefixDtmfWait("123456#", 12000)).toBe("wwwwwwwwwwwwwwwwwwwwwwww123456#");
+>>>>>>> upstream/main
   });
 
   it("joins a Twilio session through the tool without page parsing", async () => {
@@ -1244,12 +1300,17 @@ describe("google-meet plugin", () => {
       twilio: {
         dialInNumber: "+15551234567",
         pinProvided: true,
+<<<<<<< HEAD
         dtmfSequence: "123456#",
+=======
+        dtmfSequence: "wwwwwwwwwwwwwwwwwwwwwwww123456#",
+>>>>>>> upstream/main
         voiceCallId: "call-1",
         dtmfSent: true,
         introSent: true,
       },
     });
+<<<<<<< HEAD
     expect(voiceCallMocks.joinMeetViaVoiceCallGateway).toHaveBeenCalledWith({
       config: expect.objectContaining({ defaultTransport: "twilio" }),
       dialInNumber: "+15551234567",
@@ -1257,6 +1318,18 @@ describe("google-meet plugin", () => {
       logger: expect.objectContaining({ info: expect.any(Function) }),
       message: "Say exactly: I'm here and listening.",
     });
+=======
+    expect(voiceCallMocks.joinMeetViaVoiceCallGateway).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({ defaultTransport: "twilio" }),
+        dialInNumber: "+15551234567",
+        dtmfSequence: "wwwwwwwwwwwwwwwwwwwwwwww123456#",
+        logger: expect.objectContaining({ info: expect.any(Function) }),
+        message: "Say exactly: I'm here and listening.",
+        sessionKey: expect.stringMatching(/^voice:google-meet:meet_/),
+      }),
+    );
+>>>>>>> upstream/main
   });
 
   it("passes the caller session key through tool joins for agent context forking", async () => {
@@ -1320,6 +1393,37 @@ describe("google-meet plugin", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("does not reuse Twilio Meet sessions whose delegated call is no longer active", async () => {
+    voiceCallMocks.getMeetVoiceCallGatewayCall.mockResolvedValueOnce({ found: false });
+    const { tools } = setup({ defaultTransport: "twilio" });
+    const tool = tools[0] as {
+      execute: (
+        id: string,
+        params: unknown,
+      ) => Promise<{ details: { session: { id: string; state: string; notes: string[] } } }>;
+    };
+    const first = await tool.execute("id", {
+      action: "join",
+      url: "https://meet.google.com/abc-defg-hij",
+      dialInNumber: "+15551234567",
+      pin: "123456",
+    });
+    const second = await tool.execute("id", {
+      action: "join",
+      url: "https://meet.google.com/abc-defg-hij",
+      dialInNumber: "+15551234567",
+      pin: "123456",
+    });
+
+    expect(first.details.session.state).toBe("ended");
+    expect(first.details.session.notes).toContain("Voice Call is no longer active.");
+    expect(second.details.session.id).not.toBe(first.details.session.id);
+    expect(voiceCallMocks.joinMeetViaVoiceCallGateway).toHaveBeenCalledTimes(2);
+  });
+
+>>>>>>> upstream/main
   it("delegates Twilio session speech through voice-call", async () => {
     const { tools } = setup({ defaultTransport: "twilio" });
     const tool = tools[0] as {
@@ -2761,6 +2865,10 @@ describe("google-meet plugin", () => {
         url: "https://meet.google.com/abc-defg-hij",
       });
       const { methods } = setup({
+<<<<<<< HEAD
+=======
+        realtime: { introMessage: "" },
+>>>>>>> upstream/main
         chrome: {
           audioBridgeCommand: ["bridge", "start"],
           waitForInCallMs: 1,
@@ -3780,6 +3888,10 @@ describe("google-meet plugin", () => {
       const { methods, runCommandWithTimeout } = setup({
         defaultMode: "bidi",
         chrome: {
+<<<<<<< HEAD
+=======
+          waitForInCallMs: 1,
+>>>>>>> upstream/main
           audioBridgeHealthCommand: ["bridge", "status"],
           audioBridgeCommand: ["bridge", "start"],
         },
@@ -3821,6 +3933,10 @@ describe("google-meet plugin", () => {
   });
 
   it("uses realtime transcription plus regular TTS in Chrome agent mode", async () => {
+<<<<<<< HEAD
+=======
+    vi.useFakeTimers();
+>>>>>>> upstream/main
     let callbacks: Parameters<RealtimeTranscriptionProviderPlugin["createSession"]>[0] | undefined;
     const sendAudio = vi.fn();
     const sttSession = {
@@ -3918,7 +4034,11 @@ describe("google-meet plugin", () => {
     );
     inputStdout.write(Buffer.from([1, 0, 2, 0, 3, 0, 4, 0]));
     callbacks?.onTranscript?.("Please summarize the launch.");
+<<<<<<< HEAD
     await new Promise((resolve) => setTimeout(resolve, 1100));
+=======
+    await vi.advanceTimersByTimeAsync(GOOGLE_MEET_AGENT_TRANSCRIPT_DEBOUNCE_MS);
+>>>>>>> upstream/main
 
     expect(sendAudio).toHaveBeenCalledWith(expect.any(Buffer));
     expect(runtime.agent.runEmbeddedPiAgent).toHaveBeenCalled();
@@ -3937,6 +4057,26 @@ describe("google-meet plugin", () => {
       realtimeTranscriptLines: 2,
       lastRealtimeTranscriptRole: "assistant",
     });
+<<<<<<< HEAD
+=======
+    const talkEventTypes = handle.getHealth().recentTalkEvents?.map((event) => event.type) ?? [];
+    expect(talkEventTypes).toEqual([
+      "session.started",
+      "session.ready",
+      "turn.started",
+      "input.audio.delta",
+      "input.audio.committed",
+      "transcript.done",
+      "output.text.done",
+      "output.audio.started",
+      "output.audio.delta",
+      "output.audio.done",
+      "turn.ended",
+    ]);
+    expect(talkEventTypes.indexOf("output.text.done")).toBeLessThan(
+      talkEventTypes.indexOf("output.audio.started"),
+    );
+>>>>>>> upstream/main
     await handle.stop();
   });
 
@@ -4159,6 +4299,24 @@ describe("google-meet plugin", () => {
         undefined,
       );
     });
+<<<<<<< HEAD
+=======
+    expect(handle.getHealth().recentTalkEvents?.map((event) => event.type)).toEqual(
+      expect.arrayContaining([
+        "session.started",
+        "session.ready",
+        "input.audio.delta",
+        "output.audio.delta",
+        "output.audio.done",
+        "transcript.done",
+        "output.text.done",
+        "tool.call",
+        "tool.progress",
+        "tool.result",
+        "turn.ended",
+      ]),
+    );
+>>>>>>> upstream/main
     expect(runtime.agent.runEmbeddedPiAgent).toHaveBeenCalledWith(
       expect.objectContaining({
         messageProvider: "google-meet",
@@ -4496,7 +4654,11 @@ describe("google-meet plugin", () => {
             if (pullCount === 1) {
               return { bridgeId: "bridge-1", base64: Buffer.from([9, 8, 7]).toString("base64") };
             }
+<<<<<<< HEAD
             await new Promise((resolve) => setTimeout(resolve, 1_000));
+=======
+            await new Promise((resolve) => setTimeout(resolve, 10));
+>>>>>>> upstream/main
             return { bridgeId: "bridge-1" };
           }
           return { ok: true };
@@ -4636,6 +4798,27 @@ describe("google-meet plugin", () => {
       lastRealtimeEventDetail: "status=completed",
       clearCount: 1,
     });
+<<<<<<< HEAD
+=======
+    const talkEvents = handle.getHealth().recentTalkEvents ?? [];
+    expect(talkEvents.map((event) => event.type)).toEqual(
+      expect.arrayContaining([
+        "session.started",
+        "session.ready",
+        "input.audio.delta",
+        "output.audio.delta",
+        "output.audio.done",
+        "output.text.done",
+        "tool.call",
+        "tool.progress",
+        "tool.result",
+        "turn.ended",
+      ]),
+    );
+    expect(talkEvents[0]).toMatchObject({
+      sessionId: "google-meet:meet-1:bridge-1:node-realtime",
+    });
+>>>>>>> upstream/main
 
     await handle.stop();
 
@@ -4682,7 +4865,11 @@ describe("google-meet plugin", () => {
             if (pullCount === 2) {
               return { bridgeId: "bridge-1", base64: Buffer.from([5, 4, 3]).toString("base64") };
             }
+<<<<<<< HEAD
             await new Promise((resolve) => setTimeout(resolve, 1_000));
+=======
+            await new Promise((resolve) => setTimeout(resolve, 10));
+>>>>>>> upstream/main
             return { bridgeId: "bridge-1" };
           }
           return { ok: true };

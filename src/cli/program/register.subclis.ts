@@ -17,6 +17,10 @@ import {
 import {
   registerSubCliByName as registerSubCliByNameCore,
   registerSubCliCommands as registerSubCliCommandsCore,
+<<<<<<< HEAD
+=======
+  type SubCliRegistrationContext,
+>>>>>>> upstream/main
 } from "./register.subclis-core.js";
 import {
   getSubCliCommandsWithSubcommands,
@@ -26,7 +30,15 @@ import {
 
 export { getSubCliCommandsWithSubcommands };
 
+<<<<<<< HEAD
 type SubCliRegistrar = (program: Command) => Promise<void> | void;
+=======
+type SubCliRegistrar = (
+  program: Command,
+  argv: string[],
+  context: SubCliRegistrationContext,
+) => Promise<void> | void;
+>>>>>>> upstream/main
 
 const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
   ...defineImportedProgramCommandGroupSpecs([
@@ -38,8 +50,22 @@ const entrySpecs: readonly CommandGroupDescriptorSpec<SubCliRegistrar>[] = [
   ]),
 ];
 
+<<<<<<< HEAD
 function resolveSubCliCommandGroups(): CommandGroupEntry[] {
   return buildCommandGroupEntries(getSubCliEntryDescriptors(), entrySpecs, (register) => register);
+=======
+function resolveSubCliCommandGroups(
+  argv: string[],
+  context: SubCliRegistrationContext = {},
+): CommandGroupEntry[] {
+  return buildCommandGroupEntries(
+    getSubCliEntryDescriptors(),
+    entrySpecs,
+    (register) => async (program) => {
+      await register(program, argv, context);
+    },
+  );
+>>>>>>> upstream/main
 }
 
 export function getSubCliEntries(): ReadonlyArray<SubCliDescriptor> {
@@ -50,17 +76,30 @@ export async function registerSubCliByName(
   program: Command,
   name: string,
   argv: string[] = process.argv,
+<<<<<<< HEAD
 ): Promise<boolean> {
   if (await registerSubCliByNameCore(program, name, argv)) {
     return true;
   }
   return registerCommandGroupByName(program, resolveSubCliCommandGroups(), name);
+=======
+  context: SubCliRegistrationContext = {},
+): Promise<boolean> {
+  if (await registerSubCliByNameCore(program, name, argv, context)) {
+    return true;
+  }
+  return registerCommandGroupByName(program, resolveSubCliCommandGroups(argv, context), name);
+>>>>>>> upstream/main
 }
 
 export function registerSubCliCommands(program: Command, argv: string[] = process.argv) {
   registerSubCliCommandsCore(program, argv);
   const { primary } = resolveCliArgvInvocation(argv);
+<<<<<<< HEAD
   registerCommandGroups(program, resolveSubCliCommandGroups(), {
+=======
+  registerCommandGroups(program, resolveSubCliCommandGroups(argv), {
+>>>>>>> upstream/main
     eager: shouldEagerRegisterSubcommands(),
     primary,
     registerPrimaryOnly: Boolean(primary && shouldRegisterPrimarySubcommandOnly(argv)),

@@ -6,8 +6,11 @@ read_when:
 title: "Perplexity search"
 ---
 
+<<<<<<< HEAD
 # Perplexity Search API
 
+=======
+>>>>>>> upstream/main
 OpenClaw supports Perplexity Search API as a `web_search` provider.
 It returns structured results with `title`, `url`, and `snippet` fields.
 
@@ -104,7 +107,11 @@ Search query.
 </ParamField>
 
 <ParamField path="count" type="number" default="5">
+<<<<<<< HEAD
 Number of results to return (1–10).
+=======
+Number of results to return (1-10).
+>>>>>>> upstream/main
 </ParamField>
 
 <ParamField path="country" type="string">
@@ -116,7 +123,11 @@ ISO 639-1 language code (e.g. `en`, `de`, `fr`).
 </ParamField>
 
 <ParamField path="freshness" type="'day' | 'week' | 'month' | 'year'">
+<<<<<<< HEAD
 Time filter — `day` is 24 hours.
+=======
+Time filter - `day` is 24 hours.
+>>>>>>> upstream/main
 </ParamField>
 
 <ParamField path="date_after" type="string">
@@ -206,7 +217,24 @@ await web_search({
 
 ## Related
 
+<<<<<<< HEAD
 - [Web Search overview](/tools/web) -- all providers and auto-detection
 - [Perplexity Search API docs](https://docs.perplexity.ai/docs/search/quickstart) -- official Perplexity documentation
 - [Brave Search](/tools/brave-search) -- structured results with country/language filters
 - [Exa Search](/tools/exa-search) -- neural search with content extraction
+=======
+<CardGroup cols={2}>
+  <Card title="Web search overview" href="/tools/web" icon="globe">
+    All providers and auto-detection rules.
+  </Card>
+  <Card title="Brave search" href="/tools/brave-search" icon="shield">
+    Structured results with country and language filters.
+  </Card>
+  <Card title="Exa search" href="/tools/exa-search" icon="magnifying-glass">
+    Neural search with content extraction.
+  </Card>
+  <Card title="Perplexity Search API docs" href="https://docs.perplexity.ai/docs/search/quickstart" icon="arrow-up-right-from-square">
+    Official Perplexity Search API quickstart and reference.
+  </Card>
+</CardGroup>
+>>>>>>> upstream/main

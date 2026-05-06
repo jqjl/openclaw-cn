@@ -8,7 +8,11 @@ title: "Agent bootstrapping"
 sidebarTitle: "Bootstrapping"
 ---
 
+<<<<<<< HEAD
 Bootstrapping is the **first‑run** ritual that prepares an agent workspace and
+=======
+Bootstrapping is the **first-run** ritual that prepares an agent workspace and
+>>>>>>> upstream/main
 collects identity details. It happens after onboarding, when the agent starts
 for the first time.
 

@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resolveSessionFilePath } from "../config/sessions/paths.js";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../infra/path-guards.js";
+>>>>>>> upstream/main
 import {
   resolveTrajectoryFilePath,
   resolveTrajectoryPointerFilePath,
@@ -32,8 +36,12 @@ function canonicalizePathForComparison(filePath: string): string {
 function isPathWithinDir(parentDir: string, filePath: string): boolean {
   const resolvedParent = canonicalizePathForComparison(parentDir);
   const resolvedFile = canonicalizePathForComparison(filePath);
+<<<<<<< HEAD
   const relative = path.relative(resolvedParent, resolvedFile);
   return Boolean(relative) && !relative.startsWith("..") && !path.isAbsolute(relative);
+=======
+  return resolvedFile !== resolvedParent && isPathInside(resolvedParent, resolvedFile);
+>>>>>>> upstream/main
 }
 
 function isRegularNonSymlinkFile(filePath: string): boolean {

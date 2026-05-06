@@ -1,5 +1,9 @@
 import { logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
+<<<<<<< HEAD
 import { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+import { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import {
   formatChannelProgressDraftLineForEntry,
   isChannelProgressDraftWorkToolName,
@@ -154,7 +158,11 @@ export function createFeishuReplyDispatcher(params: CreateFeishuReplyDispatcherP
   const prefixContext = createReplyPrefixContext({ cfg, agentId });
 
   let typingState: TypingIndicatorState | null = null;
+<<<<<<< HEAD
   const { typingCallbacks } = createChannelReplyPipeline({
+=======
+  const { typingCallbacks } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
     cfg,
     agentId,
     channel: "feishu",

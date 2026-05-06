@@ -8,6 +8,7 @@ title: "Sub-agents"
 sidebarTitle: "Sub-agents"
 ---
 
+<<<<<<< HEAD
 # Sub-agents
 
 Sub-agents are background agent runs spawned from an existing agent run. They run in their own session (`agent:<agentId>:subagent:<uuid>`) and, when finished, **announce** their result back to the requester chat channel. Each sub-agent run is tracked as a [background task](/automation/tasks).
@@ -64,6 +65,13 @@ transcript path on disk when you need the raw full transcript.
 - Use `info`/`log` to inspect details and output after completion.
 - `/subagents spawn` is one-shot mode (`mode: "run"`). For persistent thread-bound sessions, use `sessions_spawn` with `thread: true` and `mode: "session"`.
 - For ACP harness sessions (Codex, Claude Code, Gemini CLI), use `sessions_spawn` with `runtime: "acp"` and see [ACP Agents](/tools/acp-agents).
+=======
+Sub-agents are background agent runs spawned from an existing agent run.
+They run in their own session (`agent:<agentId>:subagent:<uuid>`) and,
+when finished, **announce** their result back to the requester chat
+channel. Each sub-agent run is tracked as a
+[background task](/automation/tasks).
+>>>>>>> upstream/main
 
 Primary goals:
 
@@ -425,6 +433,7 @@ Sub-agents report back via an announce step:
 
 - The announce step runs inside the sub-agent session (not the requester session).
 - If the sub-agent replies exactly `ANNOUNCE_SKIP`, nothing is posted.
+<<<<<<< HEAD
 - If the latest assistant text is the exact silent token `NO_REPLY` / `no_reply`,
   announce output is suppressed even if earlier visible progress existed.
 - Otherwise delivery depends on requester depth:
@@ -443,6 +452,46 @@ Sub-agents report back via an announce step:
   - a follow-up instruction describing when to reply vs. stay silent
 - `Status` is not inferred from model output; it comes from runtime outcome signals.
 - On timeout, if the child only got through tool calls, announce can collapse that history into a short partial-progress summary instead of replaying raw tool output.
+=======
+- If the latest assistant text is the exact silent token `NO_REPLY` / `no_reply`, announce output is suppressed even if earlier visible progress existed.
+
+Delivery depends on requester depth:
+
+- Top-level requester sessions use a follow-up `agent` call with external delivery (`deliver=true`).
+- Nested requester subagent sessions receive an internal follow-up injection (`deliver=false`) so the orchestrator can synthesize child results in-session.
+- If a nested requester subagent session is gone, OpenClaw falls back to that session's requester when available.
+
+For top-level requester sessions, completion-mode direct delivery first
+resolves any bound conversation/thread route and hook override, then fills
+missing channel-target fields from the requester session's stored route.
+That keeps completions on the right chat/topic even when the completion
+origin only identifies the channel.
+
+Child completion aggregation is scoped to the current requester run when
+building nested completion findings, preventing stale prior-run child
+outputs from leaking into the current announce. Announce replies preserve
+thread/topic routing when available on channel adapters.
+
+### Announce context
+
+Announce context is normalized to a stable internal event block:
+
+| Field          | Source                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| Source         | `subagent` or `cron`                                                                                          |
+| Session ids    | Child session key/id                                                                                          |
+| Type           | Announce type + task label                                                                                    |
+| Status         | Derived from runtime outcome (`success`, `error`, `timeout`, or `unknown`) — **not** inferred from model text |
+| Result content | Latest visible assistant text, otherwise sanitized latest tool/toolResult text                                |
+| Follow-up      | Instruction describing when to reply vs stay silent                                                           |
+
+Terminal failed runs report failure status without replaying captured
+reply text. On timeout, if the child only got through tool calls, announce
+can collapse that history into a short partial-progress summary instead
+of replaying raw tool output.
+
+### Stats line
+>>>>>>> upstream/main
 
 Announce payloads include a stats line at the end (even when wrapped):
 

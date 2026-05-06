@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { randomBytes } from "node:crypto";
 import {
   existsSync,
@@ -8,6 +9,9 @@ import {
   renameSync,
   unlinkSync,
 } from "node:fs";
+=======
+import { existsSync, readFileSync } from "node:fs";
+>>>>>>> upstream/main
 import path from "node:path";
 import { resolveChannelTtsVoiceDelivery } from "openclaw/plugin-sdk/channel-targets";
 import type {
@@ -30,7 +34,12 @@ import {
   selectApplicableRuntimeConfig,
 } from "openclaw/plugin-sdk/runtime-config-snapshot";
 import { isVerbose, logVerbose } from "openclaw/plugin-sdk/runtime-env";
+<<<<<<< HEAD
 import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/sandbox";
+=======
+import { tempWorkspaceSync, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/sandbox";
+import { privateFileStoreSync } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -566,6 +575,7 @@ function readPrefs(prefsPath: string): TtsUserPrefs {
 }
 
 function atomicWriteFileSync(filePath: string, content: string): void {
+<<<<<<< HEAD
   const tmpPath = `${filePath}.tmp.${Date.now()}.${randomBytes(8).toString("hex")}`;
   writeFileSync(tmpPath, content, { mode: 0o600 });
   try {
@@ -578,12 +588,18 @@ function atomicWriteFileSync(filePath: string, content: string): void {
     }
     throw err;
   }
+=======
+  privateFileStoreSync(path.dirname(filePath)).writeText(path.basename(filePath), content);
+>>>>>>> upstream/main
 }
 
 function updatePrefs(prefsPath: string, update: (prefs: TtsUserPrefs) => void): void {
   const prefs = readPrefs(prefsPath);
   update(prefs);
+<<<<<<< HEAD
   mkdirSync(path.dirname(prefsPath), { recursive: true });
+=======
+>>>>>>> upstream/main
   atomicWriteFileSync(prefsPath, JSON.stringify(prefs, null, 2));
 }
 
@@ -1136,12 +1152,21 @@ export async function textToSpeech(params: {
     outputFormat = transcoded.outputFormat;
   }
 
+<<<<<<< HEAD
   const tempRoot = resolvePreferredOpenClawTmpDir();
   mkdirSync(tempRoot, { recursive: true, mode: 0o700 });
   const tempDir = mkdtempSync(path.join(tempRoot, "tts-"));
   const audioPath = path.join(tempDir, `voice-${Date.now()}${fileExtension}`);
   writeFileSync(audioPath, audioBuffer);
   scheduleCleanup(tempDir);
+=======
+  const temp = tempWorkspaceSync({
+    rootDir: resolvePreferredOpenClawTmpDir(),
+    prefix: "tts-",
+  });
+  const audioPath = temp.write(`voice-${Date.now()}${fileExtension}`, audioBuffer);
+  scheduleCleanup(temp.dir);
+>>>>>>> upstream/main
 
   return {
     success: true,

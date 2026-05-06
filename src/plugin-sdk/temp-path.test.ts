@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import fsSync from "node:fs";
+>>>>>>> upstream/main
 import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -5,8 +9,18 @@ import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { buildRandomTempFilePath, withTempDownloadPath } from "./temp-path.js";
 
 function expectPathInsideTmpRoot(resultPath: string) {
+<<<<<<< HEAD
   const tmpRoot = path.resolve(resolvePreferredOpenClawTmpDir());
   const resolved = path.resolve(resultPath);
+=======
+  const tmpRoot = fsSync.realpathSync(resolvePreferredOpenClawTmpDir());
+  let resolved = path.resolve(resultPath);
+  try {
+    resolved = path.join(fsSync.realpathSync(path.dirname(resultPath)), path.basename(resultPath));
+  } catch {
+    // The temp parent is intentionally gone after withTempDownloadPath cleanup.
+  }
+>>>>>>> upstream/main
   const rel = path.relative(tmpRoot, resolved);
   expect(rel === ".." || rel.startsWith(`..${path.sep}`)).toBe(false);
   expect(resultPath).not.toContain("..");

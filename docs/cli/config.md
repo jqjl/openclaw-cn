@@ -28,6 +28,10 @@ openclaw config set browser.executablePath "/usr/bin/google-chrome"
 openclaw config set browser.profiles.work.executablePath "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 openclaw config set agents.defaults.heartbeat.every "2h"
 openclaw config set agents.list[0].tools.exec.node "node-id-or-name"
+<<<<<<< HEAD
+=======
+openclaw config set agents.defaults.models '{"openai/gpt-5.4":{}}' --strict-json --merge
+>>>>>>> upstream/main
 openclaw config set channels.discord.token --ref-provider default --ref-source env --ref-id DISCORD_BOT_TOKEN
 openclaw config set secrets.providers.vaultfile --provider-source file --provider-path /etc/openclaw/secrets.json --provider-mode json
 openclaw config patch --file ./openclaw.patch.json5 --dry-run
@@ -94,6 +98,22 @@ openclaw config set channels.whatsapp.groups '["*"]' --strict-json
 
 `config get <path> --json` prints the raw value as JSON instead of terminal-formatted text.
 
+<<<<<<< HEAD
+=======
+<Note>
+Object assignment replaces the target path by default. Protected map/list paths that commonly hold user-added entries, such as `agents.defaults.models`, `models.providers`, `models.providers.<id>.models`, `plugins.entries`, and `auth.profiles`, refuse replacements that would remove existing entries unless you pass `--replace`.
+</Note>
+
+Use `--merge` when adding entries to those maps:
+
+```bash
+openclaw config set agents.defaults.models '{"openai/gpt-5.4":{}}' --strict-json --merge
+openclaw config set models.providers.ollama.models '[{"id":"llama3.2","name":"Llama 3.2"}]' --strict-json --merge
+```
+
+Use `--replace` only when you intentionally want the provided value to become the complete target value.
+
+>>>>>>> upstream/main
 ## `config set` modes
 
 `openclaw config set` supports four assignment styles:
@@ -403,10 +423,18 @@ openclaw config set channels.discord.token \
 
 ## Write safety
 
+<<<<<<< HEAD
 `openclaw config set` and other OpenClaw-owned config writers validate the full
 post-change config before committing it to disk. If the new payload fails schema
 validation or looks like a destructive clobber, the active config is left alone
 and the rejected payload is saved beside it as `openclaw.json.rejected.*`.
+=======
+`openclaw config set` and other OpenClaw-owned config writers validate the full post-change config before committing it to disk. If the new payload fails schema validation or looks like a destructive clobber, the active config is left alone and the rejected payload is saved beside it as `openclaw.json.rejected.*`.
+
+<Warning>
+The active config path must be a regular file. Symlinked `openclaw.json` layouts are unsupported for writes; use `OPENCLAW_CONFIG_PATH` to point directly at the real file instead.
+</Warning>
+>>>>>>> upstream/main
 
 Prefer CLI writes for small edits:
 
@@ -430,7 +458,11 @@ Whole-file recovery is reserved for doctor repair. Plugin schema changes or `min
 
 ## Subcommands
 
+<<<<<<< HEAD
 - `config file`: Print the active config file path (resolved from `OPENCLAW_CONFIG_PATH` or default location).
+=======
+- `config file`: Print the active config file path (resolved from `OPENCLAW_CONFIG_PATH` or default location). The path should name a regular file, not a symlink.
+>>>>>>> upstream/main
 
 Restart the gateway after edits.
 
@@ -442,3 +474,47 @@ Validate the current config against the active schema without starting the gatew
 openclaw config validate
 openclaw config validate --json
 ```
+<<<<<<< HEAD
+=======
+
+After `openclaw config validate` is passing, you can use the local TUI to have an embedded agent compare the active config against the docs while you validate each change from the same terminal:
+
+<Note>
+If validation is already failing, start with `openclaw configure` or `openclaw doctor --fix`. `openclaw chat` does not bypass the invalid-config guard.
+</Note>
+
+```bash
+openclaw chat
+```
+
+Then inside the TUI:
+
+```text
+!openclaw config file
+!openclaw docs gateway auth token secretref
+!openclaw config validate
+!openclaw doctor
+```
+
+Typical repair loop:
+
+<Steps>
+  <Step title="Compare with docs">
+    Ask the agent to compare your current config with the relevant docs page and suggest the smallest fix.
+  </Step>
+  <Step title="Apply targeted edits">
+    Apply targeted edits with `openclaw config set` or `openclaw configure`.
+  </Step>
+  <Step title="Re-validate">
+    Rerun `openclaw config validate` after each change.
+  </Step>
+  <Step title="Doctor for runtime issues">
+    If validation passes but the runtime is still unhealthy, run `openclaw doctor` or `openclaw doctor --fix` for migration and repair help.
+  </Step>
+</Steps>
+
+## Related
+
+- [CLI reference](/cli)
+- [Configuration](/gateway/configuration)
+>>>>>>> upstream/main

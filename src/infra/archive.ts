@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import { constants as fsConstants } from "node:fs";
 import type { Stats } from "node:fs";
@@ -889,3 +890,32 @@ export async function readJsonFile<T>(filePath: string): Promise<T> {
   const raw = await fs.readFile(filePath, "utf-8");
   return JSON.parse(raw) as T;
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  ARCHIVE_LIMIT_ERROR_CODE,
+  ArchiveLimitError,
+  ArchiveSecurityError,
+  DEFAULT_MAX_ARCHIVE_BYTES_ZIP,
+  DEFAULT_MAX_ENTRIES,
+  DEFAULT_MAX_EXTRACTED_BYTES,
+  DEFAULT_MAX_ENTRY_BYTES,
+  createArchiveSymlinkTraversalError,
+  createTarEntryPreflightChecker,
+  extractArchive,
+  loadZipArchiveWithPreflight,
+  mergeExtractedTreeIntoDestination,
+  prepareArchiveDestinationDir,
+  prepareArchiveOutputPath,
+  readZipCentralDirectoryEntryCount,
+  resolveArchiveKind,
+  resolvePackedRootDir,
+  withStagedArchiveDestination,
+  type ArchiveExtractLimits,
+  type ArchiveKind,
+  type ArchiveLimitErrorCode,
+  type ArchiveLogger,
+  type ArchiveSecurityErrorCode,
+  type TarEntryInfo,
+} from "@openclaw/fs-safe/archive";
+>>>>>>> upstream/main

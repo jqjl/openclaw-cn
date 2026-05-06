@@ -2,6 +2,10 @@ import { base64ToBytes, bytesToBase64, floatToPcm16, pcm16ToFloat } from "./real
 import type { RealtimeTalkJsonPcmWebSocketSessionResult } from "./realtime-talk-shared.ts";
 import {
   REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
+<<<<<<< HEAD
+=======
+  createRealtimeTalkEventEmitter,
+>>>>>>> upstream/main
   submitRealtimeTalkConsult,
   type RealtimeTalkTransport,
   type RealtimeTalkTransportContext,
@@ -74,12 +78,24 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
   private playhead = 0;
   private closed = false;
   private pendingCalls = new Map<string, PendingFunctionCall>();
+<<<<<<< HEAD
   private readonly sources = new Set<AudioBufferSourceNode>();
+=======
+  private readonly consultAbortControllers = new Set<AbortController>();
+  private readonly sources = new Set<AudioBufferSourceNode>();
+  private readonly emitTalkEvent: ReturnType<typeof createRealtimeTalkEventEmitter>;
+>>>>>>> upstream/main
 
   constructor(
     private readonly session: RealtimeTalkJsonPcmWebSocketSessionResult,
     private readonly ctx: RealtimeTalkTransportContext,
+<<<<<<< HEAD
   ) {}
+=======
+  ) {
+    this.emitTalkEvent = createRealtimeTalkEventEmitter(ctx, session);
+  }
+>>>>>>> upstream/main
 
   async start(): Promise<void> {
     if (!navigator.mediaDevices?.getUserMedia || typeof WebSocket === "undefined") {
@@ -118,7 +134,18 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
   }
 
   stop(): void {
+<<<<<<< HEAD
     this.closed = true;
+=======
+    if (!this.closed) {
+      this.emitTalkEvent({ type: "session.closed", final: true });
+    }
+    this.closed = true;
+    for (const controller of this.consultAbortControllers) {
+      controller.abort();
+    }
+    this.consultAbortControllers.clear();
+>>>>>>> upstream/main
     this.pendingCalls.clear();
     this.inputProcessor?.disconnect();
     this.inputProcessor = null;
@@ -180,10 +207,22 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
     }
     if (message.setupComplete) {
       this.ctx.callbacks.onStatus?.("listening");
+<<<<<<< HEAD
+=======
+      this.emitTalkEvent({ type: "session.ready" });
+>>>>>>> upstream/main
     }
     const content = message.serverContent;
     if (content?.interrupted) {
       this.stopOutput();
+<<<<<<< HEAD
+=======
+      this.emitTalkEvent({
+        type: "turn.cancelled",
+        final: true,
+        payload: { reason: "provider-interrupted" },
+      });
+>>>>>>> upstream/main
     }
     if (content?.inputTranscription?.text) {
       this.ctx.callbacks.onTranscript?.({
@@ -191,6 +230,14 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
         text: content.inputTranscription.text,
         final: content.inputTranscription.finished ?? false,
       });
+<<<<<<< HEAD
+=======
+      this.emitTalkEvent({
+        type: content.inputTranscription.finished ? "transcript.done" : "transcript.delta",
+        final: content.inputTranscription.finished ?? false,
+        payload: { role: "user", text: content.inputTranscription.text },
+      });
+>>>>>>> upstream/main
     }
     if (content?.outputTranscription?.text) {
       this.ctx.callbacks.onTranscript?.({
@@ -198,9 +245,27 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
         text: content.outputTranscription.text,
         final: content.outputTranscription.finished ?? false,
       });
+<<<<<<< HEAD
     }
     for (const part of content?.modelTurn?.parts ?? []) {
       if (part.inlineData?.data) {
+=======
+      this.emitTalkEvent({
+        type: content.outputTranscription.finished ? "output.text.done" : "output.text.delta",
+        final: content.outputTranscription.finished ?? false,
+        payload: { text: content.outputTranscription.text },
+      });
+    }
+    for (const part of content?.modelTurn?.parts ?? []) {
+      if (part.inlineData?.data) {
+        this.emitTalkEvent({
+          type: "output.audio.delta",
+          payload: {
+            byteLength: base64ToBytes(part.inlineData.data).byteLength,
+            mimeType: part.inlineData.mimeType,
+          },
+        });
+>>>>>>> upstream/main
         this.playPcm16(part.inlineData.data);
       } else if (!part.thought && typeof part.text === "string" && part.text.trim()) {
         this.ctx.callbacks.onTranscript?.({
@@ -208,8 +273,21 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
           text: part.text,
           final: content?.turnComplete ?? false,
         });
+<<<<<<< HEAD
       }
     }
+=======
+        this.emitTalkEvent({
+          type: content?.turnComplete ? "output.text.done" : "output.text.delta",
+          final: content?.turnComplete ?? false,
+          payload: { text: part.text },
+        });
+      }
+    }
+    if (content?.turnComplete) {
+      this.emitTalkEvent({ type: "turn.ended", final: true });
+    }
+>>>>>>> upstream/main
     for (const call of message.toolCall?.functionCalls ?? []) {
       void this.handleToolCall(call);
     }
@@ -260,6 +338,7 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
       return;
     }
     this.pendingCalls.set(callId, { name, args: call.args ?? {} });
+<<<<<<< HEAD
     if (name !== REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME) {
       return;
     }
@@ -269,6 +348,29 @@ export class GoogleLiveRealtimeTalkTransport implements RealtimeTalkTransport {
       args: call.args ?? {},
       submit: (toolCallId, result) => this.submitToolResult(toolCallId, result),
     });
+=======
+    this.emitTalkEvent({
+      type: "tool.call",
+      callId,
+      payload: { name, args: call.args ?? {} },
+    });
+    if (name !== REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME) {
+      return;
+    }
+    const abortController = new AbortController();
+    this.consultAbortControllers.add(abortController);
+    try {
+      await submitRealtimeTalkConsult({
+        ctx: this.createActiveContext(),
+        callId,
+        args: call.args ?? {},
+        signal: abortController.signal,
+        submit: (toolCallId, result) => this.submitToolResult(toolCallId, result),
+      });
+    } finally {
+      this.consultAbortControllers.delete(abortController);
+    }
+>>>>>>> upstream/main
   }
 
   private createActiveContext(): RealtimeTalkTransportContext {

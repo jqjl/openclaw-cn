@@ -19,6 +19,10 @@ const hoisted = await vi.hoisted(async () => {
     ),
     mkdirMock: vi.fn(async (_filePath: string, _options?: { recursive?: boolean }) => undefined),
     accessMock: vi.fn(async (_filePath: string) => undefined),
+<<<<<<< HEAD
+=======
+    pathExistsMock: vi.fn(async (_filePath: string) => true),
+>>>>>>> upstream/main
     exportHtmlTemplateContents: new Map<string, string>(),
   };
 });
@@ -37,6 +41,13 @@ vi.mock("./commands-system-prompt.js", () => ({
   resolveCommandsSystemPromptBundle: hoisted.resolveCommandsSystemPromptBundleMock,
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("../../infra/fs-safe.js", () => ({
+  pathExists: hoisted.pathExistsMock,
+}));
+
+>>>>>>> upstream/main
 vi.mock("node:fs", async () => {
   const actual = await vi.importActual<typeof import("node:fs")>("node:fs");
   const mockedFs = {
@@ -146,6 +157,10 @@ describe("buildExportSessionReply", () => {
       sandboxRuntime: { sandboxed: false, mode: "off" },
     });
     hoisted.accessMock.mockResolvedValue(undefined);
+<<<<<<< HEAD
+=======
+    hoisted.pathExistsMock.mockResolvedValue(true);
+>>>>>>> upstream/main
     hoisted.exportHtmlTemplateContents.clear();
   });
 

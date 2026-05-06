@@ -128,7 +128,14 @@ export function loadPluginBoundaryModule<TModule>(
   options: { origin?: PluginOrigin } = {},
 ): TModule {
   if (isJavaScriptModulePath(modulePath)) {
+<<<<<<< HEAD
     const native = tryNativeRequireJavaScriptModule(modulePath, { allowWindows: true });
+=======
+    const native = tryNativeRequireJavaScriptModule(modulePath, {
+      allowWindows: true,
+      fallbackOnNativeError: options.origin !== "bundled",
+    });
+>>>>>>> upstream/main
     if (native.ok) {
       return native.moduleExport as TModule;
     }

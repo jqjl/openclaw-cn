@@ -83,7 +83,11 @@ After the first successful load, the running process serves the active in-memory
 
 ## OpenAI-compatible endpoints
 
+<<<<<<< HEAD
 OpenClaw’s highest-leverage compatibility surface is now:
+=======
+OpenClaw's highest-leverage compatibility surface is now:
+>>>>>>> upstream/main
 
 - `GET /v1/models`
 - `GET /v1/models/{id}`
@@ -184,6 +188,7 @@ OPENCLAW_CONFIG_PATH=~/.openclaw/b.json OPENCLAW_STATE_DIR=~/.openclaw-b opencla
 
 Detailed setup: [/gateway/multiple-gateways](/gateway/multiple-gateways).
 
+<<<<<<< HEAD
 ## VoiceClaw real-time brain endpoint
 
 OpenClaw exposes a VoiceClaw-compatible real-time WebSocket endpoint at
@@ -220,6 +225,8 @@ Then configure VoiceClaw to use:
 ws://127.0.0.1:19789/voiceclaw/realtime
 ```
 
+=======
+>>>>>>> upstream/main
 ## Remote access
 
 Preferred: Tailscale/VPN.

@@ -6,6 +6,10 @@ import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 import type WebSocket from "ws";
 import { resetConfigRuntimeState } from "../config/config.js";
 import type { GuardedFetchOptions } from "../infra/net/fetch-guard.js";
+<<<<<<< HEAD
+=======
+import type { GatewayCronState } from "./server-cron.js";
+>>>>>>> upstream/main
 import {
   connectOk,
   cronIsolatedRun,
@@ -156,6 +160,7 @@ async function setupCronTestRun(params: {
   return { prevSkipCron, dir };
 }
 
+<<<<<<< HEAD
 type DirectCronState = {
   cron: { stop: () => void };
   storePath: string;
@@ -163,6 +168,18 @@ type DirectCronState = {
 };
 
 async function createDirectCronState(): Promise<DirectCronState> {
+=======
+type DirectCronState = GatewayCronState & {
+  getRuntimeConfig: () => import("../config/types.openclaw.js").OpenClawConfig;
+};
+
+type CronBroadcast = (event: string, payload: unknown) => void;
+
+async function createDirectCronState(params?: {
+  broadcast?: CronBroadcast;
+}): Promise<DirectCronState> {
+  resetConfigRuntimeState();
+>>>>>>> upstream/main
   const [{ getRuntimeConfig }, { buildGatewayCronService }] = await Promise.all([
     import("../config/config.js"),
     import("./server-cron.js"),
@@ -171,12 +188,71 @@ async function createDirectCronState(): Promise<DirectCronState> {
     ...buildGatewayCronService({
       cfg: getRuntimeConfig(),
       deps: {} as never,
+<<<<<<< HEAD
       broadcast: vi.fn(),
+=======
+      broadcast: params?.broadcast ?? vi.fn(),
+>>>>>>> upstream/main
     }),
     getRuntimeConfig: getRuntimeConfig,
   };
 }
 
+<<<<<<< HEAD
+=======
+function createCronEventCollector() {
+  const events: Record<string, unknown>[] = [];
+  const waiters: Array<{
+    check: (payload: Record<string, unknown>) => boolean;
+    resolve: (payload: Record<string, unknown>) => void;
+    reject: (error: Error) => void;
+    timer: ReturnType<typeof setTimeout>;
+  }> = [];
+  const flush = (payload: Record<string, unknown>) => {
+    for (let index = waiters.length - 1; index >= 0; index -= 1) {
+      const waiter = waiters[index];
+      if (!waiter) {
+        continue;
+      }
+      if (!waiter.check(payload)) {
+        continue;
+      }
+      clearTimeout(waiter.timer);
+      waiters.splice(index, 1);
+      waiter.resolve(payload);
+    }
+  };
+  return {
+    broadcast(event: string, payload: unknown) {
+      if (event !== "cron" || !payload || typeof payload !== "object" || Array.isArray(payload)) {
+        return;
+      }
+      const record = payload as Record<string, unknown>;
+      events.push(record);
+      flush(record);
+    },
+    wait(check: (payload: Record<string, unknown>) => boolean, timeoutMs = CRON_WAIT_TIMEOUT_MS) {
+      const existing = events.find(check);
+      if (existing) {
+        return Promise.resolve(existing);
+      }
+      return new Promise<Record<string, unknown>>((resolve, reject) => {
+        const waiter = {
+          check,
+          resolve,
+          reject,
+          timer: setTimeout(() => {
+            waiters.splice(waiters.indexOf(waiter), 1);
+            reject(new Error("timeout waiting for cron event"));
+          }, timeoutMs),
+        };
+        waiters.push(waiter);
+      });
+    },
+  };
+}
+
+>>>>>>> upstream/main
 async function directCronReq(
   cronState: DirectCronState,
   method: string,
@@ -388,9 +464,14 @@ describe("gateway server cron", () => {
       const routeJobId = typeof routeJobIdValue === "string" ? routeJobIdValue : "";
       expect(routeJobId.length > 0).toBe(true);
 
+<<<<<<< HEAD
       const runRes = await directCronReq(cronState, "cron.run", { id: routeJobId, mode: "force" });
       expect(runRes.ok).toBe(true);
       expect(runRes.payload).toEqual({ ok: true, enqueued: true, runId: expect.any(String) });
+=======
+      const runRes = await cronState.cron.run(routeJobId, "force");
+      expect(runRes).toEqual({ ok: true, ran: true });
+>>>>>>> upstream/main
       const events = await waitForSystemEvent();
       expect(events.some((event) => event.includes("cron route check"))).toBe(true);
 
@@ -834,6 +915,7 @@ describe("gateway server cron", () => {
   test("writes cron run history and auto-runs due jobs", async () => {
     const { prevSkipCron } = await setupCronTestRun({
       tempPrefix: "openclaw-gw-cron-log-",
+<<<<<<< HEAD
     });
 
     const { server, ws } = await startServerWithClient();
@@ -845,6 +927,18 @@ describe("gateway server cron", () => {
         name: "log test",
         enabled: true,
         schedule: { kind: "at", at: new Date(atMs).toISOString() },
+=======
+      cronEnabled: true,
+    });
+    const events = createCronEventCollector();
+    const cronState = await createDirectCronState({ broadcast: events.broadcast });
+
+    try {
+      const addRes = await directCronReq(cronState, "cron.add", {
+        name: "log test",
+        enabled: true,
+        schedule: { kind: "every", everyMs: 60_000 },
+>>>>>>> upstream/main
         sessionTarget: "main",
         wakeMode: "next-heartbeat",
         payload: { kind: "systemEvent", text: "hello" },
@@ -854,11 +948,18 @@ describe("gateway server cron", () => {
       const jobId = typeof jobIdValue === "string" ? jobIdValue : "";
       expect(jobId.length > 0).toBe(true);
 
+<<<<<<< HEAD
       const finishedRun = waitForCronEvent(
         ws,
         (payload) => payload?.jobId === jobId && payload?.action === "finished",
       );
       const runRes = await rpcReq(ws, "cron.run", { id: jobId, mode: "force" }, 20_000);
+=======
+      const finishedRun = events.wait(
+        (payload) => payload?.jobId === jobId && payload?.action === "finished",
+      );
+      const runRes = await directCronReq(cronState, "cron.run", { id: jobId, mode: "force" });
+>>>>>>> upstream/main
       expect(runRes.ok).toBe(true);
       expect(runRes.payload).toEqual({ ok: true, enqueued: true, runId: expect.any(String) });
       const manualRunId = (runRes.payload as { runId?: unknown } | null)?.runId;
@@ -872,7 +973,11 @@ describe("gateway server cron", () => {
         deliveryStatus: "not-requested",
       });
 
+<<<<<<< HEAD
       const runsRes = await rpcReq(ws, "cron.runs", { id: jobId, limit: 50 });
+=======
+      const runsRes = await directCronReq(cronState, "cron.runs", { id: jobId, limit: 50 });
+>>>>>>> upstream/main
       expect(runsRes.ok).toBe(true);
       const entries = (runsRes.payload as { entries?: unknown } | null)?.entries;
       expect(Array.isArray(entries)).toBe(true);
@@ -882,7 +987,11 @@ describe("gateway server cron", () => {
         "not-requested",
       );
       expect((entries as Array<{ runId?: unknown }>).at(-1)?.runId).toBe(manualRunId);
+<<<<<<< HEAD
       const allRunsRes = await rpcReq(ws, "cron.runs", {
+=======
+      const allRunsRes = await directCronReq(cronState, "cron.runs", {
+>>>>>>> upstream/main
         scope: "all",
         limit: 50,
         statuses: ["ok"],
@@ -894,7 +1003,11 @@ describe("gateway server cron", () => {
         (allEntries as Array<{ jobId?: unknown }>).some((entry) => entry.jobId === jobId),
       ).toBe(true);
 
+<<<<<<< HEAD
       const statusRes = await rpcReq(ws, "cron.status", {});
+=======
+      const statusRes = await directCronReq(cronState, "cron.status", {});
+>>>>>>> upstream/main
       expect(statusRes.ok).toBe(true);
       const statusPayload = statusRes.payload as
         | { enabled?: unknown; storePath?: unknown }
@@ -903,10 +1016,17 @@ describe("gateway server cron", () => {
       const storePath = typeof statusPayload?.storePath === "string" ? statusPayload.storePath : "";
       expect(storePath).toContain("jobs.json");
 
+<<<<<<< HEAD
       const autoRes = await rpcReq(ws, "cron.add", {
         name: "auto run test",
         enabled: true,
         schedule: { kind: "at", at: new Date(Date.now() + 200).toISOString() },
+=======
+      const autoRes = await directCronReq(cronState, "cron.add", {
+        name: "auto run test",
+        enabled: true,
+        schedule: { kind: "at", at: new Date(Date.now() - 1).toISOString() },
+>>>>>>> upstream/main
         sessionTarget: "main",
         wakeMode: "next-heartbeat",
         payload: { kind: "systemEvent", text: "auto" },
@@ -916,6 +1036,7 @@ describe("gateway server cron", () => {
       const autoJobId = typeof autoJobIdValue === "string" ? autoJobIdValue : "";
       expect(autoJobId.length > 0).toBe(true);
 
+<<<<<<< HEAD
       await waitForCronEvent(
         ws,
         (payload) => payload?.jobId === autoJobId && payload?.action === "finished",
@@ -923,11 +1044,25 @@ describe("gateway server cron", () => {
       const autoEntries = (await rpcReq(ws, "cron.runs", { id: autoJobId, limit: 10 })).payload as
         | { entries?: Array<{ jobId?: unknown }> }
         | undefined;
+=======
+      const autoFinished = events.wait(
+        (payload) => payload?.jobId === autoJobId && payload?.action === "finished",
+      );
+      await cronState.cron.start();
+      await autoFinished;
+      const autoEntries = (
+        await directCronReq(cronState, "cron.runs", { id: autoJobId, limit: 10 })
+      ).payload as { entries?: Array<{ jobId?: unknown }> } | undefined;
+>>>>>>> upstream/main
       expect(Array.isArray(autoEntries?.entries)).toBe(true);
       const runs = autoEntries?.entries ?? [];
       expect(runs.at(-1)?.jobId).toBe(autoJobId);
     } finally {
+<<<<<<< HEAD
       await cleanupCronTestRun({ ws, server, prevSkipCron });
+=======
+      await cleanupCronTestRun({ cronState, prevSkipCron });
+>>>>>>> upstream/main
     }
   }, 45_000);
 

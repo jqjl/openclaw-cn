@@ -1,6 +1,21 @@
 import { createHash } from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
+=======
+import path from "node:path";
+import {
+  ackJsonDurableQueueEntry,
+  ensureJsonDurableQueueDirs,
+  jsonDurableQueueEntryExists,
+  loadJsonDurableQueueEntry,
+  loadPendingJsonDurableQueueEntries,
+  moveJsonDurableQueueEntryToFailed,
+  readJsonDurableQueueEntry,
+  resolveJsonDurableQueueEntryPaths,
+  writeJsonDurableQueueEntry,
+} from "@openclaw/fs-safe/store";
+>>>>>>> upstream/main
 import type { ChatType } from "../channels/chat-type.js";
 import { resolveStateDir } from "../config/paths.js";
 import { generateSecureUuid } from "./secure-random.js";
@@ -8,6 +23,10 @@ import { generateSecureUuid } from "./secure-random.js";
 const QUEUE_DIRNAME = "session-delivery-queue";
 const FAILED_DIRNAME = "failed";
 const TMP_SWEEP_MAX_AGE_MS = 5_000;
+<<<<<<< HEAD
+=======
+const QUEUE_TEMP_PREFIX = ".session-delivery-queue";
+>>>>>>> upstream/main
 
 type SessionDeliveryContext = {
   channel?: string;
@@ -51,12 +70,15 @@ export type QueuedSessionDelivery = QueuedSessionDeliveryPayload & {
   lastError?: string;
 };
 
+<<<<<<< HEAD
 function getErrnoCode(err: unknown): string | null {
   return err && typeof err === "object" && "code" in err
     ? String((err as { code?: unknown }).code)
     : null;
 }
 
+=======
+>>>>>>> upstream/main
 function buildEntryId(idempotencyKey?: string): string {
   if (!idempotencyKey) {
     return generateSecureUuid();
@@ -64,6 +86,7 @@ function buildEntryId(idempotencyKey?: string): string {
   return createHash("sha256").update(idempotencyKey).digest("hex");
 }
 
+<<<<<<< HEAD
 async function unlinkBestEffort(filePath: string): Promise<void> {
   await fs.promises.unlink(filePath).catch(() => undefined);
 }
@@ -96,6 +119,18 @@ async function writeQueueEntry(filePath: string, entry: QueuedSessionDelivery): 
 
 async function readQueueEntry(filePath: string): Promise<QueuedSessionDelivery> {
   return JSON.parse(await fs.promises.readFile(filePath, "utf-8")) as QueuedSessionDelivery;
+=======
+async function writeQueueEntry(filePath: string, entry: QueuedSessionDelivery): Promise<void> {
+  await writeJsonDurableQueueEntry({
+    filePath,
+    entry,
+    tempPrefix: QUEUE_TEMP_PREFIX,
+  });
+}
+
+async function readQueueEntry(filePath: string): Promise<QueuedSessionDelivery> {
+  return await readJsonDurableQueueEntry<QueuedSessionDelivery>(filePath);
+>>>>>>> upstream/main
 }
 
 export function resolveSessionDeliveryQueueDir(stateDir?: string): string {
@@ -114,17 +149,28 @@ function resolveQueueEntryPaths(
   jsonPath: string;
   deliveredPath: string;
 } {
+<<<<<<< HEAD
   const queueDir = resolveSessionDeliveryQueueDir(stateDir);
   return {
     jsonPath: path.join(queueDir, `${id}.json`),
     deliveredPath: path.join(queueDir, `${id}.delivered`),
   };
+=======
+  return resolveJsonDurableQueueEntryPaths(resolveSessionDeliveryQueueDir(stateDir), id);
+>>>>>>> upstream/main
 }
 
 async function ensureSessionDeliveryQueueDir(stateDir?: string): Promise<string> {
   const queueDir = resolveSessionDeliveryQueueDir(stateDir);
+<<<<<<< HEAD
   await fs.promises.mkdir(queueDir, { recursive: true, mode: 0o700 });
   await fs.promises.mkdir(resolveFailedDir(stateDir), { recursive: true, mode: 0o700 });
+=======
+  await ensureJsonDurableQueueDirs({
+    queueDir,
+    failedDir: resolveFailedDir(stateDir),
+  });
+>>>>>>> upstream/main
   return queueDir;
 }
 
@@ -137,6 +183,7 @@ export async function enqueueSessionDelivery(
   const filePath = path.join(queueDir, `${id}.json`);
 
   if (params.idempotencyKey) {
+<<<<<<< HEAD
     try {
       const stat = await fs.promises.stat(filePath);
       if (stat.isFile()) {
@@ -146,6 +193,10 @@ export async function enqueueSessionDelivery(
       if (getErrnoCode(err) !== "ENOENT") {
         throw err;
       }
+=======
+    if (await jsonDurableQueueEntryExists(filePath)) {
+      return id;
+>>>>>>> upstream/main
     }
   }
 
@@ -159,6 +210,7 @@ export async function enqueueSessionDelivery(
 }
 
 export async function ackSessionDelivery(id: string, stateDir?: string): Promise<void> {
+<<<<<<< HEAD
   const { jsonPath, deliveredPath } = resolveQueueEntryPaths(id, stateDir);
   try {
     await fs.promises.rename(jsonPath, deliveredPath);
@@ -171,6 +223,9 @@ export async function ackSessionDelivery(id: string, stateDir?: string): Promise
     throw err;
   }
   await unlinkBestEffort(deliveredPath);
+=======
+  await ackJsonDurableQueueEntry(resolveQueueEntryPaths(id, stateDir));
+>>>>>>> upstream/main
 }
 
 export async function failSessionDelivery(
@@ -190,6 +245,7 @@ export async function loadPendingSessionDelivery(
   id: string,
   stateDir?: string,
 ): Promise<QueuedSessionDelivery | null> {
+<<<<<<< HEAD
   const { jsonPath } = resolveQueueEntryPaths(id, stateDir);
   try {
     const stat = await fs.promises.stat(jsonPath);
@@ -203,11 +259,18 @@ export async function loadPendingSessionDelivery(
     }
     throw err;
   }
+=======
+  return await loadJsonDurableQueueEntry({
+    paths: resolveQueueEntryPaths(id, stateDir),
+    tempPrefix: QUEUE_TEMP_PREFIX,
+  });
+>>>>>>> upstream/main
 }
 
 export async function loadPendingSessionDeliveries(
   stateDir?: string,
 ): Promise<QueuedSessionDelivery[]> {
+<<<<<<< HEAD
   const queueDir = resolveSessionDeliveryQueueDir(stateDir);
   let files: string[];
   try {
@@ -252,4 +315,19 @@ export async function moveSessionDeliveryToFailed(id: string, stateDir?: string)
   const failedDir = resolveFailedDir(stateDir);
   await fs.promises.mkdir(failedDir, { recursive: true, mode: 0o700 });
   await fs.promises.rename(path.join(queueDir, `${id}.json`), path.join(failedDir, `${id}.json`));
+=======
+  return await loadPendingJsonDurableQueueEntries({
+    queueDir: resolveSessionDeliveryQueueDir(stateDir),
+    tempPrefix: QUEUE_TEMP_PREFIX,
+    cleanupTmpMaxAgeMs: TMP_SWEEP_MAX_AGE_MS,
+  });
+}
+
+export async function moveSessionDeliveryToFailed(id: string, stateDir?: string): Promise<void> {
+  await moveJsonDurableQueueEntryToFailed({
+    queueDir: resolveSessionDeliveryQueueDir(stateDir),
+    failedDir: resolveFailedDir(stateDir),
+    id,
+  });
+>>>>>>> upstream/main
 }

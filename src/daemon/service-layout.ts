@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { pathExists } from "../infra/fs-safe.js";
+>>>>>>> upstream/main
 import { readPackageName, readPackageVersion } from "../infra/package-json.js";
 import type { GatewayServiceCommandConfig } from "./service-types.js";
 
@@ -64,6 +68,7 @@ async function tryRealpath(value: string | undefined): Promise<string | undefine
   }
 }
 
+<<<<<<< HEAD
 async function pathExists(candidate: string): Promise<boolean> {
   try {
     await fs.access(candidate);
@@ -73,6 +78,8 @@ async function pathExists(candidate: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 async function isSourceCheckoutRoot(candidate: string): Promise<boolean> {
   const hasRepoMarker =
     (await pathExists(path.join(candidate, ".git"))) ||

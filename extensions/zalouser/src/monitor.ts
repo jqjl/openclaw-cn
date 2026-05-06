@@ -8,7 +8,10 @@ import {
   DM_GROUP_ACCESS_REASON,
   resolveDmGroupAccessWithLists,
 } from "openclaw/plugin-sdk/channel-policy";
+<<<<<<< HEAD
 import { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+>>>>>>> upstream/main
 import { resolveSenderCommandAuthorization } from "openclaw/plugin-sdk/command-auth";
 import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import { KeyedAsyncQueue } from "openclaw/plugin-sdk/core";
@@ -652,11 +655,15 @@ async function processMessage(
     },
   });
 
+<<<<<<< HEAD
   const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
     cfg: config,
     agentId: route.agentId,
     channel: "zalouser",
     accountId: account.accountId,
+=======
+  const replyPipeline = {
+>>>>>>> upstream/main
     typing: {
       start: async () => {
         await sendTypingZalouser(chatId, {
@@ -664,14 +671,22 @@ async function processMessage(
           isGroup,
         });
       },
+<<<<<<< HEAD
       onStartError: (err) => {
+=======
+      onStartError: (err: unknown) => {
+>>>>>>> upstream/main
         runtime.error?.(
           `[${account.accountId}] zalouser typing start failed for ${chatId}: ${String(err)}`,
         );
         logVerbose(core, runtime, `zalouser typing failed for ${chatId}: ${String(err)}`);
       },
     },
+<<<<<<< HEAD
   });
+=======
+  };
+>>>>>>> upstream/main
 
   await core.channel.turn.run({
     channel: "zalouser",
@@ -698,8 +713,32 @@ async function processMessage(
         dispatchReplyWithBufferedBlockDispatcher:
           core.channel.reply.dispatchReplyWithBufferedBlockDispatcher,
         delivery: {
+<<<<<<< HEAD
           deliver: async (payload) => {
             await deliverZalouserReply({
+=======
+          preparePayload: (payload) => {
+            if (payload.text === undefined) {
+              return payload;
+            }
+            return {
+              ...payload,
+              text: core.channel.text.convertMarkdownTables(
+                payload.text,
+                core.channel.text.resolveMarkdownTableMode({
+                  cfg: config,
+                  channel: "zalouser",
+                  accountId: account.accountId,
+                }),
+              ),
+            };
+          },
+          durable: () => ({
+            to: normalizedTo,
+          }),
+          deliver: async (payload) => {
+            return await deliverZalouserReply({
+>>>>>>> upstream/main
               payload: payload as { text?: string; mediaUrls?: string[]; mediaUrl?: string },
               profile: account.profile,
               chatId,
@@ -708,6 +747,7 @@ async function processMessage(
               core,
               config,
               accountId: account.accountId,
+<<<<<<< HEAD
               statusSink,
               tableMode: core.channel.text.resolveMarkdownTableMode({
                 cfg: config,
@@ -716,16 +756,30 @@ async function processMessage(
               }),
             });
           },
+=======
+              tableMode: "off",
+            });
+          },
+          onDelivered: (_payload, _info, result) => {
+            if (result?.visibleReplySent !== false) {
+              statusSink?.({ lastOutboundAt: Date.now() });
+            }
+          },
+>>>>>>> upstream/main
           onError: (err, info) => {
             runtime.error(
               `[${account.accountId}] Zalouser ${info.kind} reply failed: ${String(err)}`,
             );
           },
         },
+<<<<<<< HEAD
         dispatcherOptions: replyPipeline,
         replyOptions: {
           onModelSelected,
         },
+=======
+        replyPipeline,
+>>>>>>> upstream/main
         record: {
           onRecordError: (err) => {
             runtime.error?.(`zalouser: failed updating session meta: ${String(err)}`);
@@ -752,12 +806,20 @@ async function deliverZalouserReply(params: {
   core: ZalouserCoreRuntime;
   config: OpenClawConfig;
   accountId?: string;
+<<<<<<< HEAD
   statusSink?: (patch: { lastInboundAt?: number; lastOutboundAt?: number }) => void;
   tableMode?: MarkdownTableMode;
 }): Promise<void> {
   const { payload, profile, chatId, isGroup, runtime, core, config, accountId, statusSink } =
     params;
   const tableMode = params.tableMode ?? "code";
+=======
+  tableMode?: MarkdownTableMode;
+}): Promise<{ visibleReplySent: boolean }> {
+  const { payload, profile, chatId, isGroup, runtime, core, config, accountId } = params;
+  const tableMode = params.tableMode ?? "code";
+  let visibleReplySent = false;
+>>>>>>> upstream/main
   const reply = resolveSendableOutboundReplyParts(payload, {
     text: core.channel.text.convertMarkdownTables(payload.text ?? "", tableMode),
   });
@@ -777,7 +839,11 @@ async function deliverZalouserReply(params: {
           textChunkMode: chunkMode,
           textChunkLimit,
         });
+<<<<<<< HEAD
         statusSink?.({ lastOutboundAt: Date.now() });
+=======
+        visibleReplySent = true;
+>>>>>>> upstream/main
       } catch (err) {
         runtime.error(`Zalouser message send failed: ${String(err)}`);
       }
@@ -792,7 +858,11 @@ async function deliverZalouserReply(params: {
         textChunkMode: chunkMode,
         textChunkLimit,
       });
+<<<<<<< HEAD
       statusSink?.({ lastOutboundAt: Date.now() });
+=======
+      visibleReplySent = true;
+>>>>>>> upstream/main
     },
     onMediaError: (error) => {
       runtime.error(
@@ -802,6 +872,10 @@ async function deliverZalouserReply(params: {
       );
     },
   });
+<<<<<<< HEAD
+=======
+  return { visibleReplySent };
+>>>>>>> upstream/main
 }
 
 export async function monitorZalouserProvider(

@@ -119,9 +119,16 @@ your personal Codex CLI state by default.
 
 Running `openclaw migrate codex` in an interactive terminal previews the full
 plan, then opens a checkbox selector for skill copy items before the final
+<<<<<<< HEAD
 apply confirmation. All skills start selected; uncheck any skill you do not want
 copied into this agent. For scripted or exact runs, pass `--skill <name>` once
 per skill, for example:
+=======
+apply confirmation. Use `Toggle all on` or `Toggle all off` for bulk selection;
+planned skills start checked, conflict skills start unchecked, and `Skip for now`
+leaves skills unchanged without applying. For scripted or exact runs, pass
+`--skill <name>` once per skill, for example:
+>>>>>>> upstream/main
 
 ```bash
 openclaw migrate codex --dry-run --skill gog-vault77-google-workspace

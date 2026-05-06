@@ -1,5 +1,13 @@
 import crypto from "node:crypto";
 import {
+<<<<<<< HEAD
+=======
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptSourceResult,
+} from "openclaw/plugin-sdk/channel-message";
+import {
+>>>>>>> upstream/main
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
@@ -35,6 +43,10 @@ export type BlueBubblesSendOpts = {
 
 export type BlueBubblesSendResult = {
   messageId: string;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 /** Maps short effect names to full Apple effect IDs */
@@ -118,6 +130,7 @@ function resolvePrivateApiDecision(params: {
   };
 }
 
+<<<<<<< HEAD
 async function parseBlueBubblesMessageResponse(res: Response): Promise<BlueBubblesSendResult> {
   const body = await res.text();
   if (!body) {
@@ -129,6 +142,63 @@ async function parseBlueBubblesMessageResponse(res: Response): Promise<BlueBubbl
   } catch {
     return { messageId: "ok" };
   }
+=======
+function createBlueBubblesSendReceipt(params: {
+  messageId: string;
+  chatGuid?: string | null;
+  replyToMessageGuid?: string;
+}): MessageReceipt {
+  const messageId = params.messageId.trim();
+  const results: MessageReceiptSourceResult[] =
+    messageId && messageId !== "unknown" && messageId !== "ok"
+      ? [
+          {
+            channel: "bluebubbles",
+            messageId,
+          },
+        ]
+      : [];
+  if (results[0] && params.chatGuid) {
+    results[0].conversationId = params.chatGuid;
+  }
+  return createMessageReceiptFromOutboundResults({
+    results,
+    kind: "text",
+    ...(params.replyToMessageGuid ? { replyToId: params.replyToMessageGuid } : {}),
+  });
+}
+
+async function parseBlueBubblesMessageResponse(
+  res: Response,
+  params: { chatGuid?: string | null; replyToMessageGuid?: string } = {},
+): Promise<BlueBubblesSendResult> {
+  const body = await res.text();
+  let messageId = "ok";
+  if (!body) {
+    return {
+      messageId,
+      receipt: createBlueBubblesSendReceipt({
+        messageId,
+        ...(params.chatGuid ? { chatGuid: params.chatGuid } : {}),
+        ...(params.replyToMessageGuid ? { replyToMessageGuid: params.replyToMessageGuid } : {}),
+      }),
+    };
+  }
+  try {
+    const parsed = JSON.parse(body) as unknown;
+    messageId = extractBlueBubblesMessageId(parsed);
+  } catch {
+    messageId = "ok";
+  }
+  return {
+    messageId,
+    receipt: createBlueBubblesSendReceipt({
+      messageId,
+      ...(params.chatGuid ? { chatGuid: params.chatGuid } : {}),
+      ...(params.replyToMessageGuid ? { replyToMessageGuid: params.replyToMessageGuid } : {}),
+    }),
+  };
+>>>>>>> upstream/main
 }
 
 type BlueBubblesChatRecord = Record<string, unknown>;
@@ -479,7 +549,17 @@ async function createNewChatWithMessage(params: {
     timeoutMs: params.timeoutMs,
     allowPrivateNetwork: params.allowPrivateNetwork,
   });
+<<<<<<< HEAD
   return { messageId: result.messageId };
+=======
+  return {
+    messageId: result.messageId,
+    receipt: createBlueBubblesSendReceipt({
+      messageId: result.messageId,
+      chatGuid: result.chatGuid,
+    }),
+  };
+>>>>>>> upstream/main
 }
 
 export async function sendMessageBlueBubbles(
@@ -614,5 +694,14 @@ export async function sendMessageBlueBubbles(
     const errorText = await res.text();
     throw new Error(`BlueBubbles send failed (${res.status}): ${errorText || "unknown"}`);
   }
+<<<<<<< HEAD
   return parseBlueBubblesMessageResponse(res);
+=======
+  return parseBlueBubblesMessageResponse(res, {
+    chatGuid,
+    ...(wantsReplyThread && opts.replyToMessageGuid
+      ? { replyToMessageGuid: opts.replyToMessageGuid }
+      : {}),
+  });
+>>>>>>> upstream/main
 }

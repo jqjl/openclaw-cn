@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import { readFileSync } from "node:fs";
 import fs from "node:fs/promises";
@@ -159,3 +160,26 @@ export function createAsyncLock() {
     }
   };
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  JsonFileReadError,
+  readJson,
+  readJson as readJsonFileStrict,
+  readJsonIfExists,
+  readJsonIfExists as readDurableJsonFile,
+  readJsonSync,
+  readRootJsonObjectSync,
+  readRootJsonSync,
+  readRootStructuredFileSync,
+  tryReadJson,
+  tryReadJson as readJsonFile,
+  tryReadJsonSync,
+  tryReadJsonSync as readJsonFileSync,
+  writeJson,
+  writeJson as writeJsonAtomic,
+  writeJsonSync,
+} from "@openclaw/fs-safe/json";
+export { writeTextAtomic } from "@openclaw/fs-safe/atomic";
+export { createAsyncLock } from "@openclaw/fs-safe/advanced";
+>>>>>>> upstream/main

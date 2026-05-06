@@ -118,6 +118,10 @@ export async function buildStatusCommandReportData(
     { key: "Kind", header: "Kind", minWidth: 6 },
     { key: "Age", header: "Age", minWidth: 9 },
     { key: "Model", header: "Model", minWidth: 14 },
+<<<<<<< HEAD
+=======
+    { key: "Runtime", header: "Runtime", minWidth: 14 },
+>>>>>>> upstream/main
     { key: "Tokens", header: "Tokens", minWidth: 16 },
     ...(params.opts.verbose ? [{ key: "Cache", header: "Cache", minWidth: 16, flex: true }] : []),
   ] satisfies TableColumn[];

@@ -9,6 +9,10 @@ import type {
   ModalInteraction,
   StringSelectMenuInteraction,
 } from "../internal/discord.js";
+<<<<<<< HEAD
+=======
+import { createDiscordSendReceipt } from "../send.receipt.js";
+>>>>>>> upstream/main
 import {
   dispatchPluginInteractiveHandlerMock,
   dispatchReplyMock,
@@ -50,6 +54,17 @@ function getLastRecordedCtx(): Record<string, unknown> | undefined {
   return params?.ctx;
 }
 
+<<<<<<< HEAD
+=======
+function discordTestSendResult(messageId: string, channelId = "dm-channel") {
+  return {
+    messageId,
+    channelId,
+    receipt: createDiscordSendReceipt({ platformMessageIds: [messageId], channelId, kind: "card" }),
+  };
+}
+
+>>>>>>> upstream/main
 describe("discord component interactions", () => {
   let editDiscordComponentMessageMock: ReturnType<typeof vi.spyOn>;
   const createCfg = (): OpenClawConfig =>
@@ -254,10 +269,14 @@ describe("discord component interactions", () => {
   beforeEach(() => {
     editDiscordComponentMessageMock = vi
       .spyOn(sendComponents, "editDiscordComponentMessage")
+<<<<<<< HEAD
       .mockResolvedValue({
         messageId: "msg-1",
         channelId: "dm-channel",
       });
+=======
+      .mockResolvedValue(discordTestSendResult("msg-1"));
+>>>>>>> upstream/main
     clearDiscordComponentEntries();
     resetDiscordComponentRuntimeMocks();
     lastDispatchCtx = undefined;

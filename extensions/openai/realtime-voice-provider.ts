@@ -20,7 +20,14 @@ import type {
   RealtimeVoiceProviderPlugin,
   RealtimeVoiceTool,
 } from "openclaw/plugin-sdk/realtime-voice";
+<<<<<<< HEAD
 import { REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ } from "openclaw/plugin-sdk/realtime-voice";
+=======
+import {
+  REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ,
+  REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
+} from "openclaw/plugin-sdk/realtime-voice";
+>>>>>>> upstream/main
 import {
   normalizeResolvedSecretInputString,
   normalizeSecretInputString,
@@ -857,7 +864,11 @@ async function createOpenAIRealtimeBrowserSession(
   const offerHeaders = resolveOpenAIRealtimeBrowserOfferHeaders();
   return {
     provider: "openai",
+<<<<<<< HEAD
     transport: "webrtc-sdp",
+=======
+    transport: "webrtc",
+>>>>>>> upstream/main
     clientSecret,
     offerUrl: "https://api.openai.com/v1/realtime/calls",
     ...(offerHeaders ? { offerHeaders } : {}),
@@ -873,6 +884,23 @@ export function buildOpenAIRealtimeVoiceProvider(): RealtimeVoiceProviderPlugin 
     label: "OpenAI Realtime Voice",
     defaultModel: OPENAI_REALTIME_DEFAULT_MODEL,
     autoSelectOrder: 10,
+<<<<<<< HEAD
+=======
+    capabilities: {
+      transports: ["webrtc", "gateway-relay"],
+      inputAudioFormats: [
+        REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ,
+        REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
+      ],
+      outputAudioFormats: [
+        REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ,
+        REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
+      ],
+      supportsBrowserSession: true,
+      supportsBargeIn: true,
+      supportsToolCalls: true,
+    },
+>>>>>>> upstream/main
     resolveConfig: ({ rawConfig }) => normalizeProviderConfig(rawConfig),
     isConfigured: ({ providerConfig }) =>
       hasOpenAIRealtimeApiKeyInput(normalizeProviderConfig(providerConfig).apiKey),

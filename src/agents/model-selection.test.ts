@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
 import type { OpenClawConfig } from "../config/types.js";
 import { resetLogger, setLoggerOverride } from "../logging/logger.js";
@@ -7,6 +8,15 @@ import {
   buildAllowedModelSet,
   inferUniqueProviderFromConfiguredModels,
   isCliProvider,
+=======
+import { describe, it, expect, vi } from "vitest";
+import type { OpenClawConfig } from "../config/types.js";
+import { resetLogger, setLoggerOverride } from "../logging/logger.js";
+import { createWarnLogCapture } from "../logging/test-helpers/warn-log-capture.js";
+import {
+  buildAllowedModelSet,
+  inferUniqueProviderFromConfiguredModels,
+>>>>>>> upstream/main
   parseModelRef,
   buildModelAliasIndex,
   normalizeModelSelection,
@@ -25,6 +35,17 @@ import {
   resolveModelRefFromString,
 } from "./model-selection.js";
 
+<<<<<<< HEAD
+=======
+vi.mock("./provider-model-normalization.runtime.js", () => ({
+  normalizeProviderModelIdWithRuntime: () => undefined,
+}));
+
+vi.mock("./model-selection-cli.js", () => ({
+  isCliProvider: () => false,
+}));
+
+>>>>>>> upstream/main
 const EXPLICIT_ALLOWLIST_CONFIG = {
   agents: {
     defaults: {
@@ -155,6 +176,7 @@ describe("model-selection", () => {
     });
   });
 
+<<<<<<< HEAD
   describe("isCliProvider", () => {
     beforeEach(() => {
       setupRegistryRuntimeTesting.resetRuntimeState();
@@ -182,6 +204,8 @@ describe("model-selection", () => {
     });
   });
 
+=======
+>>>>>>> upstream/main
   describe("modelKey", () => {
     it("keeps canonical OpenRouter native ids without duplicating the provider", () => {
       expect(modelKey("openrouter", "openrouter/hunter-alpha")).toBe("openrouter/hunter-alpha");
@@ -195,11 +219,22 @@ describe("model-selection", () => {
       expected: { provider: string; model: string },
     ) => {
       for (const raw of variants) {
+<<<<<<< HEAD
         expect(parseModelRef(raw, defaultProvider), raw).toEqual(expected);
       }
     };
 
     it.each([
+=======
+        expect(
+          parseModelRef(raw, defaultProvider, { allowPluginNormalization: false }),
+          raw,
+        ).toEqual(expected);
+      }
+    };
+
+    const parseModelRefCases = [
+>>>>>>> upstream/main
       {
         name: "parses explicit provider/model refs",
         variants: ["anthropic/claude-3-5-sonnet"],
@@ -335,19 +370,44 @@ describe("model-selection", () => {
         defaultProvider: "google-vertex",
         expected: { provider: "google-vertex", model: "gemini-3.1-flash-lite-preview" },
       },
+<<<<<<< HEAD
     ])("$name", ({ variants, defaultProvider, expected }) => {
       expectParsedModelVariants(variants, defaultProvider, expected);
     });
 
     it("round-trips normalized refs through modelKey", () => {
       const parsed = parseModelRef(" opus-4.6 ", "anthropic");
+=======
+    ];
+
+    it("parses and normalizes provider/model refs", () => {
+      for (const { variants, defaultProvider, expected } of parseModelRefCases) {
+        expectParsedModelVariants(variants, defaultProvider, expected);
+      }
+    });
+
+    it("round-trips normalized refs through modelKey", () => {
+      const parsed = parseModelRef(" opus-4.6 ", "anthropic", {
+        allowPluginNormalization: false,
+      });
+>>>>>>> upstream/main
       expect(parsed).toEqual({ provider: "anthropic", model: "claude-opus-4-6" });
       expect(modelKey(parsed?.provider ?? "", parsed?.model ?? "")).toBe(
         "anthropic/claude-opus-4-6",
       );
     });
+<<<<<<< HEAD
     it.each(["", "  ", "/", "anthropic/", "/model"])("returns null for invalid ref %j", (raw) => {
       expect(parseModelRef(raw, "anthropic")).toBeNull();
+=======
+    it("returns null for invalid refs", () => {
+      for (const raw of ["", "  ", "/", "anthropic/", "/model"]) {
+        expect(
+          parseModelRef(raw, "anthropic", { allowPluginNormalization: false }),
+          raw,
+        ).toBeNull();
+      }
+>>>>>>> upstream/main
     });
   });
 

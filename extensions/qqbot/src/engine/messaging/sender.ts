@@ -596,6 +596,7 @@ async function sendMediaInternal(
     maxSize: Number.MAX_SAFE_INTEGER,
   });
 
+<<<<<<< HEAD
   const uploadResult = await dispatchUpload(
     ctx,
     scope,
@@ -623,6 +624,41 @@ async function sendMediaInternal(
 
   notifyMediaHook(opts.creds.appId, result, buildOutboundMeta(opts, source));
   return result;
+=======
+  try {
+    const uploadResult = await dispatchUpload(
+      ctx,
+      scope,
+      opts.target.id,
+      KIND_TO_FILE_TYPE[opts.kind],
+      source,
+      c,
+      opts.fileName,
+    );
+
+    // Content is semantically meaningful only for image / video — the voice
+    // and file APIs ignore it.
+    const msgContent = opts.kind === "image" || opts.kind === "video" ? opts.content : undefined;
+
+    const result = await ctx.mediaApi.sendMediaMessage(
+      scope,
+      opts.target.id,
+      uploadResult.file_info,
+      c,
+      {
+        msgId: opts.msgId,
+        content: msgContent,
+      },
+    );
+
+    notifyMediaHook(opts.creds.appId, result, buildOutboundMeta(opts, source));
+    return result;
+  } finally {
+    if (source.kind === "localPath") {
+      await source.opened?.close().catch(() => undefined);
+    }
+  }
+>>>>>>> upstream/main
 }
 
 /**
@@ -668,6 +704,15 @@ async function dispatchUpload(
           fileName,
         });
       }
+<<<<<<< HEAD
+=======
+      if (source.opened) {
+        return ctx.mediaApi.uploadMedia(scope, targetId, fileType, creds, {
+          buffer: await source.opened.handle.readFile(),
+          fileName,
+        });
+      }
+>>>>>>> upstream/main
       return ctx.mediaApi.uploadMedia(scope, targetId, fileType, creds, {
         localPath: source.path,
         fileName,

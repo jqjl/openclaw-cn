@@ -60,7 +60,11 @@ async function registerSubcommandsForCompletion(program: Command): Promise<void>
       continue;
     }
     try {
+<<<<<<< HEAD
       await registerSubCliByName(program, entry.name);
+=======
+      await registerSubCliByName(program, entry.name, process.argv, { purpose: "completion" });
+>>>>>>> upstream/main
     } catch (error) {
       writeCompletionRegistrationWarning(
         `skipping subcommand \`${entry.name}\` while building completion cache: ${error instanceof Error ? error.message : String(error)}`,

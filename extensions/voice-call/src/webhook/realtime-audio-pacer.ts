@@ -1,9 +1,15 @@
 const TELEPHONY_SAMPLE_RATE = 8_000;
 const TELEPHONY_CHUNK_BYTES = 160;
 const TELEPHONY_CHUNK_MS = 20;
+<<<<<<< HEAD
 const DEFAULT_SPEECH_RMS_THRESHOLD = 0.02;
 const DEFAULT_REQUIRED_LOUD_CHUNKS = 2;
 const DEFAULT_REQUIRED_QUIET_CHUNKS = 10;
+=======
+const DEFAULT_SPEECH_RMS_THRESHOLD = 0.035;
+const DEFAULT_REQUIRED_LOUD_CHUNKS = 4;
+const DEFAULT_REQUIRED_QUIET_CHUNKS = 12;
+>>>>>>> upstream/main
 const DEFAULT_MAX_QUEUED_AUDIO_BYTES = TELEPHONY_SAMPLE_RATE * 120;
 const PCM16_MAX_AMPLITUDE = 32768;
 const MULAW_LINEAR_SAMPLES = new Int16Array(256);
@@ -69,14 +75,26 @@ export class RealtimeTwilioAudioPacer {
     this.ensurePump();
   }
 
+<<<<<<< HEAD
   clearAudio(): void {
     if (this.closed) {
       return;
     }
+=======
+  clearAudio(): number {
+    if (this.closed) {
+      return 0;
+    }
+    const clearedAudioBytes = this.queuedAudioBytes;
+>>>>>>> upstream/main
     this.clearTimer();
     this.queue = [];
     this.queuedAudioBytes = 0;
     this.params.sendJson({ event: "clear", streamSid: this.params.streamSid });
+<<<<<<< HEAD
+=======
+    return clearedAudioBytes;
+>>>>>>> upstream/main
   }
 
   close(): void {

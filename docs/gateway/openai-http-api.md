@@ -5,14 +5,22 @@ read_when:
 title: "OpenAI chat completions"
 ---
 
+<<<<<<< HEAD
 OpenClaw’s Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
+=======
+OpenClaw's Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
+>>>>>>> upstream/main
 
 This endpoint is **disabled by default**. Enable it in config first.
 
 - `POST /v1/chat/completions`
 - Same port as the Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/v1/chat/completions`
 
+<<<<<<< HEAD
 When the Gateway’s OpenAI-compatible HTTP surface is enabled, it also serves:
+=======
+When the Gateway's OpenAI-compatible HTTP surface is enabled, it also serves:
+>>>>>>> upstream/main
 
 - `GET /v1/models`
 - `GET /v1/models/{id}`

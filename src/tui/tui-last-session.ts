@@ -1,7 +1,13 @@
 import { createHash } from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+=======
+import path from "node:path";
+import { resolveStateDir } from "../config/paths.js";
+import { privateFileStore } from "../infra/private-file-store.js";
+>>>>>>> upstream/main
 import { normalizeAgentId, parseAgentSessionKey } from "../routing/session-key.js";
 import type { TuiSessionList } from "./tui-backend.js";
 import type { SessionScope } from "./tui-types.js";
@@ -32,8 +38,14 @@ export function buildTuiLastSessionScopeKey(params: {
 
 async function readStore(filePath: string): Promise<LastSessionStore> {
   try {
+<<<<<<< HEAD
     const raw = await fs.readFile(filePath, "utf8");
     const parsed = JSON.parse(raw) as unknown;
+=======
+    const parsed = await privateFileStore(path.dirname(filePath)).readJsonIfExists(
+      path.basename(filePath),
+    );
+>>>>>>> upstream/main
     return parsed && typeof parsed === "object" && !Array.isArray(parsed)
       ? (parsed as LastSessionStore)
       : {};
@@ -42,6 +54,33 @@ async function readStore(filePath: string): Promise<LastSessionStore> {
   }
 }
 
+<<<<<<< HEAD
+=======
+function normalizeMarker(value: unknown): string {
+  return typeof value === "string" ? value.trim().toLowerCase() : "";
+}
+
+function isHeartbeatSessionKey(sessionKey: string): boolean {
+  return normalizeMarker(sessionKey).endsWith(":heartbeat");
+}
+
+export function isHeartbeatLikeTuiSession(session: TuiSessionList["sessions"][number]): boolean {
+  if (isHeartbeatSessionKey(session.key)) {
+    return true;
+  }
+  const markers = [
+    session.provider,
+    session.lastProvider,
+    session.lastChannel,
+    session.lastTo,
+    session.origin?.provider,
+    session.origin?.surface,
+    session.origin?.label,
+  ];
+  return markers.some((marker) => normalizeMarker(marker) === "heartbeat");
+}
+
+>>>>>>> upstream/main
 export async function readTuiLastSessionKey(params: {
   scopeKey: string;
   stateDir?: string;
@@ -57,7 +96,11 @@ export async function writeTuiLastSessionKey(params: {
   stateDir?: string;
 }): Promise<void> {
   const sessionKey = params.sessionKey.trim();
+<<<<<<< HEAD
   if (!sessionKey || sessionKey === "unknown") {
+=======
+  if (!sessionKey || sessionKey === "unknown" || isHeartbeatSessionKey(sessionKey)) {
+>>>>>>> upstream/main
     return;
   }
   const filePath = resolveTuiLastSessionStatePath(params.stateDir);
@@ -66,10 +109,15 @@ export async function writeTuiLastSessionKey(params: {
     sessionKey,
     updatedAt: Date.now(),
   };
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(filePath), { recursive: true, mode: 0o700 });
   await fs.writeFile(filePath, `${JSON.stringify(store, null, 2)}\n`, {
     encoding: "utf8",
     mode: 0o600,
+=======
+  await privateFileStore(path.dirname(filePath)).writeJson(path.basename(filePath), store, {
+    trailingNewline: true,
+>>>>>>> upstream/main
   });
 }
 
@@ -82,6 +130,12 @@ export function resolveRememberedTuiSessionKey(params: {
   if (!rememberedKey) {
     return null;
   }
+<<<<<<< HEAD
+=======
+  if (isHeartbeatSessionKey(rememberedKey)) {
+    return null;
+  }
+>>>>>>> upstream/main
   const currentAgentId = normalizeAgentId(params.currentAgentId);
   const parsed = parseAgentSessionKey(rememberedKey);
   if (parsed && normalizeAgentId(parsed.agentId) !== currentAgentId) {
@@ -89,6 +143,12 @@ export function resolveRememberedTuiSessionKey(params: {
   }
   const rememberedRest = parsed?.rest ?? rememberedKey;
   const match = params.sessions.find((session) => {
+<<<<<<< HEAD
+=======
+    if (isHeartbeatLikeTuiSession(session)) {
+      return false;
+    }
+>>>>>>> upstream/main
     if (session.key === rememberedKey) {
       return true;
     }

@@ -48,7 +48,11 @@ import { trackBackgroundTask, updateLastRouteInBackground } from "./last-route.j
 import { buildInboundLine } from "./message-line.js";
 import {
   buildHistoryContextFromEntries,
+<<<<<<< HEAD
   createChannelReplyPipeline,
+=======
+  createChannelMessageReplyPipeline,
+>>>>>>> upstream/main
   formatInboundEnvelope,
   logVerbose,
   normalizeE164,
@@ -380,7 +384,11 @@ export async function processMessage(params: {
         policy: inboundPolicy,
       })
     : undefined;
+<<<<<<< HEAD
   const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
+=======
+  const { onModelSelected, ...replyPipeline } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
     cfg: params.cfg,
     agentId: params.route.agentId,
     channel: "whatsapp",

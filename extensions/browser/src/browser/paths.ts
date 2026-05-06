@@ -1,8 +1,21 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { SafeOpenError, openFileWithinRoot } from "../infra/fs-safe.js";
 import { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+=======
+import path from "node:path";
+import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
+export {
+  resolveExistingPathsWithinRoot,
+  pathScope,
+  resolvePathsWithinRoot,
+  resolvePathWithinRoot,
+  resolveStrictExistingPathsWithinRoot,
+  resolveWritablePathWithinRoot,
+} from "../sdk-security-runtime.js";
+>>>>>>> upstream/main
 
 const DEFAULT_FALLBACK_BROWSER_TMP_DIR = "/tmp/openclaw";
 
@@ -28,6 +41,7 @@ const DEFAULT_BROWSER_TMP_DIR = canUseNodeFs()
 export const DEFAULT_TRACE_DIR = DEFAULT_BROWSER_TMP_DIR;
 export const DEFAULT_DOWNLOAD_DIR = path.join(DEFAULT_BROWSER_TMP_DIR, "downloads");
 export const DEFAULT_UPLOAD_DIR = path.join(DEFAULT_BROWSER_TMP_DIR, "uploads");
+<<<<<<< HEAD
 
 type InvalidPathResult = { ok: false; error: string };
 type ResolvePathsWithinRootParams = {
@@ -266,3 +280,5 @@ async function resolveCheckedPathsWithinRoot(
   }
   return { ok: true, paths: resolvedPaths };
 }
+=======
+>>>>>>> upstream/main

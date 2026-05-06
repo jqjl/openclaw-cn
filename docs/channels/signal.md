@@ -226,7 +226,11 @@ Groups:
 
 - Use `message action=react` with `channel=signal`.
 - Targets: sender E.164 or UUID (use `uuid:<id>` from pairing output; bare UUID works too).
+<<<<<<< HEAD
 - `messageId` is the Signal timestamp for the message you’re reacting to.
+=======
+- `messageId` is the Signal timestamp for the message you're reacting to.
+>>>>>>> upstream/main
 - Group reactions require `targetAuthor` or `targetAuthorUuid`.
 
 Examples:

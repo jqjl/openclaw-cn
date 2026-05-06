@@ -1,6 +1,10 @@
 import type { SlackActionMiddlewareArgs, SlackCommandMiddlewareArgs } from "@slack/bolt";
 import { resolveDefaultModelForAgent } from "openclaw/plugin-sdk/agent-runtime";
+<<<<<<< HEAD
 import { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+import { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import {
   formatCommandArgMenuTitle,
   resolveStoredModelOverride,
@@ -728,7 +732,11 @@ export async function registerSlackMonitorSlashCommands(params: {
           ),
       });
 
+<<<<<<< HEAD
       const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
+=======
+      const { onModelSelected, ...replyPipeline } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
         cfg,
         agentId: route.agentId,
         channel: "slack",

@@ -107,6 +107,7 @@ runtime before the provider request is made.
 
 This table maps common inference tasks to the corresponding infer command.
 
+<<<<<<< HEAD
 | Task                    | Command                                                                | Notes                                                |
 | ----------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- |
 | Run a text/model prompt | `openclaw infer model run --prompt "..." --json`                       | Uses the normal local path by default                |
@@ -119,6 +120,21 @@ This table maps common inference tasks to the corresponding infer command.
 | Search the web          | `openclaw infer web search --query "..." --json`                       |                                                      |
 | Fetch a web page        | `openclaw infer web fetch --url https://example.com --json`            |                                                      |
 | Create embeddings       | `openclaw infer embedding create --text "..." --json`                  |                                                      |
+=======
+| Task                         | Command                                                                                       | Notes                                                 |
+| ---------------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Run a text/model prompt      | `openclaw infer model run --prompt "..." --json`                                              | Uses the normal local path by default                 |
+| Run a model prompt on images | `openclaw infer model run --prompt "Describe this" --file ./image.png --model provider/model` | Repeat `--file` for multiple image inputs             |
+| Generate an image            | `openclaw infer image generate --prompt "..." --json`                                         | Use `image edit` when starting from an existing file  |
+| Describe an image file       | `openclaw infer image describe --file ./image.png --prompt "..." --json`                      | `--model` must be an image-capable `<provider/model>` |
+| Transcribe audio             | `openclaw infer audio transcribe --file ./memo.m4a --json`                                    | `--model` must be `<provider/model>`                  |
+| Synthesize speech            | `openclaw infer tts convert --text "..." --output ./speech.mp3 --json`                        | `tts status` is gateway-oriented                      |
+| Generate a video             | `openclaw infer video generate --prompt "..." --json`                                         | Supports provider hints such as `--resolution`        |
+| Describe a video file        | `openclaw infer video describe --file ./clip.mp4 --json`                                      | `--model` must be `<provider/model>`                  |
+| Search the web               | `openclaw infer web search --query "..." --json`                                              |                                                       |
+| Fetch a web page             | `openclaw infer web fetch --url https://example.com --json`                                   |                                                       |
+| Create embeddings            | `openclaw infer embedding create --text "..." --json`                                         |                                                       |
+>>>>>>> upstream/main
 
 ## Behavior
 
@@ -126,6 +142,10 @@ This table maps common inference tasks to the corresponding infer command.
 - Use `--json` when the output will be consumed by another command or script.
 - Use `--provider` or `--model provider/model` when a specific backend is required.
 - For `image describe`, `audio transcribe`, and `video describe`, `--model` must use the form `<provider/model>`.
+<<<<<<< HEAD
+=======
+- For `image describe`, an explicit `--model` runs that provider/model directly. The model must be image-capable in the model catalog or provider config. `codex/<model>` runs a bounded Codex app-server image-understanding turn; `openai-codex/<model>` uses the OpenAI Codex OAuth provider path.
+>>>>>>> upstream/main
 - Stateless execution commands default to local.
 - Gateway-managed state commands default to gateway.
 - The normal local path does not require the gateway to be running.
@@ -162,7 +182,12 @@ openclaw infer model run --local --model ollama/qwen2.5vl:7b --prompt "Describe 
 
 Notes:
 
+<<<<<<< HEAD
 - Local `model run` is the narrowest CLI smoke for provider/model/auth health because it sends only the supplied prompt to the selected model.
+=======
+- Local `model run` is the narrowest CLI smoke for provider/model/auth health because, for non-Codex providers, it sends only the supplied prompt to the selected model.
+- `openai-codex/*` local probes are the narrow exception: OpenClaw adds a minimal system instruction so the Codex Responses transport can populate its required `instructions` field, without adding full agent context, tools, memory, or session transcript.
+>>>>>>> upstream/main
 - Local `model run --file` keeps that lean path and attaches image content directly to the single user message. Common image files such as PNG, JPEG, and WebP work when their MIME type is detected as `image/*`; unsupported or unrecognized files fail before the provider is called.
 - `model run --file` is best when you want to test the selected multimodal text model directly. Use `infer image describe` when you want OpenClaw's image-understanding provider selection and default image-model routing.
 - The selected model must support image input; text-only models may reject the request at the provider layer.
@@ -186,12 +211,48 @@ openclaw infer image describe --file ./photo.jpg --json
 openclaw infer image describe --file ./receipt.jpg --prompt "Extract the merchant, date, and total" --json
 openclaw infer image describe-many --file ./before.png --file ./after.png --prompt "Compare the screenshots and list visible UI changes" --json
 openclaw infer image describe --file ./ui-screenshot.png --model openai/gpt-4.1-mini --json
+<<<<<<< HEAD
+=======
+openclaw infer image describe --file ./photo.jpg --model ollama/qwen2.5vl:7b --prompt "Describe the image in one sentence" --timeout-ms 300000 --json
+>>>>>>> upstream/main
 ```
 
 Notes:
 
 - Use `image edit` when starting from existing input files.
+<<<<<<< HEAD
 - For `image describe`, `--model` must be `<provider/model>`.
+=======
+- Use `--size`, `--aspect-ratio`, or `--resolution` with `image edit` for
+  providers/models that support geometry hints on reference-image edits.
+- Use `--output-format png --background transparent` with
+  `--model openai/gpt-image-1.5` for transparent-background OpenAI PNG output;
+  `--openai-background` remains available as an OpenAI-specific alias. Providers
+  that do not declare background support report the hint as an ignored override.
+- Use `image providers --json` to verify which bundled image providers are
+  discoverable, configured, selected, and which generation/edit capabilities
+  each provider exposes.
+- Use `image generate --model <provider/model> --json` as the narrowest live
+  CLI smoke for image generation changes. Example:
+
+  ```bash
+  openclaw infer image providers --json
+  openclaw infer image generate \
+    --model google/gemini-3.1-flash-image-preview \
+    --prompt "Minimal flat test image: one blue square on a white background, no text." \
+    --output ./openclaw-infer-image-smoke.png \
+    --json
+  ```
+
+  The JSON response reports `ok`, `provider`, `model`, `attempts`, and written
+  output paths. When `--output` is set, the final extension may follow the
+  provider's returned MIME type.
+
+- For `image describe` and `image describe-many`, use `--prompt` to give the vision model a task-specific instruction such as OCR, comparison, UI inspection, or concise captioning.
+- Use `--timeout-ms` with slow local vision models or cold Ollama starts.
+- For `image describe`, `--model` must be an image-capable `<provider/model>`.
+- For local Ollama vision models, pull the model first and set `OLLAMA_API_KEY` to any placeholder value, for example `ollama-local`. See [Ollama](/providers/ollama#vision-and-image-description).
+>>>>>>> upstream/main
 
 ## Audio
 
@@ -275,7 +336,11 @@ Infer commands normalize JSON output under a shared envelope:
   "capability": "image.generate",
   "transport": "local",
   "provider": "openai",
+<<<<<<< HEAD
   "model": "gpt-image-1",
+=======
+  "model": "gpt-image-2",
+>>>>>>> upstream/main
   "attempts": [],
   "outputs": []
 }

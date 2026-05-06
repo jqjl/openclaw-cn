@@ -388,6 +388,10 @@ describe("normalizeVoiceCallConfig", () => {
     expect(normalized.streaming.providers).toEqual({});
     expect(normalized.realtime.streamPath).toBe("/voice/stream/realtime");
     expect(normalized.realtime.toolPolicy).toBe("safe-read-only");
+<<<<<<< HEAD
+=======
+    expect(normalized.realtime.consultPolicy).toBe("auto");
+>>>>>>> upstream/main
     expect(normalized.realtime.fastContext).toEqual({
       enabled: false,
       timeoutMs: 800,
@@ -395,6 +399,17 @@ describe("normalizeVoiceCallConfig", () => {
       sources: ["memory", "sessions"],
       fallbackToConsult: false,
     });
+<<<<<<< HEAD
+=======
+    expect(normalized.realtime.agentContext).toEqual({
+      enabled: false,
+      maxChars: 6000,
+      includeIdentity: true,
+      includeSystemPrompt: true,
+      includeWorkspaceFiles: true,
+      files: ["SOUL.md", "IDENTITY.md", "USER.md"],
+    });
+>>>>>>> upstream/main
     expect(normalized.realtime.instructions).toContain("openclaw_agent_consult");
     expect(normalized.tunnel.provider).toBe("none");
     expect(normalized.webhookSecurity.allowedHosts).toEqual([]);
@@ -455,6 +470,10 @@ describe("resolveVoiceCallConfig", () => {
 
     expect(resolved.realtime.instructions).toBe("Stay concise.");
     expect(resolved.realtime.toolPolicy).toBe("safe-read-only");
+<<<<<<< HEAD
+=======
+    expect(resolved.realtime.consultPolicy).toBe("auto");
+>>>>>>> upstream/main
     expect(resolved.realtime.provider).toBeUndefined();
   });
 

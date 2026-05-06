@@ -116,6 +116,10 @@ function createSharePointSendContext(params: {
     ref: {},
     log: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
     conversationType: "groupChat" as const,
+<<<<<<< HEAD
+=======
+    replyStyle: "top-level" as const,
+>>>>>>> upstream/main
     tokenProvider: { getAccessToken: vi.fn(async () => "token") },
     mediaMaxBytes: 8 * 1024 * 1024,
     sharePointSiteId: params.siteId,
@@ -184,6 +188,10 @@ describe("sendMessageMSTeams", () => {
       ref: {},
       log: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
       conversationType: "personal",
+<<<<<<< HEAD
+=======
+      replyStyle: "top-level",
+>>>>>>> upstream/main
       tokenProvider: { getAccessToken: vi.fn(async () => "token") },
       mediaMaxBytes: 8 * 1024,
       sharePointSiteId: undefined,
@@ -200,7 +208,11 @@ describe("sendMessageMSTeams", () => {
       kind: "image",
     });
 
+<<<<<<< HEAD
     await sendMessageMSTeams({
+=======
+    const result = await sendMessageMSTeams({
+>>>>>>> upstream/main
       cfg: {} as OpenClawConfig,
       to: "conversation:19:conversation@thread.tacv2",
       text: "hello",
@@ -226,6 +238,14 @@ describe("sendMessageMSTeams", () => {
         ],
       }),
     );
+<<<<<<< HEAD
+=======
+    expect(result.receipt).toMatchObject({
+      primaryPlatformMessageId: "message-1",
+      platformMessageIds: ["message-1"],
+      parts: [expect.objectContaining({ platformMessageId: "message-1", kind: "media" })],
+    });
+>>>>>>> upstream/main
   });
 
   it("sends with provided cfg even when Teams runtime text helpers are unavailable", async () => {
@@ -238,6 +258,7 @@ describe("sendMessageMSTeams", () => {
     mockState.resolveMarkdownTableMode.mockReturnValue("off");
     mockState.convertMarkdownTables.mockReturnValue("hello");
 
+<<<<<<< HEAD
     await expect(
       sendMessageMSTeams({
         cfg: {} as OpenClawConfig,
@@ -247,6 +268,22 @@ describe("sendMessageMSTeams", () => {
     ).resolves.toEqual({
       messageId: "message-1",
       conversationId: "19:conversation@thread.tacv2",
+=======
+    const result = await sendMessageMSTeams({
+      cfg: {} as OpenClawConfig,
+      to: "conversation:19:conversation@thread.tacv2",
+      text: "hello",
+    });
+
+    expect(result).toMatchObject({
+      messageId: "message-1",
+      conversationId: "19:conversation@thread.tacv2",
+      receipt: {
+        primaryPlatformMessageId: "message-1",
+        platformMessageIds: ["message-1"],
+        parts: [expect.objectContaining({ platformMessageId: "message-1", kind: "text" })],
+      },
+>>>>>>> upstream/main
     });
 
     expect(mockState.resolveMarkdownTableMode).toHaveBeenCalledWith({
@@ -256,6 +293,65 @@ describe("sendMessageMSTeams", () => {
     expect(mockState.convertMarkdownTables).toHaveBeenCalledWith("hello", "off");
   });
 
+<<<<<<< HEAD
+=======
+  it("passes the resolved proactive replyStyle to text sends", async () => {
+    mockState.resolveMSTeamsSendContext.mockResolvedValue({
+      adapter: {},
+      appId: "app-id",
+      conversationId: "19:channel@thread.tacv2",
+      ref: {
+        threadId: "thread-root-1",
+        conversation: { id: "19:channel@thread.tacv2", conversationType: "channel" },
+      },
+      log: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      conversationType: "channel",
+      replyStyle: "thread",
+      tokenProvider: { getAccessToken: vi.fn(async () => "token") },
+      mediaMaxBytes: 8 * 1024,
+      sharePointSiteId: undefined,
+    });
+
+    await sendMessageMSTeams({
+      cfg: {} as OpenClawConfig,
+      to: "conversation:19:channel@thread.tacv2",
+      text: "threaded reply",
+    });
+
+    expect(mockState.sendMSTeamsMessages).toHaveBeenCalledWith(
+      expect.objectContaining({ replyStyle: "thread" }),
+    );
+  });
+
+  it("keeps top-level proactive replyStyle when resolved for a channel", async () => {
+    mockState.resolveMSTeamsSendContext.mockResolvedValue({
+      adapter: {},
+      appId: "app-id",
+      conversationId: "19:channel@thread.tacv2",
+      ref: {
+        threadId: "thread-root-1",
+        conversation: { id: "19:channel@thread.tacv2", conversationType: "channel" },
+      },
+      log: { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      conversationType: "channel",
+      replyStyle: "top-level",
+      tokenProvider: { getAccessToken: vi.fn(async () => "token") },
+      mediaMaxBytes: 8 * 1024,
+      sharePointSiteId: undefined,
+    });
+
+    await sendMessageMSTeams({
+      cfg: {} as OpenClawConfig,
+      to: "conversation:19:channel@thread.tacv2",
+      text: "top-level reply",
+    });
+
+    expect(mockState.sendMSTeamsMessages).toHaveBeenCalledWith(
+      expect.objectContaining({ replyStyle: "top-level" }),
+    );
+  });
+
+>>>>>>> upstream/main
   it("uses graphChatId instead of conversationId when uploading to SharePoint", async () => {
     // Simulates a group chat where Bot Framework conversationId is valid but we have
     // a resolved Graph chat ID cached from a prior send.

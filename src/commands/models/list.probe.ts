@@ -1,7 +1,15 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
+=======
+import {
+  resolveAgentDir,
+  resolveAgentWorkspaceDir,
+  resolveDefaultAgentId,
+} from "../../agents/agent-scope.js";
+>>>>>>> upstream/main
 import {
   type AuthProfileCredential,
   type AuthProfileEligibilityReasonCode,
@@ -522,7 +530,11 @@ async function runTargetsWithConcurrency(params: {
   const concurrency = Math.max(1, Math.min(targets.length || 1, params.concurrency));
 
   const agentId = params.agentId ?? resolveDefaultAgentId(cfg);
+<<<<<<< HEAD
   const agentDir = params.agentDir ?? resolveOpenClawAgentDir();
+=======
+  const agentDir = params.agentDir ?? resolveAgentDir(cfg, agentId);
+>>>>>>> upstream/main
   const workspaceDir =
     params.workspaceDir ??
     resolveAgentWorkspaceDir(cfg, agentId) ??

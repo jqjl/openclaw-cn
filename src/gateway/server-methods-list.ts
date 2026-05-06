@@ -56,12 +56,28 @@ const BASE_METHODS = [
   "wizard.next",
   "wizard.cancel",
   "wizard.status",
+<<<<<<< HEAD
   "talk.config",
   "talk.realtime.session",
   "talk.realtime.relayAudio",
   "talk.realtime.relayMark",
   "talk.realtime.relayStop",
   "talk.realtime.relayToolResult",
+=======
+  "talk.catalog",
+  "talk.config",
+  "talk.client.create",
+  "talk.client.toolCall",
+  "talk.session.create",
+  "talk.session.join",
+  "talk.session.appendAudio",
+  "talk.session.startTurn",
+  "talk.session.endTurn",
+  "talk.session.cancelTurn",
+  "talk.session.cancelOutput",
+  "talk.session.submitToolResult",
+  "talk.session.close",
+>>>>>>> upstream/main
   "talk.speak",
   "talk.mode",
   "commands.list",
@@ -70,6 +86,11 @@ const BASE_METHODS = [
   "tools.catalog",
   "tools.effective",
   "tools.invoke",
+<<<<<<< HEAD
+=======
+  "environments.list",
+  "environments.status",
+>>>>>>> upstream/main
   "agents.list",
   "agents.create",
   "agents.update",
@@ -180,6 +201,10 @@ export const GATEWAY_EVENTS = [
   "presence",
   "tick",
   "talk.mode",
+<<<<<<< HEAD
+=======
+  "talk.event",
+>>>>>>> upstream/main
   "shutdown",
   "health",
   "heartbeat",

@@ -18,11 +18,19 @@ import {
 } from "openclaw/plugin-sdk/plugin-config-runtime";
 import { definePluginEntry, type OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import { parseAgentSessionKey, parseThreadSessionSuffix } from "openclaw/plugin-sdk/routing";
+<<<<<<< HEAD
+=======
+import { isPathInside, replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   resolveSessionStoreEntry,
   updateSessionStore,
 } from "openclaw/plugin-sdk/session-store-runtime";
+<<<<<<< HEAD
 import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+=======
+import { tempWorkspace, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
+>>>>>>> upstream/main
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 const DEFAULT_AGENT_ID = "main";
@@ -248,6 +256,10 @@ const toggleStoreLocks = new Map<string, AsyncLock>();
 let lastActiveRecallCacheSweepAt = 0;
 let minimumTimeoutMs = DEFAULT_MIN_TIMEOUT_MS;
 let setupGraceTimeoutMs = DEFAULT_SETUP_GRACE_TIMEOUT_MS;
+<<<<<<< HEAD
+=======
+let timeoutPartialDataGraceMs = TIMEOUT_PARTIAL_DATA_GRACE_MS;
+>>>>>>> upstream/main
 
 function createAsyncLock(): AsyncLock {
   let lock: Promise<void> = Promise.resolve();
@@ -421,7 +433,11 @@ function resolveSafeTranscriptDir(baseSessionsDir: string, transcriptDir: string
   }
   const resolvedBase = path.resolve(baseSessionsDir);
   const candidate = path.resolve(resolvedBase, normalized);
+<<<<<<< HEAD
   if (candidate !== resolvedBase && !candidate.startsWith(resolvedBase + path.sep)) {
+=======
+  if (!isPathInside(resolvedBase, candidate)) {
+>>>>>>> upstream/main
     return path.resolve(resolvedBase, DEFAULT_TRANSCRIPT_DIR);
   }
   return candidate;
@@ -663,6 +679,7 @@ async function readToggleStore(statePath: string): Promise<ActiveMemoryToggleSto
 }
 
 async function writeToggleStore(statePath: string, store: ActiveMemoryToggleStore): Promise<void> {
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(statePath), { recursive: true });
   const tempPath = `${statePath}.${process.pid}.${Date.now()}.${crypto.randomUUID()}.tmp`;
   try {
@@ -671,6 +688,13 @@ async function writeToggleStore(statePath: string, store: ActiveMemoryToggleStor
   } finally {
     await fs.rm(tempPath, { force: true }).catch(() => undefined);
   }
+=======
+  await replaceFileAtomic({
+    filePath: statePath,
+    content: `${JSON.stringify(store, null, 2)}\n`,
+    tempPrefix: ".active-memory",
+  });
+>>>>>>> upstream/main
 }
 
 async function isSessionActiveMemoryDisabled(params: {
@@ -1906,7 +1930,11 @@ async function waitForSubagentPartialTimeoutData(
   }
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
   const timeoutPromise = new Promise<undefined>((resolve) => {
+<<<<<<< HEAD
     timeoutId = setTimeout(() => resolve(undefined), TIMEOUT_PARTIAL_DATA_GRACE_MS);
+=======
+    timeoutId = setTimeout(() => resolve(undefined), timeoutPartialDataGraceMs);
+>>>>>>> upstream/main
     timeoutId.unref?.();
   });
   try {
@@ -2377,9 +2405,19 @@ async function runRecallSubagent(params: {
   const subagentSessionKey = parentSessionKey
     ? `${parentSessionKey}:${subagentSuffix}`
     : `agent:${params.agentId}:${subagentSuffix}`;
+<<<<<<< HEAD
   const tempDir = params.config.persistTranscripts
     ? undefined
     : await fs.mkdtemp(path.join(resolvePreferredOpenClawTmpDir(), "openclaw-active-memory-"));
+=======
+  const transientWorkspace = params.config.persistTranscripts
+    ? undefined
+    : await tempWorkspace({
+        rootDir: resolvePreferredOpenClawTmpDir(),
+        prefix: "openclaw-active-memory-",
+      });
+  const tempDir = transientWorkspace?.dir;
+>>>>>>> upstream/main
   const persistedDir = params.config.persistTranscripts
     ? resolveSafeTranscriptDir(
         resolvePersistentTranscriptBaseDir(params.api, params.agentId),
@@ -2478,9 +2516,13 @@ async function runRecallSubagent(params: {
     }
     throw error;
   } finally {
+<<<<<<< HEAD
     if (tempDir) {
       await fs.rm(tempDir, { recursive: true, force: true }).catch(() => {});
     }
+=======
+    await transientWorkspace?.cleanup();
+>>>>>>> upstream/main
   }
 }
 
@@ -3009,6 +3051,10 @@ const testing = {
     lastActiveRecallCacheSweepAt = 0;
     minimumTimeoutMs = DEFAULT_MIN_TIMEOUT_MS;
     setupGraceTimeoutMs = DEFAULT_SETUP_GRACE_TIMEOUT_MS;
+<<<<<<< HEAD
+=======
+    timeoutPartialDataGraceMs = TIMEOUT_PARTIAL_DATA_GRACE_MS;
+>>>>>>> upstream/main
   },
   setMinimumTimeoutMsForTests(value: number) {
     minimumTimeoutMs = value;
@@ -3016,6 +3062,12 @@ const testing = {
   setSetupGraceTimeoutMsForTests(value: number) {
     setupGraceTimeoutMs = Math.max(0, Math.floor(value));
   },
+<<<<<<< HEAD
+=======
+  setTimeoutPartialDataGraceMsForTests(value: number) {
+    timeoutPartialDataGraceMs = Math.max(0, Math.floor(value));
+  },
+>>>>>>> upstream/main
   setCachedResult,
   getCircuitBreakerEntry(key: string) {
     return timeoutCircuitBreaker.get(key);

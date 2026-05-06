@@ -4,7 +4,11 @@ import { describe, expect, it } from "vitest";
 import { getRuntimeConfig } from "../config/config.js";
 import { parseLiveCsvFilter } from "../media-generation/live-test-helpers.js";
 import { runTasksWithConcurrency } from "../utils/run-with-concurrency.js";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+=======
+import { resolveDefaultAgentDir } from "./agent-scope.js";
+>>>>>>> upstream/main
 import { externalCliDiscoveryForProviders } from "./auth-profiles/external-cli-discovery.js";
 import {
   collectAnthropicApiKeys,
@@ -292,6 +296,10 @@ function isAudioOnlyModelErrorMessage(raw: string): boolean {
 function isUnsupportedReasoningEffortErrorMessage(raw: string): boolean {
   return (
     /does not support parameter reasoningeffort/i.test(raw) ||
+<<<<<<< HEAD
+=======
+    /invalid reasoning effort/i.test(raw) ||
+>>>>>>> upstream/main
     /unsupported value:\s*'low'.*reasoning\.effort.*supported values are:\s*'medium'/i.test(raw)
   );
 }
@@ -313,6 +321,18 @@ function isOpenRouterOpaqueBadRequestErrorMessage(raw: string): boolean {
   );
 }
 
+<<<<<<< HEAD
+=======
+describe("isUnsupportedReasoningEffortErrorMessage", () => {
+  it("matches provider-native reasoning effort rejections", () => {
+    expect(isUnsupportedReasoningEffortErrorMessage('Error: 400 "Invalid reasoning effort."')).toBe(
+      true,
+    );
+    expect(isUnsupportedReasoningEffortErrorMessage("Error: 400 model not found")).toBe(false);
+  });
+});
+
+>>>>>>> upstream/main
 describe("isUnsupportedPlanErrorMessage", () => {
   it("matches provider plan-gated models", () => {
     expect(isUnsupportedPlanErrorMessage("current token plan does not support this model")).toBe(
@@ -733,7 +753,11 @@ describeLive("live models (profile keys)", () => {
 
       const providers = parseProviderFilter(process.env.OPENCLAW_LIVE_PROVIDERS);
       const providerList = providers ? [...providers] : null;
+<<<<<<< HEAD
       const agentDir = resolveOpenClawAgentDir();
+=======
+      const agentDir = resolveDefaultAgentDir(cfg);
+>>>>>>> upstream/main
       const authStorage = discoverAuthStorage(agentDir, {
         config: cfg,
         env: process.env,

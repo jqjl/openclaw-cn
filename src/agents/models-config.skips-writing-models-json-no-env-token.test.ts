@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "./agent-paths.js";
+=======
+import { resolveDefaultAgentDir } from "./agent-scope.js";
+>>>>>>> upstream/main
 import {
   CUSTOM_PROXY_MODELS_CONFIG,
   installModelsConfigTestHooks,
@@ -107,7 +111,11 @@ async function runEnvProviderCase(params: {
   try {
     await ensureOpenClawModelsJson({});
 
+<<<<<<< HEAD
     const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
+=======
+    const modelPath = path.join(resolveDefaultAgentDir({}), "models.json");
+>>>>>>> upstream/main
     const raw = await fs.readFile(modelPath, "utf8");
     const parsed = JSON.parse(raw) as { providers: Record<string, ParsedProviderConfig> };
     const provider = parsed.providers[params.providerKey];
@@ -177,7 +185,11 @@ describe("models-config", () => {
     await withTempHome(async () => {
       await ensureOpenClawModelsJson(CUSTOM_PROXY_MODELS_CONFIG);
 
+<<<<<<< HEAD
       const modelPath = path.join(resolveOpenClawAgentDir(), "models.json");
+=======
+      const modelPath = path.join(resolveDefaultAgentDir({}), "models.json");
+>>>>>>> upstream/main
       const raw = await fs.readFile(modelPath, "utf8");
       const parsed = JSON.parse(raw) as {
         providers: Record<

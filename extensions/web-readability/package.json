@@ -1,6 +1,10 @@
 {
   "name": "@openclaw/web-readability-plugin",
+<<<<<<< HEAD
   "version": "2026.5.4",
+=======
+  "version": "2026.5.6",
+>>>>>>> upstream/main
   "private": true,
   "description": "OpenClaw local Readability web extraction plugin",
   "type": "module",

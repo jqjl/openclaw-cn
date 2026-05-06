@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 import { randomBytes } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { expandHomePrefix } from "../infra/home-dir.js";
+=======
+import fs from "node:fs";
+import path from "node:path";
+import { expandHomePrefix } from "../infra/home-dir.js";
+import { replaceFileAtomic } from "../infra/replace-file.js";
+>>>>>>> upstream/main
 import { resolveConfigDir } from "../utils.js";
 import { parseJsonWithJson5Fallback } from "../utils/parse-json-compat.js";
 import { tryCronScheduleIdentity } from "./schedule-identity.js";
@@ -329,6 +336,7 @@ async function setSecureFileMode(filePath: string): Promise<void> {
 }
 
 async function atomicWrite(filePath: string, content: string, dirMode = 0o700): Promise<void> {
+<<<<<<< HEAD
   const dir = path.dirname(filePath);
   await fs.promises.mkdir(dir, { recursive: true, mode: dirMode });
   await fs.promises.chmod(dir, dirMode).catch(() => undefined);
@@ -336,6 +344,17 @@ async function atomicWrite(filePath: string, content: string, dirMode = 0o700): 
   await fs.promises.writeFile(tmp, content, { encoding: "utf-8", mode: 0o600 });
   await renameWithRetry(tmp, filePath);
   await setSecureFileMode(filePath);
+=======
+  await replaceFileAtomic({
+    filePath,
+    content,
+    dirMode,
+    mode: 0o600,
+    tempPrefix: ".openclaw-cron",
+    renameMaxRetries: 3,
+    copyFallbackOnPermissionError: true,
+  });
+>>>>>>> upstream/main
 }
 
 async function serializedFileNeedsWrite(
@@ -409,6 +428,7 @@ export async function saveCronStore(
   }
   updatedCache.needsSplitMigration = stateOnly && migrating;
 }
+<<<<<<< HEAD
 
 const RENAME_MAX_RETRIES = 3;
 const RENAME_BASE_DELAY_MS = 50;
@@ -434,3 +454,5 @@ async function renameWithRetry(src: string, dest: string): Promise<void> {
     }
   }
 }
+=======
+>>>>>>> upstream/main

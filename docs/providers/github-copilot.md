@@ -29,7 +29,11 @@ provider in two different ways.
       </Step>
       <Step title="Set a default model">
         ```bash
+<<<<<<< HEAD
         openclaw models set github-copilot/claude-opus-4.6
+=======
+        openclaw models set github-copilot/claude-opus-4.7
+>>>>>>> upstream/main
         ```
 
         Or in config:
@@ -37,7 +41,11 @@ provider in two different ways.
         ```json5
         {
           agents: {
+<<<<<<< HEAD
             defaults: { model: { primary: "github-copilot/claude-opus-4.6" } },
+=======
+            defaults: { model: { primary: "github-copilot/claude-opus-4.7" } },
+>>>>>>> upstream/main
           },
         }
         ```

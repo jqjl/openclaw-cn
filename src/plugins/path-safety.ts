@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import { isPathInside as isBoundaryPathInside } from "../infra/path-guards.js";
 
@@ -31,3 +32,21 @@ export function safeStatSync(targetPath: string): fs.Stats | null {
 export function formatPosixMode(mode: number): string {
   return (mode & 0o777).toString(8).padStart(3, "0");
 }
+=======
+export {
+  isNotFoundPathError,
+  hasNodeErrorCode,
+  isNodeError,
+  isPathInside,
+  isPathInsideWithRealpath,
+  isSymlinkOpenError,
+  isWithinDir,
+  normalizeWindowsPathForComparison,
+  resolveSafeBaseDir,
+  resolveSafeRelativePath,
+  safeRealpathSync,
+  safeStatSync,
+  splitSafeRelativePath,
+  formatPosixMode,
+} from "../infra/path-safety.js";
+>>>>>>> upstream/main

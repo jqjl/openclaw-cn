@@ -44,3 +44,17 @@ export function buildMeetDtmfSequence(params: {
   }
   return compactPin.endsWith("#") ? compactPin : `${compactPin}#`;
 }
+<<<<<<< HEAD
+=======
+
+export function prefixDtmfWait(sequence: string | undefined, delayMs: number): string | undefined {
+  if (!sequence || delayMs <= 0) {
+    return sequence;
+  }
+  const waitCount = Math.ceil(delayMs / 500);
+  if (waitCount <= 0) {
+    return sequence;
+  }
+  return `${"w".repeat(waitCount)}${sequence}`;
+}
+>>>>>>> upstream/main

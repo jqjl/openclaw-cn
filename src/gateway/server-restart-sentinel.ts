@@ -34,8 +34,13 @@ import {
 } from "../infra/session-delivery-queue.js";
 import { enqueueSystemEvent } from "../infra/system-events.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+<<<<<<< HEAD
 import { stringifyRouteThreadId } from "../plugin-sdk/channel-route.js";
 import { recordInboundSessionAndDispatchReply } from "../plugin-sdk/inbound-reply-dispatch.js";
+=======
+import { recordChannelMessageReplyDispatch } from "../plugin-sdk/channel-message.js";
+import { stringifyRouteThreadId } from "../plugin-sdk/channel-route.js";
+>>>>>>> upstream/main
 import type { OutboundReplyPayload } from "../plugin-sdk/reply-payload.js";
 import {
   deliveryContextFromSession,
@@ -272,7 +277,11 @@ async function deliverQueuedSessionDelivery(params: {
     config: cfg,
   });
   let dispatchError: unknown;
+<<<<<<< HEAD
   await recordInboundSessionAndDispatchReply({
+=======
+  await recordChannelMessageReplyDispatch({
+>>>>>>> upstream/main
     cfg,
     channel: route.channel,
     accountId: route.accountId,

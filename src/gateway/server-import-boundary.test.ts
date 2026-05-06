@@ -56,9 +56,30 @@ describe("gateway startup import boundaries", () => {
     const closeStart = serverImpl.indexOf("close: async (opts)");
     const hookStart = serverImpl.indexOf("runGlobalGatewayStopSafely", closeStart);
     const markStart = serverImpl.indexOf("markClosePreludeStarted();", closeStart);
+<<<<<<< HEAD
+=======
+    const markHelperStart = serverImpl.indexOf("const markClosePreludeStarted = () => {");
+    const markHelperEnd = serverImpl.indexOf("};", markHelperStart);
+    const postReadyStart = serverImpl.indexOf("scheduleGatewayPostReadyMaintenance({");
+    const postReadyEnd = serverImpl.indexOf("});", postReadyStart);
+    const postReadyBlock = serverImpl.slice(postReadyStart, postReadyEnd);
+>>>>>>> upstream/main
 
     expect(closeStart).toBeGreaterThan(-1);
     expect(markStart).toBeGreaterThan(closeStart);
     expect(markStart).toBeLessThan(hookStart);
+<<<<<<< HEAD
+=======
+    expect(markHelperStart).toBeGreaterThan(-1);
+    expect(serverImpl.slice(markHelperStart, markHelperEnd)).toContain(
+      "clearPostReadyMaintenanceTimer();",
+    );
+    expect(postReadyStart).toBeGreaterThan(-1);
+    expect(postReadyBlock).toContain("isClosing: () => closePreludeStarted");
+    expect(postReadyBlock).toContain("if (closePreludeStarted)");
+    expect(postReadyBlock).toContain(
+      "shouldStartCron: () => !closePreludeStarted && !gatewayCronStartHandled",
+    );
+>>>>>>> upstream/main
   });
 });

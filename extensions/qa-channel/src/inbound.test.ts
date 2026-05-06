@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { setQaChannelRuntime } from "../api.js";
 import { handleQaInbound, isHttpMediaUrl } from "./inbound.js";
 
+<<<<<<< HEAD
 const dispatchInboundReplyWithBaseMock = vi.hoisted(() => vi.fn());
 
 vi.mock("openclaw/plugin-sdk/inbound-reply-dispatch", () => ({
@@ -11,6 +12,20 @@ vi.mock("openclaw/plugin-sdk/inbound-reply-dispatch", () => ({
 
 beforeEach(() => {
   dispatchInboundReplyWithBaseMock.mockReset();
+=======
+const dispatchChannelMessageReplyWithBaseMock = vi.hoisted(() => vi.fn());
+
+vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/channel-message")>();
+  return {
+    ...actual,
+    dispatchChannelMessageReplyWithBase: dispatchChannelMessageReplyWithBaseMock,
+  };
+});
+
+beforeEach(() => {
+  dispatchChannelMessageReplyWithBaseMock.mockReset();
+>>>>>>> upstream/main
 });
 
 describe("isHttpMediaUrl", () => {
@@ -60,7 +75,14 @@ describe("handleQaInbound", () => {
       },
     });
 
+<<<<<<< HEAD
     expect(dispatchInboundReplyWithBaseMock).toHaveBeenCalledTimes(1);
     expect(dispatchInboundReplyWithBaseMock.mock.calls[0]?.[0].ctxPayload.WasMentioned).toBe(true);
+=======
+    expect(dispatchChannelMessageReplyWithBaseMock).toHaveBeenCalledTimes(1);
+    expect(dispatchChannelMessageReplyWithBaseMock.mock.calls[0]?.[0].ctxPayload.WasMentioned).toBe(
+      true,
+    );
+>>>>>>> upstream/main
   });
 });

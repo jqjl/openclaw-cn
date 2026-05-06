@@ -53,6 +53,13 @@ exit 0
     await fs.writeFile(launchctlPath, content, { mode: 0o755 });
   }
 
+<<<<<<< HEAD
+=======
+  async function writeFakeSleep(fakeBinDir: string) {
+    await fs.writeFile(path.join(fakeBinDir, "sleep"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+  }
+
+>>>>>>> upstream/main
   async function executeScript(scriptPath: string, env: Record<string, string>) {
     return await new Promise<{ code: number | null; stdout: string; stderr: string }>((resolve) => {
       execFile(
@@ -148,6 +155,10 @@ exit 0
       const fakeBinDir = path.join(tmpDir, "bin");
       const callsPath = path.join(tmpDir, "systemctl-calls.log");
       await fs.mkdir(fakeBinDir, { recursive: true });
+<<<<<<< HEAD
+=======
+      await writeFakeSleep(fakeBinDir);
+>>>>>>> upstream/main
       await fs.writeFile(
         path.join(fakeBinDir, "systemctl"),
         `#!/bin/sh
@@ -245,6 +256,10 @@ exit 1
       const fakeBinDir = path.join(tmpDir, "bin");
       const stateDir = path.join(tmpDir, "state");
       await fs.mkdir(fakeBinDir, { recursive: true });
+<<<<<<< HEAD
+=======
+      await writeFakeSleep(fakeBinDir);
+>>>>>>> upstream/main
       await writeFakeLaunchctl(
         fakeBinDir,
         `#!/bin/sh
@@ -284,6 +299,10 @@ exit 0
       const stateFile = path.join(tmpDir, "state-file");
       const markerPath = path.join(tmpDir, "launchctl-ran");
       await fs.mkdir(fakeBinDir, { recursive: true });
+<<<<<<< HEAD
+=======
+      await writeFakeSleep(fakeBinDir);
+>>>>>>> upstream/main
       await fs.writeFile(stateFile, "not a directory");
       await writeFakeLaunchctl(
         fakeBinDir,
@@ -315,6 +334,10 @@ exit 0
       const fakeBinDir = path.join(tmpDir, "bin");
       const stateDir = path.join(tmpDir, "state");
       await fs.mkdir(fakeBinDir, { recursive: true });
+<<<<<<< HEAD
+=======
+      await writeFakeSleep(fakeBinDir);
+>>>>>>> upstream/main
       await writeFakeLaunchctl(fakeBinDir);
 
       const { scriptPath } = await prepareAndReadScript({

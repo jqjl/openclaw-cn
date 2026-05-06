@@ -90,6 +90,10 @@ import { collectOption } from "./program/helpers.js";
 type CapabilityTransport = "local" | "gateway";
 const IMAGE_OUTPUT_FORMATS = ["png", "jpeg", "webp"] as const;
 const IMAGE_BACKGROUNDS = ["transparent", "opaque", "auto"] as const;
+<<<<<<< HEAD
+=======
+const LOCAL_MODEL_RUN_SYSTEM_PROMPT = "You are a personal assistant running inside OpenClaw.";
+>>>>>>> upstream/main
 
 type CapabilityMetadata = {
   id: string;
@@ -659,11 +663,23 @@ async function runModelRun(params: {
         'The codex provider is served by the Codex app-server agent runtime, not the local simple-completion transport. Use an openai/<model> ref with agents.defaults.agentRuntime.id: "codex", run through the gateway, or use /codex commands.',
       );
     }
+<<<<<<< HEAD
+=======
+    const localModelRunSystemPrompt =
+      prepared.selection.provider === "openai-codex" ||
+      prepared.model.api === "openai-codex-responses"
+        ? LOCAL_MODEL_RUN_SYSTEM_PROMPT
+        : undefined;
+>>>>>>> upstream/main
     const result = await completeWithPreparedSimpleCompletionModel({
       model: prepared.model,
       auth: prepared.auth,
       cfg,
       context: {
+<<<<<<< HEAD
+=======
+        ...(localModelRunSystemPrompt ? { systemPrompt: localModelRunSystemPrompt } : {}),
+>>>>>>> upstream/main
         messages: [
           {
             role: "user",
@@ -681,8 +697,18 @@ async function runModelRun(params: {
     });
     const text = collectModelRunText(result.content);
     if (!text) {
+<<<<<<< HEAD
       throw new Error(
         `No text output returned for provider "${prepared.selection.provider}" model "${prepared.selection.modelId}".`,
+=======
+      const providerErrorMessage = (result as { errorMessage?: unknown }).errorMessage;
+      const detail =
+        typeof providerErrorMessage === "string" && providerErrorMessage.trim()
+          ? `: ${providerErrorMessage.trim()}`
+          : "";
+      throw new Error(
+        `No text output returned for provider "${prepared.selection.provider}" model "${prepared.selection.modelId}"${detail}.`,
+>>>>>>> upstream/main
       );
     }
     return {

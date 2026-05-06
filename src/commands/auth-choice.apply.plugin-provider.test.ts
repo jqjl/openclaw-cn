@@ -58,11 +58,14 @@ vi.mock("../agents/workspace.js", () => ({
   resolveDefaultAgentWorkspaceDir,
 }));
 
+<<<<<<< HEAD
 const resolveOpenClawAgentDir = vi.hoisted(() => vi.fn(() => "/tmp/agent"));
 vi.mock("../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir,
 }));
 
+=======
+>>>>>>> upstream/main
 const applyAuthProfileConfig = vi.hoisted(() => vi.fn((config) => config));
 vi.mock("../plugins/provider-auth-helpers.js", () => ({
   applyAuthProfileConfig,

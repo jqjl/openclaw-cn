@@ -2,7 +2,11 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { openRootFileSync } from "../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 import { resolveBundledPluginsDir } from "../plugins/bundled-dir.js";
 import {
   getCachedPluginModuleLoader,
@@ -145,7 +149,11 @@ export function loadFacadeModuleAtLocationSync<T extends object>(params: {
     return cached as T;
   }
 
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
+=======
+  const opened = openRootFileSync({
+>>>>>>> upstream/main
     absolutePath: location.modulePath,
     rootPath: location.boundaryRoot,
     boundaryLabel:
@@ -224,7 +232,11 @@ export async function loadBundledPluginPublicSurfaceModule<T extends object>(par
     return cached as T;
   }
 
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
+=======
+  const opened = openRootFileSync({
+>>>>>>> upstream/main
     absolutePath: preparedLocation.modulePath,
     rootPath: preparedLocation.boundaryRoot,
     boundaryLabel:

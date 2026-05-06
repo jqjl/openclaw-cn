@@ -42,7 +42,11 @@ openclaw browser --browser-profile openclaw open https://example.com
 openclaw browser --browser-profile openclaw snapshot
 ```
 
+<<<<<<< HEAD
 If you get “Browser disabled”, enable it in config (see below) and restart the
+=======
+If you get "Browser disabled", enable it in config (see below) and restart the
+>>>>>>> upstream/main
 Gateway.
 
 If `openclaw browser` is missing entirely, or the agent says the browser tool
@@ -342,10 +346,17 @@ This is the default path for remote gateways.
 Notes:
 
 - The node host exposes its local browser control server via a **proxy command**.
+<<<<<<< HEAD
 - Profiles come from the node’s own `browser.profiles` config (same as local).
 - `nodeHost.browserProxy.allowProfiles` is optional. Leave it empty for the legacy/default behavior: all configured profiles remain reachable through the proxy, including profile create/delete routes.
 - If you set `nodeHost.browserProxy.allowProfiles`, OpenClaw treats it as a least-privilege boundary: only allowlisted profiles can be targeted, and persistent profile create/delete routes are blocked on the proxy surface.
 - Disable if you don’t want it:
+=======
+- Profiles come from the node's own `browser.profiles` config (same as local).
+- `nodeHost.browserProxy.allowProfiles` is optional. Leave it empty for the legacy/default behavior: all configured profiles remain reachable through the proxy, including profile create/delete routes.
+- If you set `nodeHost.browserProxy.allowProfiles`, OpenClaw treats it as a least-privilege boundary: only allowlisted profiles can be targeted, and persistent profile create/delete routes are blocked on the proxy surface.
+- Disable if you don't want it:
+>>>>>>> upstream/main
   - On the node: `nodeHost.browserProxy.enabled=false`
   - On the gateway: `gateway.nodes.browser.mode="off"`
 
@@ -422,6 +433,7 @@ Some hosted browser services expose a **direct WebSocket** endpoint rather than
 the standard HTTP-based CDP discovery (`/json/version`). OpenClaw accepts three
 CDP URL shapes and picks the right connection strategy automatically:
 
+<<<<<<< HEAD
 - **HTTP(S) discovery** — `http://host[:port]` or `https://host[:port]`.
   OpenClaw calls `/json/version` to discover the WebSocket debugger URL, then
   connects. No WebSocket fallback.
@@ -430,6 +442,16 @@ CDP URL shapes and picks the right connection strategy automatically:
   path. OpenClaw connects directly via a WebSocket handshake and skips
   `/json/version` entirely.
 - **Bare WebSocket roots** — `ws://host[:port]` or `wss://host[:port]` with no
+=======
+- **HTTP(S) discovery** - `http://host[:port]` or `https://host[:port]`.
+  OpenClaw calls `/json/version` to discover the WebSocket debugger URL, then
+  connects. No WebSocket fallback.
+- **Direct WebSocket endpoints** - `ws://host[:port]/devtools/<kind>/<id>` or
+  `wss://...` with a `/devtools/browser|page|worker|shared_worker|service_worker/<id>`
+  path. OpenClaw connects directly via a WebSocket handshake and skips
+  `/json/version` entirely.
+- **Bare WebSocket roots** - `ws://host[:port]` or `wss://host[:port]` with no
+>>>>>>> upstream/main
   `/devtools/...` path (e.g. [Browserless](https://browserless.io),
   [Browserbase](https://www.browserbase.com)). OpenClaw tries HTTP
   `/json/version` discovery first (normalising the scheme to `http`/`https`);
@@ -481,7 +503,11 @@ Notes:
 
 Key ideas:
 
+<<<<<<< HEAD
 - Browser control is loopback-only; access flows through the Gateway’s auth or node pairing.
+=======
+- Browser control is loopback-only; access flows through the Gateway's auth or node pairing.
+>>>>>>> upstream/main
 - The standalone loopback browser HTTP API uses **shared-secret auth only**:
   gateway token bearer auth, `x-openclaw-password`, or HTTP Basic auth with the
   configured gateway password.
@@ -512,7 +538,11 @@ Defaults:
 - The `openclaw` profile is auto-created if missing.
 - The `user` profile is built-in for Chrome MCP existing-session attach.
 - Existing-session profiles are opt-in beyond `user`; create them with `--driver existing-session`.
+<<<<<<< HEAD
 - Local CDP ports allocate from **18800–18899** by default.
+=======
+- Local CDP ports allocate from **18800-18899** by default.
+>>>>>>> upstream/main
 - Deleting a profile moves its local data directory to Trash.
 
 All control endpoints accept `?profile=<name>`; the CLI uses `--browser-profile`.
@@ -598,7 +628,11 @@ What to check if attach does not work:
 
 Agent use:
 
+<<<<<<< HEAD
 - Use `profile="user"` when you need the user’s logged-in browser state.
+=======
+- Use `profile="user"` when you need the user's logged-in browser state.
+>>>>>>> upstream/main
 - If you use a custom existing-session profile, pass that explicit profile name.
 - Only choose this mode when the user is at the computer to approve the attach
   prompt.
@@ -641,10 +675,17 @@ directory.
 
 Compared to the managed `openclaw` profile, existing-session drivers are more constrained:
 
+<<<<<<< HEAD
 - **Screenshots** — page captures and `--ref` element captures work; CSS `--element` selectors do not. `--full-page` cannot combine with `--ref` or `--element`. Playwright is not required for page or ref-based element screenshots.
 - **Actions** — `click`, `type`, `hover`, `scrollIntoView`, `drag`, and `select` require snapshot refs (no CSS selectors). `click-coords` clicks visible viewport coordinates and does not require a snapshot ref. `click` is left-button only. `type` does not support `slowly=true`; use `fill` or `press`. `press` does not support `delayMs`. `type`, `hover`, `scrollIntoView`, `drag`, `select`, `fill`, and `evaluate` do not support per-call timeouts. `select` accepts a single value.
 - **Wait / upload / dialog** — `wait --url` supports exact, substring, and glob patterns; `wait --load networkidle` is not supported. Upload hooks require `ref` or `inputRef`, one file at a time, no CSS `element`. Dialog hooks do not support timeout overrides.
 - **Managed-only features** — batch actions, PDF export, download interception, and `responsebody` still require the managed browser path.
+=======
+- **Screenshots** - page captures and `--ref` element captures work; CSS `--element` selectors do not. `--full-page` cannot combine with `--ref` or `--element`. Playwright is not required for page or ref-based element screenshots.
+- **Actions** - `click`, `type`, `hover`, `scrollIntoView`, `drag`, and `select` require snapshot refs (no CSS selectors). `click-coords` clicks visible viewport coordinates and does not require a snapshot ref. `click` is left-button only. `type` does not support `slowly=true`; use `fill` or `press`. `press` does not support `delayMs`. `type`, `hover`, `scrollIntoView`, `drag`, `select`, `fill`, and `evaluate` do not support per-call timeouts. `select` accepts a single value.
+- **Wait / upload / dialog** - `wait --url` supports exact, substring, and glob patterns; `wait --load networkidle` is not supported. Upload hooks require `ref` or `inputRef`, one file at a time, no CSS `element`. Dialog hooks do not support timeout overrides.
+- **Managed-only features** - batch actions, PDF export, download interception, and `responsebody` still require the managed browser path.
+>>>>>>> upstream/main
 
 </Accordion>
 
@@ -679,6 +720,7 @@ Platforms:
 
 ## Control API (optional)
 
+<<<<<<< HEAD
 For local integrations only, the Gateway exposes a small loopback HTTP API:
 
 - Status/start/stop: `GET /`, `POST /start`, `POST /stop`
@@ -1007,6 +1049,12 @@ Strict-mode example (block private/internal destinations by default):
   },
 }
 ```
+=======
+For scripting and debugging, the Gateway exposes a small **loopback-only HTTP
+control API** plus a matching `openclaw browser` CLI (snapshots, refs, wait
+power-ups, JSON output, debug workflows). See
+[Browser control API](/tools/browser-control) for the full reference.
+>>>>>>> upstream/main
 
 ## Troubleshooting
 
@@ -1064,7 +1112,11 @@ Security guidance:
 
 The agent gets **one tool** for browser automation:
 
+<<<<<<< HEAD
 - `browser` — doctor/status/start/stop/tabs/open/focus/close/snapshot/screenshot/navigate/act
+=======
+- `browser` - doctor/status/start/stop/tabs/open/focus/close/snapshot/screenshot/navigate/act
+>>>>>>> upstream/main
 
 How it maps:
 
@@ -1083,6 +1135,12 @@ This keeps the agent deterministic and avoids brittle selectors.
 
 ## Related
 
+<<<<<<< HEAD
 - [Tools Overview](/tools) — all available agent tools
 - [Sandboxing](/gateway/sandboxing) — browser control in sandboxed environments
 - [Security](/gateway/security) — browser control risks and hardening
+=======
+- [Tools Overview](/tools) - all available agent tools
+- [Sandboxing](/gateway/sandboxing) - browser control in sandboxed environments
+- [Security](/gateway/security) - browser control risks and hardening
+>>>>>>> upstream/main

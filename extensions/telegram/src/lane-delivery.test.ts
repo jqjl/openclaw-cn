@@ -1,11 +1,16 @@
 import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
 import { describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
 import {
   createSequencedTestDraftStream,
   createTestDraftStream,
 } from "./draft-stream.test-helpers.js";
 import {
   type ArchivedPreview,
+=======
+import { createTestDraftStream } from "./draft-stream.test-helpers.js";
+import {
+>>>>>>> upstream/main
   createLaneTextDeliverer,
   type DraftLaneState,
   type LaneDeliveryResult,
@@ -16,6 +21,7 @@ const HELLO_FINAL = "Hello final";
 
 function createHarness(params?: {
   answerMessageId?: number;
+<<<<<<< HEAD
   draftMaxChars?: number;
   answerMessageIdAfterStop?: number;
   answerStream?: DraftLaneState["stream"];
@@ -31,10 +37,21 @@ function createHarness(params?: {
       messageId: params?.answerMessageId,
       visibleSinceMs: params?.answerPreviewVisibleSinceMs,
     });
+=======
+  answerStream?: DraftLaneState["stream"] | null;
+  draftMaxChars?: number;
+  splitFinalTextForStream?: (text: string) => readonly string[];
+}) {
+  const answer =
+    params?.answerStream === null
+      ? undefined
+      : (params?.answerStream ?? createTestDraftStream({ messageId: params?.answerMessageId }));
+>>>>>>> upstream/main
   const reasoning = createTestDraftStream();
   const lanes: Record<LaneName, DraftLaneState> = {
     answer: {
       stream: answer,
+<<<<<<< HEAD
       lastPartialText: params?.answerLastPartialText ?? "",
       hasStreamedMessage: params?.answerHasStreamedMessage ?? false,
     },
@@ -42,6 +59,17 @@ function createHarness(params?: {
       stream: reasoning as DraftLaneState["stream"],
       lastPartialText: "",
       hasStreamedMessage: false,
+=======
+      lastPartialText: "",
+      hasStreamedMessage: false,
+      finalized: false,
+    },
+    reasoning: {
+      stream: reasoning,
+      lastPartialText: "",
+      hasStreamedMessage: false,
+      finalized: false,
+>>>>>>> upstream/main
     },
   };
   const sendPayload = vi.fn().mockResolvedValue(true);
@@ -49,6 +77,7 @@ function createHarness(params?: {
     await lane.stream?.flush();
   });
   const stopDraftLane = vi.fn().mockImplementation(async (lane: DraftLaneState) => {
+<<<<<<< HEAD
     if (lane === lanes.answer && params?.answerMessageIdAfterStop !== undefined) {
       (answer as { setMessageId?: (value: number | undefined) => void }).setMessageId?.(
         params.answerMessageIdAfterStop,
@@ -80,11 +109,35 @@ function createHarness(params?: {
     log,
     markDelivered,
     now: params?.nowMs != null ? () => params.nowMs! : undefined,
+=======
+    await lane.stream?.stop();
+  });
+  const clearDraftLane = vi.fn().mockImplementation(async (lane: DraftLaneState) => {
+    await lane.stream?.clear();
+  });
+  const editStreamMessage = vi.fn().mockResolvedValue(undefined);
+  const log = vi.fn();
+  const markDelivered = vi.fn();
+
+  const deliverLaneText = createLaneTextDeliverer({
+    lanes,
+    draftMaxChars: params?.draftMaxChars ?? 4_096,
+    applyTextToPayload: (payload: ReplyPayload, text: string) => ({ ...payload, text }),
+    splitFinalTextForStream: params?.splitFinalTextForStream,
+    sendPayload,
+    flushDraftLane,
+    stopDraftLane,
+    clearDraftLane,
+    editStreamMessage,
+    log,
+    markDelivered,
+>>>>>>> upstream/main
   });
 
   return {
     deliverLaneText,
     lanes,
+<<<<<<< HEAD
     answer: {
       stream: answer,
       setMessageId: (answer as { setMessageId?: (value: number | undefined) => void }).setMessageId,
@@ -97,6 +150,17 @@ function createHarness(params?: {
     log,
     markDelivered,
     archivedAnswerPreviews,
+=======
+    answer,
+    reasoning,
+    sendPayload,
+    flushDraftLane,
+    stopDraftLane,
+    clearDraftLane,
+    editStreamMessage,
+    log,
+    markDelivered,
+>>>>>>> upstream/main
   };
 }
 
@@ -109,6 +173,7 @@ async function deliverFinalAnswer(harness: ReturnType<typeof createHarness>, tex
   });
 }
 
+<<<<<<< HEAD
 async function expectFinalPreviewRetained(params: {
   harness: ReturnType<typeof createHarness>;
   text?: string;
@@ -148,6 +213,8 @@ async function expectFinalEditFallbackToSend(params: {
   );
 }
 
+=======
+>>>>>>> upstream/main
 function expectPreviewFinalized(
   result: LaneDeliveryResult,
 ): Extract<LaneDeliveryResult, { kind: "preview-finalized" }>["delivery"] {
@@ -159,11 +226,16 @@ function expectPreviewFinalized(
 }
 
 describe("createLaneTextDeliverer", () => {
+<<<<<<< HEAD
   it("finalizes text-only replies by editing an existing preview message", async () => {
+=======
+  it("finalizes text-only replies in the active stream message", async () => {
+>>>>>>> upstream/main
     const harness = createHarness({ answerMessageId: 999 });
 
     const result = await deliverFinalAnswer(harness, HELLO_FINAL);
 
+<<<<<<< HEAD
     expect(expectPreviewFinalized(result)).toEqual({ content: HELLO_FINAL, messageId: 999 });
     expect(harness.editPreview).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -482,10 +554,65 @@ describe("createLaneTextDeliverer", () => {
       visibleSinceMs,
       deleteIfUnused: true,
     });
+=======
+    expect(expectPreviewFinalized(result)).toMatchObject({
+      content: HELLO_FINAL,
+      messageId: 999,
+      receipt: { primaryPlatformMessageId: "999" },
+    });
+    expect(harness.answer?.update).toHaveBeenCalledWith(HELLO_FINAL);
+    expect(harness.stopDraftLane).toHaveBeenCalledTimes(1);
+    expect(harness.sendPayload).not.toHaveBeenCalled();
+    expect(harness.markDelivered).toHaveBeenCalledTimes(1);
+    expect(harness.lanes.answer.finalized).toBe(true);
+  });
+
+  it("streams block and final text through the same lane", async () => {
+    const harness = createHarness({ answerMessageId: 999 });
+
+    const blockResult = await harness.deliverLaneText({
+      laneName: "answer",
+      text: "working",
+      payload: { text: "working" },
+      infoKind: "block",
+    });
+    const finalResult = await deliverFinalAnswer(harness, "done");
+
+    expect(blockResult.kind).toBe("preview-updated");
+    expect(expectPreviewFinalized(finalResult)).toMatchObject({
+      content: "done",
+      messageId: 999,
+    });
+    expect(harness.answer?.update).toHaveBeenNthCalledWith(1, "working");
+    expect(harness.answer?.update).toHaveBeenNthCalledWith(2, "done");
+    expect(harness.flushDraftLane).toHaveBeenCalledTimes(1);
+    expect(harness.stopDraftLane).toHaveBeenCalledTimes(1);
+    expect(harness.sendPayload).not.toHaveBeenCalled();
+  });
+
+  it("uses normal final delivery when the stream edit leaves stale text", async () => {
+    const answer = createTestDraftStream({ messageId: 999 });
+    answer.lastDeliveredText.mockReturnValue("working");
+    const harness = createHarness({ answerStream: answer });
+
+    const result = await deliverFinalAnswer(harness, "done");
+
+    expect(result.kind).toBe("sent");
+    expect(answer.update).toHaveBeenCalledWith("done");
+    expect(harness.clearDraftLane).toHaveBeenCalledTimes(1);
+    expect(harness.sendPayload).toHaveBeenCalledWith({ text: "done" }, { durable: true });
+    expect(harness.markDelivered).not.toHaveBeenCalled();
+    expect(harness.lanes.answer.finalized).toBe(true);
+  });
+
+  it("falls back to normal delivery when no stream exists", async () => {
+    const harness = createHarness({ answerStream: null });
+>>>>>>> upstream/main
 
     const result = await deliverFinalAnswer(harness, HELLO_FINAL);
 
     expect(result.kind).toBe("sent");
+<<<<<<< HEAD
     expect(harness.sendPayload).toHaveBeenCalledWith(
       expect.objectContaining({ text: HELLO_FINAL }),
     );
@@ -677,13 +804,120 @@ describe("createLaneTextDeliverer", () => {
       laneName: "answer",
       text: "Final with media",
       payload: { text: "Final with media", mediaUrl: "file:///tmp/example.png" },
+=======
+    expect(harness.sendPayload).toHaveBeenCalledWith({ text: HELLO_FINAL }, { durable: true });
+    expect(harness.clearDraftLane).not.toHaveBeenCalled();
+    expect(harness.lanes.answer.finalized).toBe(true);
+  });
+
+  it("clears unfinalized stream state before non-stream final delivery", async () => {
+    const harness = createHarness({ answerMessageId: 999 });
+
+    const result = await harness.deliverLaneText({
+      laneName: "answer",
+      text: "photo",
+      payload: { text: "photo", mediaUrl: "https://example.com/a.png" },
+>>>>>>> upstream/main
       infoKind: "final",
     });
 
     expect(result.kind).toBe("sent");
+<<<<<<< HEAD
     expect(harness.sendPayload).toHaveBeenCalledWith(
       expect.objectContaining({ text: "Final with media", mediaUrl: "file:///tmp/example.png" }),
     );
     expect(harness.deletePreviewMessage).toHaveBeenCalledWith(4444);
+=======
+    expect(harness.clearDraftLane).toHaveBeenCalledTimes(1);
+    expect(harness.answer?.clear).toHaveBeenCalledTimes(1);
+    expect(harness.sendPayload).toHaveBeenCalledWith(
+      {
+        text: "photo",
+        mediaUrl: "https://example.com/a.png",
+      },
+      { durable: true },
+    );
+  });
+
+  it("streams the first long final chunk and sends follow-up chunks", async () => {
+    const harness = createHarness({
+      answerMessageId: 999,
+      draftMaxChars: 5,
+      splitFinalTextForStream: () => ["Hello", " world", " again"],
+    });
+
+    const result = await deliverFinalAnswer(harness, "Hello world again");
+
+    expect(expectPreviewFinalized(result)).toMatchObject({
+      content: "Hello world again",
+      messageId: 999,
+    });
+    expect(harness.answer?.update).toHaveBeenCalledWith("Hello");
+    expect(harness.sendPayload).toHaveBeenCalledTimes(2);
+    expect(harness.sendPayload).toHaveBeenNthCalledWith(1, { text: " world" });
+    expect(harness.sendPayload).toHaveBeenNthCalledWith(2, { text: " again" });
+  });
+
+  it("retains the streamed message when stop may have landed without a message id", async () => {
+    const answer = createTestDraftStream();
+    answer.sendMayHaveLanded.mockReturnValue(true);
+    const harness = createHarness({ answerStream: answer });
+
+    const result = await deliverFinalAnswer(harness, HELLO_FINAL);
+
+    expect(result.kind).toBe("preview-retained");
+    expect(answer.update).toHaveBeenCalledWith(HELLO_FINAL);
+    expect(harness.sendPayload).not.toHaveBeenCalled();
+    expect(harness.markDelivered).toHaveBeenCalledTimes(1);
+    expect(harness.lanes.answer.finalized).toBe(true);
+  });
+
+  it("attaches buttons to the stream message without sending a second reply", async () => {
+    const harness = createHarness({ answerMessageId: 999 });
+    const buttons = [[{ text: "OK", callback_data: "ok" }]];
+
+    const result = await harness.deliverLaneText({
+      laneName: "answer",
+      text: HELLO_FINAL,
+      payload: { text: HELLO_FINAL, channelData: { telegram: { buttons } } },
+      infoKind: "final",
+      buttons,
+    });
+
+    expect(expectPreviewFinalized(result)).toMatchObject({
+      content: HELLO_FINAL,
+      messageId: 999,
+    });
+    expect(harness.editStreamMessage).toHaveBeenCalledWith({
+      laneName: "answer",
+      messageId: 999,
+      text: HELLO_FINAL,
+      buttons,
+    });
+    expect(harness.sendPayload).not.toHaveBeenCalled();
+  });
+
+  it("keeps the stream delivery when button attachment fails", async () => {
+    const harness = createHarness({ answerMessageId: 999 });
+    const buttons = [[{ text: "OK", callback_data: "ok" }]];
+    harness.editStreamMessage.mockRejectedValue(new Error("400: button rejected"));
+
+    const result = await harness.deliverLaneText({
+      laneName: "answer",
+      text: HELLO_FINAL,
+      payload: { text: HELLO_FINAL, channelData: { telegram: { buttons } } },
+      infoKind: "final",
+      buttons,
+    });
+
+    expect(expectPreviewFinalized(result)).toMatchObject({
+      content: HELLO_FINAL,
+      messageId: 999,
+    });
+    expect(harness.sendPayload).not.toHaveBeenCalled();
+    expect(harness.log).toHaveBeenCalledWith(
+      "telegram: answer stream button edit failed: Error: 400: button rejected",
+    );
+>>>>>>> upstream/main
   });
 });

@@ -2,7 +2,10 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { StringDecoder } from "node:string_decoder";
+<<<<<<< HEAD
 import { CURRENT_SESSION_VERSION } from "@mariozechner/pi-coding-agent";
+=======
+>>>>>>> upstream/main
 import {
   acquireSessionWriteLock,
   type SessionWriteLockAcquireTimeoutConfig,
@@ -12,6 +15,18 @@ import {
 const TRANSCRIPT_APPEND_SCAN_CHUNK_BYTES = 64 * 1024;
 const SESSION_MANAGER_APPEND_MAX_BYTES = 8 * 1024 * 1024;
 
+<<<<<<< HEAD
+=======
+let piCodingAgentModulePromise: Promise<typeof import("@mariozechner/pi-coding-agent")> | null =
+  null;
+const transcriptAppendQueues = new Map<string, Promise<void>>();
+
+async function loadCurrentSessionVersion(): Promise<number> {
+  piCodingAgentModulePromise ??= import("@mariozechner/pi-coding-agent");
+  return (await piCodingAgentModulePromise).CURRENT_SESSION_VERSION;
+}
+
+>>>>>>> upstream/main
 type TranscriptLeafInfo = {
   leafId?: string;
   hasParentLinkedEntries: boolean;
@@ -117,6 +132,10 @@ async function migrateLinearTranscriptToParentLinked(transcriptPath: string): Pr
   leafId?: string;
 }> {
   const raw = await fs.readFile(transcriptPath, "utf-8");
+<<<<<<< HEAD
+=======
+  const currentSessionVersion = await loadCurrentSessionVersion();
+>>>>>>> upstream/main
   const existingIds = new Set<string>();
   const output: string[] = [];
   let previousId: string | null = null;
@@ -138,7 +157,11 @@ async function migrateLinearTranscriptToParentLinked(transcriptPath: string): Pr
     }
     const record = parsed as Record<string, unknown>;
     if (record.type === "session") {
+<<<<<<< HEAD
       output.push(JSON.stringify({ ...record, version: CURRENT_SESSION_VERSION }));
+=======
+      output.push(JSON.stringify({ ...record, version: currentSessionVersion }));
+>>>>>>> upstream/main
       continue;
     }
     const id = normalizeEntryId(record.id) ?? generateEntryId(existingIds);
@@ -170,10 +193,18 @@ async function ensureTranscriptHeader(
   if (stat?.isFile() && stat.size > 0) {
     return;
   }
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(transcriptPath), { recursive: true });
   const header = {
     type: "session",
     version: CURRENT_SESSION_VERSION,
+=======
+  const currentSessionVersion = await loadCurrentSessionVersion();
+  await fs.mkdir(path.dirname(transcriptPath), { recursive: true });
+  const header = {
+    type: "session",
+    version: currentSessionVersion,
+>>>>>>> upstream/main
     id: params.sessionId ?? randomUUID(),
     timestamp: new Date().toISOString(),
     cwd: params.cwd ?? process.cwd(),
@@ -185,6 +216,43 @@ async function ensureTranscriptHeader(
   });
 }
 
+<<<<<<< HEAD
+=======
+async function resolveTranscriptAppendQueueKey(transcriptPath: string): Promise<string> {
+  const resolvedTranscriptPath = path.resolve(transcriptPath);
+  const transcriptDir = path.dirname(resolvedTranscriptPath);
+  await fs.mkdir(transcriptDir, { recursive: true });
+  try {
+    return path.join(await fs.realpath(transcriptDir), path.basename(resolvedTranscriptPath));
+  } catch {
+    return resolvedTranscriptPath;
+  }
+}
+
+async function withTranscriptAppendQueue<T>(
+  transcriptPath: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const queueKey = await resolveTranscriptAppendQueueKey(transcriptPath);
+  const previous = transcriptAppendQueues.get(queueKey) ?? Promise.resolve();
+  let releaseCurrent!: () => void;
+  const current = new Promise<void>((resolve) => {
+    releaseCurrent = resolve;
+  });
+  const tail = previous.catch(() => undefined).then(() => current);
+  transcriptAppendQueues.set(queueKey, tail);
+  await previous.catch(() => undefined);
+  try {
+    return await fn();
+  } finally {
+    releaseCurrent();
+    if (transcriptAppendQueues.get(queueKey) === tail) {
+      transcriptAppendQueues.delete(queueKey);
+    }
+  }
+}
+
+>>>>>>> upstream/main
 export async function appendSessionTranscriptMessage(params: {
   transcriptPath: string;
   message: unknown;
@@ -194,6 +262,23 @@ export async function appendSessionTranscriptMessage(params: {
   useRawWhenLinear?: boolean;
   config?: SessionWriteLockAcquireTimeoutConfig;
 }): Promise<{ messageId: string }> {
+<<<<<<< HEAD
+=======
+  return await withTranscriptAppendQueue(params.transcriptPath, () =>
+    appendSessionTranscriptMessageLocked(params),
+  );
+}
+
+async function appendSessionTranscriptMessageLocked(params: {
+  transcriptPath: string;
+  message: unknown;
+  now?: number;
+  sessionId?: string;
+  cwd?: string;
+  useRawWhenLinear?: boolean;
+  config?: SessionWriteLockAcquireTimeoutConfig;
+}): Promise<{ messageId: string }> {
+>>>>>>> upstream/main
   const lock = await acquireSessionWriteLock({
     sessionFile: params.transcriptPath,
     timeoutMs: resolveSessionWriteLockAcquireTimeoutMs(params.config),

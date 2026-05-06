@@ -41,7 +41,11 @@ describe("slugifyWikiSegment", () => {
     const fileName = createWikiPageFilename(stem);
 
     expect(fileName.endsWith(".md")).toBe(true);
+<<<<<<< HEAD
     expect(Buffer.byteLength(fileName)).toBeLessThanOrEqual(255);
+=======
+    expect(Buffer.byteLength(`.${fileName}.fallback.tmp`)).toBeLessThanOrEqual(255);
+>>>>>>> upstream/main
     expect(createWikiPageFilename(stem)).toBe(fileName);
   });
 });

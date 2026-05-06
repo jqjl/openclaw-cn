@@ -207,13 +207,35 @@ export const ja_JP: TranslationMap = {
     autoThreshold: "自動しきい値",
     overflowRetry: "オーバーフロー時に再試行",
     timeoutRetry: "タイムアウト時に再試行",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} トークン",
+=======
+    tokenRange: "{before} to {after} トークン",
+>>>>>>> upstream/main
     tokensBefore: "前: {count} トークン",
     tokenDeltaUnavailable: "トークン差分を利用できません",
     checkpoints: "{count} 個のチェックポイント",
     checkpoint: "{count} 個のチェックポイント",
+<<<<<<< HEAD
     showCheckpoints: "チェックポイントを表示",
     hideCheckpoints: "チェックポイントを非表示",
+=======
+    showSessionDetails: "{count} のセッション詳細を表示",
+    hideSessionDetails: "{count} のセッション詳細を非表示",
+    sessionDetails: "セッション詳細",
+    compactionHistory: "圧縮履歴",
+    status: "ステータス",
+    model: "モデル",
+    provider: "プロバイダー",
+    runtime: "ランタイム",
+    surface: "サーフェス",
+    subject: "件名",
+    room: "ルーム",
+    space: "スペース",
+    sessionId: "セッション ID",
+    activeRun: "アクティブな実行",
+    archived: "アーカイブ済み",
+>>>>>>> upstream/main
     loadingCheckpoints: "チェックポイントを読み込み中…",
     noCheckpoints: "このセッションには圧縮チェックポイントが記録されていません。",
     noSummary: "要約は取得されていません。",

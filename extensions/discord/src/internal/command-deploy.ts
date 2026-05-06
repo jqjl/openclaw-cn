@@ -1,7 +1,13 @@
 import { createHash } from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { ApplicationCommandType, type APIApplicationCommand } from "discord-api-types/v10";
+=======
+import path from "node:path";
+import { ApplicationCommandType, type APIApplicationCommand } from "discord-api-types/v10";
+import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import {
   createApplicationCommand,
   deleteApplicationCommand,
@@ -147,9 +153,16 @@ export class DiscordCommandDeployer {
       return;
     }
     try {
+<<<<<<< HEAD
       const raw = await fs.readFile(storePath, "utf8");
       const parsed = JSON.parse(raw) as { hashes?: unknown };
       if (!parsed.hashes || typeof parsed.hashes !== "object") {
+=======
+      const parsed = await privateFileStore(path.dirname(storePath)).readJsonIfExists<{
+        hashes?: unknown;
+      }>(path.basename(storePath));
+      if (!parsed?.hashes || typeof parsed.hashes !== "object") {
+>>>>>>> upstream/main
         return;
       }
       for (const [key, value] of Object.entries(parsed.hashes)) {
@@ -168,6 +181,7 @@ export class DiscordCommandDeployer {
       return;
     }
     try {
+<<<<<<< HEAD
       await fs.mkdir(path.dirname(storePath), { recursive: true });
       const tmpPath = `${storePath}.${process.pid}.${Date.now()}.tmp`;
       await fs.writeFile(
@@ -186,6 +200,19 @@ export class DiscordCommandDeployer {
         "utf8",
       );
       await fs.rename(tmpPath, storePath);
+=======
+      await privateFileStore(path.dirname(storePath)).writeJson(
+        path.basename(storePath),
+        {
+          version: 1,
+          updatedAt: new Date().toISOString(),
+          hashes: Object.fromEntries(
+            [...this.hashes.entries()].toSorted(([left], [right]) => left.localeCompare(right)),
+          ),
+        },
+        { trailingNewline: true },
+      );
+>>>>>>> upstream/main
     } catch {
       // The cache is only an optimization to avoid redundant Discord writes.
     }

@@ -191,5 +191,10 @@ Page-filtered fallback model:
 
 ## Related
 
+<<<<<<< HEAD
 - [Tools Overview](/tools) — all available agent tools
 - [Configuration Reference](/gateway/config-agents#agent-defaults) — pdfMaxBytesMb and pdfMaxPages config
+=======
+- [Tools Overview](/tools) - all available agent tools
+- [Configuration Reference](/gateway/config-agents#agent-defaults) - pdfMaxBytesMb and pdfMaxPages config
+>>>>>>> upstream/main

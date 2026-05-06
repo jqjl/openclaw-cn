@@ -27,6 +27,11 @@ import {
   type GatewayService,
 } from "../../daemon/service.js";
 import { createLowDiskSpaceWarning } from "../../infra/disk-space.js";
+<<<<<<< HEAD
+=======
+import { pathExists } from "../../infra/fs-safe.js";
+import { readJsonIfExists, writeJson } from "../../infra/json-files.js";
+>>>>>>> upstream/main
 import { runGlobalPackageUpdateSteps } from "../../infra/package-update-steps.js";
 import { getSelfAndAncestorPidsSync } from "../../infra/restart-stale-pids.js";
 import { nodeVersionSatisfiesEngine } from "../../infra/runtime-guard.js";
@@ -58,6 +63,11 @@ import {
   withPluginInstallRecords,
 } from "../../plugins/installed-plugin-index-records.js";
 import {
+<<<<<<< HEAD
+=======
+  resolveTrustedSourceLinkedOfficialClawHubSpec,
+  resolveTrustedSourceLinkedOfficialNpmSpec,
+>>>>>>> upstream/main
   syncPluginsForUpdateChannel,
   updateNpmInstalledPlugins,
   type PluginUpdateIntegrityDriftParams,
@@ -111,6 +121,10 @@ const POST_CORE_UPDATE_ENV = "OPENCLAW_UPDATE_POST_CORE";
 const POST_CORE_UPDATE_CHANNEL_ENV = "OPENCLAW_UPDATE_POST_CORE_CHANNEL";
 const POST_CORE_UPDATE_REQUESTED_CHANNEL_ENV = "OPENCLAW_UPDATE_POST_CORE_REQUESTED_CHANNEL";
 const POST_CORE_UPDATE_RESULT_PATH_ENV = "OPENCLAW_UPDATE_POST_CORE_RESULT_PATH";
+<<<<<<< HEAD
+=======
+const POST_CORE_UPDATE_INSTALL_RECORDS_PATH_ENV = "OPENCLAW_UPDATE_POST_CORE_INSTALL_RECORDS_PATH";
+>>>>>>> upstream/main
 const POST_CORE_UPDATE_RESULT_POLL_MS = 100;
 const UPDATE_PARENT_SUPPORTS_DOCTOR_CONFIG_WRITE_ENV =
   "OPENCLAW_UPDATE_PARENT_SUPPORTS_DOCTOR_CONFIG_WRITE";
@@ -123,6 +137,10 @@ const POST_INSTALL_DOCTOR_SERVICE_ENV_KEYS = [
   ...SERVICE_REFRESH_PATH_ENV_KEYS,
   "OPENCLAW_PROFILE",
 ] as const;
+<<<<<<< HEAD
+=======
+const POST_UPDATE_PLUGIN_REPAIR_GUIDANCE = "Run openclaw doctor --fix to attempt automatic repair.";
+>>>>>>> upstream/main
 
 const UPDATE_QUIPS = [
   "Leveled up! New skills unlocked. You're welcome.",
@@ -157,6 +175,11 @@ type MissingPluginInstallPayload = {
   reason: "missing-install-path" | "missing-package-dir" | "missing-package-json";
 };
 
+<<<<<<< HEAD
+=======
+type PostUpdatePluginWarning = NonNullable<PostCorePluginUpdateResult["warnings"]>[number];
+
+>>>>>>> upstream/main
 function pickUpdateQuip(): string {
   return UPDATE_QUIPS[Math.floor(Math.random() * UPDATE_QUIPS.length)] ?? "Update complete.";
 }
@@ -174,6 +197,7 @@ function isTrackedPackageInstallRecord(record: PluginInstallRecord): boolean {
   );
 }
 
+<<<<<<< HEAD
 async function pathExists(filePath: string): Promise<boolean> {
   try {
     await fs.access(filePath);
@@ -181,12 +205,35 @@ async function pathExists(filePath: string): Promise<boolean> {
   } catch {
     return false;
   }
+=======
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function normalizePluginInstallRecordMap(value: unknown): Record<string, PluginInstallRecord> {
+  if (!isRecord(value)) {
+    return {};
+  }
+  const records: Record<string, PluginInstallRecord> = {};
+  for (const [pluginId, record] of Object.entries(value).toSorted(([left], [right]) =>
+    left.localeCompare(right),
+  )) {
+    if (isRecord(record) && typeof record.source === "string") {
+      records[pluginId] = structuredClone(record) as PluginInstallRecord;
+    }
+  }
+  return records;
+>>>>>>> upstream/main
 }
 
 export async function collectMissingPluginInstallPayloads(params: {
   records: Record<string, PluginInstallRecord>;
   config?: OpenClawConfig;
   skipDisabledPlugins?: boolean;
+<<<<<<< HEAD
+=======
+  syncOfficialPluginInstalls?: boolean;
+>>>>>>> upstream/main
   env?: NodeJS.ProcessEnv;
 }): Promise<MissingPluginInstallPayload[]> {
   const env = params.env ?? process.env;
@@ -201,6 +248,15 @@ export async function collectMissingPluginInstallPayloads(params: {
     if (!isTrackedPackageInstallRecord(record)) {
       continue;
     }
+<<<<<<< HEAD
+=======
+    const officialNpmSpec = params.syncOfficialPluginInstalls
+      ? resolveTrustedSourceLinkedOfficialNpmSpec({ pluginId, record })
+      : undefined;
+    const officialClawHubSpec = params.syncOfficialPluginInstalls
+      ? resolveTrustedSourceLinkedOfficialClawHubSpec({ pluginId, record })
+      : undefined;
+>>>>>>> upstream/main
     if (normalizedPluginConfig && params.config) {
       const enableState = resolveEffectiveEnableState({
         id: pluginId,
@@ -208,7 +264,11 @@ export async function collectMissingPluginInstallPayloads(params: {
         config: normalizedPluginConfig,
         rootConfig: params.config,
       });
+<<<<<<< HEAD
       if (!enableState.enabled) {
+=======
+      if (!enableState.enabled && !officialNpmSpec && !officialClawHubSpec) {
+>>>>>>> upstream/main
         continue;
       }
     }
@@ -240,6 +300,56 @@ function formatMissingPluginPayloadReason(entry: MissingPluginInstallPayload): s
   return `package directory is missing: ${entry.installPath}`;
 }
 
+<<<<<<< HEAD
+=======
+function formatPostUpdatePluginInspectGuidance(pluginId: string): string {
+  return `Run openclaw plugins inspect ${pluginId} --runtime --json for details.`;
+}
+
+function createPostUpdatePluginWarning(params: {
+  pluginId?: string;
+  reason: string;
+}): PostUpdatePluginWarning {
+  const reason = params.reason.trim() || "unknown plugin post-update failure";
+  const guidance = [
+    POST_UPDATE_PLUGIN_REPAIR_GUIDANCE,
+    ...(params.pluginId ? [formatPostUpdatePluginInspectGuidance(params.pluginId)] : []),
+  ];
+  return {
+    ...(params.pluginId ? { pluginId: params.pluginId } : {}),
+    reason,
+    message: params.pluginId
+      ? `Plugin "${params.pluginId}" could not be processed after the core update: ${reason} ${guidance.join(" ")}`
+      : `Plugin post-update processing could not complete after the core update: ${reason} ${guidance.join(" ")}`,
+    guidance,
+  };
+}
+
+function createGuidedPostUpdatePluginOutcome(outcome: PluginUpdateOutcome): {
+  outcome: PluginUpdateOutcome;
+  warning?: PostUpdatePluginWarning;
+} {
+  if (outcome.status !== "error" && !isDisabledAfterFailureOutcome(outcome)) {
+    return { outcome };
+  }
+  const warning = createPostUpdatePluginWarning({
+    ...(outcome.pluginId && outcome.pluginId !== "unknown" ? { pluginId: outcome.pluginId } : {}),
+    reason: outcome.message,
+  });
+  return {
+    outcome: {
+      ...outcome,
+      message: warning.message,
+    },
+    warning,
+  };
+}
+
+function isDisabledAfterFailureOutcome(outcome: PluginUpdateOutcome): boolean {
+  return outcome.status === "skipped" && outcome.message.includes("after plugin update failure");
+}
+
+>>>>>>> upstream/main
 export function shouldPrepareUpdatedInstallRestart(params: {
   updateMode: UpdateRunResult["mode"];
   serviceInstalled: boolean;
@@ -1029,6 +1139,10 @@ async function updatePluginsAfterCoreUpdate(params: {
   configSnapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>;
   opts: UpdateCommandOptions;
   timeoutMs: number;
+<<<<<<< HEAD
+=======
+  pluginInstallRecords?: Record<string, PluginInstallRecord>;
+>>>>>>> upstream/main
 }): Promise<PostCorePluginUpdateResult> {
   if (!params.configSnapshot.valid) {
     if (!params.opts.json) {
@@ -1050,6 +1164,10 @@ async function updatePluginsAfterCoreUpdate(params: {
         outcomes: [],
       },
       integrityDrifts: [],
+<<<<<<< HEAD
+=======
+      warnings: [],
+>>>>>>> upstream/main
     };
   }
 
@@ -1066,9 +1184,21 @@ async function updatePluginsAfterCoreUpdate(params: {
     defaultRuntime.log(theme.heading("Updating plugins..."));
   }
 
+<<<<<<< HEAD
   const pluginInstallRecords = await loadInstalledPluginIndexInstallRecords();
   const syncResult = await syncPluginsForUpdateChannel({
     config: withPluginInstallRecords(params.configSnapshot.sourceConfig, pluginInstallRecords),
+=======
+  const warnings: PostUpdatePluginWarning[] = [];
+  const pluginInstallRecords =
+    params.pluginInstallRecords ?? (await loadInstalledPluginIndexInstallRecords());
+  const syncConfig = withPluginInstallRecords(
+    params.configSnapshot.sourceConfig,
+    pluginInstallRecords,
+  );
+  const syncResult = await syncPluginsForUpdateChannel({
+    config: syncConfig,
+>>>>>>> upstream/main
     channel: params.channel,
     workspaceDir: params.root,
     externalizedBundledPluginBridges: await listPersistedBundledPluginLocationBridges({
@@ -1076,6 +1206,12 @@ async function updatePluginsAfterCoreUpdate(params: {
     }),
     logger: pluginLogger,
   });
+<<<<<<< HEAD
+=======
+  for (const error of syncResult.summary.errors) {
+    warnings.push(createPostUpdatePluginWarning({ reason: error }));
+  }
+>>>>>>> upstream/main
   let pluginConfig = syncResult.config;
   const integrityDrifts: PostCorePluginUpdateResult["integrityDrifts"] = [];
   const pluginUpdateOutcomes: PluginUpdateOutcome[] = [];
@@ -1106,18 +1242,27 @@ async function updatePluginsAfterCoreUpdate(params: {
     return false;
   };
 
+<<<<<<< HEAD
   const repairMissingPayloads = async (
+=======
+  const collectMissingPayloadWarnings = async (
+>>>>>>> upstream/main
     records: Record<string, PluginInstallRecord>,
   ): Promise<readonly string[]> => {
     const missing = await collectMissingPluginInstallPayloads({
       records,
       config: pluginConfig,
       skipDisabledPlugins: true,
+<<<<<<< HEAD
+=======
+      syncOfficialPluginInstalls: true,
+>>>>>>> upstream/main
     });
     if (missing.length === 0) {
       return [];
     }
     const missingIds = missing.map((entry) => entry.pluginId);
+<<<<<<< HEAD
     if (!params.opts.json) {
       defaultRuntime.log(
         theme.warn(
@@ -1126,6 +1271,22 @@ async function updatePluginsAfterCoreUpdate(params: {
             .join(", ")}.`,
         ),
       );
+=======
+    for (const entry of missing) {
+      const warning = createPostUpdatePluginWarning({
+        pluginId: entry.pluginId,
+        reason: `Plugin install payload missing after update: ${formatMissingPluginPayloadReason(entry)}.`,
+      });
+      warnings.push(warning);
+      pluginUpdateOutcomes.push({
+        pluginId: entry.pluginId,
+        status: "error",
+        message: warning.message,
+      });
+      if (!params.opts.json) {
+        defaultRuntime.log(theme.warn(warning.message));
+      }
+>>>>>>> upstream/main
     }
     const repairResult = await updateNpmInstalledPlugins({
       config: pluginConfig,
@@ -1133,6 +1294,10 @@ async function updatePluginsAfterCoreUpdate(params: {
       timeoutMs: params.timeoutMs,
       updateChannel: params.channel,
       skipDisabledPlugins: true,
+<<<<<<< HEAD
+=======
+      syncOfficialPluginInstalls: true,
+>>>>>>> upstream/main
       disableOnFailure: true,
       logger: pluginLogger,
       onIntegrityDrift: onPluginIntegrityDrift,
@@ -1144,16 +1309,26 @@ async function updatePluginsAfterCoreUpdate(params: {
     return missingIds;
   };
 
+<<<<<<< HEAD
   const repairedMissingPayloadIds = await repairMissingPayloads(
     pluginConfig.plugins?.installs ?? {},
   );
+=======
+  const missingPayloadIds = await collectMissingPayloadWarnings(pluginInstallRecords);
+>>>>>>> upstream/main
 
   const npmResult = await updateNpmInstalledPlugins({
     config: pluginConfig,
     timeoutMs: params.timeoutMs,
     updateChannel: params.channel,
+<<<<<<< HEAD
     skipIds: new Set([...syncResult.summary.switchedToNpm, ...repairedMissingPayloadIds]),
     skipDisabledPlugins: true,
+=======
+    skipIds: new Set([...syncResult.summary.switchedToNpm, ...missingPayloadIds]),
+    skipDisabledPlugins: true,
+    syncOfficialPluginInstalls: true,
+>>>>>>> upstream/main
     disableOnFailure: true,
     logger: pluginLogger,
     onIntegrityDrift: onPluginIntegrityDrift,
@@ -1161,12 +1336,23 @@ async function updatePluginsAfterCoreUpdate(params: {
   pluginConfig = npmResult.config;
   pluginsChanged ||= npmResult.changed;
   npmPluginsChanged ||= npmResult.changed;
+<<<<<<< HEAD
   pluginUpdateOutcomes.push(...npmResult.outcomes);
+=======
+  for (const rawOutcome of npmResult.outcomes) {
+    const guided = createGuidedPostUpdatePluginOutcome(rawOutcome);
+    pluginUpdateOutcomes.push(guided.outcome);
+    if (guided.warning) {
+      warnings.push(guided.warning);
+    }
+  }
+>>>>>>> upstream/main
 
   const remainingMissingPayloads = await collectMissingPluginInstallPayloads({
     records: pluginConfig.plugins?.installs ?? {},
     config: pluginConfig,
     skipDisabledPlugins: true,
+<<<<<<< HEAD
   });
   pluginUpdateOutcomes.push(
     ...remainingMissingPayloads.map(
@@ -1176,6 +1362,25 @@ async function updatePluginsAfterCoreUpdate(params: {
         message: `Plugin install payload missing after update: ${formatMissingPluginPayloadReason(entry)}.`,
       }),
     ),
+=======
+    syncOfficialPluginInstalls: true,
+  });
+  pluginUpdateOutcomes.push(
+    ...remainingMissingPayloads
+      .filter((entry) => !missingPayloadIds.includes(entry.pluginId))
+      .map((entry): PluginUpdateOutcome => {
+        const warning = createPostUpdatePluginWarning({
+          pluginId: entry.pluginId,
+          reason: `Plugin install payload missing after update: ${formatMissingPluginPayloadReason(entry)}.`,
+        });
+        warnings.push(warning);
+        return {
+          pluginId: entry.pluginId,
+          status: "error",
+          message: warning.message,
+        };
+      }),
+>>>>>>> upstream/main
   );
 
   if (pluginsChanged) {
@@ -1198,12 +1403,18 @@ async function updatePluginsAfterCoreUpdate(params: {
 
   if (params.opts.json) {
     return {
+<<<<<<< HEAD
       status:
         syncResult.summary.errors.length > 0 ||
         pluginUpdateOutcomes.some((outcome) => outcome.status === "error")
           ? "error"
           : "ok",
       changed: pluginsChanged,
+=======
+      status: warnings.length > 0 ? "warning" : "ok",
+      changed: pluginsChanged,
+      warnings,
+>>>>>>> upstream/main
       sync: {
         changed: syncResult.changed,
         switchedToBundled: syncResult.summary.switchedToBundled,
@@ -1242,7 +1453,11 @@ async function updatePluginsAfterCoreUpdate(params: {
     defaultRuntime.log(theme.warn(warning));
   }
   for (const error of syncResult.summary.errors) {
+<<<<<<< HEAD
     defaultRuntime.log(theme.error(error));
+=======
+    defaultRuntime.log(theme.warn(createPostUpdatePluginWarning({ reason: error }).message));
+>>>>>>> upstream/main
   }
 
   const updated = pluginUpdateOutcomes.filter((entry) => entry.status === "updated").length;
@@ -1267,6 +1482,7 @@ async function updatePluginsAfterCoreUpdate(params: {
     if (outcome.status !== "error") {
       continue;
     }
+<<<<<<< HEAD
     defaultRuntime.log(theme.error(outcome.message));
   }
 
@@ -1277,6 +1493,15 @@ async function updatePluginsAfterCoreUpdate(params: {
         ? "error"
         : "ok",
     changed: pluginsChanged,
+=======
+    defaultRuntime.log(theme.warn(outcome.message));
+  }
+
+  return {
+    status: warnings.length > 0 ? "warning" : "ok",
+    changed: pluginsChanged,
+    warnings,
+>>>>>>> upstream/main
     sync: {
       changed: syncResult.changed,
       switchedToBundled: syncResult.summary.switchedToBundled,
@@ -1526,6 +1751,10 @@ async function runPostCorePluginUpdate(params: {
   configSnapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>;
   opts: UpdateCommandOptions;
   timeoutMs: number;
+<<<<<<< HEAD
+=======
+  pluginInstallRecords?: Record<string, PluginInstallRecord>;
+>>>>>>> upstream/main
 }): Promise<PostCorePluginUpdateResult> {
   return await updatePluginsAfterCoreUpdate({
     root: params.root,
@@ -1533,6 +1762,10 @@ async function runPostCorePluginUpdate(params: {
     configSnapshot: params.configSnapshot,
     opts: params.opts,
     timeoutMs: params.timeoutMs,
+<<<<<<< HEAD
+=======
+    pluginInstallRecords: params.pluginInstallRecords,
+>>>>>>> upstream/main
   });
 }
 
@@ -1607,6 +1840,26 @@ function createUpdatedChannelSnapshot(
   };
 }
 
+<<<<<<< HEAD
+=======
+async function maybeRepairLegacyConfigForUpdateChannel(params: {
+  configSnapshot: Awaited<ReturnType<typeof readConfigFileSnapshot>>;
+  jsonMode: boolean;
+}): Promise<Awaited<ReturnType<typeof readConfigFileSnapshot>>> {
+  if (params.configSnapshot.valid || params.configSnapshot.legacyIssues.length === 0) {
+    return params.configSnapshot;
+  }
+
+  const { repairLegacyConfigForUpdateChannel } =
+    await import("../../commands/doctor/legacy-config-repair.js");
+  const { snapshot, repaired } = await repairLegacyConfigForUpdateChannel(params);
+  if (!params.jsonMode && repaired) {
+    defaultRuntime.log(theme.muted("Migrated legacy config before changing update channel."));
+  }
+  return snapshot;
+}
+
+>>>>>>> upstream/main
 async function writePostCorePluginUpdateResultFile(
   filePath: string | undefined,
   result: PostCorePluginUpdateResult,
@@ -1614,19 +1867,55 @@ async function writePostCorePluginUpdateResultFile(
   if (!filePath) {
     return;
   }
+<<<<<<< HEAD
   await fs.writeFile(filePath, `${JSON.stringify(result)}\n`, "utf-8");
+=======
+  await writeJson(filePath, result, { trailingNewline: true });
+}
+
+async function writePostCorePluginInstallRecordsFile(
+  filePath: string,
+  records: Record<string, PluginInstallRecord>,
+): Promise<void> {
+  await fs.writeFile(filePath, `${JSON.stringify(records)}\n`, "utf-8");
+}
+
+async function readPostCorePluginInstallRecordsFile(
+  filePath: string | undefined,
+): Promise<Record<string, PluginInstallRecord> | undefined> {
+  if (!filePath) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(await fs.readFile(filePath, "utf-8")) as unknown;
+    return normalizePluginInstallRecordMap(parsed);
+  } catch {
+    return undefined;
+  }
+>>>>>>> upstream/main
 }
 
 async function readPostCorePluginUpdateResultFile(
   filePath: string,
 ): Promise<PostCorePluginUpdateResult | undefined> {
   try {
+<<<<<<< HEAD
     const raw = await fs.readFile(filePath, "utf-8");
     const parsed = JSON.parse(raw) as PostCorePluginUpdateResult;
     if (
       parsed &&
       typeof parsed === "object" &&
       (parsed.status === "ok" || parsed.status === "skipped" || parsed.status === "error")
+=======
+    const parsed = await readJsonIfExists<PostCorePluginUpdateResult>(filePath);
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      (parsed.status === "ok" ||
+        parsed.status === "warning" ||
+        parsed.status === "skipped" ||
+        parsed.status === "error")
+>>>>>>> upstream/main
     ) {
       return parsed;
     }
@@ -1660,6 +1949,10 @@ async function continuePostCoreUpdateInFreshProcess(params: {
   channel: "stable" | "beta" | "dev";
   requestedChannel: "stable" | "beta" | "dev" | null;
   opts: UpdateCommandOptions;
+<<<<<<< HEAD
+=======
+  pluginInstallRecords: Record<string, PluginInstallRecord>;
+>>>>>>> upstream/main
 }): Promise<{ resumed: boolean; pluginUpdate?: PostCorePluginUpdateResult }> {
   const entryPath = await resolveGatewayInstallEntrypoint(params.root);
   if (!entryPath) {
@@ -1681,8 +1974,15 @@ async function continuePostCoreUpdateInFreshProcess(params: {
   }
   const resultDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-update-post-core-"));
   const resultPath = path.join(resultDir, "plugins.json");
+<<<<<<< HEAD
 
   try {
+=======
+  const installRecordsPath = path.join(resultDir, "plugin-install-records.json");
+
+  try {
+    await writePostCorePluginInstallRecordsFile(installRecordsPath, params.pluginInstallRecords);
+>>>>>>> upstream/main
     const child = spawn(resolveNodeRunner(), argv, {
       stdio: "inherit",
       env: {
@@ -1693,6 +1993,10 @@ async function continuePostCoreUpdateInFreshProcess(params: {
           ? { [POST_CORE_UPDATE_REQUESTED_CHANNEL_ENV]: params.requestedChannel }
           : {}),
         [POST_CORE_UPDATE_RESULT_PATH_ENV]: resultPath,
+<<<<<<< HEAD
+=======
+        [POST_CORE_UPDATE_INSTALL_RECORDS_PATH_ENV]: installRecordsPath,
+>>>>>>> upstream/main
       },
     });
 
@@ -1794,6 +2098,10 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
   const postCoreUpdateChannel = process.env[POST_CORE_UPDATE_CHANNEL_ENV]?.trim();
   const postCoreRequestedChannelInput =
     process.env[POST_CORE_UPDATE_REQUESTED_CHANNEL_ENV]?.trim() ?? "";
+<<<<<<< HEAD
+=======
+  const postCoreInstallRecordsPath = process.env[POST_CORE_UPDATE_INSTALL_RECORDS_PATH_ENV];
+>>>>>>> upstream/main
 
   const timeoutMs = parseTimeoutMsOrExit(opts.timeout);
   const shouldRestart = opts.restart !== false;
@@ -1834,6 +2142,10 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       configSnapshot: postCoreConfigSnapshot,
       opts,
       timeoutMs: updateStepTimeoutMs,
+<<<<<<< HEAD
+=======
+      pluginInstallRecords: await readPostCorePluginInstallRecordsFile(postCoreInstallRecordsPath),
+>>>>>>> upstream/main
     });
     if (process.env[POST_CORE_UPDATE_RESULT_PATH_ENV]) {
       await writePostCorePluginUpdateResultFile(
@@ -1854,10 +2166,13 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
         defaultRuntime.writeJson(result);
       }
     }
+<<<<<<< HEAD
     if (pluginUpdate.status === "error") {
       defaultRuntime.exit(1);
       return;
     }
+=======
+>>>>>>> upstream/main
     defaultRuntime.exit(0);
     return;
   }
@@ -1869,17 +2184,35 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     includeRegistry: false,
   });
 
+<<<<<<< HEAD
   const configSnapshot = await readConfigFileSnapshot();
   const storedChannel = configSnapshot.valid
     ? normalizeUpdateChannel(configSnapshot.config.update?.channel)
     : null;
 
+=======
+>>>>>>> upstream/main
   const requestedChannel = normalizeUpdateChannel(opts.channel);
   if (opts.channel && !requestedChannel) {
     defaultRuntime.error(`--channel must be "stable", "beta", or "dev" (got "${opts.channel}")`);
     defaultRuntime.exit(1);
     return;
   }
+<<<<<<< HEAD
+=======
+
+  let configSnapshot = await readConfigFileSnapshot();
+  if (opts.channel && !opts.dryRun && !configSnapshot.valid) {
+    configSnapshot = await maybeRepairLegacyConfigForUpdateChannel({
+      configSnapshot,
+      jsonMode: Boolean(opts.json),
+    });
+  }
+  const storedChannel = configSnapshot.valid
+    ? normalizeUpdateChannel(configSnapshot.config.update?.channel)
+    : null;
+
+>>>>>>> upstream/main
   if (opts.channel && !configSnapshot.valid) {
     const issues = formatConfigIssueLines(configSnapshot.issues, "-");
     defaultRuntime.error(["Config is invalid; cannot set update channel.", ...issues].join("\n"));
@@ -2065,6 +2398,10 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 
   const { progress, stop } = createUpdateProgress(showProgress);
   const startedAt = Date.now();
+<<<<<<< HEAD
+=======
+  const preUpdatePluginInstallRecords = await loadInstalledPluginIndexInstallRecords();
+>>>>>>> upstream/main
 
   let prePackageServiceStop: PrePackageServiceStop | undefined;
   if (updateInstallKind === "package") {
@@ -2225,6 +2562,10 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       channel,
       requestedChannel,
       opts,
+<<<<<<< HEAD
+=======
+      pluginInstallRecords: preUpdatePluginInstallRecords,
+>>>>>>> upstream/main
     });
     pluginsUpdatedInFreshProcess = freshProcessResult.resumed;
     postCorePluginUpdate = freshProcessResult.pluginUpdate;
@@ -2243,6 +2584,10 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       configSnapshot: postUpdateConfigSnapshot,
       opts,
       timeoutMs: updateStepTimeoutMs,
+<<<<<<< HEAD
+=======
+      pluginInstallRecords: preUpdatePluginInstallRecords,
+>>>>>>> upstream/main
     });
   }
 

@@ -7,6 +7,10 @@ import {
   createChannelDoctorEmptyAllowlistPolicyHooks,
   collectChannelDoctorRepairMutations,
 } from "./shared/channel-doctor.js";
+<<<<<<< HEAD
+=======
+import { maybeRepairCodexRoutes } from "./shared/codex-route-warnings.js";
+>>>>>>> upstream/main
 import {
   applyDoctorConfigMutation,
   type DoctorConfigMutationState,
@@ -73,6 +77,19 @@ export async function runDoctorRepairSequence(params: {
     env,
     prompter: { shouldRepair: true },
   });
+<<<<<<< HEAD
+=======
+  const codexRouteRepair = maybeRepairCodexRoutes({
+    cfg: state.candidate,
+    env,
+    shouldRepair: true,
+  });
+  applyMutation({
+    config: codexRouteRepair.cfg,
+    changes: codexRouteRepair.changes,
+    warnings: codexRouteRepair.warnings,
+  });
+>>>>>>> upstream/main
   const missingConfiguredPluginInstallRepair = await repairMissingConfiguredPluginInstalls({
     cfg: state.candidate,
     env,

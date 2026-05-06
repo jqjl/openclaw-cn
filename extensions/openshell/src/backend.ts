@@ -15,6 +15,10 @@ import {
   resolvePreferredOpenClawTmpDir,
   runSshSandboxCommand,
   sanitizeEnvVars,
+<<<<<<< HEAD
+=======
+  withTempWorkspace,
+>>>>>>> upstream/main
 } from "openclaw/plugin-sdk/sandbox";
 import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
 import type { OpenShellSandboxBackend } from "./backend.types.js";
@@ -411,6 +415,7 @@ class OpenShellSandboxBackendImpl {
   }
 
   private async syncWorkspaceFromRemote(): Promise<void> {
+<<<<<<< HEAD
     const tmpDir = await fs.mkdtemp(
       path.join(resolveOpenShellTmpRoot(), "openclaw-openshell-sync-"),
     );
@@ -470,6 +475,63 @@ class OpenShellSandboxBackendImpl {
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
+=======
+    await withTempWorkspace(
+      { rootDir: resolveOpenShellTmpRoot(), prefix: "openclaw-openshell-sync-" },
+      async ({ dir: tmpDir }) => {
+        const result = await runOpenShellCli({
+          context: this.params.execContext,
+          args: [
+            "sandbox",
+            "download",
+            this.params.execContext.sandboxName,
+            this.params.remoteWorkspaceDir,
+            tmpDir,
+          ],
+          cwd: this.params.createParams.workspaceDir,
+        });
+        if (result.code !== 0) {
+          throw new Error(result.stderr.trim() || "openshell sandbox download failed");
+        }
+        await replaceDirectoryContents({
+          sourceDir: tmpDir,
+          targetDir: this.params.createParams.workspaceDir,
+          // Never sync trusted host hook directories or repository metadata from
+          // the remote sandbox.
+          excludeDirs: DEFAULT_OPEN_SHELL_MIRROR_EXCLUDE_DIRS,
+        });
+      },
+    );
+  }
+
+  private async uploadPathToRemote(localPath: string, remotePath: string): Promise<void> {
+    await withTempWorkspace(
+      { rootDir: resolveOpenShellTmpRoot(), prefix: "openclaw-openshell-upload-" },
+      async ({ dir: tmpDir }) => {
+        // Stage a symlink-free snapshot so upload never dereferences host paths
+        // outside the mirrored workspace tree.
+        await stageDirectoryContents({
+          sourceDir: localPath,
+          targetDir: tmpDir,
+        });
+        const result = await runOpenShellCli({
+          context: this.params.execContext,
+          args: [
+            "sandbox",
+            "upload",
+            "--no-git-ignore",
+            this.params.execContext.sandboxName,
+            tmpDir,
+            remotePath,
+          ],
+          cwd: this.params.createParams.workspaceDir,
+        });
+        if (result.code !== 0) {
+          throw new Error(result.stderr.trim() || "openshell sandbox upload failed");
+        }
+      },
+    );
+>>>>>>> upstream/main
   }
 
   private async maybeSeedRemoteWorkspace(): Promise<void> {

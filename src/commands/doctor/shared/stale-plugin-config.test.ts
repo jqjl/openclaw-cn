@@ -200,6 +200,7 @@ describe("doctor stale plugin config helpers", () => {
   it("removes stale third-party channel config and dependent channel refs", () => {
     const result = maybeRepairStalePluginConfig({
       plugins: {
+<<<<<<< HEAD
         allow: ["discord", "openclaw-weixin"],
         entries: {
           discord: { enabled: true },
@@ -208,6 +209,16 @@ describe("doctor stale plugin config helpers", () => {
       },
       channels: {
         "openclaw-weixin": {
+=======
+        allow: ["discord", "missing-chat-plugin"],
+        entries: {
+          discord: { enabled: true },
+          "missing-chat-plugin": { enabled: true },
+        },
+      },
+      channels: {
+        "missing-chat-plugin": {
+>>>>>>> upstream/main
           enabled: true,
           token: "stale",
         },
@@ -216,7 +227,11 @@ describe("doctor stale plugin config helpers", () => {
         },
         modelByChannel: {
           openai: {
+<<<<<<< HEAD
             "openclaw-weixin": "openai/gpt-5.4",
+=======
+            "missing-chat-plugin": "openai/gpt-5.4",
+>>>>>>> upstream/main
             telegram: "openai/gpt-5.4",
           },
         },
@@ -224,7 +239,11 @@ describe("doctor stale plugin config helpers", () => {
       agents: {
         defaults: {
           heartbeat: {
+<<<<<<< HEAD
             target: "openclaw-weixin",
+=======
+            target: "missing-chat-plugin",
+>>>>>>> upstream/main
             every: "30m",
           },
         },
@@ -232,7 +251,11 @@ describe("doctor stale plugin config helpers", () => {
           {
             id: "pi",
             heartbeat: {
+<<<<<<< HEAD
               target: "openclaw-weixin",
+=======
+              target: "missing-chat-plugin",
+>>>>>>> upstream/main
             },
           },
           {
@@ -246,17 +269,29 @@ describe("doctor stale plugin config helpers", () => {
     } as OpenClawConfig);
 
     expect(result.changes).toEqual([
+<<<<<<< HEAD
       "- plugins.allow: removed 1 stale plugin id (openclaw-weixin)",
       "- plugins.entries: removed 1 stale plugin entry (openclaw-weixin)",
       "- channels: removed 1 stale channel config (openclaw-weixin)",
       "- agents heartbeat: removed 2 stale heartbeat targets (openclaw-weixin)",
       "- channels.modelByChannel: removed 1 stale channel model override (openclaw-weixin)",
+=======
+      "- plugins.allow: removed 1 stale plugin id (missing-chat-plugin)",
+      "- plugins.entries: removed 1 stale plugin entry (missing-chat-plugin)",
+      "- channels: removed 1 stale channel config (missing-chat-plugin)",
+      "- agents heartbeat: removed 2 stale heartbeat targets (missing-chat-plugin)",
+      "- channels.modelByChannel: removed 1 stale channel model override (missing-chat-plugin)",
+>>>>>>> upstream/main
     ]);
     expect(result.config.plugins?.allow).toEqual(["discord"]);
     expect(result.config.plugins?.entries).toEqual({
       discord: { enabled: true },
     });
+<<<<<<< HEAD
     expect(result.config.channels?.["openclaw-weixin"]).toBeUndefined();
+=======
+    expect(result.config.channels?.["missing-chat-plugin"]).toBeUndefined();
+>>>>>>> upstream/main
     expect(result.config.channels?.telegram).toEqual({ botToken: "keep" });
     expect(result.config.channels?.modelByChannel).toEqual({
       openai: {
@@ -304,25 +339,41 @@ describe("doctor stale plugin config helpers", () => {
 
   it("uses missing persisted install records as stale channel evidence", () => {
     installedPluginIndexMocks.loadInstalledPluginIndexInstallRecordsSync.mockReturnValue({
+<<<<<<< HEAD
       "openclaw-weixin": {
         source: "npm",
         resolvedName: "@tencent-weixin/openclaw-weixin",
+=======
+      "missing-chat-plugin": {
+        source: "npm",
+        resolvedName: "@example/missing-chat-plugin",
+>>>>>>> upstream/main
         installedAt: "2026-04-12T00:00:00.000Z",
       },
     });
 
     const result = maybeRepairStalePluginConfig({
       channels: {
+<<<<<<< HEAD
         "openclaw-weixin": {
+=======
+        "missing-chat-plugin": {
+>>>>>>> upstream/main
           enabled: true,
         },
       },
     } as OpenClawConfig);
 
     expect(result.changes).toEqual([
+<<<<<<< HEAD
       "- channels: removed 1 stale channel config (openclaw-weixin)",
     ]);
     expect(result.config.channels?.["openclaw-weixin"]).toBeUndefined();
+=======
+      "- channels: removed 1 stale channel config (missing-chat-plugin)",
+    ]);
+    expect(result.config.channels?.["missing-chat-plugin"]).toBeUndefined();
+>>>>>>> upstream/main
   });
 
   it("does not auto-repair stale refs while plugin discovery has errors", () => {

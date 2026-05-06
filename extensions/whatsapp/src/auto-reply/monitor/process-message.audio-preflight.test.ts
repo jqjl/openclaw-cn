@@ -64,7 +64,11 @@ vi.mock("./message-line.js", () => ({
 
 vi.mock("./runtime-api.js", () => ({
   buildHistoryContextFromEntries: (_p: { currentMessage: string }) => _p.currentMessage,
+<<<<<<< HEAD
   createChannelReplyPipeline: () => ({ onModelSelected: undefined }),
+=======
+  createChannelMessageReplyPipeline: () => ({ onModelSelected: undefined }),
+>>>>>>> upstream/main
   formatInboundEnvelope: (p: { body: string }) => p.body,
   logVerbose: () => {},
   normalizeE164: (v: string) => v,

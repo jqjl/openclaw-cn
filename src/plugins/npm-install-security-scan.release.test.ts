@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
+=======
+import { execFile } from "node:child_process";
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, relative, resolve, sep } from "node:path";
+import { promisify } from "node:util";
+>>>>>>> upstream/main
 import { afterEach, describe, expect, it } from "vitest";
 import { isScannable, scanDirectoryWithSummary } from "../security/skill-scanner.js";
 
@@ -18,6 +26,12 @@ type PublishablePluginPackage = {
   packageName: string;
 };
 
+<<<<<<< HEAD
+=======
+const execFileAsync = promisify(execFile);
+const PACKAGE_SCAN_CONCURRENCY = 6;
+
+>>>>>>> upstream/main
 const REQUIRED_REVIEWED_PUBLISHABLE_CRITICAL_FINDINGS = new Set([
   "@openclaw/acpx:dangerous-exec:src/codex-auth-bridge.ts",
   "@openclaw/acpx:dangerous-exec:src/runtime-internals/mcp-proxy.mjs",
@@ -61,6 +75,7 @@ function parseNpmPackFiles(raw: string, packageName: string): string[] {
     .toSorted();
 }
 
+<<<<<<< HEAD
 function collectNpmPackedFiles(packageDir: string, packageName: string): string[] {
   const raw = execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], {
     cwd: packageDir,
@@ -69,6 +84,19 @@ function collectNpmPackedFiles(packageDir: string, packageName: string): string[
     stdio: ["ignore", "pipe", "pipe"],
   });
   return parseNpmPackFiles(raw, packageName);
+=======
+async function collectNpmPackedFiles(packageDir: string, packageName: string): Promise<string[]> {
+  const { stdout } = await execFileAsync(
+    "npm",
+    ["pack", "--dry-run", "--json", "--ignore-scripts"],
+    {
+      cwd: packageDir,
+      encoding: "utf8",
+      maxBuffer: 128 * 1024 * 1024,
+    },
+  );
+  return parseNpmPackFiles(stdout, packageName);
+>>>>>>> upstream/main
 }
 
 function isScannerWalkedPackedPath(packedPath: string): boolean {
@@ -141,6 +169,76 @@ function collectPublishablePluginPackages(): PublishablePluginPackage[] {
     .toSorted((left, right) => left.packageName.localeCompare(right.packageName));
 }
 
+<<<<<<< HEAD
+=======
+async function mapWithConcurrency<T, U>(
+  items: readonly T[],
+  concurrency: number,
+  fn: (item: T) => Promise<U>,
+): Promise<U[]> {
+  const results: U[] = [];
+  results.length = items.length;
+  let nextIndex = 0;
+  const workerCount = Math.min(concurrency, items.length);
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (nextIndex < items.length) {
+        const index = nextIndex;
+        nextIndex += 1;
+        results[index] = await fn(items[index]);
+      }
+    }),
+  );
+  return results;
+}
+
+async function scanPublishablePluginPackage(plugin: PublishablePluginPackage): Promise<{
+  reviewedCriticalFindings: string[];
+  expectedReviewedCriticalFindings: string[];
+  unexpectedCriticalFindings: string[];
+}> {
+  const reviewedCriticalFindings: string[] = [];
+  const expectedReviewedCriticalFindings: string[] = [];
+  const unexpectedCriticalFindings: string[] = [];
+  const packedFiles = await collectNpmPackedFiles(plugin.packageDir, plugin.packageName);
+  for (const packedFile of packedFiles) {
+    const key = `${plugin.packageName}:dangerous-exec:${normalizePackedFindingPath(packedFile)}`;
+    if (OPTIONAL_REVIEWED_PUBLISHABLE_DIST_CRITICAL_FINDINGS.has(key)) {
+      expectedReviewedCriticalFindings.push(key);
+    }
+  }
+  const stageDir = stageScannerRelevantPackedFiles(plugin.packageDir, packedFiles);
+  const summary = await scanDirectoryWithSummary(stageDir, {
+    excludeTestFiles: true,
+    maxFiles: 10_000,
+  });
+
+  for (const finding of summary.findings) {
+    if (finding.severity !== "critical") {
+      continue;
+    }
+    const packedPath = normalizePackedFindingPath(
+      relative(stageDir, finding.file).split(sep).join("/"),
+    );
+    const key = `${plugin.packageName}:${finding.ruleId}:${packedPath}`;
+    if (
+      REQUIRED_REVIEWED_PUBLISHABLE_CRITICAL_FINDINGS.has(key) ||
+      OPTIONAL_REVIEWED_PUBLISHABLE_DIST_CRITICAL_FINDINGS.has(key)
+    ) {
+      reviewedCriticalFindings.push(key);
+      continue;
+    }
+    unexpectedCriticalFindings.push([key, `${finding.line}`, finding.evidence].join(":"));
+  }
+
+  return {
+    reviewedCriticalFindings,
+    expectedReviewedCriticalFindings,
+    unexpectedCriticalFindings,
+  };
+}
+
+>>>>>>> upstream/main
 describe("publishable plugin npm package install security scan", () => {
   it("keeps npm-published plugin files clear of unexpected critical hits", async () => {
     const unexpectedCriticalFindings: string[] = [];
@@ -149,6 +247,7 @@ describe("publishable plugin npm package install security scan", () => {
       REQUIRED_REVIEWED_PUBLISHABLE_CRITICAL_FINDINGS,
     );
 
+<<<<<<< HEAD
     for (const plugin of collectPublishablePluginPackages()) {
       const packedFiles = collectNpmPackedFiles(plugin.packageDir, plugin.packageName);
       for (const packedFile of packedFiles) {
@@ -180,6 +279,24 @@ describe("publishable plugin npm package install security scan", () => {
     }
 
     expect(unexpectedCriticalFindings).toEqual([]);
+=======
+    const packageResults = await mapWithConcurrency(
+      collectPublishablePluginPackages(),
+      PACKAGE_SCAN_CONCURRENCY,
+      scanPublishablePluginPackage,
+    );
+    for (const result of packageResults) {
+      for (const key of result.expectedReviewedCriticalFindings) {
+        expectedReviewedCriticalFindings.add(key);
+      }
+      for (const key of result.reviewedCriticalFindings) {
+        reviewedCriticalFindings.add(key);
+      }
+      unexpectedCriticalFindings.push(...result.unexpectedCriticalFindings);
+    }
+
+    expect(unexpectedCriticalFindings.toSorted()).toEqual([]);
+>>>>>>> upstream/main
     expect([...reviewedCriticalFindings].toSorted()).toEqual(
       [...expectedReviewedCriticalFindings].toSorted(),
     );

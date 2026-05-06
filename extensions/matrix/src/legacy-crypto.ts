@@ -2,7 +2,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+<<<<<<< HEAD
 import { writeJsonFileAtomically as writeJsonFileAtomicallyImpl } from "openclaw/plugin-sdk/json-store";
+=======
+import {
+  loadJsonFile,
+  writeJsonFileAtomically as writeJsonFileAtomicallyImpl,
+} from "openclaw/plugin-sdk/json-store";
+>>>>>>> upstream/main
 import { resolveStateDir } from "openclaw/plugin-sdk/state-paths";
 import { resolveConfiguredMatrixAccountIds } from "./account-selection.js";
 import { isMatrixLegacyCryptoInspectorAvailable } from "./legacy-crypto-inspector-availability.js";
@@ -208,6 +215,7 @@ function resolveLegacyMatrixFlatStorePlan(params: {
 function loadLegacyBotSdkMetadata(cryptoRootDir: string): MatrixLegacyBotSdkMetadata {
   const metadataPath = path.join(cryptoRootDir, "bot-sdk.json");
   const fallback: MatrixLegacyBotSdkMetadata = { deviceId: null };
+<<<<<<< HEAD
   try {
     if (!fs.existsSync(metadataPath)) {
       return fallback;
@@ -222,6 +230,15 @@ function loadLegacyBotSdkMetadata(cryptoRootDir: string): MatrixLegacyBotSdkMeta
   } catch {
     return fallback;
   }
+=======
+  const parsed = loadJsonFile<{ deviceId?: unknown }>(metadataPath);
+  return {
+    deviceId:
+      typeof parsed?.deviceId === "string" && parsed.deviceId.trim()
+        ? parsed.deviceId
+        : fallback.deviceId,
+  };
+>>>>>>> upstream/main
 }
 
 function resolveMatrixLegacyCryptoPlans(params: {
@@ -288,6 +305,7 @@ function resolveMatrixLegacyCryptoPlans(params: {
 }
 
 function loadStoredRecoveryKey(filePath: string): MatrixStoredRecoveryKey | null {
+<<<<<<< HEAD
   try {
     if (!fs.existsSync(filePath)) {
       return null;
@@ -307,6 +325,13 @@ function loadLegacyCryptoMigrationState(filePath: string): MatrixLegacyCryptoMig
   } catch {
     return null;
   }
+=======
+  return loadJsonFile<MatrixStoredRecoveryKey>(filePath) ?? null;
+}
+
+function loadLegacyCryptoMigrationState(filePath: string): MatrixLegacyCryptoMigrationState | null {
+  return loadJsonFile<MatrixLegacyCryptoMigrationState>(filePath) ?? null;
+>>>>>>> upstream/main
 }
 
 async function persistLegacyMigrationState(params: {

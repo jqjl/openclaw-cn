@@ -433,6 +433,33 @@ function resolveExternalRunFailureTextForConversation(params: {
   return SILENT_REPLY_TOKEN;
 }
 
+<<<<<<< HEAD
+=======
+const CLI_BACKEND_NO_OUTPUT_STALL_RE =
+  /\bCLI produced no output for\s+(\d+)\s*s\s+and was terminated\b/iu;
+const CLI_BACKEND_OVERALL_TIMEOUT_RE =
+  /\bCLI exceeded timeout\s*\(\s*(\d+)\s*s\s*\)\s+and was terminated\b/iu;
+const CLI_BACKEND_ROUTING_REF_BEFORE_ERROR_RE = /\b([\w.-]+\/[A-Za-z][\w.-]*)\s*:\s*CLI\b/iu;
+
+function buildCliBackendTimeoutFailureText(message: string): string | null {
+  const normalizedMessage = collapseRepeatedFailureDetail(message);
+  const stall = normalizedMessage.match(CLI_BACKEND_NO_OUTPUT_STALL_RE);
+  const overall = normalizedMessage.match(CLI_BACKEND_OVERALL_TIMEOUT_RE);
+  const timeout = stall ?? overall;
+  const seconds = timeout?.[1];
+  if (!seconds) {
+    return null;
+  }
+  const routedModelRef = normalizedMessage.match(CLI_BACKEND_ROUTING_REF_BEFORE_ERROR_RE)?.[1];
+  const routingSuffix = routedModelRef ? ` (routing ${routedModelRef})` : "";
+  const modeLabel = stall ? "no-output stall" : "overall CLI turn budget";
+  return (
+    `⚠️ CLI subprocess${routingSuffix}: timed out after ${seconds}s (${modeLabel}). The gateway may still be healthy. Try \`/new\`, a lighter model, or raise ` +
+    "`agents.defaults.timeoutSeconds` and the watchdog `noOutputTimeoutMs` entries under `cliBackends.<your-runtime>`."
+  );
+}
+
+>>>>>>> upstream/main
 function buildMissingApiKeyFailureText(message: string): string | null {
   const normalizedMessage = collapseRepeatedFailureDetail(message);
   const providerMatch = normalizedMessage.match(/No API key found for provider "([^"]+)"/u);
@@ -494,6 +521,13 @@ function buildExternalRunFailureReply(
       isGenericRunnerFailure: false,
     };
   }
+<<<<<<< HEAD
+=======
+  const cliBackendTimeoutFailure = buildCliBackendTimeoutFailureText(normalizedMessage);
+  if (cliBackendTimeoutFailure) {
+    return { text: cliBackendTimeoutFailure, isGenericRunnerFailure: false };
+  }
+>>>>>>> upstream/main
   return {
     text: options?.includeDetails
       ? formatForwardedExternalRunFailureText(normalizedMessage)
@@ -1632,8 +1666,12 @@ export async function runAgentTurnWithFallback(params: {
                     const phase = readStringValue(evt.data.phase) ?? "";
                     const name = readStringValue(evt.data.name);
                     if (phase === "start" || phase === "update") {
+<<<<<<< HEAD
                       await params.typingSignals.signalToolStart();
                       await params.opts?.onToolStart?.({
+=======
+                      const toolStartProgressPromise = params.opts?.onToolStart?.({
+>>>>>>> upstream/main
                         name,
                         phase,
                         args:
@@ -1642,9 +1680,23 @@ export async function runAgentTurnWithFallback(params: {
                             : undefined,
                         detailMode: params.toolProgressDetail,
                       });
+<<<<<<< HEAD
                     }
                   }
                   if (evt.stream === "item") {
+=======
+                      await Promise.all([
+                        params.typingSignals.signalToolStart(),
+                        toolStartProgressPromise,
+                      ]);
+                    }
+                  }
+                  const suppressItemChannelProgress =
+                    evt.stream === "item" &&
+                    evt.data.suppressChannelProgress === true &&
+                    Boolean(params.opts?.onToolStart);
+                  if (evt.stream === "item" && !suppressItemChannelProgress) {
+>>>>>>> upstream/main
                     await params.opts?.onItemEvent?.({
                       itemId: readStringValue(evt.data.itemId),
                       kind: readStringValue(evt.data.kind),

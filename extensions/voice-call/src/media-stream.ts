@@ -14,6 +14,16 @@ import type {
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
 } from "openclaw/plugin-sdk/realtime-transcription";
+<<<<<<< HEAD
+=======
+import {
+  createTalkSessionController,
+  recordTalkObservabilityEvent,
+  type TalkEvent,
+  type TalkEventInput,
+  type TalkSessionController,
+} from "openclaw/plugin-sdk/realtime-voice";
+>>>>>>> upstream/main
 import { type RawData, WebSocket, WebSocketServer } from "ws";
 
 /**
@@ -48,6 +58,11 @@ export interface MediaStreamConfig {
   onSpeechStart?: (callId: string) => void;
   /** Callback when stream disconnects */
   onDisconnect?: (callId: string, streamSid: string) => void;
+<<<<<<< HEAD
+=======
+  /** Callback for common Talk events emitted by the telephony STT/TTS adapter. */
+  onTalkEvent?: (callId: string, streamSid: string, event: TalkEvent) => void;
+>>>>>>> upstream/main
 }
 
 /**
@@ -58,6 +73,10 @@ interface StreamSession {
   streamSid: string;
   ws: WebSocket;
   sttSession: RealtimeTranscriptionSession;
+<<<<<<< HEAD
+=======
+  talk: TalkSessionController;
+>>>>>>> upstream/main
 }
 
 type TtsQueueEntry = {
@@ -225,6 +244,19 @@ export class MediaStreamHandler {
             if (session && message.media?.payload) {
               // Forward audio to STT
               const audioBuffer = Buffer.from(message.media.payload, "base64");
+<<<<<<< HEAD
+=======
+              const turnId = this.ensureActiveTurn(session);
+              this.emitTalkEvent(session, {
+                type: "input.audio.delta",
+                turnId,
+                payload: {
+                  callId: session.callId,
+                  streamSid: session.streamSid,
+                  bytes: audioBuffer.byteLength,
+                },
+              });
+>>>>>>> upstream/main
               session.sttSession.sendAudio(audioBuffer);
             }
             break;
@@ -296,16 +328,64 @@ export class MediaStreamHandler {
     const sttSession = this.config.transcriptionProvider.createSession({
       providerConfig: this.config.providerConfig,
       onPartial: (partial) => {
+<<<<<<< HEAD
         this.config.onPartialTranscript?.(callSid, partial);
       },
       onTranscript: (transcript) => {
         this.config.onTranscript?.(callSid, transcript);
       },
       onSpeechStart: () => {
+=======
+        const session = this.sessions.get(streamSid);
+        if (session) {
+          this.emitTalkEvent(session, {
+            type: "transcript.delta",
+            turnId: this.ensureActiveTurn(session),
+            payload: { callId: callSid, streamSid, text: partial, role: "user" },
+          });
+        }
+        this.config.onPartialTranscript?.(callSid, partial);
+      },
+      onTranscript: (transcript) => {
+        const session = this.sessions.get(streamSid);
+        if (session) {
+          const turnId = this.ensureActiveTurn(session);
+          this.emitTalkEvent(session, {
+            type: "input.audio.committed",
+            turnId,
+            final: true,
+            payload: { callId: callSid, streamSid },
+          });
+          this.emitTalkEvent(session, {
+            type: "transcript.done",
+            turnId,
+            final: true,
+            payload: { callId: callSid, streamSid, text: transcript, role: "user" },
+          });
+        }
+        this.config.onTranscript?.(callSid, transcript);
+      },
+      onSpeechStart: () => {
+        const session = this.sessions.get(streamSid);
+        if (session) {
+          this.ensureActiveTurn(session);
+        }
+>>>>>>> upstream/main
         this.config.onSpeechStart?.(callSid);
       },
       onError: (error) => {
         console.warn("[MediaStream] Transcription session error:", error.message);
+<<<<<<< HEAD
+=======
+        const session = this.sessions.get(streamSid);
+        if (session) {
+          this.emitTalkEvent(session, {
+            type: "session.error",
+            final: true,
+            payload: { callId: callSid, streamSid, error: error.message },
+          });
+        }
+>>>>>>> upstream/main
       },
     });
 
@@ -314,10 +394,21 @@ export class MediaStreamHandler {
       streamSid,
       ws,
       sttSession,
+<<<<<<< HEAD
+=======
+      talk: this.createTalkEvents(callSid, streamSid),
+>>>>>>> upstream/main
     };
 
     this.sessions.set(streamSid, session);
     this.config.onConnect?.(callSid, streamSid);
+<<<<<<< HEAD
+=======
+    this.emitTalkEvent(session, {
+      type: "session.started",
+      payload: { callId: callSid, streamSid, provider: this.config.transcriptionProvider.id },
+    });
+>>>>>>> upstream/main
     void this.connectTranscriptionAndNotify(session);
 
     return session;
@@ -331,6 +422,18 @@ export class MediaStreamHandler {
         "[MediaStream] STT connection failed; closing media stream:",
         error instanceof Error ? error.message : String(error),
       );
+<<<<<<< HEAD
+=======
+      this.emitTalkEvent(session, {
+        type: "session.error",
+        final: true,
+        payload: {
+          callId: session.callId,
+          streamSid: session.streamSid,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+>>>>>>> upstream/main
       if (
         this.sessions.get(session.streamSid) === session &&
         session.ws.readyState === WebSocket.OPEN
@@ -350,6 +453,13 @@ export class MediaStreamHandler {
       return;
     }
 
+<<<<<<< HEAD
+=======
+    this.emitTalkEvent(session, {
+      type: "session.ready",
+      payload: { callId: session.callId, streamSid: session.streamSid },
+    });
+>>>>>>> upstream/main
     this.config.onTranscriptionReady?.(session.callId, session.streamSid);
   }
 
@@ -362,6 +472,14 @@ export class MediaStreamHandler {
     this.clearTtsState(session.streamSid);
     session.sttSession.close();
     this.sessions.delete(session.streamSid);
+<<<<<<< HEAD
+=======
+    this.emitTalkEvent(session, {
+      type: "session.closed",
+      final: true,
+      payload: { callId: session.callId, streamSid: session.streamSid },
+    });
+>>>>>>> upstream/main
     this.config.onDisconnect?.(session.callId, session.streamSid);
   }
 
@@ -530,6 +648,17 @@ export class MediaStreamHandler {
    * Audio should be mu-law encoded at 8kHz mono.
    */
   sendAudio(streamSid: string, muLawAudio: Buffer): StreamSendResult {
+<<<<<<< HEAD
+=======
+    const session = this.getOpenSession(streamSid);
+    if (session) {
+      this.emitTalkEvent(session, {
+        type: "output.audio.delta",
+        turnId: this.ensureActiveTurn(session),
+        payload: { callId: session.callId, streamSid, bytes: muLawAudio.byteLength },
+      });
+    }
+>>>>>>> upstream/main
     return this.sendToStream(streamSid, {
       event: "media",
       streamSid,
@@ -589,6 +718,18 @@ export class MediaStreamHandler {
     const queue = this.getTtsQueue(streamSid);
     this.resolveQueuedTtsEntries(queue);
     this.ttsActiveControllers.get(streamSid)?.abort();
+<<<<<<< HEAD
+=======
+    const session = this.sessions.get(streamSid);
+    if (session?.talk.activeTurnId) {
+      const cancelled = session.talk.cancelTurn({
+        payload: { callId: session.callId, streamSid, reason: _reason },
+      });
+      if (cancelled.ok) {
+        this.config.onTalkEvent?.(session.callId, session.streamSid, cancelled.event);
+      }
+    }
+>>>>>>> upstream/main
     this.clearAudio(streamSid);
   }
 
@@ -638,9 +779,46 @@ export class MediaStreamHandler {
 
       const entry = queue.shift()!;
       this.ttsActiveControllers.set(streamSid, entry.controller);
+<<<<<<< HEAD
 
       try {
         await entry.playFn(entry.controller.signal);
+=======
+      const session = this.sessions.get(streamSid);
+      let playbackTurnId: string | undefined;
+
+      try {
+        if (session) {
+          playbackTurnId = this.ensureActiveTurn(session);
+          this.emitTalkEvent(session, {
+            type: "output.audio.started",
+            turnId: playbackTurnId,
+            payload: { callId: session.callId, streamSid },
+          });
+        }
+        await entry.playFn(entry.controller.signal);
+        if (entry.controller.signal.aborted) {
+          entry.resolve();
+          continue;
+        }
+        if (session) {
+          const turnId = playbackTurnId ?? this.ensureActiveTurn(session);
+          this.emitTalkEvent(session, {
+            type: "output.audio.done",
+            turnId,
+            final: true,
+            payload: { callId: session.callId, streamSid },
+          });
+          if (session.talk.activeTurnId) {
+            const ended = session.talk.endTurn({
+              payload: { callId: session.callId, streamSid },
+            });
+            if (ended.ok) {
+              this.config.onTalkEvent?.(session.callId, session.streamSid, ended.event);
+            }
+          }
+        }
+>>>>>>> upstream/main
         entry.resolve();
       } catch (error) {
         if (entry.controller.signal.aborted) {
@@ -657,6 +835,38 @@ export class MediaStreamHandler {
     }
   }
 
+<<<<<<< HEAD
+=======
+  private createTalkEvents(callId: string, streamSid: string): TalkSessionController {
+    return createTalkSessionController(
+      {
+        sessionId: `voice-call:${callId}:${streamSid}`,
+        mode: "stt-tts",
+        transport: "gateway-relay",
+        brain: "agent-consult",
+        provider: this.config.transcriptionProvider.id,
+        turnIdPrefix: `${streamSid}:turn`,
+      },
+      { onEvent: recordTalkObservabilityEvent },
+    );
+  }
+
+  private emitTalkEvent(session: StreamSession, input: TalkEventInput): void {
+    const event = session.talk.emit(input);
+    this.config.onTalkEvent?.(session.callId, session.streamSid, event);
+  }
+
+  private ensureActiveTurn(session: StreamSession): string {
+    const turn = session.talk.ensureTurn({
+      payload: { callId: session.callId, streamSid: session.streamSid },
+    });
+    if (turn.event) {
+      this.config.onTalkEvent?.(session.callId, session.streamSid, turn.event);
+    }
+    return turn.turnId;
+  }
+
+>>>>>>> upstream/main
   private clearTtsState(streamSid: string): void {
     const queue = this.ttsQueues.get(streamSid);
     if (queue) {

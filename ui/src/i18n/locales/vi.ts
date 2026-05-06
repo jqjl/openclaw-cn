@@ -204,13 +204,35 @@ export const vi: TranslationMap = {
     autoThreshold: "ngưỡng tự động",
     overflowRetry: "thử lại khi tràn",
     timeoutRetry: "thử lại khi hết thời gian chờ",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} token",
+=======
+    tokenRange: "{before} to {after} token",
+>>>>>>> upstream/main
     tokensBefore: "{count} token trước",
     tokenDeltaUnavailable: "không có delta token",
     checkpoints: "{count} điểm kiểm tra",
     checkpoint: "{count} điểm kiểm tra",
+<<<<<<< HEAD
     showCheckpoints: "Hiển thị điểm kiểm tra",
     hideCheckpoints: "Ẩn điểm kiểm tra",
+=======
+    showSessionDetails: "Hiển thị chi tiết phiên cho {count}",
+    hideSessionDetails: "Ẩn chi tiết phiên cho {count}",
+    sessionDetails: "Chi tiết phiên",
+    compactionHistory: "Lịch sử nén",
+    status: "Trạng thái",
+    model: "Mô hình",
+    provider: "Nhà cung cấp",
+    runtime: "Runtime",
+    surface: "Bề mặt",
+    subject: "Chủ đề",
+    room: "Phòng",
+    space: "Không gian",
+    sessionId: "ID phiên",
+    activeRun: "Lần chạy đang hoạt động",
+    archived: "Đã lưu trữ",
+>>>>>>> upstream/main
     loadingCheckpoints: "Đang tải điểm kiểm tra…",
     noCheckpoints: "Không có điểm kiểm tra nén nào được ghi lại cho phiên này.",
     noSummary: "Chưa ghi nhận bản tóm tắt.",

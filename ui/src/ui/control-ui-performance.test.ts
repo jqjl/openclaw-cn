@@ -2,6 +2,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { EventLogEntry } from "./app-events.ts";
 import {
   recordControlUiPerformanceEvent,
+<<<<<<< HEAD
+=======
+  recordControlUiRenderTiming,
+>>>>>>> upstream/main
   startControlUiResponsivenessObserver,
 } from "./control-ui-performance.ts";
 
@@ -53,6 +57,10 @@ function createHost() {
 }
 
 afterEach(() => {
+<<<<<<< HEAD
+=======
+  vi.restoreAllMocks();
+>>>>>>> upstream/main
   Object.defineProperty(globalThis, "PerformanceObserver", {
     configurable: true,
     value: originalPerformanceObserver,
@@ -73,6 +81,42 @@ describe("recordControlUiPerformanceEvent", () => {
   });
 });
 
+<<<<<<< HEAD
+=======
+describe("recordControlUiRenderTiming", () => {
+  it("records slow render timings after the current render turn", async () => {
+    vi.spyOn(console, "debug").mockImplementation(() => undefined);
+    const host = createHost();
+
+    recordControlUiRenderTiming(host, "chat", { durationMs: 20, messageCount: 150 });
+
+    expect(host.eventLogBuffer).toHaveLength(0);
+    await Promise.resolve();
+
+    expect(host.eventLogBuffer).toEqual([
+      expect.objectContaining({
+        event: "control-ui.render",
+        payload: expect.objectContaining({
+          surface: "chat",
+          durationMs: 20,
+          messageCount: 150,
+          slow: true,
+        }),
+      }),
+    ]);
+  });
+
+  it("skips render timings that stay within budget", async () => {
+    const host = createHost();
+
+    recordControlUiRenderTiming(host, "config", { durationMs: 4 });
+    await Promise.resolve();
+
+    expect(host.eventLogBuffer).toHaveLength(0);
+  });
+});
+
+>>>>>>> upstream/main
 describe("startControlUiResponsivenessObserver", () => {
   it("records long animation frames with script attribution", () => {
     const observe = vi.fn();

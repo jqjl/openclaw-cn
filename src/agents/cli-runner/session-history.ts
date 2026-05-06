@@ -6,6 +6,10 @@ import {
   resolveSessionFilePathOptions,
 } from "../../config/sessions/paths.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../../infra/path-guards.js";
+>>>>>>> upstream/main
 import { resolveSessionAgentIds } from "../agent-scope.js";
 import {
   limitAgentHookHistoryMessages,
@@ -108,11 +112,14 @@ async function safeRealpath(filePath: string): Promise<string | undefined> {
   }
 }
 
+<<<<<<< HEAD
 function isPathWithinBase(basePath: string, targetPath: string): boolean {
   const relative = path.relative(basePath, targetPath);
   return Boolean(relative) && !relative.startsWith("..") && !path.isAbsolute(relative);
 }
 
+=======
+>>>>>>> upstream/main
 function resolveSafeCliSessionFile(params: {
   sessionId: string;
   sessionFile: string;
@@ -155,7 +162,15 @@ async function loadCliSessionEntries(params: {
     }
     const realSessionsDir = (await safeRealpath(sessionsDir)) ?? path.resolve(sessionsDir);
     const realSessionFile = await safeRealpath(sessionFile);
+<<<<<<< HEAD
     if (!realSessionFile || !isPathWithinBase(realSessionsDir, realSessionFile)) {
+=======
+    if (
+      !realSessionFile ||
+      realSessionFile === realSessionsDir ||
+      !isPathInside(realSessionsDir, realSessionFile)
+    ) {
+>>>>>>> upstream/main
       return [];
     }
     const stat = await fsp.stat(realSessionFile);

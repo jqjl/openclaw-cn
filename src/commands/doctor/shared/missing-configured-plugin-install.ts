@@ -698,10 +698,13 @@ async function repairMissingPluginInstalls(params: {
       if (!record || !isInstalledRecordMissingOnDisk(record, env)) {
         continue;
       }
+<<<<<<< HEAD
       if (nextRecords === records) {
         nextRecords = { ...records };
       }
       delete nextRecords[pluginId];
+=======
+>>>>>>> upstream/main
       changes.push(
         `Skipped package-manager repair for configured plugin "${pluginId}" during package update; rerun "openclaw doctor --fix" after the update completes.`,
       );
@@ -710,6 +713,10 @@ async function repairMissingPluginInstalls(params: {
 
   const missingRecordedPluginIds = Object.keys(records).filter(
     (pluginId) =>
+<<<<<<< HEAD
+=======
+      !deferredPluginIds.has(pluginId) &&
+>>>>>>> upstream/main
       Object.hasOwn(nextRecords, pluginId) &&
       !bundledPluginsById.has(pluginId) &&
       ((params.pluginIds.has(pluginId) &&

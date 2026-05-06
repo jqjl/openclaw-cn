@@ -9,7 +9,11 @@ title: "Audio and voice notes"
 
 ## What works
 
+<<<<<<< HEAD
 - **Media understanding (audio)**: If audio understanding is enabled (or auto‑detected), OpenClaw:
+=======
+- **Media understanding (audio)**: If audio understanding is enabled (or auto-detected), OpenClaw:
+>>>>>>> upstream/main
   1. Locates the first audio attachment (local path or URL) and downloads it if needed.
   2. Enforces `maxBytes` before sending to each model entry.
   3. Runs the first eligible model entry in order (provider or CLI).
@@ -20,7 +24,11 @@ title: "Audio and voice notes"
 
 ## Auto-detection (default)
 
+<<<<<<< HEAD
 If you **don’t configure models** and `tools.media.audio.enabled` is **not** set to `false`,
+=======
+If you **don't configure models** and `tools.media.audio.enabled` is **not** set to `false`,
+>>>>>>> upstream/main
 OpenClaw auto-detects in this order and stops at the first working option:
 
 1. **Active reply model** when its provider supports audio understanding.
@@ -144,7 +152,11 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 }
 ```
 
+<<<<<<< HEAD
 ## Notes & limits
+=======
+## Notes and limits
+>>>>>>> upstream/main
 
 - Provider auth follows the standard model auth order (auth profiles, env vars, `models.providers.*.apiKey`).
 - Groq setup details: [Groq](/providers/groq).

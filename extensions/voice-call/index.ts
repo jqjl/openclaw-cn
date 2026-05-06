@@ -97,6 +97,14 @@ const voiceCallConfigSchema = {
       help: "Controls the shared openclaw_agent_consult tool.",
       advanced: true,
     },
+<<<<<<< HEAD
+=======
+    "realtime.consultPolicy": {
+      label: "Realtime Consult Policy",
+      help: "Guides when the realtime voice model should call openclaw_agent_consult.",
+      advanced: true,
+    },
+>>>>>>> upstream/main
     "realtime.fastContext.enabled": {
       label: "Enable Fast Realtime Context",
       help: "Searches memory/session context before the full consult agent.",
@@ -118,6 +126,34 @@ const voiceCallConfigSchema = {
       label: "Fallback To Full Consult",
       advanced: true,
     },
+<<<<<<< HEAD
+=======
+    "realtime.agentContext.enabled": {
+      label: "Enable Agent Voice Context",
+      help: "Injects a compact agent identity, system prompt, and workspace context capsule into realtime voice instructions.",
+      advanced: true,
+    },
+    "realtime.agentContext.maxChars": {
+      label: "Agent Voice Context Limit",
+      advanced: true,
+    },
+    "realtime.agentContext.includeIdentity": {
+      label: "Include Agent Identity",
+      advanced: true,
+    },
+    "realtime.agentContext.includeSystemPrompt": {
+      label: "Include Agent System Prompt",
+      advanced: true,
+    },
+    "realtime.agentContext.includeWorkspaceFiles": {
+      label: "Include Agent Workspace Files",
+      advanced: true,
+    },
+    "realtime.agentContext.files": {
+      label: "Agent Voice Context Files",
+      advanced: true,
+    },
+>>>>>>> upstream/main
     "realtime.providers": { label: "Realtime Provider Config", advanced: true },
     "tts.provider": {
       label: "TTS Provider Override",
@@ -152,6 +188,13 @@ const VoiceCallToolSchema = Type.Union([
     to: Type.Optional(Type.String({ description: "Call target" })),
     message: Type.String({ description: "Intro message" }),
     mode: Type.Optional(Type.Union([Type.Literal("notify"), Type.Literal("conversation")])),
+<<<<<<< HEAD
+=======
+    sessionKey: Type.Optional(Type.String({ description: "OpenClaw session key for the call" })),
+    requesterSessionKey: Type.Optional(
+      Type.String({ description: "OpenClaw session key that initiated the call" }),
+    ),
+>>>>>>> upstream/main
     dtmfSequence: Type.Optional(Type.String({ description: "DTMF digits to play before connect" })),
   }),
   Type.Object({
@@ -182,6 +225,13 @@ const VoiceCallToolSchema = Type.Union([
     to: Type.Optional(Type.String({ description: "Call target" })),
     sid: Type.Optional(Type.String({ description: "Call SID" })),
     message: Type.Optional(Type.String({ description: "Optional intro message" })),
+<<<<<<< HEAD
+=======
+    sessionKey: Type.Optional(Type.String({ description: "OpenClaw session key for the call" })),
+    requesterSessionKey: Type.Optional(
+      Type.String({ description: "OpenClaw session key that initiated the call" }),
+    ),
+>>>>>>> upstream/main
     dtmfSequence: Type.Optional(Type.String({ description: "DTMF digits to play before connect" })),
   }),
 ]);
@@ -342,11 +392,22 @@ export default definePluginEntry({
       message?: string;
       mode?: "notify" | "conversation";
       dtmfSequence?: string;
+<<<<<<< HEAD
     }) => {
       const result = await params.rt.manager.initiateCall(params.to, undefined, {
         message: params.message,
         mode: params.mode,
         dtmfSequence: params.dtmfSequence,
+=======
+      sessionKey?: string;
+      requesterSessionKey?: string;
+    }) => {
+      const result = await params.rt.manager.initiateCall(params.to, params.sessionKey, {
+        message: params.message,
+        mode: params.mode,
+        dtmfSequence: params.dtmfSequence,
+        ...(params.requesterSessionKey ? { requesterSessionKey: params.requesterSessionKey } : {}),
+>>>>>>> upstream/main
       });
       if (!result.success) {
         respondError(params.respond, result.error || "initiate failed");
@@ -413,6 +474,11 @@ export default definePluginEntry({
             to,
             message,
             mode,
+<<<<<<< HEAD
+=======
+            sessionKey: normalizeOptionalString(params?.sessionKey),
+            requesterSessionKey: normalizeOptionalString(params?.requesterSessionKey),
+>>>>>>> upstream/main
           });
         } catch (err) {
           sendError(respond, err);
@@ -603,6 +669,11 @@ export default definePluginEntry({
           const to = normalizeOptionalString(params?.to) ?? "";
           const message = normalizeOptionalString(params?.message) ?? "";
           const dtmfSequence = normalizeOptionalString(params?.dtmfSequence);
+<<<<<<< HEAD
+=======
+          const sessionKey = normalizeOptionalString(params?.sessionKey);
+          const requesterSessionKey = normalizeOptionalString(params?.requesterSessionKey);
+>>>>>>> upstream/main
           if (!to) {
             respondError(respond, "to required", ErrorCodes.INVALID_REQUEST);
             return;
@@ -617,6 +688,11 @@ export default definePluginEntry({
             message: message || undefined,
             mode,
             dtmfSequence,
+<<<<<<< HEAD
+=======
+            sessionKey,
+            ...(requesterSessionKey ? { requesterSessionKey } : {}),
+>>>>>>> upstream/main
           });
         } catch (err) {
           sendError(respond, err);
@@ -737,10 +813,24 @@ export default definePluginEntry({
           if (!to) {
             throw new Error("to required for call");
           }
+<<<<<<< HEAD
           const result = await rt.manager.initiateCall(to, undefined, {
             dtmfSequence: normalizeOptionalString(rawParams.dtmfSequence),
             message: normalizeOptionalString(rawParams.message),
           });
+=======
+          const result = await rt.manager.initiateCall(
+            to,
+            normalizeOptionalString(rawParams.sessionKey),
+            {
+              dtmfSequence: normalizeOptionalString(rawParams.dtmfSequence),
+              message: normalizeOptionalString(rawParams.message),
+              ...(normalizeOptionalString(rawParams.requesterSessionKey)
+                ? { requesterSessionKey: normalizeOptionalString(rawParams.requesterSessionKey) }
+                : {}),
+            },
+          );
+>>>>>>> upstream/main
           if (!result.success) {
             throw new Error(result.error || "initiate failed");
           }

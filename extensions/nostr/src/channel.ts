@@ -4,6 +4,10 @@ import {
   createTopLevelChannelConfigAdapter,
 } from "openclaw/plugin-sdk/channel-config-helpers";
 import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
+<<<<<<< HEAD
+=======
+import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import {
   buildPassiveChannelStatusSummary,
   buildTrafficStatusSummary,
@@ -85,6 +89,14 @@ const nostrConfigAdapter = createTopLevelChannelConfigAdapter<ResolvedNostrAccou
       .filter(Boolean),
 });
 
+<<<<<<< HEAD
+=======
+const nostrMessageAdapter = createChannelMessageAdapterFromOutbound({
+  id: "nostr",
+  outbound: nostrOutboundAdapter,
+});
+
+>>>>>>> upstream/main
 export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = createChatChannelPlugin({
   base: {
     id: "nostr",
@@ -137,6 +149,10 @@ export const nostrPlugin: ChannelPlugin<ResolvedNostrAccount> = createChatChanne
       },
       resolveOutboundSessionRoute: (params) => resolveNostrOutboundSessionRoute(params),
     },
+<<<<<<< HEAD
+=======
+    message: nostrMessageAdapter,
+>>>>>>> upstream/main
     status: {
       ...createComputedAccountStatusAdapter<ResolvedNostrAccount>({
         defaultRuntime: createDefaultChannelRuntimeState(DEFAULT_ACCOUNT_ID),

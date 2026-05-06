@@ -3,7 +3,11 @@ import {
   GROUP_POLICY_BLOCKED_LABEL,
   createChannelPairingController,
   deliverFormattedTextWithAttachments,
+<<<<<<< HEAD
   dispatchInboundReplyWithBase,
+=======
+  dispatchChannelMessageReplyWithBase,
+>>>>>>> upstream/main
   logInboundDrop,
   readStoreAllowFromForDmPolicy,
   resolveAllowlistProviderRuntimeGroupPolicy,
@@ -286,7 +290,11 @@ export async function handleNextcloudTalkInbound(params: {
     CommandAuthorized: commandAuthorized,
   });
 
+<<<<<<< HEAD
   await dispatchInboundReplyWithBase({
+=======
+  await dispatchChannelMessageReplyWithBase({
+>>>>>>> upstream/main
     cfg: config as OpenClawConfig,
     channel: CHANNEL_ID,
     accountId: account.accountId,

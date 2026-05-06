@@ -87,6 +87,11 @@ For the default account, you can use env vars:
 
 Config values override env vars.
 
+<<<<<<< HEAD
+=======
+`SYNOLOGY_CHAT_INCOMING_URL` cannot be set from a workspace `.env`; see [Workspace `.env` files](/gateway/security).
+
+>>>>>>> upstream/main
 ## DM policy and access control
 
 - `dmPolicy: "allowlist"` is the recommended default.
@@ -112,6 +117,10 @@ openclaw message send --channel synology-chat --target synology:123456 --text "S
 ```
 
 Media sends are supported by URL-based file delivery.
+<<<<<<< HEAD
+=======
+Outbound file URLs must use `http` or `https`, and private or otherwise blocked network targets are rejected before OpenClaw forwards the URL to the NAS webhook.
+>>>>>>> upstream/main
 
 ## Multi-account
 

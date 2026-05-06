@@ -109,6 +109,11 @@ const RELATED_BLOCK_PATTERN = new RegExp(
 );
 const MAX_WIKI_SEGMENT_BYTES = 240;
 const MAX_WIKI_FILENAME_COMPONENT_BYTES = 255;
+<<<<<<< HEAD
+=======
+const MAX_WIKI_SAFE_WRITE_FILENAME_COMPONENT_BYTES =
+  MAX_WIKI_FILENAME_COMPONENT_BYTES - Buffer.byteLength(".fallback.tmp") - 1;
+>>>>>>> upstream/main
 const WIKI_SEGMENT_HASH_BYTES = 12;
 
 function truncateUtf8CodePointSafe(value: string, maxBytes: number): string {
@@ -152,7 +157,11 @@ export function createWikiPageFilename(stem: string, extension = ".md"): string 
   const normalizedExtension = extension.startsWith(".") ? extension : `.${extension}`;
   const maxStemBytes = Math.max(
     1,
+<<<<<<< HEAD
     MAX_WIKI_FILENAME_COMPONENT_BYTES - Buffer.byteLength(normalizedExtension),
+=======
+    MAX_WIKI_SAFE_WRITE_FILENAME_COMPONENT_BYTES - Buffer.byteLength(normalizedExtension),
+>>>>>>> upstream/main
   );
   return `${capWikiValueWithHash(stem, maxStemBytes, "page")}${normalizedExtension}`;
 }

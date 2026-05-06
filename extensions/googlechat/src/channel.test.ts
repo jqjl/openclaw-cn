@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import {
   createDirectoryTestRuntime,
   expectDirectorySurface,
@@ -6,6 +10,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig } from "../runtime-api.js";
 import {
   googlechatDirectoryAdapter,
+<<<<<<< HEAD
+=======
+  googlechatMessageAdapter,
+>>>>>>> upstream/main
   googlechatOutboundAdapter,
   googlechatPairingTextAdapter,
   googlechatSecurityAdapter,
@@ -206,6 +214,73 @@ function setupRuntimeMediaMocks(params: { loadFileName: string; loadBytes: strin
 }
 
 describe("googlechatPlugin outbound sendMedia", () => {
+<<<<<<< HEAD
+=======
+  it("declares message adapter durable text, media, and thread with receipt proofs", async () => {
+    sendGoogleChatMessageMock.mockResolvedValue({
+      messageName: "spaces/AAA/messages/msg-1",
+    });
+    uploadGoogleChatAttachmentMock.mockResolvedValue({
+      attachmentUploadToken: "token-1",
+    });
+
+    const cfg = createGoogleChatCfg();
+
+    await expect(
+      verifyChannelMessageAdapterCapabilityProofs({
+        adapterName: "googlechat",
+        adapter: googlechatMessageAdapter,
+        proofs: {
+          text: async () => {
+            const result = await googlechatMessageAdapter.send?.text?.({
+              cfg,
+              to: "spaces/AAA",
+              text: "hello",
+            });
+            expect(result?.receipt.parts[0]?.kind).toBe("text");
+            expect(result?.receipt.platformMessageIds).toEqual(["spaces/AAA/messages/msg-1"]);
+          },
+          media: async () => {
+            const result = await googlechatMessageAdapter.send?.media?.({
+              cfg,
+              to: "spaces/AAA",
+              text: "image",
+              mediaUrl: "https://example.com/img.png",
+            });
+            expect(result?.receipt.parts[0]?.kind).toBe("media");
+            expect(result?.receipt.platformMessageIds).toEqual(["spaces/AAA/messages/msg-1"]);
+          },
+          thread: async () => {
+            sendGoogleChatMessageMock.mockClear();
+            await googlechatMessageAdapter.send?.text?.({
+              cfg,
+              to: "spaces/AAA",
+              text: "threaded",
+              threadId: "thread-1",
+            });
+            expect(sendGoogleChatMessageMock).toHaveBeenCalledWith(
+              expect.objectContaining({
+                space: "spaces/AAA",
+                thread: "thread-1",
+              }),
+            );
+          },
+          messageSendingHooks: () => {
+            expect(googlechatMessageAdapter.send?.text).toBeTypeOf("function");
+          },
+        },
+      }),
+    ).resolves.toEqual(
+      expect.arrayContaining([
+        { capability: "text", status: "verified" },
+        { capability: "media", status: "verified" },
+        { capability: "thread", status: "verified" },
+        { capability: "messageSendingHooks", status: "verified" },
+      ]),
+    );
+  });
+
+>>>>>>> upstream/main
   it("chunks outbound text without requiring Google Chat runtime initialization", () => {
     const chunker = googlechatOutboundAdapter.base.chunker;
 
@@ -256,10 +331,18 @@ describe("googlechatPlugin outbound sendMedia", () => {
         text: "caption",
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({
       messageId: "spaces/AAA/messages/msg-1",
       chatId: "spaces/AAA",
     });
+=======
+    expect(result).toMatchObject({
+      messageId: "spaces/AAA/messages/msg-1",
+      chatId: "spaces/AAA",
+    });
+    expect(result.receipt.primaryPlatformMessageId).toBe("spaces/AAA/messages/msg-1");
+>>>>>>> upstream/main
   });
 
   it("keeps remote URL media fetch on fetchRemoteMedia with maxBytes cap", async () => {
@@ -305,10 +388,18 @@ describe("googlechatPlugin outbound sendMedia", () => {
         text: "caption",
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({
       messageId: "spaces/AAA/messages/msg-2",
       chatId: "spaces/AAA",
     });
+=======
+    expect(result).toMatchObject({
+      messageId: "spaces/AAA/messages/msg-2",
+      chatId: "spaces/AAA",
+    });
+    expect(result.receipt.primaryPlatformMessageId).toBe("spaces/AAA/messages/msg-2");
+>>>>>>> upstream/main
   });
 });
 
@@ -572,7 +663,11 @@ describe("googlechatPlugin outbound cfg threading", () => {
         mediaLocalRoots: ["/tmp/workspace"],
         accountId: "default",
       }),
+<<<<<<< HEAD
     ).resolves.toEqual({
+=======
+    ).resolves.toMatchObject({
+>>>>>>> upstream/main
       messageId: "spaces/AAA/messages/msg-cold",
       chatId: "spaces/AAA",
     });

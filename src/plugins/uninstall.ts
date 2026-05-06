@@ -11,6 +11,10 @@ import {
   resolveDefaultPluginNpmDir,
   resolvePluginInstallDir,
 } from "./install-paths.js";
+<<<<<<< HEAD
+=======
+import { relinkOpenClawPeerDependenciesInManagedNpmRoot } from "./plugin-peer-link.js";
+>>>>>>> upstream/main
 import { defaultSlotIdForKey } from "./slots.js";
 
 export type UninstallActions = {
@@ -594,6 +598,10 @@ export async function applyPluginUninstallDirectoryRemoval(
         "npm",
         "uninstall",
         "--loglevel=error",
+<<<<<<< HEAD
+=======
+        "--legacy-peer-deps",
+>>>>>>> upstream/main
         "--ignore-scripts",
         "--no-audit",
         "--no-fund",
@@ -604,7 +612,15 @@ export async function applyPluginUninstallDirectoryRemoval(
       {
         cwd: removal.cleanup.npmRoot,
         timeoutMs: 300_000,
+<<<<<<< HEAD
         env: createSafeNpmInstallEnv(process.env, { packageLock: true, quiet: true }),
+=======
+        env: createSafeNpmInstallEnv(process.env, {
+          legacyPeerDeps: true,
+          packageLock: true,
+          quiet: true,
+        }),
+>>>>>>> upstream/main
       },
     );
     if (uninstall.code !== 0) {
@@ -616,6 +632,21 @@ export async function applyPluginUninstallDirectoryRemoval(
         }`,
       );
     }
+<<<<<<< HEAD
+=======
+    try {
+      await relinkOpenClawPeerDependenciesInManagedNpmRoot({
+        npmRoot: removal.cleanup.npmRoot,
+        logger: {
+          warn: (message) => warnings.push(message),
+        },
+      });
+    } catch (error) {
+      warnings.push(
+        `Failed to repair managed npm peer links after uninstalling ${removal.cleanup.packageName}: ${formatErrorMessage(error)}`,
+      );
+    }
+>>>>>>> upstream/main
   }
   try {
     await fs.rm(removal.target, { recursive: true, force: true });

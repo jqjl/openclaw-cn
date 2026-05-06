@@ -14,6 +14,15 @@ export type Snapshot = SchemaType<"Snapshot">;
 export type PresenceEntry = SchemaType<"PresenceEntry">;
 export type ErrorShape = SchemaType<"ErrorShape">;
 export type StateVersion = SchemaType<"StateVersion">;
+<<<<<<< HEAD
+=======
+export type EnvironmentStatus = SchemaType<"EnvironmentStatus">;
+export type EnvironmentSummary = SchemaType<"EnvironmentSummary">;
+export type EnvironmentsListParams = SchemaType<"EnvironmentsListParams">;
+export type EnvironmentsListResult = SchemaType<"EnvironmentsListResult">;
+export type EnvironmentsStatusParams = SchemaType<"EnvironmentsStatusParams">;
+export type EnvironmentsStatusResult = SchemaType<"EnvironmentsStatusResult">;
+>>>>>>> upstream/main
 export type AgentEvent = SchemaType<"AgentEvent">;
 export type AgentIdentityParams = SchemaType<"AgentIdentityParams">;
 export type AgentIdentityResult = SchemaType<"AgentIdentityResult">;
@@ -86,6 +95,7 @@ export type WizardStep = SchemaType<"WizardStep">;
 export type WizardNextResult = SchemaType<"WizardNextResult">;
 export type WizardStartResult = SchemaType<"WizardStartResult">;
 export type WizardStatusResult = SchemaType<"WizardStatusResult">;
+<<<<<<< HEAD
 export type TalkModeParams = SchemaType<"TalkModeParams">;
 export type TalkConfigParams = SchemaType<"TalkConfigParams">;
 export type TalkConfigResult = SchemaType<"TalkConfigResult">;
@@ -96,6 +106,30 @@ export type TalkRealtimeRelayMarkParams = SchemaType<"TalkRealtimeRelayMarkParam
 export type TalkRealtimeRelayStopParams = SchemaType<"TalkRealtimeRelayStopParams">;
 export type TalkRealtimeRelayToolResultParams = SchemaType<"TalkRealtimeRelayToolResultParams">;
 export type TalkRealtimeRelayOkResult = SchemaType<"TalkRealtimeRelayOkResult">;
+=======
+export type TalkEvent = SchemaType<"TalkEvent">;
+export type TalkModeParams = SchemaType<"TalkModeParams">;
+export type TalkCatalogParams = SchemaType<"TalkCatalogParams">;
+export type TalkCatalogResult = SchemaType<"TalkCatalogResult">;
+export type TalkConfigParams = SchemaType<"TalkConfigParams">;
+export type TalkConfigResult = SchemaType<"TalkConfigResult">;
+export type TalkClientCreateParams = SchemaType<"TalkClientCreateParams">;
+export type TalkClientCreateResult = SchemaType<"TalkClientCreateResult">;
+export type TalkClientToolCallParams = SchemaType<"TalkClientToolCallParams">;
+export type TalkClientToolCallResult = SchemaType<"TalkClientToolCallResult">;
+export type TalkSessionCreateParams = SchemaType<"TalkSessionCreateParams">;
+export type TalkSessionCreateResult = SchemaType<"TalkSessionCreateResult">;
+export type TalkSessionJoinParams = SchemaType<"TalkSessionJoinParams">;
+export type TalkSessionJoinResult = SchemaType<"TalkSessionJoinResult">;
+export type TalkSessionAppendAudioParams = SchemaType<"TalkSessionAppendAudioParams">;
+export type TalkSessionTurnParams = SchemaType<"TalkSessionTurnParams">;
+export type TalkSessionCancelTurnParams = SchemaType<"TalkSessionCancelTurnParams">;
+export type TalkSessionCancelOutputParams = SchemaType<"TalkSessionCancelOutputParams">;
+export type TalkSessionTurnResult = SchemaType<"TalkSessionTurnResult">;
+export type TalkSessionSubmitToolResultParams = SchemaType<"TalkSessionSubmitToolResultParams">;
+export type TalkSessionCloseParams = SchemaType<"TalkSessionCloseParams">;
+export type TalkSessionOkResult = SchemaType<"TalkSessionOkResult">;
+>>>>>>> upstream/main
 export type TalkSpeakParams = SchemaType<"TalkSpeakParams">;
 export type TalkSpeakResult = SchemaType<"TalkSpeakResult">;
 export type ChannelsStatusParams = SchemaType<"ChannelsStatusParams">;

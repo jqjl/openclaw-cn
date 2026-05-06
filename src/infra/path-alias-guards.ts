@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   BOUNDARY_PATH_ALIAS_POLICIES,
   resolveBoundaryPath,
@@ -32,3 +33,11 @@ export async function assertNoPathAliasEscape(params: {
     allowFinalHardlinkForUnlink: params.policy?.allowFinalHardlinkForUnlink,
   });
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  PATH_ALIAS_POLICIES,
+  assertNoPathAliasEscape,
+  type PathAliasPolicy,
+} from "@openclaw/fs-safe/advanced";
+>>>>>>> upstream/main

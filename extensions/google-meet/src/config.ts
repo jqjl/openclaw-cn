@@ -216,7 +216,11 @@ const DEFAULT_GOOGLE_MEET_CONFIG: GoogleMeetConfig = {
   voiceCall: {
     enabled: true,
     requestTimeoutMs: 30_000,
+<<<<<<< HEAD
     dtmfDelayMs: 2_500,
+=======
+    dtmfDelayMs: 12_000,
+>>>>>>> upstream/main
     postDtmfSpeechDelayMs: 5_000,
   },
   realtime: {

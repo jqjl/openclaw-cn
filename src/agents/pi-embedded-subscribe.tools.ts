@@ -10,6 +10,10 @@ import {
 } from "../shared/string-coerce.js";
 import { truncateUtf16Safe } from "../utils.js";
 import { collectTextContentBlocks } from "./content-blocks.js";
+<<<<<<< HEAD
+=======
+import { isMessageToolSendActionName } from "./pi-embedded-messaging.js";
+>>>>>>> upstream/main
 import type { MessagingToolSend } from "./pi-embedded-messaging.types.js";
 import { normalizeToolName } from "./tool-policy.js";
 
@@ -539,7 +543,11 @@ export function extractMessagingToolSend(
   const action = normalizeOptionalString(args.action) ?? "";
   const accountId = normalizeOptionalString(args.accountId);
   if (toolName === "message") {
+<<<<<<< HEAD
     if (action !== "send" && action !== "thread-reply") {
+=======
+    if (!isMessageToolSendActionName(action)) {
+>>>>>>> upstream/main
       return undefined;
     }
     const toRaw = resolveMessageToolTarget(args);
@@ -552,7 +560,14 @@ export function extractMessagingToolSend(
     const providerId = providerHint ? normalizeChannelId(providerHint) : null;
     const provider = providerId ?? normalizeOptionalLowercaseString(providerHint) ?? "message";
     const to = normalizeTargetForProvider(provider, toRaw);
+<<<<<<< HEAD
     return to ? { tool: toolName, provider, accountId, to } : undefined;
+=======
+    const threadId = normalizeOptionalString(args.threadId);
+    return to
+      ? { tool: toolName, provider, accountId, to, ...(threadId ? { threadId } : {}) }
+      : undefined;
+>>>>>>> upstream/main
   }
   const providerId = normalizeChannelId(toolName);
   if (!providerId) {

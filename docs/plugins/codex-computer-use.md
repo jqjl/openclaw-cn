@@ -289,3 +289,12 @@ registrations are dropped, then retry.
 source with explicit `/codex computer-use install --source <marketplace-source>`
 first, then future turn-start auto-install can use the discovered local
 marketplace.
+<<<<<<< HEAD
+=======
+
+## Related
+
+- [Codex harness](/plugins/codex-harness)
+- [Peekaboo bridge](/platforms/mac/peekaboo)
+- [iOS app](/platforms/ios)
+>>>>>>> upstream/main

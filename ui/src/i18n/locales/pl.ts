@@ -205,13 +205,35 @@ export const pl: TranslationMap = {
     autoThreshold: "automatyczny próg",
     overflowRetry: "ponowna próba po przepełnieniu",
     timeoutRetry: "ponowna próba po przekroczeniu limitu czasu",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} tokenów",
+=======
+    tokenRange: "{before} to {after} tokenów",
+>>>>>>> upstream/main
     tokensBefore: "{count} tokenów przed",
     tokenDeltaUnavailable: "zmiana liczby tokenów niedostępna",
     checkpoints: "{count} punktów kontrolnych",
     checkpoint: "{count} punkt kontrolny",
+<<<<<<< HEAD
     showCheckpoints: "Pokaż punkty kontrolne",
     hideCheckpoints: "Ukryj punkty kontrolne",
+=======
+    showSessionDetails: "Pokaż szczegóły sesji dla {count}",
+    hideSessionDetails: "Ukryj szczegóły sesji dla {count}",
+    sessionDetails: "Szczegóły sesji",
+    compactionHistory: "Historia kompaktowania",
+    status: "Status",
+    model: "Model",
+    provider: "Dostawca",
+    runtime: "Środowisko uruchomieniowe",
+    surface: "Powierzchnia",
+    subject: "Temat",
+    room: "Pokój",
+    space: "Przestrzeń",
+    sessionId: "ID sesji",
+    activeRun: "Aktywne uruchomienie",
+    archived: "Zarchiwizowano",
+>>>>>>> upstream/main
     loadingCheckpoints: "Ładowanie punktów kontrolnych…",
     noCheckpoints: "Dla tej sesji nie zarejestrowano punktów kontrolnych kompaktowania.",
     noSummary: "Nie zapisano podsumowania.",

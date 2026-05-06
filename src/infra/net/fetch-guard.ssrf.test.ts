@@ -1139,8 +1139,11 @@ describe("fetchWithSsrFGuard hardening", () => {
   });
 
   it("inherits the configured global stream timeout for guarded direct dispatchers", async () => {
+<<<<<<< HEAD
     const { getGlobalDispatcher, setGlobalDispatcher } = await import("undici");
     const previousDispatcher = getGlobalDispatcher();
+=======
+>>>>>>> upstream/main
     try {
       ensureGlobalUndiciStreamTimeouts({ timeoutMs: 1_900_000 });
       (globalThis as Record<string, unknown>)[TEST_UNDICI_RUNTIME_DEPS_KEY] = {
@@ -1168,7 +1171,10 @@ describe("fetchWithSsrFGuard hardening", () => {
       });
       await result.release();
     } finally {
+<<<<<<< HEAD
       setGlobalDispatcher(previousDispatcher);
+=======
+>>>>>>> upstream/main
       resetGlobalUndiciStreamTimeoutsForTests();
     }
   });

@@ -19,7 +19,17 @@ import {
 
 type Ctx = Pick<
   ChannelMessageActionContext,
+<<<<<<< HEAD
   "action" | "params" | "cfg" | "accountId" | "requesterSenderId" | "mediaLocalRoots"
+=======
+  | "action"
+  | "params"
+  | "cfg"
+  | "accountId"
+  | "requesterSenderId"
+  | "mediaLocalRoots"
+  | "mediaReadFile"
+>>>>>>> upstream/main
 >;
 
 export async function tryHandleDiscordMessageActionGuildAdmin(params: {
@@ -365,7 +375,14 @@ export async function tryHandleDiscordMessageActionGuildAdmin(params: {
     const content = readStringParam(actionParams, "message", {
       required: true,
     });
+<<<<<<< HEAD
     const mediaUrl = readStringParam(actionParams, "media", { trim: false });
+=======
+    const mediaUrl =
+      readStringParam(actionParams, "media", { trim: false }) ??
+      readStringParam(actionParams, "path", { trim: false }) ??
+      readStringParam(actionParams, "filePath", { trim: false });
+>>>>>>> upstream/main
     const replyTo = readStringParam(actionParams, "replyTo");
 
     // `message.thread-reply` (tool) uses `threadId`, while the CLI historically used `to`/`channelId`.
@@ -383,6 +400,10 @@ export async function tryHandleDiscordMessageActionGuildAdmin(params: {
         replyTo: replyTo ?? undefined,
       },
       cfg,
+<<<<<<< HEAD
+=======
+      { mediaLocalRoots: ctx.mediaLocalRoots, mediaReadFile: ctx.mediaReadFile },
+>>>>>>> upstream/main
     );
   }
 

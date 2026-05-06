@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -146,3 +147,7 @@ export async function movePathToTrash(
 
   throw new Error(`Unable to choose a unique trash destination for ${targetPath}`);
 }
+=======
+import "../infra/fs-safe-defaults.js";
+export { movePathToTrash, type MovePathToTrashOptions } from "@openclaw/fs-safe/advanced";
+>>>>>>> upstream/main

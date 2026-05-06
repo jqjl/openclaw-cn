@@ -20,4 +20,8 @@ export {
   createDefaultChannelRuntimeState,
 } from "openclaw/plugin-sdk/status-helpers";
 export { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
+<<<<<<< HEAD
 export { dispatchInboundReplyWithBase } from "openclaw/plugin-sdk/inbound-reply-dispatch";
+=======
+export { dispatchChannelMessageReplyWithBase } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main

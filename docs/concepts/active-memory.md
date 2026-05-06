@@ -18,10 +18,18 @@ have made the reply feel natural has already passed.
 Active memory gives the system one bounded chance to surface relevant memory
 before the main reply is generated.
 
+<<<<<<< HEAD
 ## Paste This Into Your Agent
 
 Paste this into your agent if you want it to enable Active Memory with a
 self-contained, safe-default setup:
+=======
+## Quick start
+
+Paste this into `openclaw.json` for a safe-default setup — plugin on, scoped to
+the `main` agent, direct-message sessions only, inherits the session model
+when available:
+>>>>>>> upstream/main
 
 ```json5
 {
@@ -47,12 +55,16 @@ self-contained, safe-default setup:
 }
 ```
 
+<<<<<<< HEAD
 This turns the plugin on for the `main` agent, keeps it limited to direct-message
 style sessions by default, lets it inherit the current session model first, and
 uses the configured fallback model only if no explicit or inherited model is
 available.
 
 After that, restart the gateway:
+=======
+Then restart the gateway:
+>>>>>>> upstream/main
 
 ```bash
 openclaw gateway
@@ -65,6 +77,7 @@ To inspect it live in a conversation:
 /trace on
 ```
 
+<<<<<<< HEAD
 ## Turn active memory on
 
 The safest setup is:
@@ -113,6 +126,17 @@ What this means:
 - `config.modelFallback` optionally provides your own fallback provider/model for recall
 - `config.promptStyle: "balanced"` uses the default general-purpose prompt style for `recent` mode
 - active memory still runs only on eligible interactive persistent chat sessions
+=======
+What the key fields do:
+
+- `plugins.entries.active-memory.enabled: true` turns the plugin on
+- `config.agents: ["main"]` opts only the `main` agent into active memory
+- `config.allowedChatTypes: ["direct"]` scopes it to direct-message sessions (opt in groups/channels explicitly)
+- `config.model` (optional) pins a dedicated recall model; unset inherits the current session model
+- `config.modelFallback` is used only when no explicit or inherited model resolves
+- `config.promptStyle: "balanced"` is the default for `recent` mode
+- Active memory still runs only for eligible interactive persistent chat sessions
+>>>>>>> upstream/main
 
 ## Speed recommendations
 
@@ -121,6 +145,7 @@ the same model you already use for normal replies. That is the safest default
 because it follows your existing provider, auth, and model preferences.
 
 If you want Active Memory to feel faster, use a dedicated inference model
+<<<<<<< HEAD
 instead of borrowing the main chat model.
 
 Example fast-provider setup:
@@ -189,15 +214,53 @@ plugins: {
       enabled: true,
       config: {
         model: "cerebras/gpt-oss-120b",
+=======
+instead of borrowing the main chat model. Recall quality matters, but latency
+matters more than for the main answer path, and Active Memory's tool surface
+is narrow (it only calls available memory recall tools).
+
+Good fast-model options:
+
+- `cerebras/gpt-oss-120b` for a dedicated low-latency recall model
+- `google/gemini-3-flash` as a low-latency fallback without changing your primary chat model
+- your normal session model, by leaving `config.model` unset
+
+### Cerebras setup
+
+Add a Cerebras provider and point Active Memory at it:
+
+```json5
+{
+  models: {
+    providers: {
+      cerebras: {
+        baseUrl: "https://api.cerebras.ai/v1",
+        apiKey: "${CEREBRAS_API_KEY}",
+        api: "openai-completions",
+        models: [{ id: "gpt-oss-120b", name: "GPT OSS 120B (Cerebras)" }],
+      },
+    },
+  },
+  plugins: {
+    entries: {
+      "active-memory": {
+        enabled: true,
+        config: { model: "cerebras/gpt-oss-120b" },
+>>>>>>> upstream/main
       },
     },
   },
 }
 ```
 
+<<<<<<< HEAD
 Caveat:
 
 - make sure the Cerebras API key actually has model access for the model you choose, because `/v1/models` visibility alone does not guarantee `chat/completions` access
+=======
+Make sure the Cerebras API key actually has `chat/completions` access for the
+chosen model — `/v1/models` visibility alone does not guarantee it.
+>>>>>>> upstream/main
 
 ## How to see it
 
@@ -423,7 +486,74 @@ If the connection is weak, it should return `NONE`.
 
 ## Query modes
 
+<<<<<<< HEAD
 `config.queryMode` controls how much conversation the blocking memory sub-agent sees.
+=======
+`config.queryMode` controls how much conversation the blocking memory sub-agent
+sees. Pick the smallest mode that still answers follow-up questions well;
+timeout budgets should grow with context size (`message` < `recent` < `full`).
+
+<Tabs>
+  <Tab title="message">
+    Only the latest user message is sent.
+
+    ```text
+    Latest user message only
+    ```
+
+    Use this when:
+
+    - you want the fastest behavior
+    - you want the strongest bias toward stable preference recall
+    - follow-up turns do not need conversational context
+
+    Start around `3000` to `5000` ms for `config.timeoutMs`.
+
+  </Tab>
+
+  <Tab title="recent">
+    The latest user message plus a small recent conversational tail is sent.
+
+    ```text
+    Recent conversation tail:
+    user: ...
+    assistant: ...
+    user: ...
+
+    Latest user message:
+    ...
+    ```
+
+    Use this when:
+
+    - you want a better balance of speed and conversational grounding
+    - follow-up questions often depend on the last few turns
+
+    Start around `15000` ms for `config.timeoutMs`.
+
+  </Tab>
+
+  <Tab title="full">
+    The full conversation is sent to the blocking memory sub-agent.
+
+    ```text
+    Full conversation context:
+    user: ...
+    assistant: ...
+    user: ...
+    ...
+    ```
+
+    Use this when:
+
+    - the strongest recall quality matters more than latency
+    - the conversation contains important setup far back in the thread
+
+    Start around `15000` ms or higher depending on thread size.
+
+  </Tab>
+</Tabs>
+>>>>>>> upstream/main
 
 ## Prompt styles
 
@@ -517,6 +647,7 @@ Prompt customization is not recommended unless you are deliberately testing a
 different recall contract. The default prompt is tuned to return either `NONE`
 or compact user-fact context for the main model.
 
+<<<<<<< HEAD
 ### `message`
 
 Only the latest user message is sent.
@@ -586,6 +717,8 @@ In general, timeout should increase with context size:
 message < recent < full
 ```
 
+=======
+>>>>>>> upstream/main
 ## Transcript persistence
 
 Active memory blocking memory sub-agent runs create a real `session.jsonl`
@@ -777,6 +910,7 @@ If active memory is too slow:
 
 ## Common issues
 
+<<<<<<< HEAD
 ### Embedding provider changed unexpectedly
 
 Active Memory uses the normal `memory_search` pipeline under
@@ -952,6 +1086,28 @@ Or, if you want Gemini embeddings:
 
 After changing the provider, restart the gateway and run a fresh test with
 `/trace on` so the Active Memory debug line reflects the new embedding path.
+=======
+Active Memory rides on the configured memory plugin's recall pipeline, so most
+recall surprises are embedding-provider problems, not Active Memory bugs. The
+default `memory-core` path uses `memory_search`; `memory-lancedb` uses
+`memory_recall`.
+
+<AccordionGroup>
+  <Accordion title="Embedding provider switched or stopped working">
+    If `memorySearch.provider` is unset, OpenClaw auto-detects the first
+    available embedding provider. A new API key, quota exhaustion, or a
+    rate-limited hosted provider can change which provider resolves between
+    runs. If no provider resolves, `memory_search` may degrade to lexical-only
+    retrieval; runtime failures after a provider is already selected do not
+    fall back automatically.
+
+    Pin the provider (and an optional fallback) explicitly to make selection
+    deterministic. See [Memory Search](/concepts/memory-search) for the full
+    list of providers and pinning examples.
+
+  </Accordion>
+
+>>>>>>> upstream/main
   <Accordion title="Recall feels slow, empty, or inconsistent">
     - Turn on `/trace on` to surface the plugin-owned Active Memory debug
       summary in the session.

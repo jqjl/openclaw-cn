@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
 import { resolveAgentDir, listAgentIds } from "../agents/agent-scope.js";
+=======
+import { resolveAgentDir, resolveDefaultAgentDir, listAgentIds } from "../agents/agent-scope.js";
+>>>>>>> upstream/main
 import { AUTH_STORE_VERSION } from "../agents/auth-profiles/constants.js";
 import { resolveAuthStorePath } from "../agents/auth-profiles/paths.js";
 import {
@@ -176,7 +180,11 @@ function listExistingAgentDirsFromState(): string[] {
 
 function listAuthProfileRepairCandidates(cfg: OpenClawConfig): AuthProfileRepairCandidate[] {
   const candidates = new Map<string, AuthProfileRepairCandidate>();
+<<<<<<< HEAD
   addCandidate(candidates, resolveOpenClawAgentDir());
+=======
+  addCandidate(candidates, resolveDefaultAgentDir(cfg));
+>>>>>>> upstream/main
   for (const agentId of listAgentIds(cfg)) {
     addCandidate(candidates, resolveAgentDir(cfg, agentId));
   }

@@ -666,8 +666,12 @@ function injectCommandResult(host: ChatHost, content: string) {
 }
 
 export async function refreshChat(host: ChatHost, opts?: { scheduleScroll?: boolean }) {
+<<<<<<< HEAD
   await Promise.all([
     loadChatHistory(host as unknown as ChatState),
+=======
+  void Promise.allSettled([
+>>>>>>> upstream/main
     loadSessions(host as unknown as SessionsState, {
       activeMinutes: 0,
       limit: 0,
@@ -678,6 +682,10 @@ export async function refreshChat(host: ChatHost, opts?: { scheduleScroll?: bool
     refreshChatModels(host),
     refreshChatCommands(host),
   ]);
+<<<<<<< HEAD
+=======
+  await loadChatHistory(host as unknown as ChatState);
+>>>>>>> upstream/main
   if (opts?.scheduleScroll !== false) {
     scheduleChatScroll(host as unknown as Parameters<typeof scheduleChatScroll>[0]);
   }

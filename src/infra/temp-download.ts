@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
 import { createSubsystemLogger } from "../logging/subsystem.js";
+=======
+import "./fs-safe-defaults.js";
+import crypto from "node:crypto";
+import path from "node:path";
+import { createSubsystemLogger } from "../logging/subsystem.js";
+import { tempWorkspace, type TempWorkspace } from "./private-temp-workspace.js";
+>>>>>>> upstream/main
 import { resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
 
 const logger = createSubsystemLogger("infra:temp-download");
@@ -11,15 +19,32 @@ export { resolvePreferredOpenClawTmpDir } from "./tmp-openclaw-dir.js";
 type TempDownloadTarget = {
   dir: string;
   path: string;
+<<<<<<< HEAD
   cleanup: () => Promise<void>;
 };
 
 function sanitizePrefix(prefix: string): string {
+=======
+  file(fileName?: string): string;
+  cleanup: () => Promise<void>;
+  [Symbol.asyncDispose](): Promise<void>;
+};
+
+function resolveTempRoot(tmpDir?: string): string {
+  return tmpDir ?? resolvePreferredOpenClawTmpDir();
+}
+
+function sanitizeTempPrefix(prefix: string): string {
+>>>>>>> upstream/main
   const normalized = prefix.replace(/[^a-zA-Z0-9_-]+/g, "-").replace(/^-+|-+$/g, "");
   return normalized || "tmp";
 }
 
+<<<<<<< HEAD
 function sanitizeExtension(extension?: string): string {
+=======
+function sanitizeTempExtension(extension?: string): string {
+>>>>>>> upstream/main
   if (!extension) {
     return "";
   }
@@ -35,6 +60,7 @@ export function sanitizeTempFileName(fileName: string): string {
   return normalized || "download.bin";
 }
 
+<<<<<<< HEAD
 function resolveTempRoot(tmpDir?: string): string {
   return tmpDir ?? resolvePreferredOpenClawTmpDir();
 }
@@ -58,6 +84,8 @@ async function cleanupTempDir(dir: string) {
   }
 }
 
+=======
+>>>>>>> upstream/main
 export function buildRandomTempFilePath(params: {
   prefix: string;
   extension?: string;
@@ -65,15 +93,42 @@ export function buildRandomTempFilePath(params: {
   now?: number;
   uuid?: string;
 }): string {
+<<<<<<< HEAD
   const prefix = sanitizePrefix(params.prefix);
   const extension = sanitizeExtension(params.extension);
+=======
+>>>>>>> upstream/main
   const nowCandidate = params.now;
   const now =
     typeof nowCandidate === "number" && Number.isFinite(nowCandidate)
       ? Math.trunc(nowCandidate)
       : Date.now();
   const uuid = params.uuid?.trim() || crypto.randomUUID();
+<<<<<<< HEAD
   return path.join(resolveTempRoot(params.tmpDir), `${prefix}-${now}-${uuid}${extension}`);
+=======
+  return path.join(
+    resolveTempRoot(params.tmpDir),
+    `${sanitizeTempPrefix(params.prefix)}-${now}-${uuid}${sanitizeTempExtension(params.extension)}`,
+  );
+}
+
+function buildTempDownloadTarget(
+  workspace: TempWorkspace,
+  fileName: string | undefined,
+): TempDownloadTarget {
+  const file = (nextName?: string) =>
+    workspace.path(sanitizeTempFileName(nextName ?? fileName ?? "download.bin"));
+  return {
+    dir: workspace.dir,
+    path: file(),
+    file,
+    cleanup: async () => {
+      await workspace.cleanup();
+    },
+    [Symbol.asyncDispose]: workspace[Symbol.asyncDispose].bind(workspace),
+  };
+>>>>>>> upstream/main
 }
 
 export async function createTempDownloadTarget(params: {
@@ -81,6 +136,7 @@ export async function createTempDownloadTarget(params: {
   fileName?: string;
   tmpDir?: string;
 }): Promise<TempDownloadTarget> {
+<<<<<<< HEAD
   const tempRoot = resolveTempRoot(params.tmpDir);
   const prefix = `${sanitizePrefix(params.prefix)}-`;
   const dir = await mkdtemp(path.join(tempRoot, prefix));
@@ -90,6 +146,24 @@ export async function createTempDownloadTarget(params: {
     cleanup: async () => {
       await cleanupTempDir(dir);
     },
+=======
+  const workspace = await tempWorkspace({
+    rootDir: resolveTempRoot(params.tmpDir),
+    prefix: sanitizeTempPrefix(params.prefix),
+  });
+  const target = buildTempDownloadTarget(workspace, params.fileName);
+  const cleanup = async () => {
+    try {
+      await workspace.cleanup();
+    } catch (err) {
+      logger.warn(`temp-path cleanup failed: ${String(err)}`, { error: err });
+    }
+  };
+  return {
+    ...target,
+    cleanup,
+    [Symbol.asyncDispose]: cleanup,
+>>>>>>> upstream/main
   };
 }
 

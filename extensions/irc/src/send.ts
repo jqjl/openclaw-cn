@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
 import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
 import { convertMarkdownTables } from "openclaw/plugin-sdk/text-runtime";
@@ -21,6 +28,10 @@ type SendIrcOptions = {
 type SendIrcResult = {
   messageId: string;
   target: string;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 function recordIrcOutboundActivity(accountId: string): void {
@@ -94,8 +105,26 @@ export async function sendMessageIrc(
 
   recordIrcOutboundActivity(account.accountId);
 
+<<<<<<< HEAD
   return {
     messageId: makeIrcMessageId(),
     target,
+=======
+  const messageId = makeIrcMessageId();
+  return {
+    messageId,
+    target,
+    receipt: createMessageReceiptFromOutboundResults({
+      results: [
+        {
+          channel: "irc",
+          messageId,
+          conversationId: target,
+        },
+      ],
+      kind: "text",
+      ...(opts.replyTo ? { replyToId: opts.replyTo } : {}),
+    }),
+>>>>>>> upstream/main
   };
 }

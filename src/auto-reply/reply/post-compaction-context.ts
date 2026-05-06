@@ -4,7 +4,11 @@ import { resolveAgentContextLimits } from "../../agents/agent-scope.js";
 import { resolveCronStyleNow } from "../../agents/current-time.js";
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+<<<<<<< HEAD
 import { openBoundaryFile } from "../../infra/boundary-file-read.js";
+=======
+import { openRootFile } from "../../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 import { normalizeLowercaseStringOrEmpty } from "../../shared/string-coerce.js";
 
 const MAX_CONTEXT_CHARS = 1800;
@@ -78,7 +82,11 @@ export async function readPostCompactionContext(
   const agentsPath = path.join(workspaceDir, "AGENTS.md");
 
   try {
+<<<<<<< HEAD
     const opened = await openBoundaryFile({
+=======
+    const opened = await openRootFile({
+>>>>>>> upstream/main
       absolutePath: agentsPath,
       rootPath: workspaceDir,
       boundaryLabel: "workspace root",

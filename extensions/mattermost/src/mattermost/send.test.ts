@@ -213,6 +213,7 @@ describe("sendMessageMattermost", () => {
       throw new Error("Mattermost runtime not initialized");
     });
 
+<<<<<<< HEAD
     await expect(
       sendMessageMattermost("channel:town-square", "hello", {
         cfg: providedCfg,
@@ -221,6 +222,21 @@ describe("sendMessageMattermost", () => {
     ).resolves.toEqual({
       messageId: "post-1",
       channelId: "town-square",
+=======
+    const result = await sendMessageMattermost("channel:town-square", "hello", {
+      cfg: providedCfg,
+      accountId: "work",
+    });
+
+    expect(result).toMatchObject({
+      messageId: "post-1",
+      channelId: "town-square",
+      receipt: {
+        primaryPlatformMessageId: "post-1",
+        platformMessageIds: ["post-1"],
+        parts: [expect.objectContaining({ platformMessageId: "post-1", kind: "text" })],
+      },
+>>>>>>> upstream/main
     });
     expect(mockState.loadConfig).not.toHaveBeenCalled();
   });
@@ -487,6 +503,13 @@ describe("sendMessageMattermost user-first resolution", () => {
     expect(params.channelId).toBe("dm-channel-id");
     expect(res.channelId).toBe("dm-channel-id");
     expect(res.messageId).toBe("post-id");
+<<<<<<< HEAD
+=======
+    expect(res.receipt).toMatchObject({
+      primaryPlatformMessageId: "post-id",
+      platformMessageIds: ["post-id"],
+    });
+>>>>>>> upstream/main
   });
 
   it("falls back to channel id when user lookup returns 404", async () => {

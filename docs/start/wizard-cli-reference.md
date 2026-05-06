@@ -136,6 +136,7 @@ What you set:
   <Accordion title="Anthropic API key">
     Uses `ANTHROPIC_API_KEY` if present or prompts for a key, then saves it for daemon use.
   </Accordion>
+<<<<<<< HEAD
   <Accordion title="OpenAI Code subscription (Codex CLI reuse)">
     If `~/.codex/auth.json` exists, the wizard can reuse it.
     Reused Codex CLI credentials stay managed by Codex CLI; on expiry OpenClaw
@@ -143,12 +144,23 @@ What you set:
     the refreshed credential back to Codex storage instead of taking ownership
     itself.
   </Accordion>
+=======
+>>>>>>> upstream/main
   <Accordion title="OpenAI Code subscription (OAuth)">
     Browser flow; paste `code#state`.
 
     Sets `agents.defaults.model` to `openai-codex/gpt-5.5` when model is unset or already OpenAI-family.
 
   </Accordion>
+<<<<<<< HEAD
+=======
+  <Accordion title="OpenAI Code subscription (device pairing)">
+    Browser pairing flow with a short-lived device code.
+
+    Sets `agents.defaults.model` to `openai-codex/gpt-5.5` when model is unset or already OpenAI-family.
+
+  </Accordion>
+>>>>>>> upstream/main
   <Accordion title="OpenAI API key">
     Uses `OPENAI_API_KEY` if present or prompts for a key, then stores the credential in auth profiles.
 

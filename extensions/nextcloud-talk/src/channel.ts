@@ -18,6 +18,10 @@ import {
 import { NextcloudTalkConfigSchema } from "./config-schema.js";
 import { nextcloudTalkDoctor } from "./doctor.js";
 import { nextcloudTalkGatewayAdapter } from "./gateway.js";
+<<<<<<< HEAD
+=======
+import { nextcloudTalkMessageAdapter } from "./message-adapter.js";
+>>>>>>> upstream/main
 import {
   looksLikeNextcloudTalkTargetId,
   normalizeNextcloudTalkMessagingTarget,
@@ -25,7 +29,10 @@ import {
 import { resolveNextcloudTalkGroupToolPolicy } from "./policy.js";
 import { getNextcloudTalkRuntime } from "./runtime.js";
 import { collectRuntimeConfigAssignments, secretTargetRegistryEntries } from "./secret-contract.js";
+<<<<<<< HEAD
 import { sendMessageNextcloudTalk } from "./send.js";
+=======
+>>>>>>> upstream/main
 import { resolveNextcloudTalkOutboundSessionRoute } from "./session-route.js";
 import { nextcloudTalkSetupAdapter } from "./setup-core.js";
 import { nextcloudTalkSetupWizard } from "./setup-surface.js";
@@ -151,6 +158,10 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> =
         }),
       }),
       gateway: nextcloudTalkGatewayAdapter,
+<<<<<<< HEAD
+=======
+      message: nextcloudTalkMessageAdapter,
+>>>>>>> upstream/main
     },
     pairing: {
       text: {
@@ -175,6 +186,7 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> =
       attachedResults: {
         channel: "nextcloud-talk",
         sendText: async ({ cfg, to, text, accountId, replyToId }) =>
+<<<<<<< HEAD
           await sendMessageNextcloudTalk(to, text, {
             accountId: accountId ?? undefined,
             replyTo: replyToId ?? undefined,
@@ -190,6 +202,24 @@ export const nextcloudTalkPlugin: ChannelPlugin<ResolvedNextcloudTalkAccount> =
               cfg: cfg as CoreConfig,
             },
           ),
+=======
+          await nextcloudTalkMessageAdapter.send.text({
+            cfg,
+            to,
+            text,
+            accountId,
+            replyToId,
+          }),
+        sendMedia: async ({ cfg, to, text, mediaUrl, accountId, replyToId }) =>
+          await nextcloudTalkMessageAdapter.send.media({
+            cfg,
+            to,
+            text,
+            mediaUrl: mediaUrl ?? "",
+            accountId,
+            replyToId,
+          }),
+>>>>>>> upstream/main
       },
     },
   });

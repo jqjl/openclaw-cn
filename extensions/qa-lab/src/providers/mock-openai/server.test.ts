@@ -1912,7 +1912,11 @@ describe("qa mock openai server", () => {
     });
 
     const channelPrompt =
+<<<<<<< HEAD
       "@qa-sut.example.test Image generation check: generate a QA lighthouse image and summarize it in one short sentence.";
+=======
+      '@qa-sut.example.test /tool image_generate action=generate prompt="QA lighthouse image for Matrix delivery testing" size=1024x1024 count=1';
+>>>>>>> upstream/main
     const genericPrompt =
       "Continue with the QA scenario plan and report worked, failed, and blocked items.";
 

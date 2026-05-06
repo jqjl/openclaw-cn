@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import {
   formatIcaclsResetCommand,
@@ -204,3 +205,13 @@ export function isGroupReadable(bits: number | null): boolean {
   }
   return (bits & 0o040) !== 0;
 }
+=======
+export {
+  formatPermissionDetail,
+  formatPermissionRemediation,
+  inspectPathPermissions,
+  safeStat,
+  type PermissionCheck,
+  type PermissionCheckOptions,
+} from "../infra/permissions.js";
+>>>>>>> upstream/main

@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
+<<<<<<< HEAD
 import { writeJsonAtomic } from "../../infra/json-files.js";
+=======
+import { writeJson } from "../../infra/json-files.js";
+>>>>>>> upstream/main
 import { safeParseJsonWithSchema } from "../../utils/zod-parse.js";
 import { acquireSessionWriteLock } from "../session-write-lock.js";
 import {
@@ -171,7 +175,11 @@ async function readShardedEntry<T extends RegistryEntry>(
 
 async function writeShardedEntry(dir: string, entry: RegistryEntryPayload): Promise<void> {
   await fs.mkdir(dir, { recursive: true });
+<<<<<<< HEAD
   await writeJsonAtomic(shardedEntryFilePath(dir, entry.containerName), entry, {
+=======
+  await writeJson(shardedEntryFilePath(dir, entry.containerName), entry, {
+>>>>>>> upstream/main
     trailingNewline: true,
   });
 }

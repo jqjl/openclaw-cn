@@ -123,6 +123,10 @@ export async function initiateCall(
   const initialMessage = opts.message;
   const mode = opts.mode ?? ctx.config.outbound.defaultMode;
   const dtmfSequence = opts.dtmfSequence;
+<<<<<<< HEAD
+=======
+  const requesterSessionKey = opts.requesterSessionKey?.trim();
+>>>>>>> upstream/main
   if (dtmfSequence) {
     const validationError = validateDtmfDigits(dtmfSequence);
     if (validationError) {
@@ -178,6 +182,10 @@ export async function initiateCall(
     metadata: {
       ...(initialMessage && { initialMessage }),
       mode,
+<<<<<<< HEAD
+=======
+      ...(requesterSessionKey ? { requesterSessionKey } : {}),
+>>>>>>> upstream/main
     },
   };
 

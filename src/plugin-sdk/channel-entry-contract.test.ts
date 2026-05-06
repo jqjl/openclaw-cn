@@ -323,9 +323,14 @@ describe("loadBundledEntryExportSync", () => {
     fs.writeFileSync(openedFdPath, "opened\n", "utf8");
     const jitiLoad = vi.fn(() => ({ load: 42 }));
     const createJiti = vi.fn(() => jitiLoad);
+<<<<<<< HEAD
     stubPluginModuleLoaderJitiFactory(createJiti as unknown as PluginModuleLoaderFactory);
     vi.doMock("../infra/boundary-file-read.js", () => ({
       openBoundaryFileSync: () => ({
+=======
+    vi.doMock("../infra/boundary-file-read.js", () => ({
+      openRootFileSync: () => ({
+>>>>>>> upstream/main
         ok: true,
         path: "C:\\Users\\alice\\openclaw\\dist\\extensions\\feishu\\helper.ts",
         fd: fs.openSync(openedFdPath, "r"),
@@ -345,6 +350,10 @@ describe("loadBundledEntryExportSync", () => {
             specifier: "./helper.ts",
             exportName: "load",
           },
+<<<<<<< HEAD
+=======
+          { createLoaderForTest: createJiti as never },
+>>>>>>> upstream/main
         ),
       ).toBe(42);
       expect(jitiLoad).toHaveBeenCalledWith(

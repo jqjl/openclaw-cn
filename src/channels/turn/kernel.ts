@@ -1,8 +1,32 @@
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import { clearHistoryEntriesIfEnabled } from "../../auto-reply/reply/history.js";
+<<<<<<< HEAD
 import { EMPTY_CHANNEL_TURN_DISPATCH_COUNTS } from "./dispatch-result.js";
 export { buildChannelTurnContext, filterChannelTurnSupplementalContext } from "./context.js";
 export type { BuildChannelTurnContextParams } from "./context.js";
+=======
+import { createChannelReplyPipeline } from "../message/reply-pipeline.js";
+import type { CreateChannelReplyPipelineParams } from "../message/reply-pipeline.js";
+import { EMPTY_CHANNEL_TURN_DISPATCH_COUNTS } from "./dispatch-result.js";
+import {
+  deliverInboundReplyWithMessageSendContext,
+  isDurableInboundReplyDeliveryHandled,
+  throwIfDurableInboundReplyDeliveryFailed,
+} from "./durable-delivery.js";
+export { buildChannelTurnContext, filterChannelTurnSupplementalContext } from "./context.js";
+export type { BuildChannelTurnContextParams } from "./context.js";
+export {
+  deliverDurableInboundReplyPayload,
+  deliverInboundReplyWithMessageSendContext,
+  isDurableInboundReplyDeliveryHandled,
+  throwIfDurableInboundReplyDeliveryFailed,
+} from "./durable-delivery.js";
+export type {
+  DurableInboundReplyDeliveryOptions,
+  DurableInboundReplyDeliveryParams,
+  DurableInboundReplyDeliveryResult,
+} from "./durable-delivery.js";
+>>>>>>> upstream/main
 import type {
   AssembledChannelTurn,
   ChannelEventClass,
@@ -10,6 +34,10 @@ import type {
   ChannelTurnDeliveryAdapter,
   ChannelTurnHistoryFinalizeOptions,
   ChannelTurnLogEvent,
+<<<<<<< HEAD
+=======
+  ChannelTurnReplyPipelineOptions,
+>>>>>>> upstream/main
   ChannelTurnResolved,
   ChannelTurnResult,
   DispatchedChannelTurnResult,
@@ -18,6 +46,10 @@ import type {
   RunChannelTurnParams,
   RunResolvedChannelTurnParams,
 } from "./types.js";
+<<<<<<< HEAD
+=======
+export { createChannelDeliveryResultFromReceipt } from "./delivery-result.js";
+>>>>>>> upstream/main
 export {
   EMPTY_CHANNEL_TURN_DISPATCH_COUNTS,
   hasFinalChannelTurnDispatch,
@@ -39,6 +71,10 @@ export type {
   ChannelTurnDispatcherOptions,
   ChannelTurnLogEvent,
   ChannelTurnRecordOptions,
+<<<<<<< HEAD
+=======
+  ChannelTurnReplyPipelineOptions,
+>>>>>>> upstream/main
   ChannelTurnResolved,
   ChannelTurnResult,
   DispatchedChannelTurnResult,
@@ -61,6 +97,21 @@ const DEFAULT_EVENT_CLASS: ChannelEventClass = {
   canStartAgentTurn: true,
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * @deprecated Compatibility assembly for legacy buffered reply dispatchers.
+ * New channel plugins should expose `defineChannelMessageAdapter(...)` from
+ * `openclaw/plugin-sdk/channel-message` and route send/receive behavior through
+ * the message lifecycle helpers.
+ */
+export function createChannelTurnReplyPipeline(
+  params: CreateChannelReplyPipelineParams,
+): ReturnType<typeof createChannelReplyPipeline> {
+  return createChannelReplyPipeline(params);
+}
+
+>>>>>>> upstream/main
 function isAdmission(value: unknown): value is ChannelTurnAdmission {
   if (!value || typeof value !== "object") {
     return false;
@@ -113,6 +164,37 @@ function clearPendingHistoryAfterTurn(params?: ChannelTurnHistoryFinalizeOptions
   });
 }
 
+<<<<<<< HEAD
+=======
+function resolveAssembledReplyPipeline(
+  params: AssembledChannelTurn,
+): Pick<AssembledChannelTurn, "dispatcherOptions" | "replyOptions"> {
+  if (!params.replyPipeline) {
+    return {
+      dispatcherOptions: params.dispatcherOptions,
+      replyOptions: params.replyOptions,
+    };
+  }
+  const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
+    cfg: params.cfg,
+    agentId: params.agentId,
+    channel: params.channel,
+    accountId: params.accountId,
+    ...params.replyPipeline,
+  });
+  return {
+    dispatcherOptions: {
+      ...replyPipeline,
+      ...params.dispatcherOptions,
+    },
+    replyOptions: {
+      onModelSelected,
+      ...params.replyOptions,
+    },
+  };
+}
+
+>>>>>>> upstream/main
 function resolveObserveOnlyDispatchResult<TDispatchResult>(
   params: PreparedChannelTurn<TDispatchResult>,
 ): TDispatchResult {
@@ -125,6 +207,10 @@ function resolveObserveOnlyDispatchResult<TDispatchResult>(
 export async function dispatchAssembledChannelTurn(
   params: AssembledChannelTurn,
 ): Promise<DispatchedChannelTurnResult> {
+<<<<<<< HEAD
+=======
+  const replyPipeline = resolveAssembledReplyPipeline(params);
+>>>>>>> upstream/main
   return await runPreparedChannelTurnCore(
     {
       channel: params.channel,
@@ -143,6 +229,7 @@ export async function dispatchAssembledChannelTurn(
           ctx: params.ctxPayload,
           cfg: params.cfg,
           dispatcherOptions: {
+<<<<<<< HEAD
             ...params.dispatcherOptions,
             deliver: async (payload: ReplyPayload, info) => {
               await params.delivery.deliver(payload, info);
@@ -150,6 +237,41 @@ export async function dispatchAssembledChannelTurn(
             onError: params.delivery.onError,
           },
           replyOptions: params.replyOptions,
+=======
+            ...replyPipeline.dispatcherOptions,
+            deliver: async (payload: ReplyPayload, info) => {
+              const preparedPayload = params.delivery.preparePayload
+                ? await params.delivery.preparePayload(payload, info)
+                : payload;
+              const durableOptions =
+                typeof params.delivery.durable === "function"
+                  ? await params.delivery.durable(preparedPayload, info)
+                  : params.delivery.durable;
+              if (durableOptions) {
+                const durable = await deliverInboundReplyWithMessageSendContext({
+                  cfg: params.cfg,
+                  channel: params.channel,
+                  accountId: params.accountId,
+                  agentId: params.agentId,
+                  ctxPayload: params.ctxPayload,
+                  payload: preparedPayload,
+                  info,
+                  ...durableOptions,
+                });
+                throwIfDurableInboundReplyDeliveryFailed(durable);
+                if (isDurableInboundReplyDeliveryHandled(durable)) {
+                  await params.delivery.onDelivered?.(preparedPayload, info, durable.delivery);
+                  return durable.delivery;
+                }
+              }
+              const result = await params.delivery.deliver(preparedPayload, info);
+              await params.delivery.onDelivered?.(preparedPayload, info, result);
+              return result;
+            },
+            onError: params.delivery.onError,
+          },
+          replyOptions: replyPipeline.replyOptions,
+>>>>>>> upstream/main
           replyResolver: params.replyResolver,
         }),
     },

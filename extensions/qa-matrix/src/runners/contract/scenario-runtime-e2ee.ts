@@ -210,9 +210,21 @@ async function assertMatrixQaPeerDeviceTrusted(params: {
   client: MatrixQaE2eeScenarioClient;
   deviceId: string;
   label: string;
+<<<<<<< HEAD
   userId: string;
 }) {
   const status = await params.client.getDeviceVerificationStatus(params.userId, params.deviceId);
+=======
+  timeoutMs: number;
+  userId: string;
+}) {
+  const startedAt = Date.now();
+  let status = await params.client.getDeviceVerificationStatus(params.userId, params.deviceId);
+  while (!status.verified && Date.now() - startedAt < params.timeoutMs) {
+    await sleep(Math.min(250, Math.max(25, params.timeoutMs - (Date.now() - startedAt))));
+    status = await params.client.getDeviceVerificationStatus(params.userId, params.deviceId);
+  }
+>>>>>>> upstream/main
   if (!status.verified) {
     throw new Error(
       `${params.label} did not trust ${params.userId}/${params.deviceId} after verification`,
@@ -2969,12 +2981,20 @@ export async function runMatrixQaE2eeDeviceSasVerificationScenario(
         client: driver,
         deviceId: observerDeviceId,
         label: "driver",
+<<<<<<< HEAD
+=======
+        timeoutMs: context.timeoutMs,
+>>>>>>> upstream/main
         userId: context.observerUserId,
       });
       const observerTrust = await assertMatrixQaPeerDeviceTrusted({
         client: observer,
         deviceId: driverDeviceId,
         label: "observer",
+<<<<<<< HEAD
+=======
+        timeoutMs: context.timeoutMs,
+>>>>>>> upstream/main
         userId: context.driverUserId,
       });
       return {
@@ -3072,6 +3092,7 @@ export async function runMatrixQaE2eeQrVerificationScenario(
           sameMatrixQaVerificationTransaction(summary, completedDriver) && summary.completed,
         timeoutMs: context.timeoutMs,
       });
+<<<<<<< HEAD
       const driverTrust = await driver.getDeviceVerificationStatus(
         context.observerUserId,
         observerDeviceId,
@@ -3080,6 +3101,22 @@ export async function runMatrixQaE2eeQrVerificationScenario(
         context.driverUserId,
         driverDeviceId,
       );
+=======
+      const driverTrust = await assertMatrixQaPeerDeviceTrusted({
+        client: driver,
+        deviceId: observerDeviceId,
+        label: "driver",
+        timeoutMs: context.timeoutMs,
+        userId: context.observerUserId,
+      });
+      const observerTrust = await assertMatrixQaPeerDeviceTrusted({
+        client: observer,
+        deviceId: driverDeviceId,
+        label: "observer",
+        timeoutMs: context.timeoutMs,
+        userId: context.driverUserId,
+      });
+>>>>>>> upstream/main
       return {
         artifacts: {
           completedVerificationIds: [completedDriver.id, completedObserver.id],

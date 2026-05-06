@@ -44,6 +44,10 @@ type CreateSessionParams = {
   label?: string;
   model?: string;
   parentSessionKey?: string;
+<<<<<<< HEAD
+=======
+  emitCommandHooks?: boolean;
+>>>>>>> upstream/main
 };
 
 type CreateSessionResult = {

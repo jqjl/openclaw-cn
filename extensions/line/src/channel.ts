@@ -9,7 +9,11 @@ import { type ChannelPlugin, type ResolvedLineAccount } from "./channel-api.js";
 import { lineChannelPluginCommon } from "./channel-shared.js";
 import { lineGatewayAdapter } from "./gateway.js";
 import { resolveLineGroupRequireMention } from "./group-policy.js";
+<<<<<<< HEAD
 import { lineOutboundAdapter } from "./outbound.js";
+=======
+import { lineMessageAdapter, lineOutboundAdapter } from "./outbound.js";
+>>>>>>> upstream/main
 import { hasLineDirectives, parseLineDirectives } from "./reply-payload-transform.js";
 import { getLineRuntime } from "./runtime.js";
 import { lineSetupAdapter } from "./setup-core.js";
@@ -72,6 +76,10 @@ export const linePlugin: ChannelPlugin<ResolvedLineAccount> = createChatChannelP
     setup: lineSetupAdapter,
     status: lineStatusAdapter,
     gateway: lineGatewayAdapter,
+<<<<<<< HEAD
+=======
+    message: lineMessageAdapter,
+>>>>>>> upstream/main
     bindings: lineBindingsAdapter,
     conversationBindings: {
       defaultTopLevelPlacement: "current",

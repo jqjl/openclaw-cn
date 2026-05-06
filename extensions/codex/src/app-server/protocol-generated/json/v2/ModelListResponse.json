@@ -4,12 +4,16 @@
   "type": "object",
   "required": ["data"],
   "properties": {
+<<<<<<< HEAD
     "data": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Model"
       }
     },
+=======
+    "data": { "type": "array", "items": { "$ref": "#/definitions/Model" } },
+>>>>>>> upstream/main
     "nextCursor": {
       "description": "Opaque cursor to pass to the next call to continue after the last item. If None, there are no more items to return.",
       "type": ["string", "null"]
@@ -44,6 +48,7 @@
         "supportedReasoningEfforts"
       ],
       "properties": {
+<<<<<<< HEAD
         "additionalSpeedTiers": {
           "default": [],
           "type": "array",
@@ -111,22 +116,53 @@
               "type": "null"
             }
           ]
+=======
+        "additionalSpeedTiers": { "default": [], "type": "array", "items": { "type": "string" } },
+        "availabilityNux": {
+          "anyOf": [{ "$ref": "#/definitions/ModelAvailabilityNux" }, { "type": "null" }]
+        },
+        "defaultReasoningEffort": { "$ref": "#/definitions/ReasoningEffort" },
+        "description": { "type": "string" },
+        "displayName": { "type": "string" },
+        "hidden": { "type": "boolean" },
+        "id": { "type": "string" },
+        "inputModalities": {
+          "default": ["text", "image"],
+          "type": "array",
+          "items": { "$ref": "#/definitions/InputModality" }
+        },
+        "isDefault": { "type": "boolean" },
+        "model": { "type": "string" },
+        "supportedReasoningEfforts": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/ReasoningEffortOption" }
+        },
+        "supportsPersonality": { "default": false, "type": "boolean" },
+        "upgrade": { "type": ["string", "null"] },
+        "upgradeInfo": {
+          "anyOf": [{ "$ref": "#/definitions/ModelUpgradeInfo" }, { "type": "null" }]
+>>>>>>> upstream/main
         }
       }
     },
     "ModelAvailabilityNux": {
       "type": "object",
       "required": ["message"],
+<<<<<<< HEAD
       "properties": {
         "message": {
           "type": "string"
         }
       }
+=======
+      "properties": { "message": { "type": "string" } }
+>>>>>>> upstream/main
     },
     "ModelUpgradeInfo": {
       "type": "object",
       "required": ["model"],
       "properties": {
+<<<<<<< HEAD
         "migrationMarkdown": {
           "type": ["string", "null"]
         },
@@ -139,6 +175,12 @@
         "upgradeCopy": {
           "type": ["string", "null"]
         }
+=======
+        "migrationMarkdown": { "type": ["string", "null"] },
+        "model": { "type": "string" },
+        "modelLink": { "type": ["string", "null"] },
+        "upgradeCopy": { "type": ["string", "null"] }
+>>>>>>> upstream/main
       }
     },
     "ReasoningEffort": {
@@ -150,12 +192,17 @@
       "type": "object",
       "required": ["description", "reasoningEffort"],
       "properties": {
+<<<<<<< HEAD
         "description": {
           "type": "string"
         },
         "reasoningEffort": {
           "$ref": "#/definitions/ReasoningEffort"
         }
+=======
+        "description": { "type": "string" },
+        "reasoningEffort": { "$ref": "#/definitions/ReasoningEffort" }
+>>>>>>> upstream/main
       }
     }
   }

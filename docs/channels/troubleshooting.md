@@ -39,7 +39,11 @@ Healthy baseline:
 | Random disconnect/relogin loops     | `openclaw channels status --probe` + logs           | Recent reconnects are flagged even when currently connected; watch logs, restart the gateway, then relink if flapping continues. |
 | Replies arrive seconds/minutes late | `openclaw doctor --fix`                             | Doctor stops verified stale local TUI clients when they are degrading the Gateway event loop.                                    |
 
+<<<<<<< HEAD
 Full troubleshooting: [/channels/whatsapp#troubleshooting](/channels/whatsapp#troubleshooting)
+=======
+Full troubleshooting: [WhatsApp troubleshooting](/channels/whatsapp#troubleshooting)
+>>>>>>> upstream/main
 
 ## Telegram
 
@@ -55,7 +59,11 @@ Full troubleshooting: [/channels/whatsapp#troubleshooting](/channels/whatsapp#tr
 | `setMyCommands` rejected at startup  | Inspect logs for `BOT_COMMANDS_TOO_MUCH`         | Reduce plugin/skill/custom Telegram commands or disable native menus.                                                      |
 | Upgraded and allowlist blocks you    | `openclaw security audit` and config allowlists  | Run `openclaw doctor --fix` or replace `@username` with numeric sender IDs.                                                |
 
+<<<<<<< HEAD
 Full troubleshooting: [/channels/telegram#troubleshooting](/channels/telegram#troubleshooting)
+=======
+Full troubleshooting: [Telegram troubleshooting](/channels/telegram#troubleshooting)
+>>>>>>> upstream/main
 
 ## Discord
 
@@ -68,7 +76,11 @@ Full troubleshooting: [/channels/telegram#troubleshooting](/channels/telegram#tr
 | Typing/token usage but no Discord message | Session log shows assistant text with `didSendViaMessagingTool: false` | The model answered privately instead of calling the message tool. Use a tool-call-reliable model, or set `messages.groupChat.visibleReplies: "automatic"` to auto-post. |
 | DM replies missing                        | `openclaw pairing list discord`                                        | Approve DM pairing or adjust DM policy.                                                                                                                                 |
 
+<<<<<<< HEAD
 Full troubleshooting: [/channels/discord#troubleshooting](/channels/discord#troubleshooting)
+=======
+Full troubleshooting: [Discord troubleshooting](/channels/discord#troubleshooting)
+>>>>>>> upstream/main
 
 ## Slack
 
@@ -80,7 +92,11 @@ Full troubleshooting: [/channels/discord#troubleshooting](/channels/discord#trou
 | DMs blocked                            | `openclaw pairing list slack`             | Approve pairing or relax DM policy.                                                                                                                  |
 | Channel message ignored                | Check `groupPolicy` and channel allowlist | Allow the channel or switch policy to `open`.                                                                                                        |
 
+<<<<<<< HEAD
 Full troubleshooting: [/channels/slack#troubleshooting](/channels/slack#troubleshooting)
+=======
+Full troubleshooting: [Slack troubleshooting](/channels/slack#troubleshooting)
+>>>>>>> upstream/main
 
 ## iMessage and BlueBubbles
 
@@ -94,8 +110,13 @@ Full troubleshooting: [/channels/slack#troubleshooting](/channels/slack#troubles
 
 Full troubleshooting:
 
+<<<<<<< HEAD
 - [/channels/imessage#troubleshooting](/channels/imessage#troubleshooting)
 - [/channels/bluebubbles#troubleshooting](/channels/bluebubbles#troubleshooting)
+=======
+- [iMessage troubleshooting](/channels/imessage#troubleshooting)
+- [BlueBubbles troubleshooting](/channels/bluebubbles#troubleshooting)
+>>>>>>> upstream/main
 
 ## Signal
 
@@ -107,7 +128,11 @@ Full troubleshooting:
 | DM blocked                      | `openclaw pairing list signal`             | Approve sender or adjust DM policy.                      |
 | Group replies do not trigger    | Check group allowlist and mention patterns | Add sender/group or loosen gating.                       |
 
+<<<<<<< HEAD
 Full troubleshooting: [/channels/signal#troubleshooting](/channels/signal#troubleshooting)
+=======
+Full troubleshooting: [Signal troubleshooting](/channels/signal#troubleshooting)
+>>>>>>> upstream/main
 
 ## QQ Bot
 
@@ -120,7 +145,11 @@ Full troubleshooting: [/channels/signal#troubleshooting](/channels/signal#troubl
 | Voice not transcribed           | Check STT provider config                   | Configure `channels.qqbot.stt` or `tools.media.audio`.          |
 | Proactive messages not arriving | Check QQ platform interaction requirements  | QQ may block bot-initiated messages without recent interaction. |
 
+<<<<<<< HEAD
 Full troubleshooting: [/channels/qqbot#troubleshooting](/channels/qqbot#troubleshooting)
+=======
+Full troubleshooting: [QQ Bot troubleshooting](/channels/qqbot#troubleshooting)
+>>>>>>> upstream/main
 
 ## Matrix
 

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import nodeFs from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+=======
+import fs from "node:fs/promises";
+import path from "node:path";
+import { appendRegularFile, resolveRegularFileAppendFlags } from "../infra/fs-safe.js";
+>>>>>>> upstream/main
 
 export type QueuedFileWriteResult = "queued" | "dropped";
 
@@ -16,6 +22,7 @@ type QueuedFileWriterOptions = {
   yieldBeforeWrite?: boolean;
 };
 
+<<<<<<< HEAD
 type QueuedFileAppendFlagConstants = Pick<
   typeof nodeFs.constants,
   "O_APPEND" | "O_CREAT" | "O_WRONLY"
@@ -70,12 +77,16 @@ function verifyStableOpenedFile(params: {
     throw new Error(`Refusing to write queued log after file changed: ${params.filePath}`);
   }
 }
+=======
+export const resolveQueuedFileAppendFlags = resolveRegularFileAppendFlags;
+>>>>>>> upstream/main
 
 async function safeAppendFile(
   filePath: string,
   line: string,
   options: QueuedFileWriterOptions,
 ): Promise<void> {
+<<<<<<< HEAD
   await assertNoSymlinkParents(filePath);
 
   let preOpenStat: nodeFs.Stats | undefined;
@@ -113,6 +124,14 @@ async function safeAppendFile(
   } finally {
     await handle.close();
   }
+=======
+  await appendRegularFile({
+    filePath,
+    content: line,
+    maxFileBytes: options.maxFileBytes,
+    rejectSymlinkParents: true,
+  });
+>>>>>>> upstream/main
 }
 
 function waitForImmediate(): Promise<void> {

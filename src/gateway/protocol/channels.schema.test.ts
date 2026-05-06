@@ -50,6 +50,11 @@ describe("ChannelsStatusResultSchema", () => {
           ],
         },
         channelDefaultAccountId: { discord: "default" },
+<<<<<<< HEAD
+=======
+        partial: true,
+        warnings: ["discord:default probe timed out after 1000ms"],
+>>>>>>> upstream/main
         eventLoop: {
           degraded: true,
           reasons: ["event_loop_delay", "cpu"],

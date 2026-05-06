@@ -16,6 +16,16 @@ handshake time.
 
 - WebSocket, text frames with JSON payloads.
 - First frame **must** be a `connect` request.
+<<<<<<< HEAD
+=======
+- Pre-connect frames are capped at 64 KiB. After a successful handshake, clients
+  should follow the `hello-ok.policy.maxPayload` and
+  `hello-ok.policy.maxBufferedBytes` limits. With diagnostics enabled,
+  oversized inbound frames and slow outbound buffers emit `payload.large` events
+  before the gateway closes or drops the affected frame. These events keep
+  sizes, limits, surfaces, and safe reason codes. They do not keep the message
+  body, attachment contents, raw frame body, tokens, cookies, or secret values.
+>>>>>>> upstream/main
 
 ## Handshake (connect)
 
@@ -246,7 +256,12 @@ base method scope:
 
 Nodes declare capability claims at connect time:
 
+<<<<<<< HEAD
 - `caps`: high-level capability categories.
+=======
+- `caps`: high-level capability categories such as `camera`, `canvas`, `screen`,
+  `location`, `voice`, and `talk`.
+>>>>>>> upstream/main
 - `commands`: command allowlist for invoke.
 - `permissions`: granular toggles (e.g. `screen.record`, `camera.capture`).
 
@@ -292,6 +307,20 @@ Successful gateways return a structured result:
 Older gateways may still return `{ "ok": true }` for `node.event`; clients should treat that as an
 acknowledged RPC, not as durable presence persistence.
 
+<<<<<<< HEAD
+=======
+## Broadcast event scoping
+
+Server-pushed WebSocket broadcast events are scope-gated so that pairing-scoped or node-only sessions do not passively receive session content.
+
+- **Chat, agent, and tool-result frames** (including streamed `agent` events and tool call results) require at least `operator.read`. Sessions without `operator.read` skip these frames entirely.
+- **Plugin-defined `plugin.*` broadcasts** are gated to `operator.write` or `operator.admin`, depending on how the plugin registered them.
+- **Status and transport events** (`heartbeat`, `presence`, `tick`, connect/disconnect lifecycle, etc.) remain unrestricted so transport health stays observable to every authenticated session.
+- **Unknown broadcast event families** are scope-gated by default (fail-closed) unless a registered handler explicitly relaxes them.
+
+Each client connection keeps its own per-client sequence number so broadcasts preserve monotonic ordering on that socket even when different clients see different scope-filtered subsets of the event stream.
+
+>>>>>>> upstream/main
 ## Common RPC method families
 
 The public WS surface is broader than the handshake/auth examples above. This
@@ -313,6 +342,7 @@ enumeration of `src/gateway/server-methods/*.ts`.
 
   </Accordion>
 
+<<<<<<< HEAD
 - `health` returns the cached or freshly probed gateway health snapshot.
 - `status` returns the `/status`-style gateway summary; sensitive fields are
   included only for admin-scoped operator clients.
@@ -324,6 +354,17 @@ enumeration of `src/gateway/server-methods/*.ts`.
   context.
 - `last-heartbeat` returns the latest persisted heartbeat event.
 - `set-heartbeats` toggles heartbeat processing on the gateway.
+=======
+  <Accordion title="Models and usage">
+    - `models.list` returns the runtime-allowed model catalog. Pass `{ "view": "configured" }` for picker-sized configured models (`agents.defaults.models` first, then `models.providers.*.models`), or `{ "view": "all" }` for the full catalog.
+    - `usage.status` returns provider usage windows/remaining quota summaries.
+    - `usage.cost` returns aggregated cost usage summaries for a date range.
+    - `doctor.memory.status` returns vector-memory / cached embedding readiness for the active default agent workspace. Pass `{ "probe": true }` or `{ "deep": true }` only when the caller explicitly wants a live embedding provider ping.
+    - `doctor.memory.remHarness` returns a bounded, read-only REM harness preview for remote control-plane clients. It can include workspace paths, memory snippets, rendered grounded markdown, and deep promotion candidates, so callers need `operator.read`.
+    - `sessions.usage` returns per-session usage summaries.
+    - `sessions.usage.timeseries` returns timeseries usage for one session.
+    - `sessions.usage.logs` returns usage log entries for one session.
+>>>>>>> upstream/main
 
   </Accordion>
 
@@ -345,8 +386,24 @@ enumeration of `src/gateway/server-methods/*.ts`.
   </Accordion>
 
   <Accordion title="Talk and TTS">
+<<<<<<< HEAD
     - `talk.config` returns the effective Talk config payload; `includeSecrets` requires `operator.talk.secrets` (or `operator.admin`).
     - `talk.mode` sets/broadcasts the current Talk mode state for WebChat/Control UI clients.
+=======
+    - `talk.catalog` returns the read-only Talk provider catalog for speech, streaming transcription, and realtime voice. It includes provider ids, labels, configured state, exposed model/voice ids, canonical modes, transports, brain strategies, and realtime audio/capability flags without returning provider secrets or mutating global config.
+    - `talk.config` returns the effective Talk config payload; `includeSecrets` requires `operator.talk.secrets` (or `operator.admin`).
+    - `talk.session.create` creates a Gateway-owned Talk session for `realtime/gateway-relay`, `transcription/gateway-relay`, or `stt-tts/managed-room`. `brain: "direct-tools"` requires `operator.admin`.
+    - `talk.session.join` validates a managed-room session token, emits `session.ready` or `session.replaced` events as needed, and returns room/session metadata plus recent Talk events without the plaintext token or stored token hash.
+    - `talk.session.appendAudio` appends base64 PCM input audio to Gateway-owned realtime relay and transcription sessions.
+    - `talk.session.startTurn`, `talk.session.endTurn`, and `talk.session.cancelTurn` drive managed-room turn lifecycle with stale-turn rejection before state is cleared.
+    - `talk.session.cancelOutput` stops assistant audio output, primarily for VAD-gated barge-in in Gateway relay sessions.
+    - `talk.session.submitToolResult` completes a provider tool call emitted by a Gateway-owned realtime relay session.
+    - `talk.session.close` closes a Gateway-owned relay, transcription, or managed-room session and emits terminal Talk events.
+    - `talk.mode` sets/broadcasts the current Talk mode state for WebChat/Control UI clients.
+    - `talk.client.create` creates a client-owned realtime provider session using `webrtc` or `provider-websocket` while the Gateway owns config, credentials, instructions, and tool policy.
+    - `talk.client.toolCall` lets client-owned realtime transports forward provider tool calls to Gateway policy. The first supported tool is `openclaw_agent_consult`; clients receive a run id and wait for normal chat lifecycle events before submitting the provider-specific tool result.
+    - `talk.event` is the single Talk event channel for realtime, transcription, STT/TTS, managed-room, telephony, and meeting adapters.
+>>>>>>> upstream/main
     - `talk.speak` synthesizes speech through the active Talk speech provider.
     - `tts.status` returns TTS enabled state, active provider, fallback providers, and provider config state.
     - `tts.providers` returns the visible TTS provider inventory.
@@ -376,6 +433,10 @@ enumeration of `src/gateway/server-methods/*.ts`.
     - `agents.create`, `agents.update`, and `agents.delete` manage agent records and workspace wiring.
     - `agents.files.list`, `agents.files.get`, and `agents.files.set` manage the bootstrap workspace files exposed for an agent.
     - `artifacts.list`, `artifacts.get`, and `artifacts.download` expose transcript-derived artifact summaries and downloads for an explicit `sessionKey`, `runId`, or `taskId` scope. Run and task queries resolve the owning session server-side and only return transcript media with matching provenance; unsafe or local URL sources return unsupported downloads instead of fetching server-side.
+<<<<<<< HEAD
+=======
+    - `environments.list` and `environments.status` expose read-only Gateway-local and node environment discovery for SDK clients.
+>>>>>>> upstream/main
     - `agent.identity.get` returns the effective assistant identity for an agent or session.
     - `agent.wait` waits for a run to finish and returns the terminal snapshot when available.
 

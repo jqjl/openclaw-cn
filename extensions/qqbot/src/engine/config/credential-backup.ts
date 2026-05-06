@@ -26,7 +26,12 @@
  */
 
 import fs from "node:fs";
+<<<<<<< HEAD
 import path from "node:path";
+=======
+import { loadJsonFile } from "openclaw/plugin-sdk/json-store";
+import { replaceFileAtomicSync } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { getCredentialBackupFile, getLegacyCredentialBackupFile } from "../utils/data-paths.js";
 
 interface CredentialBackup {
@@ -43,16 +48,27 @@ export function saveCredentialBackup(accountId: string, appId: string, clientSec
   }
   try {
     const backupPath = getCredentialBackupFile(accountId);
+<<<<<<< HEAD
     fs.mkdirSync(path.dirname(backupPath), { recursive: true });
+=======
+>>>>>>> upstream/main
     const data: CredentialBackup = {
       accountId,
       appId,
       clientSecret,
       savedAt: new Date().toISOString(),
     };
+<<<<<<< HEAD
     const tmpPath = `${backupPath}.tmp`;
     fs.writeFileSync(tmpPath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
     fs.renameSync(tmpPath, backupPath);
+=======
+    replaceFileAtomicSync({
+      filePath: backupPath,
+      content: `${JSON.stringify(data, null, 2)}\n`,
+      tempPrefix: ".qqbot-credential-backup",
+    });
+>>>>>>> upstream/main
   } catch {
     /* best-effort — ignore */
   }
@@ -69,17 +85,28 @@ export function loadCredentialBackup(accountId?: string): CredentialBackup | nul
   try {
     if (accountId) {
       const newPath = getCredentialBackupFile(accountId);
+<<<<<<< HEAD
       if (fs.existsSync(newPath)) {
         const data = JSON.parse(fs.readFileSync(newPath, "utf8")) as CredentialBackup;
         if (data?.appId && data.clientSecret) {
           return data;
         }
+=======
+      const data = loadJsonFile<CredentialBackup>(newPath);
+      if (data?.appId && data.clientSecret) {
+        return data;
+>>>>>>> upstream/main
       }
     }
 
     const legacy = getLegacyCredentialBackupFile();
+<<<<<<< HEAD
     if (fs.existsSync(legacy)) {
       const data = JSON.parse(fs.readFileSync(legacy, "utf8")) as CredentialBackup;
+=======
+    const data = loadJsonFile<CredentialBackup>(legacy);
+    if (data) {
+>>>>>>> upstream/main
       if (!data?.appId || !data?.clientSecret) {
         return null;
       }
@@ -89,10 +116,18 @@ export function loadCredentialBackup(accountId?: string): CredentialBackup | nul
       if (data.accountId) {
         try {
           const backupPath = getCredentialBackupFile(data.accountId);
+<<<<<<< HEAD
           fs.mkdirSync(path.dirname(backupPath), { recursive: true });
           const tmpPath = `${backupPath}.tmp`;
           fs.writeFileSync(tmpPath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
           fs.renameSync(tmpPath, backupPath);
+=======
+          replaceFileAtomicSync({
+            filePath: backupPath,
+            content: `${JSON.stringify(data, null, 2)}\n`,
+            tempPrefix: ".qqbot-credential-backup",
+          });
+>>>>>>> upstream/main
           fs.unlinkSync(legacy);
         } catch {
           /* ignore migration errors */

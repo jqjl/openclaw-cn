@@ -1668,16 +1668,28 @@ participant:
 - Run `openclaw voicecall tail` and check that Twilio webhooks are arriving at
   the Gateway.
 - Run `openclaw logs --follow` and look for the Twilio Meet sequence: Google
+<<<<<<< HEAD
   Meet delegates the join, Voice Call starts the phone leg, Google Meet waits
   `voiceCall.dtmfDelayMs`, sends DTMF with `voicecall.dtmf`, waits
   `voiceCall.postDtmfSpeechDelayMs`, then requests intro speech with
   `voicecall.speak`.
+=======
+  Meet delegates the join, Voice Call stores and serves pre-connect DTMF TwiML,
+  Voice Call serves realtime TwiML for the Twilio call, then Google Meet requests
+  intro speech with `voicecall.speak`.
+>>>>>>> upstream/main
 - Re-run `openclaw googlemeet setup --transport twilio`; a green setup check is
   required but does not prove the meeting PIN sequence is correct.
 - Confirm the dial-in number belongs to the same Meet invitation and region as
   the PIN.
+<<<<<<< HEAD
 - Increase `voiceCall.dtmfDelayMs` if Meet answers slowly or the call transcript
   still shows the prompt asking for a PIN after DTMF was sent.
+=======
+- Increase `voiceCall.dtmfDelayMs` from the 12-second default if Meet answers
+  slowly or the call transcript still shows the prompt asking for a PIN after
+  pre-connect DTMF was sent.
+>>>>>>> upstream/main
 - If the participant joins but you do not hear the greeting, check
   `openclaw logs --follow` for the post-DTMF `voicecall.speak` request and
   either media-stream TTS playback or the Twilio `<Say>` fallback. If the call

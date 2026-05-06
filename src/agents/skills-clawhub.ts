@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileExists } from "../infra/archive.js";
+=======
+import path from "node:path";
+>>>>>>> upstream/main
 import {
   downloadClawHubSkillArchive,
   fetchClawHubSkillDetail,
@@ -10,9 +14,17 @@ import {
   type ClawHubSkillSearchResult,
 } from "../infra/clawhub.js";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
 import { withExtractedArchiveRoot } from "../infra/install-flow.js";
 import { installPackageDir } from "../infra/install-package-dir.js";
 import { resolveSafeInstallDir } from "../infra/install-safe-path.js";
+=======
+import { pathExists } from "../infra/fs-safe.js";
+import { withExtractedArchiveRoot } from "../infra/install-flow.js";
+import { installPackageDir } from "../infra/install-package-dir.js";
+import { resolveSafeInstallDir } from "../infra/install-safe-path.js";
+import { tryReadJson, writeJson } from "../infra/json-files.js";
+>>>>>>> upstream/main
 
 const DOT_DIR = ".clawhub";
 const LEGACY_DOT_DIR = ".clawdhub";
@@ -133,7 +145,11 @@ function resolveSkillInstallDir(workspaceDir: string, slug: string): string {
 
 async function ensureSkillRoot(rootDir: string): Promise<void> {
   for (const candidate of ["SKILL.md", "skill.md", "skills.md", "SKILL.MD"]) {
+<<<<<<< HEAD
     if (await fileExists(path.join(rootDir, candidate))) {
+=======
+    if (await pathExists(path.join(rootDir, candidate))) {
+>>>>>>> upstream/main
       return;
     }
   }
@@ -147,10 +163,15 @@ async function readClawHubSkillsLockfile(workspaceDir: string): Promise<ClawHubS
   ];
   for (const candidate of candidates) {
     try {
+<<<<<<< HEAD
       const raw = JSON.parse(
         await fs.readFile(candidate, "utf8"),
       ) as Partial<ClawHubSkillsLockfile>;
       if (raw.version === 1 && raw.skills && typeof raw.skills === "object") {
+=======
+      const raw = await tryReadJson<Partial<ClawHubSkillsLockfile>>(candidate);
+      if (raw?.version === 1 && raw.skills && typeof raw.skills === "object") {
+>>>>>>> upstream/main
         return {
           version: 1,
           skills: raw.skills,
@@ -168,8 +189,12 @@ async function writeClawHubSkillsLockfile(
   lockfile: ClawHubSkillsLockfile,
 ): Promise<void> {
   const targetPath = path.join(workspaceDir, DOT_DIR, "lock.json");
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(targetPath), { recursive: true });
   await fs.writeFile(targetPath, `${JSON.stringify(lockfile, null, 2)}\n`, "utf8");
+=======
+  await writeJson(targetPath, lockfile, { trailingNewline: true });
+>>>>>>> upstream/main
 }
 
 async function readClawHubSkillOrigin(skillDir: string): Promise<ClawHubSkillOrigin | null> {
@@ -179,9 +204,15 @@ async function readClawHubSkillOrigin(skillDir: string): Promise<ClawHubSkillOri
   ];
   for (const candidate of candidates) {
     try {
+<<<<<<< HEAD
       const raw = JSON.parse(await fs.readFile(candidate, "utf8")) as Partial<ClawHubSkillOrigin>;
       if (
         raw.version === 1 &&
+=======
+      const raw = await tryReadJson<Partial<ClawHubSkillOrigin>>(candidate);
+      if (
+        raw?.version === 1 &&
+>>>>>>> upstream/main
         typeof raw.registry === "string" &&
         typeof raw.slug === "string" &&
         typeof raw.installedVersion === "string" &&
@@ -201,8 +232,12 @@ async function writeClawHubSkillOrigin(
   origin: ClawHubSkillOrigin,
 ): Promise<void> {
   const targetPath = path.join(skillDir, SKILL_ORIGIN_RELATIVE_PATH);
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(targetPath), { recursive: true });
   await fs.writeFile(targetPath, `${JSON.stringify(origin, null, 2)}\n`, "utf8");
+=======
+  await writeJson(targetPath, origin, { trailingNewline: true });
+>>>>>>> upstream/main
 }
 
 export async function searchSkillsFromClawHub(params: {
@@ -274,7 +309,11 @@ async function performClawHubSkillInstall(
       baseUrl: params.baseUrl,
     });
     const targetDir = resolveSkillInstallDir(params.workspaceDir, params.slug);
+<<<<<<< HEAD
     if (!params.force && (await fileExists(targetDir))) {
+=======
+    if (!params.force && (await pathExists(targetDir))) {
+>>>>>>> upstream/main
       return {
         ok: false,
         error: `Skill already exists at ${targetDir}. Re-run with force/update.`,

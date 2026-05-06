@@ -13,12 +13,21 @@ host configuration.
 
 ## Key terms
 
+<<<<<<< HEAD
 - **Channel**: `telegram`, `whatsapp`, `discord`, `irc`, `googlechat`, `slack`, `signal`, `imessage`, `line`, plus extension channels. `webchat` is the internal WebChat UI channel and is not a configurable outbound channel.
 - **AccountId**: per‑channel account instance (when supported).
 - Optional channel default account: `channels.<channel>.defaultAccount` chooses
   which account is used when an outbound path does not specify `accountId`.
   - In multi-account setups, set an explicit default (`defaultAccount` or `accounts.default`) when two or more accounts are configured. Without it, fallback routing may pick the first normalized account ID.
 - **AgentId**: an isolated workspace + session store (“brain”).
+=======
+- **Channel**: `telegram`, `whatsapp`, `discord`, `irc`, `googlechat`, `slack`, `signal`, `imessage`, `line`, plus plugin channels. `webchat` is the internal WebChat UI channel and is not a configurable outbound channel.
+- **AccountId**: per-channel account instance (when supported).
+- Optional channel default account: `channels.<channel>.defaultAccount` chooses
+  which account is used when an outbound path does not specify `accountId`.
+  - In multi-account setups, set an explicit default (`defaultAccount` or `accounts.default`) when two or more accounts are configured. Without it, fallback routing may pick the first normalized account ID.
+- **AgentId**: an isolated workspace + session store ("brain").
+>>>>>>> upstream/main
 - **SessionKey**: the bucket key used to store context and control concurrency.
 
 ## Outbound target prefixes
@@ -29,10 +38,21 @@ Target-kind and service prefixes such as `channel:<id>`, `user:<id>`, `room:<id>
 
 ## Session key shapes (examples)
 
+<<<<<<< HEAD
 Direct messages collapse to the agent’s **main** session:
 
 - `agent:<agentId>:<mainKey>` (default: `agent:main:main`)
 
+=======
+Direct messages collapse to the agent's **main** session by default:
+
+- `agent:<agentId>:<mainKey>` (default: `agent:main:main`)
+
+Even when direct-message conversation history is shared with main, sandbox and
+tool policy use a derived per-account direct-chat runtime key for external DMs
+so channel-originated messages are not treated like local main-session runs.
+
+>>>>>>> upstream/main
 Groups and channels remain isolated per channel:
 
 - Groups: `agent:<agentId>:<channel>:group:<id>`
@@ -51,7 +71,11 @@ Examples:
 ## Main DM route pinning
 
 When `session.dmScope` is `main`, direct messages may share one main session.
+<<<<<<< HEAD
 To prevent the session’s `lastRoute` from being overwritten by non-owner DMs,
+=======
+To prevent the session's `lastRoute` from being overwritten by non-owner DMs,
+>>>>>>> upstream/main
 OpenClaw infers a pinned owner from `allowFrom` when all of these are true:
 
 - `allowFrom` has exactly one non-wildcard entry.
@@ -138,8 +162,13 @@ stores must stay inside that resolved agent root and use a regular
 
 ## WebChat behavior
 
+<<<<<<< HEAD
 WebChat attaches to the **selected agent** and defaults to the agent’s main
 session. Because of this, WebChat lets you see cross‑channel context for that
+=======
+WebChat attaches to the **selected agent** and defaults to the agent's main
+session. Because of this, WebChat lets you see cross-channel context for that
+>>>>>>> upstream/main
 agent in one place.
 
 ## Reply context

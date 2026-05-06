@@ -7,6 +7,11 @@ const streamInstances = vi.hoisted(
       isFinalized: boolean;
       isFailed: boolean;
       streamedLength: number;
+<<<<<<< HEAD
+=======
+      messageId?: string;
+      previewStreamId?: string;
+>>>>>>> upstream/main
       sendInformativeUpdate: ReturnType<typeof vi.fn>;
       update: ReturnType<typeof vi.fn>;
       replaceInformativeWithFinal: ReturnType<typeof vi.fn>;
@@ -20,6 +25,11 @@ vi.mock("./streaming-message.js", () => ({
     isFinalized = false;
     isFailed = false;
     streamedLength = 0;
+<<<<<<< HEAD
+=======
+    messageId: string | undefined;
+    previewStreamId = "preview-stream";
+>>>>>>> upstream/main
     sendInformativeUpdate = vi.fn(async () => {});
     update = vi.fn(function (
       this: { hasContent: boolean; isFailed: boolean; streamedLength: number },
@@ -40,6 +50,10 @@ vi.mock("./streaming-message.js", () => ({
         isFailed: boolean;
         isFinalized: boolean;
         streamedLength: number;
+<<<<<<< HEAD
+=======
+        messageId?: string;
+>>>>>>> upstream/main
         update: (payloadText?: string) => void;
       },
       payloadText: string,
@@ -49,10 +63,19 @@ vi.mock("./streaming-message.js", () => ({
         return false;
       }
       this.isFinalized = true;
+<<<<<<< HEAD
       return this.hasContent;
     });
     finalize = vi.fn(async function (this: { isFinalized: boolean }) {
       this.isFinalized = true;
+=======
+      this.messageId = "final-message";
+      return this.hasContent;
+    });
+    finalize = vi.fn(async function (this: { isFinalized: boolean; messageId?: string }) {
+      this.isFinalized = true;
+      this.messageId = "final-message";
+>>>>>>> upstream/main
     });
 
     constructor() {
@@ -131,8 +154,16 @@ describe("createTeamsReplyStreamController", () => {
     ctrl.onPartialReply({ text: "Streamed text" });
 
     await ctrl.preparePayload({ text: "Streamed text" });
+<<<<<<< HEAD
 
     expect(streamInstances[0]?.finalize).toHaveBeenCalled();
+=======
+    await ctrl.finalize();
+
+    expect(streamInstances[0]?.finalize).toHaveBeenCalled();
+    expect(ctrl.liveState().phase).toBe("finalized");
+    expect(ctrl.liveState().receipt?.primaryPlatformMessageId).toBe("final-message");
+>>>>>>> upstream/main
   });
 
   it("uses fallback even when onPartialReply fires after stream finalized", async () => {
@@ -223,6 +254,27 @@ describe("createTeamsReplyStreamController", () => {
     expect(streamInstances[0]?.replaceInformativeWithFinal).toHaveBeenCalledWith(fullText);
   });
 
+<<<<<<< HEAD
+=======
+  it("records lifecycle receipt when progress final streaming succeeds", async () => {
+    streamInstances.length = 0;
+    const ctrl = createTeamsReplyStreamController({
+      conversationType: "personal",
+      context: { sendActivity: vi.fn(async () => ({ id: "a" })) } as never,
+      feedbackLoopEnabled: false,
+      log: { debug: vi.fn() } as never,
+      msteamsConfig: { streaming: { mode: "progress" } } as never,
+    });
+    await ctrl.noteProgressWork({ toolName: "exec" });
+    await ctrl.noteProgressWork();
+
+    await expect(ctrl.preparePayload({ text: "complete final answer" })).resolves.toBeUndefined();
+
+    expect(ctrl.liveState().phase).toBe("finalized");
+    expect(ctrl.liveState().receipt?.primaryPlatformMessageId).toBe("final-message");
+  });
+
+>>>>>>> upstream/main
   it("falls back with full text when progress final send fails after streaming text", async () => {
     streamInstances.length = 0;
     const ctrl = createTeamsReplyStreamController({

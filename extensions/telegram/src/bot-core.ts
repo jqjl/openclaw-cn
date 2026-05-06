@@ -368,6 +368,10 @@ export function createTelegramBotCore(
   };
   const updateTracker = createTelegramUpdateTracker({
     initialUpdateId,
+<<<<<<< HEAD
+=======
+    ackPolicy: "after_agent_dispatch",
+>>>>>>> upstream/main
     ...(typeof opts.updateOffset?.onUpdateId === "function"
       ? { onAcceptedUpdateId: opts.updateOffset.onUpdateId }
       : {}),

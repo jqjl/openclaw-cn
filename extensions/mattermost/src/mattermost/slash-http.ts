@@ -30,7 +30,11 @@ import {
 import { deliverMattermostReplyPayload } from "./reply-delivery.js";
 import {
   buildModelsProviderData,
+<<<<<<< HEAD
   createChannelReplyPipeline,
+=======
+  createChannelMessageReplyPipeline,
+>>>>>>> upstream/main
   isRequestBodyLimitError,
   logTypingFailure,
   readRequestBodyWithLimit,
@@ -837,7 +841,11 @@ async function handleSlashCommandAsync(params: {
     accountId: account.accountId,
   });
 
+<<<<<<< HEAD
   const { onModelSelected, typingCallbacks, ...replyPipeline } = createChannelReplyPipeline({
+=======
+  const { onModelSelected, typingCallbacks, ...replyPipeline } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
     cfg,
     agentId: route.agentId,
     channel: "mattermost",

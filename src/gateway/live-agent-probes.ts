@@ -38,6 +38,25 @@ export function assertLiveImageProbeReply(text: string): void {
   }
 }
 
+<<<<<<< HEAD
+=======
+export function shouldRunLiveImageProbe(params: { agent: string; override?: string }): boolean {
+  const override = params.override?.trim();
+  if (override) {
+    switch (normalizeOptionalLowercaseString(override)) {
+      case "1":
+      case "on":
+      case "true":
+      case "yes":
+        return true;
+      default:
+        return false;
+    }
+  }
+  return normalizeOptionalLowercaseString(params.agent) !== "opencode";
+}
+
+>>>>>>> upstream/main
 export function createLiveCronProbeSpec(
   params: {
     agentId?: string;

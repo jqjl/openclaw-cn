@@ -5,6 +5,10 @@ import type {
   TalkConfig,
   TalkConfigResponse,
   TalkProviderConfig,
+<<<<<<< HEAD
+=======
+  TalkRealtimeConfig,
+>>>>>>> upstream/main
 } from "./types.gateway.js";
 import type { OpenClawConfig } from "./types.openclaw.js";
 import { coerceSecretRef } from "./types.secrets.js";
@@ -85,6 +89,53 @@ function normalizeTalkProviders(value: unknown): Record<string, TalkProviderConf
   return Object.keys(providers).length > 0 ? providers : undefined;
 }
 
+<<<<<<< HEAD
+=======
+function normalizeTalkRealtimeConfig(value: unknown): TalkRealtimeConfig | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const source = value;
+  const normalized: TalkRealtimeConfig = {};
+
+  const provider = normalizeOptionalString(source.provider);
+  if (provider) {
+    normalized.provider = provider;
+  }
+  const providers = normalizeTalkProviders(source.providers);
+  if (providers) {
+    normalized.providers = providers;
+  }
+  const model = normalizeOptionalString(source.model);
+  if (model) {
+    normalized.model = model;
+  }
+  const voice = normalizeOptionalString(source.voice);
+  if (voice) {
+    normalized.voice = voice;
+  }
+  if (source.mode === "realtime" || source.mode === "stt-tts" || source.mode === "transcription") {
+    normalized.mode = source.mode;
+  }
+  if (
+    source.transport === "webrtc" ||
+    source.transport === "provider-websocket" ||
+    source.transport === "gateway-relay" ||
+    source.transport === "managed-room"
+  ) {
+    normalized.transport = source.transport;
+  }
+  if (
+    source.brain === "agent-consult" ||
+    source.brain === "direct-tools" ||
+    source.brain === "none"
+  ) {
+    normalized.brain = source.brain;
+  }
+  return Object.keys(normalized).length > 0 ? normalized : undefined;
+}
+
+>>>>>>> upstream/main
 function activeProviderFromTalk(talk: TalkConfig): string | undefined {
   const provider = normalizeOptionalString(talk.provider);
   const providers = talk.providers;
@@ -118,10 +169,20 @@ export function normalizeTalkSection(value: TalkConfig | undefined): TalkConfig 
   }
 
   const providers = normalizeTalkProviders(source.providers);
+<<<<<<< HEAD
+=======
+  const realtime = normalizeTalkRealtimeConfig(source.realtime);
+>>>>>>> upstream/main
   const provider = normalizeOptionalString(source.provider);
   if (providers) {
     normalized.providers = providers;
   }
+<<<<<<< HEAD
+=======
+  if (realtime) {
+    normalized.realtime = realtime;
+  }
+>>>>>>> upstream/main
   if (provider) {
     normalized.provider = provider;
   }
@@ -182,11 +243,21 @@ export function buildTalkConfigResponse(value: unknown): TalkConfigResponse | un
   if (normalized?.providers && Object.keys(normalized.providers).length > 0) {
     payload.providers = normalized.providers;
   }
+<<<<<<< HEAD
+=======
+  if (normalized?.realtime && Object.keys(normalized.realtime).length > 0) {
+    payload.realtime = normalized.realtime;
+  }
+>>>>>>> upstream/main
 
   const resolved =
     resolveActiveTalkProviderConfig(normalized) ??
     (legacyCompat ? { provider: "elevenlabs", config: legacyCompat } : undefined);
+<<<<<<< HEAD
   const activeProvider = normalizeOptionalString(normalized?.provider) ?? resolved?.provider;
+=======
+  const activeProvider = resolved?.provider;
+>>>>>>> upstream/main
   if (activeProvider) {
     payload.provider = activeProvider;
   }

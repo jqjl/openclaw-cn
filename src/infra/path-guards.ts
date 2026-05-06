@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
@@ -62,3 +63,21 @@ export function isPathInside(root: string, target: string): boolean {
   const relative = path.relative(resolvedRoot, resolvedTarget);
   return relative === "" || (!PARENT_SEGMENT_PREFIX.test(relative) && !path.isAbsolute(relative));
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  isNotFoundPathError,
+  hasNodeErrorCode,
+  isNodeError,
+  isPathInside,
+  isPathInsideWithRealpath,
+  isSymlinkOpenError,
+  isWithinDir,
+  normalizeWindowsPathForComparison,
+  resolveSafeBaseDir,
+  resolveSafeRelativePath,
+  safeRealpathSync,
+  safeStatSync,
+  splitSafeRelativePath,
+} from "@openclaw/fs-safe/path";
+>>>>>>> upstream/main

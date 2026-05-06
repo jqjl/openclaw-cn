@@ -5,6 +5,10 @@ import {
   readStringArrayParam,
   readStringParam,
 } from "../../agents/tools/common.js";
+<<<<<<< HEAD
+=======
+import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
+>>>>>>> upstream/main
 import { parseReplyDirectives } from "../../auto-reply/reply/reply-directives.js";
 import { normalizeChatType, type ChatType } from "../../channels/chat-type.js";
 import { getChannelPlugin } from "../../channels/plugins/index.js";
@@ -19,7 +23,13 @@ import {
   hasInteractiveReplyBlocks,
   hasMessagePresentationBlocks,
   hasReplyPayloadContent,
+<<<<<<< HEAD
   normalizeMessagePresentation,
+=======
+  normalizeInteractiveReply,
+  normalizeMessagePresentation,
+  type ReplyPayloadDelivery,
+>>>>>>> upstream/main
 } from "../../interactive/payload.js";
 import type { OutboundMediaAccess } from "../../media/load-options.js";
 import { getAgentScopedMediaLocalRoots } from "../../media/local-roots.js";
@@ -719,6 +729,31 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
   });
   const mirrorMediaUrls =
     mergedMediaUrls.length > 0 ? mergedMediaUrls : mediaUrl ? [mediaUrl] : undefined;
+<<<<<<< HEAD
+=======
+  const rawDelivery = params.delivery;
+  const delivery =
+    rawDelivery && typeof rawDelivery === "object" && !Array.isArray(rawDelivery)
+      ? (rawDelivery as ReplyPayloadDelivery)
+      : undefined;
+  const rawChannelData = params.channelData;
+  const channelData =
+    rawChannelData && typeof rawChannelData === "object" && !Array.isArray(rawChannelData)
+      ? (rawChannelData as Record<string, unknown>)
+      : undefined;
+  const presentation = normalizeMessagePresentation(params.presentation);
+  const interactive = normalizeInteractiveReply(params.interactive);
+  const payload: ReplyPayload = {
+    text: message,
+    ...(mediaUrl ? { mediaUrl } : {}),
+    ...(mergedMediaUrls.length ? { mediaUrls: mergedMediaUrls } : {}),
+    ...(asVoice ? { audioAsVoice: true } : {}),
+    ...(presentation ? { presentation } : {}),
+    ...(interactive ? { interactive } : {}),
+    ...(delivery ? { delivery } : {}),
+    ...(channelData ? { channelData } : {}),
+  };
+>>>>>>> upstream/main
   throwIfAborted(abortSignal);
 
   const gatewayPluginAction = await runGatewayPluginMessageActionOrNull({
@@ -779,6 +814,10 @@ async function handleSendAction(ctx: ResolvedActionContext): Promise<MessageActi
     },
     to,
     message,
+<<<<<<< HEAD
+=======
+    payload,
+>>>>>>> upstream/main
     mediaUrl: mediaUrl || undefined,
     mediaUrls: mergedMediaUrls.length ? mergedMediaUrls : undefined,
     asVoice,

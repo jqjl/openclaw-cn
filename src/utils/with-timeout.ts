@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   if (!timeoutMs || timeoutMs <= 0) {
     return promise;
@@ -12,3 +13,6 @@ export function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<
     }
   });
 }
+=======
+export { withTimeout } from "../infra/fs-safe.js";
+>>>>>>> upstream/main

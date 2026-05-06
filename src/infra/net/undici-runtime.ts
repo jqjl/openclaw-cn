@@ -11,6 +11,14 @@ export type UndiciRuntimeDeps = {
   fetch: typeof import("undici").fetch;
 };
 
+<<<<<<< HEAD
+=======
+export type UndiciGlobalDispatcherDeps = Pick<UndiciRuntimeDeps, "Agent" | "EnvHttpProxyAgent"> & {
+  getGlobalDispatcher: typeof import("undici").getGlobalDispatcher;
+  setGlobalDispatcher: typeof import("undici").setGlobalDispatcher;
+};
+
+>>>>>>> upstream/main
 type UndiciAgentOptions = ConstructorParameters<UndiciRuntimeDeps["Agent"]>[0];
 type UndiciEnvHttpProxyAgentOptions = ConstructorParameters<
   UndiciRuntimeDeps["EnvHttpProxyAgent"]
@@ -50,6 +58,20 @@ function isUndiciRuntimeDeps(value: unknown): value is UndiciRuntimeDeps {
   );
 }
 
+<<<<<<< HEAD
+=======
+function isUndiciGlobalDispatcherDeps(value: unknown): value is UndiciGlobalDispatcherDeps {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as UndiciGlobalDispatcherDeps).Agent === "function" &&
+    typeof (value as UndiciGlobalDispatcherDeps).EnvHttpProxyAgent === "function" &&
+    typeof (value as UndiciGlobalDispatcherDeps).getGlobalDispatcher === "function" &&
+    typeof (value as UndiciGlobalDispatcherDeps).setGlobalDispatcher === "function"
+  );
+}
+
+>>>>>>> upstream/main
 export function loadUndiciRuntimeDeps(): UndiciRuntimeDeps {
   const override = (globalThis as Record<string, unknown>)[TEST_UNDICI_RUNTIME_DEPS_KEY];
   if (isUndiciRuntimeDeps(override)) {
@@ -67,6 +89,25 @@ export function loadUndiciRuntimeDeps(): UndiciRuntimeDeps {
   };
 }
 
+<<<<<<< HEAD
+=======
+export function loadUndiciGlobalDispatcherDeps(): UndiciGlobalDispatcherDeps {
+  const override = (globalThis as Record<string, unknown>)[TEST_UNDICI_RUNTIME_DEPS_KEY];
+  if (isUndiciGlobalDispatcherDeps(override)) {
+    return override;
+  }
+
+  const require = createRequire(import.meta.url);
+  const undici = require("undici") as typeof import("undici");
+  return {
+    Agent: undici.Agent,
+    EnvHttpProxyAgent: undici.EnvHttpProxyAgent,
+    getGlobalDispatcher: undici.getGlobalDispatcher,
+    setGlobalDispatcher: undici.setGlobalDispatcher,
+  };
+}
+
+>>>>>>> upstream/main
 function withHttp1OnlyDispatcherOptions<T extends object | undefined>(
   options?: T,
   timeoutMs?: number,

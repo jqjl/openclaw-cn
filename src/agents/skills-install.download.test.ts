@@ -22,6 +22,7 @@ vi.mock("../infra/net/fetch-guard.js", () => ({
   fetchWithSsrFGuard: (...args: unknown[]) => fetchWithSsrFGuardMock(...args),
 }));
 
+<<<<<<< HEAD
 // Download tests cover installer path handling; fs-safe has dedicated pinned-helper coverage.
 vi.mock("../infra/fs-pinned-write-helper.js", async () => {
   const fs = await import("node:fs/promises");
@@ -76,6 +77,8 @@ vi.mock("../infra/fs-pinned-write-helper.js", async () => {
   };
 });
 
+=======
+>>>>>>> upstream/main
 vi.mock("./skills.js", () => ({
   hasBinary: (bin: string) => hasBinaryMock(bin),
 }));
@@ -262,7 +265,11 @@ describe("installDownloadSpec extraction safety", () => {
     "fails closed when the lexical tools root is rebound before the final copy",
     async () => {
       const entry = buildEntry("base-rebind");
+<<<<<<< HEAD
       const safeRoot = resolveSkillToolsRootDir(entry);
+=======
+      const safeToolsRoot = resolveSkillToolsRootDir(entry);
+>>>>>>> upstream/main
       const outsideRoot = path.join(workspaceDir, "outside-root");
       await fs.mkdir(outsideRoot, { recursive: true });
 
@@ -274,9 +281,15 @@ describe("installDownloadSpec extraction safety", () => {
           body: Readable.from(
             (async function* () {
               yield Buffer.from("payload");
+<<<<<<< HEAD
               const reboundRoot = `${safeRoot}-rebound`;
               await fs.rename(safeRoot, reboundRoot);
               await fs.symlink(outsideRoot, safeRoot);
+=======
+              const reboundRoot = `${safeToolsRoot}-rebound`;
+              await fs.rename(safeToolsRoot, reboundRoot);
+              await fs.symlink(outsideRoot, safeToolsRoot);
+>>>>>>> upstream/main
             })(),
           ),
         },

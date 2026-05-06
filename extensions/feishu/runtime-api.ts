@@ -33,7 +33,11 @@ export {
 } from "openclaw/plugin-sdk/channel-status";
 export { buildAgentMediaPayload } from "openclaw/plugin-sdk/agent-media-payload";
 export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
+<<<<<<< HEAD
 export { createReplyPrefixContext } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+export { createReplyPrefixContext } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 export {
   evaluateSupplementalContextVisibility,
   filterSupplementalContextItems,

@@ -8,7 +8,11 @@ import {
   getScriptsFromCalls,
   installFsBridgeTestHarness,
   mockedExecDockerRaw,
+<<<<<<< HEAD
   mockedOpenBoundaryFile,
+=======
+  mockedOpenRootFile,
+>>>>>>> upstream/main
   withTempDir,
 } from "./fs-bridge.test-helpers.js";
 
@@ -159,7 +163,11 @@ describe("sandbox fs bridge shell compatibility", () => {
   });
 
   it("re-validates target before the pinned write helper runs", async () => {
+<<<<<<< HEAD
     mockedOpenBoundaryFile
+=======
+    mockedOpenRootFile
+>>>>>>> upstream/main
       .mockImplementationOnce(async () => ({ ok: false, reason: "path" }))
       .mockImplementationOnce(async () => ({
         ok: false,

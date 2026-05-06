@@ -742,7 +742,11 @@ describe("device-pair /pair default setup code", () => {
     expect(text).toContain("Gateway: ws://127.0.0.1:18789");
   });
 
+<<<<<<< HEAD
   it("rejects private LAN cleartext setup urls before issuing setup codes", async () => {
+=======
+  it("allows private LAN cleartext setup urls", async () => {
+>>>>>>> upstream/main
     const command = registerPairCommand({
       pluginConfig: {
         publicUrl: "ws://192.168.1.20:18789",
@@ -757,10 +761,34 @@ describe("device-pair /pair default setup code", () => {
       }),
     );
 
+<<<<<<< HEAD
     expect(pluginApiMocks.issueDeviceBootstrapToken).not.toHaveBeenCalled();
     expect(requireText(result)).toContain(
       "Mobile pairing over non-loopback networks requires a secure gateway URL",
     );
+=======
+    expect(pluginApiMocks.issueDeviceBootstrapToken).toHaveBeenCalledTimes(1);
+    expect(requireText(result)).toContain("Gateway: ws://192.168.1.20:18789");
+  });
+
+  it("allows mdns cleartext setup urls", async () => {
+    const command = registerPairCommand({
+      pluginConfig: {
+        publicUrl: "ws://openclaw.local:18789",
+      },
+    });
+    const result = await command.handler(
+      createCommandContext({
+        channel: "webchat",
+        args: "",
+        commandBody: "/pair",
+        gatewayClientScopes: ["operator.write", "operator.pairing"],
+      }),
+    );
+
+    expect(pluginApiMocks.issueDeviceBootstrapToken).toHaveBeenCalledTimes(1);
+    expect(requireText(result)).toContain("Gateway: ws://openclaw.local:18789");
+>>>>>>> upstream/main
   });
 
   it("rejects public cleartext setup urls before issuing setup codes", async () => {
@@ -780,7 +808,11 @@ describe("device-pair /pair default setup code", () => {
 
     expect(pluginApiMocks.issueDeviceBootstrapToken).not.toHaveBeenCalled();
     expect(requireText(result)).toContain(
+<<<<<<< HEAD
       "Mobile pairing over non-loopback networks requires a secure gateway URL",
+=======
+      "Tailscale and public mobile pairing require a secure gateway URL",
+>>>>>>> upstream/main
     );
   });
 

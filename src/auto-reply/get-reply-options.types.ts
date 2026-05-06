@@ -163,6 +163,11 @@ export type GetReplyOptions = {
    * output private; visible channel output must come from the message tool.
    */
   sourceReplyDeliveryMode?: SourceReplyDeliveryMode;
+<<<<<<< HEAD
+=======
+  /** Allow channel-owned progress UI while final/source reply delivery remains message-tool-only. */
+  allowProgressCallbacksWhenSourceDeliverySuppressed?: boolean;
+>>>>>>> upstream/main
   disableBlockStreaming?: boolean;
   /** Timeout for block reply delivery (ms). */
   blockReplyTimeoutMs?: number;

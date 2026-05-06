@@ -346,6 +346,29 @@ Config lives under `plugins.entries.moonshot.config.webSearch`:
 
   </Accordion>
 
+<<<<<<< HEAD
+=======
+  <Accordion title="Tool call id sanitization">
+    Moonshot Kimi serves tool_call ids shaped like `functions.<name>:<index>`. OpenClaw preserves them unchanged so multi-turn tool calls keep working.
+
+    To force strict sanitization on a custom OpenAI-compatible provider, set `sanitizeToolCallIds: true`:
+
+    ```json5
+    {
+      models: {
+        providers: {
+          "my-kimi-proxy": {
+            api: "openai-completions",
+            sanitizeToolCallIds: true,
+          },
+        },
+      },
+    }
+    ```
+
+  </Accordion>
+
+>>>>>>> upstream/main
   <Accordion title="Streaming usage compatibility">
     Native Moonshot endpoints (`https://api.moonshot.ai/v1` and
     `https://api.moonshot.cn/v1`) advertise streaming usage compatibility on the
@@ -381,7 +404,11 @@ Config lives under `plugins.entries.moonshot.config.webSearch`:
   <Card title="Model selection" href="/concepts/model-providers" icon="layers">
     Choosing providers, model refs, and failover behavior.
   </Card>
+<<<<<<< HEAD
   <Card title="Web search" href="/tools/web-search" icon="magnifying-glass">
+=======
+  <Card title="Web search" href="/tools/web" icon="magnifying-glass">
+>>>>>>> upstream/main
     Configuring web search providers including Kimi.
   </Card>
   <Card title="Configuration reference" href="/gateway/configuration-reference" icon="gear">

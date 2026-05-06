@@ -7,6 +7,10 @@ import {
   resolveSessionAgentId,
   resolveAgentModelFallbacksOverride,
 } from "../agents/agent-scope.js";
+<<<<<<< HEAD
+=======
+import { resolveContextTokensForModel } from "../agents/context.js";
+>>>>>>> upstream/main
 import { resolveFastModeState } from "../agents/fast-mode.js";
 import { resolveModelAuthLabel } from "../agents/model-auth-label.js";
 import {
@@ -81,6 +85,22 @@ function loadStatusQueueRuntime(): Promise<typeof import("./status-queue.runtime
   return runtimePromise;
 }
 
+<<<<<<< HEAD
+=======
+function resolveStatusRuntimeContextTokens(params: {
+  cfg: OpenClawConfig;
+  provider: string;
+  model: string;
+}): number | undefined {
+  return resolveContextTokensForModel({
+    cfg: params.cfg,
+    provider: params.provider,
+    model: params.model,
+    allowAsyncLoad: false,
+  });
+}
+
+>>>>>>> upstream/main
 function shouldLoadUsageSummary(params: {
   provider?: string;
   selectedModelAuth?: string;
@@ -342,6 +362,18 @@ export async function buildStatusText(params: BuildStatusTextParams): Promise<st
   const explicitThinkingDefault =
     (agentConfig?.thinkingDefault as ThinkLevel | undefined) ??
     (agentDefaults.thinkingDefault as ThinkLevel | undefined);
+<<<<<<< HEAD
+=======
+  const runtimeContextProvider = resolveStatusAuthProvider({
+    provider: modelRefs.active.provider || provider,
+    effectiveHarness,
+  });
+  const runtimeContextTokens = resolveStatusRuntimeContextTokens({
+    cfg,
+    provider: runtimeContextProvider,
+    model: modelRefs.active.model || model,
+  });
+>>>>>>> upstream/main
   return buildStatusMessage({
     config: cfg,
     agent: {
@@ -362,6 +394,10 @@ export async function buildStatusText(params: BuildStatusTextParams): Promise<st
       typeof agentDefaults.contextTokens === "number" && agentDefaults.contextTokens > 0
         ? agentDefaults.contextTokens
         : undefined,
+<<<<<<< HEAD
+=======
+    runtimeContextTokens,
+>>>>>>> upstream/main
     sessionEntry,
     sessionKey,
     parentSessionKey,

@@ -219,6 +219,36 @@ describe("plugin index install records store", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("reads legacy persisted records when the plugin index has no plugin list", async () => {
+    const stateDir = makeStateDir();
+    const indexPath = resolveInstalledPluginIndexRecordsStorePath({ stateDir });
+    fs.mkdirSync(path.dirname(indexPath), { recursive: true });
+    fs.writeFileSync(
+      indexPath,
+      JSON.stringify({
+        installRecords: {
+          legacy: {
+            source: "npm",
+            spec: "legacy@1.0.0",
+            installPath: path.join(stateDir, "plugins", "legacy"),
+          },
+        },
+      }),
+      "utf8",
+    );
+
+    await expect(loadInstalledPluginIndexInstallRecords({ stateDir })).resolves.toEqual({
+      legacy: {
+        source: "npm",
+        spec: "legacy@1.0.0",
+        installPath: path.join(stateDir, "plugins", "legacy"),
+      },
+    });
+  });
+
+>>>>>>> upstream/main
   it("recovers managed npm plugin records when the persisted ledger is empty", async () => {
     const stateDir = makeStateDir();
     const discordDir = writeManagedNpmPlugin({

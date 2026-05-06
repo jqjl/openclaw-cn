@@ -5,12 +5,15 @@ read_when:
 title: "Microsoft Teams"
 ---
 
+<<<<<<< HEAD
 # Microsoft Teams
 
 > "Abandon all hope, ye who enter here."
 
 Updated: 2026-03-25
 
+=======
+>>>>>>> upstream/main
 Status: text + DM attachments are supported; channel/group file sending requires `sharePointSiteId` + Graph permissions (see [Sending files in group chats](#sending-files-in-group-chats)). Polls are sent via Adaptive Cards. Message actions expose explicit `upload-file` for file-first sends.
 
 ## Bundled plugin
@@ -85,9 +88,15 @@ This single command:
 - Creates an Entra ID (Azure AD) application
 - Generates a client secret
 - Builds and uploads a Teams app manifest (with icons)
+<<<<<<< HEAD
 - Registers the bot (Teams-managed by default — no Azure subscription needed)
 
 The output will show `CLIENT_ID`, `CLIENT_SECRET`, `TENANT_ID`, and a **Teams App ID** — note these for the next steps. It also offers to install the app in Teams directly.
+=======
+- Registers the bot (Teams-managed by default - no Azure subscription needed)
+
+The output will show `CLIENT_ID`, `CLIENT_SECRET`, `TENANT_ID`, and a **Teams App ID** - note these for the next steps. It also offers to install the app in Teams directly.
+>>>>>>> upstream/main
 
 **4. Configure OpenClaw** using the credentials from the output:
 
@@ -109,7 +118,11 @@ Or use environment variables directly: `MSTEAMS_APP_ID`, `MSTEAMS_APP_PASSWORD`,
 
 **5. Install the app in Teams**
 
+<<<<<<< HEAD
 `teams app create` will prompt you to install the app — select "Install in Teams". If you skipped it, you can get the link later:
+=======
+`teams app create` will prompt you to install the app - select "Install in Teams". If you skipped it, you can get the link later:
+>>>>>>> upstream/main
 
 ```bash
 teams app get <teamsAppId> --install-link
@@ -153,14 +166,22 @@ Disable with:
 
 - Default: `channels.msteams.dmPolicy = "pairing"`. Unknown senders are ignored until approved.
 - `channels.msteams.allowFrom` should use stable AAD object IDs.
+<<<<<<< HEAD
 - Do not rely on UPN/display-name matching for allowlists — they can change. OpenClaw disables direct name matching by default; opt in explicitly with `channels.msteams.dangerouslyAllowNameMatching: true`.
+=======
+- Do not rely on UPN/display-name matching for allowlists - they can change. OpenClaw disables direct name matching by default; opt in explicitly with `channels.msteams.dangerouslyAllowNameMatching: true`.
+>>>>>>> upstream/main
 - The wizard can resolve names to IDs via Microsoft Graph when credentials allow.
 
 **Group access**
 
 - Default: `channels.msteams.groupPolicy = "allowlist"` (blocked unless you add `groupAllowFrom`). Use `channels.defaults.groupPolicy` to override the default when unset.
 - `channels.msteams.groupAllowFrom` controls which senders can trigger in group chats/channels (falls back to `channels.msteams.allowFrom`).
+<<<<<<< HEAD
 - Set `groupPolicy: "open"` to allow any member (still mention‑gated by default).
+=======
+- Set `groupPolicy: "open"` to allow any member (still mention-gated by default).
+>>>>>>> upstream/main
 - To allow **no channels**, set `channels.msteams.groupPolicy: "disabled"`.
 
 Example:
@@ -180,7 +201,11 @@ Example:
 
 - Scope group/channel replies by listing teams and channels under `channels.msteams.teams`.
 - Keys should use stable Teams conversation IDs from Teams links, not mutable display names.
+<<<<<<< HEAD
 - When `groupPolicy="allowlist"` and a teams allowlist is present, only listed teams/channels are accepted (mention‑gated).
+=======
+- When `groupPolicy="allowlist"` and a teams allowlist is present, only listed teams/channels are accepted (mention-gated).
+>>>>>>> upstream/main
 - The configure wizard accepts `Team/Channel` entries and stores them for you.
 - On startup, OpenClaw resolves team/channel and user allowlist names to IDs (when Graph permissions allow)
   and logs the mapping; unresolved team/channel names are kept as typed but ignored for routing by default unless `channels.msteams.dangerouslyAllowNameMatching: true` is enabled.
@@ -259,7 +284,18 @@ Creation of new multi-tenant bots was deprecated after 2025-07-31. Use **Single 
 2. Click **Microsoft Teams** → Configure → Save
 3. Accept the Terms of Service
 
+<<<<<<< HEAD
 ## Federated Authentication (Certificate + Managed Identity)
+=======
+### Step 5: Build Teams App Manifest
+
+- Include a `bot` entry with `botId = <App ID>`.
+- Scopes: `personal`, `team`, `groupChat`.
+- `supportsFiles: true` (required for personal scope file handling).
+- Add RSC permissions (see [RSC Permissions](#current-teams-rsc-permissions-manifest)).
+- Create icons: `outline.png` (32x32) and `color.png` (192x192).
+- Zip all three files together: `manifest.json`, `outline.png`, `color.png`.
+>>>>>>> upstream/main
 
 ### Step 6: Configure OpenClaw
 
@@ -415,7 +451,11 @@ For AKS deployments using workload identity:
        azure.workload.identity/use: "true"
    ```
 
+<<<<<<< HEAD
 5. **Ensure network access** to IMDS (`169.254.169.254`) — if using NetworkPolicy, add an egress rule allowing traffic to `169.254.169.254/32` on port 80.
+=======
+5. **Ensure network access** to IMDS (`169.254.169.254`) - if using NetworkPolicy, add an egress rule allowing traffic to `169.254.169.254/32` on port 80.
+>>>>>>> upstream/main
 
 ### Auth type comparison
 
@@ -671,7 +711,11 @@ Teams markdown is more limited than Slack or Discord:
 
 - Basic formatting works: **bold**, _italic_, `code`, links
 - Complex markdown (tables, nested lists) may not render correctly
+<<<<<<< HEAD
 - Adaptive Cards are supported for polls and arbitrary card sends (see below)
+=======
+- Adaptive Cards are supported for polls and semantic presentation sends (see below)
+>>>>>>> upstream/main
 
 ## Configuration
 
@@ -701,7 +745,11 @@ Key settings (see `/gateway/configuration` for shared channel patterns):
 - `toolsBySender` keys should use explicit prefixes:
   `id:`, `e164:`, `username:`, `name:` (legacy unprefixed keys still map to `id:` only).
 - `channels.msteams.actions.memberInfo`: enable or disable the Graph-backed member info action (default: enabled when Graph credentials are available).
+<<<<<<< HEAD
 - `channels.msteams.authType`: authentication type — `"secret"` (default) or `"federated"`.
+=======
+- `channels.msteams.authType`: authentication type - `"secret"` (default) or `"federated"`.
+>>>>>>> upstream/main
 - `channels.msteams.certificatePath`: path to PEM certificate file (federated + certificate auth).
 - `channels.msteams.certificateThumbprint`: certificate thumbprint (optional, not required for auth).
 - `channels.msteams.useManagedIdentity`: enable managed identity auth (federated mode).
@@ -843,11 +891,19 @@ OpenClaw sends Teams polls as Adaptive Cards (there is no native Teams poll API)
 - The gateway must stay online to record votes.
 - Polls do not auto-post result summaries yet (inspect the store file if needed).
 
+<<<<<<< HEAD
 ## Adaptive Cards (arbitrary)
 
 Send any Adaptive Card JSON to Teams users or conversations using the `message` tool or CLI.
 
 The `card` parameter accepts an Adaptive Card JSON object. When `card` is provided, the message text is optional.
+=======
+## Presentation cards
+
+Send semantic presentation payloads to Teams users or conversations using the `message` tool or CLI. OpenClaw renders them as Teams Adaptive Cards from the generic presentation contract.
+
+The `presentation` parameter accepts semantic blocks. When `presentation` is provided, the message text is optional.
+>>>>>>> upstream/main
 
 **Agent tool:**
 
@@ -856,10 +912,16 @@ The `card` parameter accepts an Adaptive Card JSON object. When `card` is provid
   action: "send",
   channel: "msteams",
   target: "user:<id>",
+<<<<<<< HEAD
   card: {
     type: "AdaptiveCard",
     version: "1.5",
     body: [{ type: "TextBlock", text: "Hello!" }],
+=======
+  presentation: {
+    title: "Hello",
+    blocks: [{ type: "text", text: "Hello!" }],
+>>>>>>> upstream/main
   },
 }
 ```
@@ -869,10 +931,17 @@ The `card` parameter accepts an Adaptive Card JSON object. When `card` is provid
 ```bash
 openclaw message send --channel msteams \
   --target "conversation:19:abc...@thread.tacv2" \
+<<<<<<< HEAD
   --card '{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Hello!"}]}'
 ```
 
 See [Adaptive Cards documentation](https://adaptivecards.io/) for card schema and examples. For target format details, see [Target formats](#target-formats) below.
+=======
+  --presentation '{"title":"Hello","blocks":[{"type":"text","text":"Hello!"}]}'
+```
+
+For target format details, see [Target formats](#target-formats) below.
+>>>>>>> upstream/main
 
 ## Target formats
 
@@ -897,9 +966,15 @@ openclaw message send --channel msteams --target "user:John Smith" --message "He
 # Send to a group chat or channel
 openclaw message send --channel msteams --target "conversation:19:abc...@thread.tacv2" --message "Hello"
 
+<<<<<<< HEAD
 # Send an Adaptive Card to a conversation
 openclaw message send --channel msteams --target "conversation:19:abc...@thread.tacv2" \
   --card '{"type":"AdaptiveCard","version":"1.5","body":[{"type":"TextBlock","text":"Hello"}]}'
+=======
+# Send a presentation card to a conversation
+openclaw message send --channel msteams --target "conversation:19:abc...@thread.tacv2" \
+  --presentation '{"title":"Hello","blocks":[{"type":"text","text":"Hello"}]}'
+>>>>>>> upstream/main
 ```
 
 **Agent tool examples:**
@@ -918,10 +993,16 @@ openclaw message send --channel msteams --target "conversation:19:abc...@thread.
   action: "send",
   channel: "msteams",
   target: "conversation:19:abc...@thread.tacv2",
+<<<<<<< HEAD
   card: {
     type: "AdaptiveCard",
     version: "1.5",
     body: [{ type: "TextBlock", text: "Hello" }],
+=======
+  presentation: {
+    title: "Hello",
+    blocks: [{ type: "text", text: "Hello" }],
+>>>>>>> upstream/main
   },
 }
 ```
@@ -1015,8 +1096,16 @@ Bots have limited support in private channels:
 
 ## Related
 
+<<<<<<< HEAD
 - [Channels Overview](/channels) — all supported channels
 - [Pairing](/channels/pairing) — DM authentication and pairing flow
 - [Groups](/channels/groups) — group chat behavior and mention gating
 - [Channel Routing](/channels/channel-routing) — session routing for messages
 - [Security](/gateway/security) — access model and hardening
+=======
+- [Channels Overview](/channels) - all supported channels
+- [Pairing](/channels/pairing) - DM authentication and pairing flow
+- [Groups](/channels/groups) - group chat behavior and mention gating
+- [Channel Routing](/channels/channel-routing) - session routing for messages
+- [Security](/gateway/security) - access model and hardening
+>>>>>>> upstream/main

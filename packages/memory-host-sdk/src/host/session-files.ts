@@ -1,6 +1,10 @@
 import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { readRegularFile, statRegularFile } from "./fs-utils.js";
+>>>>>>> upstream/main
 import { hashText } from "./hash.js";
 import { createSubsystemLogger, redactSensitiveText } from "./openclaw-runtime-io.js";
 import {
@@ -524,7 +528,15 @@ export async function buildSessionEntry(
   opts: BuildSessionEntryOptions = {},
 ): Promise<SessionFileEntry | null> {
   try {
+<<<<<<< HEAD
     const stat = await fs.stat(absPath);
+=======
+    const regularFile = await statRegularFile(absPath);
+    if (regularFile.missing) {
+      return null;
+    }
+    const stat = regularFile.stat;
+>>>>>>> upstream/main
     if (shouldSkipTranscriptFileForDreaming(absPath)) {
       return {
         path: sessionPathForFile(absPath),
@@ -537,7 +549,11 @@ export async function buildSessionEntry(
         messageTimestampsMs: [],
       };
     }
+<<<<<<< HEAD
     const raw = await fs.readFile(absPath, "utf-8");
+=======
+    const raw = (await readRegularFile({ filePath: absPath })).buffer.toString("utf-8");
+>>>>>>> upstream/main
     const lines = raw.split("\n");
     const collected: string[] = [];
     const lineMap: number[] = [];

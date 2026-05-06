@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isPathInside } from "./path-guards.js";
+=======
+import "./fs-safe-defaults.js";
+export {
+  assertCanonicalPathWithinBase,
+  resolveSafeInstallDir,
+  safeDirName,
+  safePathSegmentHashed,
+} from "@openclaw/fs-safe/advanced";
+>>>>>>> upstream/main
 
 export function unscopedPackageName(name: string): string {
   const trimmed = name.trim();
@@ -24,6 +34,7 @@ export function packageNameMatchesId(packageName: string, id: string): boolean {
 
   return trimmedId === trimmedPackageName || trimmedId === unscopedPackageName(trimmedPackageName);
 }
+<<<<<<< HEAD
 
 export function safeDirName(input: string): string {
   const trimmed = input.trim();
@@ -134,3 +145,5 @@ export async function assertCanonicalPathWithinBase(params: {
   }
   await validateDirectory(path.dirname(candidatePath));
 }
+=======
+>>>>>>> upstream/main

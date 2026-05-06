@@ -15,7 +15,11 @@ import {
 } from "./model-picker.js";
 import { loadStaticManifestCatalogRowsForList } from "./models/list.manifest-catalog.js";
 import { promptCustomApiConfig } from "./onboard-custom.js";
+<<<<<<< HEAD
 import { randomToken } from "./onboard-helpers.js";
+=======
+import { randomToken } from "./random-token.js";
+>>>>>>> upstream/main
 
 type GatewayAuthChoice = "token" | "password" | "trusted-proxy";
 type ProviderChoiceModelPrompt = {

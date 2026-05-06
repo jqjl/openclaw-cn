@@ -19,7 +19,11 @@ export {
   resolveDmGroupAccessWithLists,
   resolveEffectiveAllowFromLists,
 } from "openclaw/plugin-sdk/channel-policy";
+<<<<<<< HEAD
 export { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+export { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 export { logTypingFailure } from "openclaw/plugin-sdk/channel-feedback";
 export {
   buildModelsProviderData,

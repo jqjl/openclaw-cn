@@ -49,7 +49,19 @@ describe("Slack live QA runtime helpers", () => {
   });
 
   it("reports standard live transport scenario coverage", () => {
+<<<<<<< HEAD
     expect(__testing.SLACK_QA_STANDARD_SCENARIO_IDS).toEqual(["canary", "mention-gating"]);
+=======
+    expect(__testing.SLACK_QA_STANDARD_SCENARIO_IDS).toEqual([
+      "canary",
+      "mention-gating",
+      "allowlist-block",
+      "top-level-reply-shape",
+      "restart-resume",
+      "thread-follow-up",
+      "thread-isolation",
+    ]);
+>>>>>>> upstream/main
   });
 
   it("selects Slack scenarios by id", () => {

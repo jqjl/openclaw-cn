@@ -1,12 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+=======
+import { resolveDefaultAgentDir } from "../agents/agent-scope-config.js";
+>>>>>>> upstream/main
 import { modelKey, normalizeModelRef, normalizeProviderId } from "../agents/model-selection.js";
 import type { NormalizedUsage } from "../agents/usage.js";
 import type { ModelProviderConfig } from "../config/types.models.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { getGatewayModelPricingCacheFingerprint } from "../gateway/model-pricing-cache-state.js";
 import { getCachedGatewayModelPricing } from "../gateway/model-pricing-cache.js";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
 /**
@@ -204,7 +212,11 @@ function loadModelsJsonCostIndex(options?: {
   allowPluginNormalization?: boolean;
 }): Map<string, ModelCostConfig> {
   const useRawEntries = options?.allowPluginNormalization === false;
+<<<<<<< HEAD
   const modelsPath = path.join(resolveOpenClawAgentDir(), "models.json");
+=======
+  const modelsPath = path.join(resolveDefaultAgentDir({}), "models.json");
+>>>>>>> upstream/main
   try {
     const stat = fs.statSync(modelsPath);
     if (
@@ -212,6 +224,7 @@ function loadModelsJsonCostIndex(options?: {
       modelsJsonCostCache.path !== modelsPath ||
       modelsJsonCostCache.mtimeMs !== stat.mtimeMs
     ) {
+<<<<<<< HEAD
       const parsed = JSON.parse(fs.readFileSync(modelsPath, "utf8")) as {
         providers?: Record<string, ModelProviderConfig>;
       };
@@ -219,6 +232,15 @@ function loadModelsJsonCostIndex(options?: {
         path: modelsPath,
         mtimeMs: stat.mtimeMs,
         providers: parsed.providers,
+=======
+      const parsed = tryReadJsonSync<{
+        providers?: Record<string, ModelProviderConfig>;
+      }>(modelsPath);
+      modelsJsonCostCache = {
+        path: modelsPath,
+        mtimeMs: stat.mtimeMs,
+        providers: parsed?.providers,
+>>>>>>> upstream/main
         normalizedEntries: null,
         rawEntries: null,
       };

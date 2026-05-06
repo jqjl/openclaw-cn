@@ -11,7 +11,11 @@ const mocks = vi.hoisted(() => ({
   ),
   resolveManagedCodexAppServerStartOptions: vi.fn(async (startOptions) => startOptions),
   embeddedAgentLog: { debug: vi.fn(), warn: vi.fn() },
+<<<<<<< HEAD
   resolveOpenClawAgentDir: vi.fn(() => "/tmp/openclaw-agent"),
+=======
+  resolveDefaultAgentDir: vi.fn(() => "/tmp/openclaw-agent"),
+>>>>>>> upstream/main
 }));
 
 vi.mock("./auth-bridge.js", () => ({
@@ -29,8 +33,13 @@ vi.mock("openclaw/plugin-sdk/agent-harness-runtime", () => ({
   OPENCLAW_VERSION: "test",
 }));
 
+<<<<<<< HEAD
 vi.mock("openclaw/plugin-sdk/provider-auth", () => ({
   resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
+=======
+vi.mock("openclaw/plugin-sdk/agent-runtime", () => ({
+  resolveDefaultAgentDir: mocks.resolveDefaultAgentDir,
+>>>>>>> upstream/main
 }));
 
 let listCodexAppServerModels: typeof import("./models.js").listCodexAppServerModels;
@@ -81,7 +90,11 @@ describe("shared Codex app-server client", () => {
     );
     mocks.embeddedAgentLog.debug.mockClear();
     mocks.embeddedAgentLog.warn.mockClear();
+<<<<<<< HEAD
     mocks.resolveOpenClawAgentDir.mockClear();
+=======
+    mocks.resolveDefaultAgentDir.mockClear();
+>>>>>>> upstream/main
   });
 
   it("closes the shared app-server when the version gate fails", async () => {

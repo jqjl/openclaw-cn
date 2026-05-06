@@ -9,9 +9,19 @@
  * - Abort signal handling
  */
 
+<<<<<<< HEAD
 import { describe, expect, it, vi } from "vitest";
 import { resolveTwitchAccountContext } from "./config.js";
 import { twitchOutbound } from "./outbound.js";
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  verifyChannelMessageAdapterCapabilityProofs,
+} from "openclaw/plugin-sdk/channel-message";
+import { describe, expect, it, vi } from "vitest";
+import { resolveTwitchAccountContext } from "./config.js";
+import { twitchMessageAdapter, twitchOutbound } from "./outbound.js";
+>>>>>>> upstream/main
 import {
   BASE_TWITCH_TEST_ACCOUNT,
   installTwitchTestHooks,
@@ -61,6 +71,22 @@ function expectTargetError(
   expect(result.error.message).toContain(expectedMessage);
 }
 
+<<<<<<< HEAD
+=======
+function twitchTestReceipt(messageId: string) {
+  return createMessageReceiptFromOutboundResults({
+    results: [
+      {
+        channel: "twitch",
+        conversationId: "testchannel",
+        messageId,
+      },
+    ],
+    kind: "text",
+  });
+}
+
+>>>>>>> upstream/main
 describe("outbound", () => {
   const mockAccount = {
     ...BASE_TWITCH_TEST_ACCOUNT,
@@ -102,6 +128,67 @@ describe("outbound", () => {
 
       expect(chunker("a".repeat(600), 500)).toEqual(["a".repeat(500), "a".repeat(100)]);
     });
+<<<<<<< HEAD
+=======
+
+    it("declares message adapter durable text and media with receipt proofs", async () => {
+      const { sendMessageTwitchInternal } = await import("./send.js");
+
+      setupAccountContext();
+      vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
+        ok: true,
+        messageId: "twitch-msg-123",
+        receipt: twitchTestReceipt("twitch-msg-123"),
+      });
+
+      await expect(
+        verifyChannelMessageAdapterCapabilityProofs({
+          adapterName: "twitch",
+          adapter: twitchMessageAdapter,
+          proofs: {
+            text: async () => {
+              const result = await twitchMessageAdapter.send?.text?.({
+                cfg: mockConfig,
+                to: "#testchannel",
+                text: "Hello Twitch!",
+                accountId: "default",
+              });
+              expect(result?.receipt?.platformMessageIds).toEqual(["twitch-msg-123"]);
+            },
+            media: async () => {
+              const result = await twitchMessageAdapter.send?.media?.({
+                cfg: mockConfig,
+                to: "#testchannel",
+                text: "image",
+                mediaUrl: "https://example.com/image.png",
+                accountId: "default",
+              });
+              expect(result?.receipt?.platformMessageIds).toEqual(["twitch-msg-123"]);
+              expect(sendMessageTwitchInternal).toHaveBeenLastCalledWith(
+                "testchannel",
+                "image https://example.com/image.png",
+                mockConfig,
+                "default",
+                true,
+                console,
+              );
+            },
+            messageSendingHooks: () => {
+              expect(twitchMessageAdapter.durableFinal?.capabilities?.messageSendingHooks).toBe(
+                true,
+              );
+            },
+          },
+        }),
+      ).resolves.toEqual(
+        expect.arrayContaining([
+          { capability: "text", status: "verified" },
+          { capability: "media", status: "verified" },
+          { capability: "messageSendingHooks", status: "verified" },
+        ]),
+      );
+    });
+>>>>>>> upstream/main
   });
 
   describe("resolveTarget", () => {
@@ -230,6 +317,10 @@ describe("outbound", () => {
       vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
         ok: true,
         messageId: "twitch-msg-123",
+<<<<<<< HEAD
+=======
+        receipt: twitchTestReceipt("twitch-msg-123"),
+>>>>>>> upstream/main
       });
 
       const result = await twitchOutbound.sendText!({
@@ -241,6 +332,10 @@ describe("outbound", () => {
 
       expect(result.channel).toBe("twitch");
       expect(result.messageId).toBe("twitch-msg-123");
+<<<<<<< HEAD
+=======
+      expect(result.receipt?.platformMessageIds).toEqual(["twitch-msg-123"]);
+>>>>>>> upstream/main
       expect(sendMessageTwitchInternal).toHaveBeenCalledWith(
         "testchannel",
         "Hello Twitch!",
@@ -286,6 +381,10 @@ describe("outbound", () => {
       vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
         ok: true,
         messageId: "msg-456",
+<<<<<<< HEAD
+=======
+        receipt: twitchTestReceipt("msg-456"),
+>>>>>>> upstream/main
       });
 
       await twitchOutbound.sendText!({
@@ -332,6 +431,10 @@ describe("outbound", () => {
       vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
         ok: true,
         messageId: "msg-secondary",
+<<<<<<< HEAD
+=======
+        receipt: twitchTestReceipt("msg-secondary"),
+>>>>>>> upstream/main
       });
 
       await twitchOutbound.sendText!({
@@ -378,6 +481,10 @@ describe("outbound", () => {
       vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
         ok: false,
         messageId: "failed-msg",
+<<<<<<< HEAD
+=======
+        receipt: createMessageReceiptFromOutboundResults({ results: [] }),
+>>>>>>> upstream/main
         error: "Connection lost",
       });
 
@@ -400,6 +507,10 @@ describe("outbound", () => {
       vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
         ok: true,
         messageId: "media-msg-123",
+<<<<<<< HEAD
+=======
+        receipt: twitchTestReceipt("media-msg-123"),
+>>>>>>> upstream/main
       });
 
       const result = await twitchOutbound.sendMedia!({
@@ -412,6 +523,10 @@ describe("outbound", () => {
 
       expect(result.channel).toBe("twitch");
       expect(result.messageId).toBe("media-msg-123");
+<<<<<<< HEAD
+=======
+      expect(result.receipt?.platformMessageIds).toEqual(["media-msg-123"]);
+>>>>>>> upstream/main
       expect(sendMessageTwitchInternal).toHaveBeenCalledWith(
         expect.anything(),
         "Check this: https://example.com/image.png",
@@ -429,6 +544,10 @@ describe("outbound", () => {
       vi.mocked(sendMessageTwitchInternal).mockResolvedValue({
         ok: true,
         messageId: "media-only-msg",
+<<<<<<< HEAD
+=======
+        receipt: twitchTestReceipt("media-only-msg"),
+>>>>>>> upstream/main
       });
 
       await twitchOutbound.sendMedia!({

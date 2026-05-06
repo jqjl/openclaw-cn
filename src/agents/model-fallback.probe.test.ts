@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { randomUUID } from "node:crypto";
+>>>>>>> upstream/main
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -26,6 +30,13 @@ vi.mock("./auth-profiles/order.js", () => ({
   resolveAuthProfileOrder: vi.fn(),
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("./provider-model-normalization.runtime.js", () => ({
+  normalizeProviderModelIdWithRuntime: () => undefined,
+}));
+
+>>>>>>> upstream/main
 vi.mock("./auth-profiles/source-check.js", () => ({
   hasAnyAuthProfileStoreSource: vi.fn(() => true),
 }));
@@ -56,6 +67,10 @@ let mockedResolveAuthProfileOrder: ReturnType<
   typeof vi.mocked<AuthProfilesOrderModule["resolveAuthProfileOrder"]>
 >;
 let runWithModelFallback: ModelFallbackModule["runWithModelFallback"];
+<<<<<<< HEAD
+=======
+let modelFallbackTesting: ModelFallbackModule["__testing"];
+>>>>>>> upstream/main
 let _probeThrottleInternals: ModelFallbackModule["_probeThrottleInternals"];
 let resetLogger: LoggerModule["resetLogger"];
 let setLoggerOverride: LoggerModule["setLoggerOverride"];
@@ -81,6 +96,10 @@ async function loadModelFallbackProbeModules() {
   );
   mockedResolveAuthProfileOrder = vi.mocked(authProfilesOrderModule.resolveAuthProfileOrder);
   runWithModelFallback = modelFallbackModule.runWithModelFallback;
+<<<<<<< HEAD
+=======
+  modelFallbackTesting = modelFallbackModule.__testing;
+>>>>>>> upstream/main
   _probeThrottleInternals = modelFallbackModule._probeThrottleInternals;
   resetLogger = loggerModule.resetLogger;
   setLoggerOverride = loggerModule.setLoggerOverride;
@@ -186,6 +205,37 @@ describe("runWithModelFallback – probe logic", () => {
       run,
     });
 
+<<<<<<< HEAD
+=======
+  function resolveOpenAiCooldownDecision(params: {
+    reason: "rate_limit" | "overloaded" | "timeout" | "auth" | "billing";
+    soonest: number | null;
+    isPrimary?: boolean;
+    hasFallbackCandidates?: boolean;
+    requestedModel?: boolean;
+    throttleKey?: string;
+  }) {
+    mockedGetSoonestCooldownExpiry.mockReturnValue(params.soonest);
+    mockedResolveProfilesUnavailableReason.mockReturnValue(params.reason);
+    return modelFallbackTesting.resolveCooldownDecision({
+      candidate: { provider: "openai", model: "gpt-4.1-mini" },
+      isPrimary: params.isPrimary ?? true,
+      requestedModel: params.requestedModel ?? true,
+      hasFallbackCandidates: params.hasFallbackCandidates ?? true,
+      now: NOW,
+      probeThrottleKey: params.throttleKey ?? "openai",
+      authRuntime: {
+        getSoonestCooldownExpiry: mockedGetSoonestCooldownExpiry,
+        resolveProfilesUnavailableReason: mockedResolveProfilesUnavailableReason,
+      } as unknown as Parameters<
+        typeof modelFallbackTesting.resolveCooldownDecision
+      >[0]["authRuntime"],
+      authStore: { version: 1, profiles: {} },
+      profileIds: ["openai-profile-1"],
+    });
+  }
+
+>>>>>>> upstream/main
   async function expectPrimarySkippedAfterLongCooldown(reason: "billing" | "rate_limit") {
     const cfg = makeCfg();
     const expiresIn30Min = NOW + 30 * 60 * 1000;
@@ -201,6 +251,10 @@ describe("runWithModelFallback – probe logic", () => {
   beforeEach(() => {
     realDateNow = Date.now;
     Date.now = vi.fn(() => NOW);
+<<<<<<< HEAD
+=======
+    setLoggerOverride({ level: "silent", consoleLevel: "silent" });
+>>>>>>> upstream/main
 
     // Clear throttle state between tests
     _probeThrottleInternals.lastProbeAttempt.clear();
@@ -260,6 +314,7 @@ describe("runWithModelFallback – probe logic", () => {
     await expectPrimarySkippedAfterLongCooldown("billing");
   });
 
+<<<<<<< HEAD
   it("probes primary model when within 2-min margin of cooldown expiry", async () => {
     const cfg = makeCfg();
     // Cooldown expires in 1 minute — within 2-min probe margin
@@ -270,6 +325,37 @@ describe("runWithModelFallback – probe logic", () => {
 
     const result = await runPrimaryCandidate(cfg, run);
     expectPrimaryProbeSuccess(result, run, "probed-ok");
+=======
+  it("decides when cooldowned primary probes are allowed", () => {
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "rate_limit",
+        soonest: NOW + 60 * 1000,
+      }),
+    ).toEqual({ type: "attempt", reason: "rate_limit", markProbe: true });
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "rate_limit",
+        soonest: NOW - 5 * 60 * 1000,
+      }),
+    ).toEqual({ type: "attempt", reason: "rate_limit", markProbe: true });
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "rate_limit",
+        soonest: NOW + 30 * 1000,
+        throttleKey: "recent-openai",
+      }),
+    ).toEqual({ type: "attempt", reason: "rate_limit", markProbe: true });
+
+    _probeThrottleInternals.lastProbeAttempt.set("recent-openai", NOW - 10_000);
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "rate_limit",
+        soonest: NOW + 30 * 1000,
+        throttleKey: "recent-openai",
+      }),
+    ).toMatchObject({ type: "skip", reason: "rate_limit" });
+>>>>>>> upstream/main
   });
 
   it("logs primary metadata on probe success and failure fallback decisions", async () => {
@@ -280,7 +366,11 @@ describe("runWithModelFallback – probe logic", () => {
     setLoggerOverride({
       level: "trace",
       consoleLevel: "silent",
+<<<<<<< HEAD
       file: path.join(os.tmpdir(), `openclaw-model-fallback-probe-${Date.now()}.log`),
+=======
+      file: path.join(os.tmpdir(), `openclaw-model-fallback-probe-${randomUUID()}.log`),
+>>>>>>> upstream/main
     });
 
     const run = vi.fn().mockResolvedValue("probed-ok");
@@ -398,6 +488,7 @@ describe("runWithModelFallback – probe logic", () => {
     );
   });
 
+<<<<<<< HEAD
   it("probes primary model when cooldown already expired", async () => {
     const cfg = makeCfg();
     // Cooldown expired 5 min ago
@@ -423,6 +514,28 @@ describe("runWithModelFallback – probe logic", () => {
       probeError: Object.assign(new Error("service overloaded"), { status: 503 }),
     });
   });
+=======
+  it.each([
+    {
+      label: "rate-limit",
+      reason: "rate_limit" as const,
+      probeError: Object.assign(new Error("rate limited"), { status: 429 }),
+    },
+    {
+      label: "overloaded",
+      reason: "overloaded" as const,
+      probeError: Object.assign(new Error("service overloaded"), { status: 503 }),
+    },
+  ])(
+    "attempts non-primary fallbacks during $label cooldown after primary probe failure",
+    async ({ reason, probeError }) => {
+      await expectProbeFailureFallsBack({
+        reason,
+        probeError,
+      });
+    },
+  );
+>>>>>>> upstream/main
 
   it("keeps walking remaining fallbacks after an abort-wrapped RESOURCE_EXHAUSTED probe failure", async () => {
     const cfg = makeCfg({
@@ -495,6 +608,7 @@ describe("runWithModelFallback – probe logic", () => {
     expect(run).toHaveBeenNthCalledWith(3, "deepseek", "deepseek-chat");
   });
 
+<<<<<<< HEAD
   it("throttles probe when called within 30s interval", async () => {
     const cfg = makeCfg();
     // Cooldown just about to expire (within probe margin)
@@ -526,6 +640,8 @@ describe("runWithModelFallback – probe logic", () => {
     expectPrimaryProbeSuccess(result, run, "probed-ok");
   });
 
+=======
+>>>>>>> upstream/main
   it("prunes stale probe throttle entries before checking eligibility", () => {
     _probeThrottleInternals.lastProbeAttempt.set(
       "stale",
@@ -556,6 +672,7 @@ describe("runWithModelFallback – probe logic", () => {
     expect(_probeThrottleInternals.lastProbeAttempt.has("key-0")).toBe(true);
   });
 
+<<<<<<< HEAD
   it("handles non-finite soonest safely (treats as probe-worthy)", async () => {
     const cfg = makeCfg();
 
@@ -588,6 +705,24 @@ describe("runWithModelFallback – probe logic", () => {
 
     const result = await runPrimaryCandidate(cfg, run);
     expectPrimaryProbeSuccess(result, run, "ok-null");
+=======
+  it("handles missing or non-finite soonest safely (treats as probe-worthy)", () => {
+    for (const [label, soonest] of [
+      ["infinity", Infinity],
+      ["nan", Number.NaN],
+      ["null", null],
+    ] as const) {
+      _probeThrottleInternals.lastProbeAttempt.clear();
+
+      expect(
+        resolveOpenAiCooldownDecision({
+          reason: "rate_limit",
+          soonest,
+        }),
+        label,
+      ).toEqual({ type: "attempt", reason: "rate_limit", markProbe: true });
+    }
+>>>>>>> upstream/main
   });
 
   it("single candidate skips with rate_limit and exhausts candidates", async () => {
@@ -620,6 +755,7 @@ describe("runWithModelFallback – probe logic", () => {
     expect(run).not.toHaveBeenCalled();
   });
 
+<<<<<<< HEAD
   it("scopes probe throttling by agentDir to avoid cross-agent suppression", async () => {
     const cfg = makeCfg();
     const almostExpired = NOW + 30 * 1000;
@@ -703,5 +839,51 @@ describe("runWithModelFallback – probe logic", () => {
 
   it("skips billing-cooldowned primary with fallbacks when far from cooldown expiry", async () => {
     await expectPrimarySkippedAfterLongCooldown("billing");
+=======
+  it("scopes probe throttling by agentDir to avoid cross-agent suppression", () => {
+    const agentAKey = _probeThrottleInternals.resolveProbeThrottleKey("openai", "/tmp/agent-a");
+    const agentBKey = _probeThrottleInternals.resolveProbeThrottleKey("openai", "/tmp/agent-b");
+    _probeThrottleInternals.lastProbeAttempt.set(agentAKey, NOW - 10_000);
+
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "rate_limit",
+        soonest: NOW + 30 * 1000,
+        throttleKey: agentAKey,
+      }),
+    ).toMatchObject({ type: "skip", reason: "rate_limit" });
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "rate_limit",
+        soonest: NOW + 30 * 1000,
+        throttleKey: agentBKey,
+      }),
+    ).toEqual({ type: "attempt", reason: "rate_limit", markProbe: true });
+  });
+
+  it("decides when billing cooldowns should probe", () => {
+    // Single-provider setups need periodic probes even when the billing
+    // cooldown is far from expiry, otherwise topping up credits never recovers
+    // without a restart.
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "billing",
+        soonest: NOW + 30 * 60 * 1000,
+        hasFallbackCandidates: false,
+      }),
+    ).toEqual({ type: "attempt", reason: "billing", markProbe: true });
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "billing",
+        soonest: NOW + 60 * 1000,
+      }),
+    ).toEqual({ type: "attempt", reason: "billing", markProbe: true });
+    expect(
+      resolveOpenAiCooldownDecision({
+        reason: "billing",
+        soonest: NOW + 30 * 60 * 1000,
+      }),
+    ).toMatchObject({ type: "skip", reason: "billing" });
+>>>>>>> upstream/main
   });
 });

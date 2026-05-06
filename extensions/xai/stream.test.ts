@@ -1,6 +1,12 @@
 import type { StreamFn } from "@mariozechner/pi-agent-core";
 import type { Api, Context, Model } from "@mariozechner/pi-ai";
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
+=======
+import { streamSimpleOpenAIResponses } from "@mariozechner/pi-ai/openai-responses";
+import { describe, expect, it } from "vitest";
+import { applyXaiRuntimeModelCompat } from "./runtime-model-compat.js";
+>>>>>>> upstream/main
 import {
   createXaiFastModeWrapper,
   createXaiToolPayloadCompatibilityWrapper,
@@ -65,6 +71,47 @@ function runXaiToolPayloadWrapper(params: {
   );
 }
 
+<<<<<<< HEAD
+=======
+async function captureXaiResponsesPayloadWithThinking(): Promise<Record<string, unknown>> {
+  const model = applyXaiRuntimeModelCompat({
+    api: "openai-responses",
+    provider: "xai",
+    id: "grok-4.3",
+    baseUrl: "https://api.x.ai/v1",
+    reasoning: true,
+    input: ["text", "image"],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 1_000_000,
+    maxTokens: 64_000,
+  } as Model<"openai-responses">);
+
+  const payloadPromise = new Promise<Record<string, unknown>>((resolve, reject) => {
+    const timeout = setTimeout(
+      () => reject(new Error("provider payload callback was not invoked")),
+      1_000,
+    );
+    const stream = streamSimpleOpenAIResponses(
+      model,
+      { messages: [{ role: "user", content: "hello", timestamp: 0 }] },
+      {
+        apiKey: "test-api-key",
+        cacheRetention: "none",
+        reasoning: "low",
+        onPayload: (payload) => {
+          clearTimeout(timeout);
+          resolve(structuredClone(payload as Record<string, unknown>));
+          throw new Error("stop after payload capture");
+        },
+      },
+    );
+    void stream.result();
+  });
+
+  return await payloadPromise;
+}
+
+>>>>>>> upstream/main
 describe("xai stream wrappers", () => {
   it("rewrites supported Grok models to fast variants when fast mode is enabled", () => {
     expect(captureWrappedModelId({ modelId: "grok-3", fastMode: true })).toBe("grok-3-fast");
@@ -139,6 +186,16 @@ describe("xai stream wrappers", () => {
     expect(payload).not.toHaveProperty("reasoning_effort");
   });
 
+<<<<<<< HEAD
+=======
+  it("marks native xAI Responses thinking efforts unsupported before pi-ai builds payloads", async () => {
+    const payload = await captureXaiResponsesPayloadWithThinking();
+
+    expect(payload).not.toHaveProperty("reasoning");
+    expect(payload).not.toHaveProperty("include");
+  });
+
+>>>>>>> upstream/main
   it("moves image-bearing tool results out of function_call_output payloads", () => {
     const payload: Record<string, unknown> = {
       input: [

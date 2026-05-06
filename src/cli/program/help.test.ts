@@ -56,16 +56,35 @@ const testProgramContext: ProgramContext = {
 
 describe("configureProgramHelp", () => {
   let originalArgv: string[];
+<<<<<<< HEAD
+=======
+  let originalSuppressHelpBanner: string | undefined;
+>>>>>>> upstream/main
 
   beforeEach(() => {
     vi.clearAllMocks();
     originalArgv = [...process.argv];
+<<<<<<< HEAD
     hasEmittedCliBannerMock.mockReturnValue(false);
     resolveCommitHashMock.mockReturnValue("abc1234");
+=======
+    originalSuppressHelpBanner = process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
+    hasEmittedCliBannerMock.mockReturnValue(false);
+    resolveCommitHashMock.mockReturnValue("abc1234");
+    delete process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
+>>>>>>> upstream/main
   });
 
   afterEach(() => {
     process.argv = originalArgv;
+<<<<<<< HEAD
+=======
+    if (originalSuppressHelpBanner === undefined) {
+      delete process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
+    } else {
+      process.env.OPENCLAW_SUPPRESS_HELP_BANNER = originalSuppressHelpBanner;
+    }
+>>>>>>> upstream/main
   });
 
   function makeProgramWithCommands() {
@@ -131,6 +150,20 @@ describe("configureProgramHelp", () => {
     expect(help).toContain("https://docs.openclaw.ai/cli");
   });
 
+<<<<<<< HEAD
+=======
+  it("suppresses banner formatting when parent default help requests it", () => {
+    process.argv = ["node", "openclaw", "channels"];
+    process.env.OPENCLAW_SUPPRESS_HELP_BANNER = "1";
+    const program = makeProgramWithCommands();
+    configureProgramHelp(program, testProgramContext);
+
+    const help = captureHelpOutput(program);
+    expect(help).not.toContain("BANNER-LINE");
+    expect(formatCliBannerLineMock).not.toHaveBeenCalled();
+  });
+
+>>>>>>> upstream/main
   it("prints version and exits immediately when version flags are present", () => {
     process.argv = ["node", "openclaw", "--version"];
     expectVersionExit({ expectedVersion: "OpenClaw 9.9.9-test (abc1234)" });

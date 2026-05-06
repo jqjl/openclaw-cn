@@ -15,4 +15,12 @@ Key workflow:
 - `qa manual` is the scoped personality and style probe after the executable subset is green.
 - `qa coverage` prints the scenario coverage inventory from scenario frontmatter.
 
+<<<<<<< HEAD
+=======
+Operator workflows:
+
+- Use the `openclaw-qa-testing` skill for QA Lab live lanes, Convex credential
+  pool operations, and WhatsApp live credential setup/replacement.
+
+>>>>>>> upstream/main
 Keep this folder in git. Add new scenarios here before wiring them into automation.

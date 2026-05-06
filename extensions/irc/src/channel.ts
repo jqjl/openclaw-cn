@@ -33,6 +33,10 @@ import {
 import { IrcChannelConfigSchema } from "./config-schema.js";
 import { collectIrcMutableAllowlistWarnings } from "./doctor.js";
 import { startIrcGatewayAccount } from "./gateway.js";
+<<<<<<< HEAD
+=======
+import { ircMessageAdapter } from "./message-adapter.js";
+>>>>>>> upstream/main
 import {
   isChannelTarget,
   looksLikeIrcTargetId,
@@ -240,6 +244,10 @@ export const ircPlugin: ChannelPlugin<ResolvedIrcAccount, IrcProbe> = createChat
         hint: "<#channel|nick>",
       },
     },
+<<<<<<< HEAD
+=======
+    message: ircMessageAdapter,
+>>>>>>> upstream/main
     resolver: {
       resolveTargets: async ({ inputs, kind }) => {
         return inputs.map((input) => {

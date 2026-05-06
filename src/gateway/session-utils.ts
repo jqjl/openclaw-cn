@@ -56,7 +56,11 @@ import {
   type SessionScope,
 } from "../config/sessions.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { openRootFileSync } from "../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 import { projectPluginSessionExtensionsSync } from "../plugins/host-hook-state.js";
 import {
   DEFAULT_AGENT_ID,
@@ -168,7 +172,11 @@ function resolveIdentityAvatarUrl(
     return undefined;
   }
   try {
+<<<<<<< HEAD
     const opened = openBoundaryFileSync({
+=======
+    const opened = openRootFileSync({
+>>>>>>> upstream/main
       absolutePath: resolvedCandidate,
       rootPath: workspaceRoot,
       rootRealPath: workspaceRoot,
@@ -373,7 +381,17 @@ type SessionListRowContext = {
   subagentRuns: ReturnType<typeof buildSubagentRunReadIndex>;
   storeChildSessionsByKey: Map<string, string[]>;
   selectedModelByOverrideRef: Map<string, ReturnType<typeof resolveSessionModelRef>>;
+<<<<<<< HEAD
   thinkingLevelsByModelRef: Map<string, ReturnType<typeof listThinkingLevelOptions>>;
+=======
+  thinkingMetadataByModelRef: Map<
+    string,
+    {
+      levels: ReturnType<typeof listThinkingLevelOptions>;
+      defaultLevel: ReturnType<typeof resolveGatewaySessionThinkingDefault>;
+    }
+  >;
+>>>>>>> upstream/main
 };
 
 function resolveRuntimeChildSessionKeys(
@@ -491,7 +509,11 @@ function buildSessionListRowContext(params: {
     subagentRuns,
     storeChildSessionsByKey: buildStoreChildSessionIndex(params.store, params.now, subagentRuns),
     selectedModelByOverrideRef: new Map(),
+<<<<<<< HEAD
     thinkingLevelsByModelRef: new Map(),
+=======
+    thinkingMetadataByModelRef: new Map(),
+>>>>>>> upstream/main
   };
 }
 
@@ -504,6 +526,10 @@ function resolveSessionSelectedModelRef(params: {
   entry?: SessionEntry;
   agentId: string;
   rowContext?: SessionListRowContext;
+<<<<<<< HEAD
+=======
+  allowPluginNormalization?: boolean;
+>>>>>>> upstream/main
 }): ReturnType<typeof resolveSessionModelRef> | null {
   const override = normalizeStoredOverrideModel({
     providerOverride: params.entry?.providerOverride,
@@ -513,7 +539,13 @@ function resolveSessionSelectedModelRef(params: {
     return null;
   }
   if (!params.rowContext) {
+<<<<<<< HEAD
     return resolveSessionModelRef(params.cfg, params.entry, params.agentId);
+=======
+    return resolveSessionModelRef(params.cfg, params.entry, params.agentId, {
+      allowPluginNormalization: params.allowPluginNormalization,
+    });
+>>>>>>> upstream/main
   }
   const key = [
     normalizeAgentId(params.agentId),
@@ -524,16 +556,29 @@ function resolveSessionSelectedModelRef(params: {
   if (cached) {
     return cached;
   }
+<<<<<<< HEAD
   const selected = resolveSessionModelRef(params.cfg, params.entry, params.agentId);
+=======
+  const selected = resolveSessionModelRef(params.cfg, params.entry, params.agentId, {
+    allowPluginNormalization: params.allowPluginNormalization,
+  });
+>>>>>>> upstream/main
   params.rowContext.selectedModelByOverrideRef.set(key, selected);
   return selected;
 }
 
+<<<<<<< HEAD
 function resolveSessionRowThinkingLevels(params: {
+=======
+function resolveSessionRowThinkingMetadata(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+>>>>>>> upstream/main
   provider: string;
   model: string;
   modelCatalog?: ModelCatalogEntry[];
   rowContext?: SessionListRowContext;
+<<<<<<< HEAD
 }): ReturnType<typeof listThinkingLevelOptions> {
   if (!params.rowContext) {
     return listThinkingLevelOptions(params.provider, params.model, params.modelCatalog);
@@ -546,6 +591,44 @@ function resolveSessionRowThinkingLevels(params: {
   const levels = listThinkingLevelOptions(params.provider, params.model, params.modelCatalog);
   params.rowContext.thinkingLevelsByModelRef.set(key, levels);
   return levels;
+=======
+}): {
+  levels: ReturnType<typeof listThinkingLevelOptions>;
+  defaultLevel: ReturnType<typeof resolveGatewaySessionThinkingDefault>;
+} {
+  if (!params.rowContext) {
+    return {
+      levels: listThinkingLevelOptions(params.provider, params.model, params.modelCatalog),
+      defaultLevel: resolveGatewaySessionThinkingDefault({
+        cfg: params.cfg,
+        provider: params.provider,
+        model: params.model,
+        agentId: params.agentId,
+        modelCatalog: params.modelCatalog,
+      }),
+    };
+  }
+  const key = `${normalizeAgentId(params.agentId)}\0${createSessionRowModelCacheKey(
+    params.provider,
+    params.model,
+  )}`;
+  const cached = params.rowContext.thinkingMetadataByModelRef.get(key);
+  if (cached) {
+    return cached;
+  }
+  const metadata = {
+    levels: listThinkingLevelOptions(params.provider, params.model, params.modelCatalog),
+    defaultLevel: resolveGatewaySessionThinkingDefault({
+      cfg: params.cfg,
+      provider: params.provider,
+      model: params.model,
+      agentId: params.agentId,
+      modelCatalog: params.modelCatalog,
+    }),
+  };
+  params.rowContext.thinkingMetadataByModelRef.set(key, metadata);
+  return metadata;
+>>>>>>> upstream/main
 }
 
 function mergeChildSessionKeys(
@@ -1254,11 +1337,19 @@ export function resolveGatewaySessionThinkingDefault(params: {
 export function getSessionDefaults(
   cfg: OpenClawConfig,
   modelCatalog?: ModelCatalogEntry[],
+<<<<<<< HEAD
+=======
+  options?: { allowPluginNormalization?: boolean },
+>>>>>>> upstream/main
 ): GatewaySessionsDefaults {
   const resolved = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
+<<<<<<< HEAD
+=======
+    allowPluginNormalization: options?.allowPluginNormalization,
+>>>>>>> upstream/main
   });
   const contextTokens =
     cfg.agents?.defaults?.contextTokens ??
@@ -1286,6 +1377,7 @@ export function resolveSessionModelRef(
     | SessionEntry
     | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
   agentId?: string,
+<<<<<<< HEAD
 ): { provider: string; model: string } {
   const resolved = agentId
     ? resolveDefaultModelForAgent({ cfg, agentId })
@@ -1295,10 +1387,15 @@ export function resolveSessionModelRef(
         defaultModel: DEFAULT_MODEL,
       });
 
+=======
+  options?: { allowPluginNormalization?: boolean },
+): { provider: string; model: string } {
+>>>>>>> upstream/main
   const normalizedOverride = normalizeStoredOverrideModel({
     providerOverride: entry?.providerOverride,
     modelOverride: entry?.modelOverride,
   });
+<<<<<<< HEAD
 
   const persisted = resolvePersistedSelectedModelRef({
     defaultProvider: resolved.provider || DEFAULT_PROVIDER,
@@ -1306,6 +1403,42 @@ export function resolveSessionModelRef(
     runtimeModel: entry?.model,
     overrideProvider: normalizedOverride.providerOverride,
     overrideModel: normalizedOverride.modelOverride,
+=======
+  if (normalizedOverride.providerOverride && normalizedOverride.modelOverride) {
+    return resolvePersistedSelectedModelRef({
+      defaultProvider: normalizedOverride.providerOverride,
+      overrideProvider: normalizedOverride.providerOverride,
+      overrideModel: normalizedOverride.modelOverride,
+      allowPluginNormalization: options?.allowPluginNormalization,
+    })!;
+  }
+  const runtimeProvider = normalizeOptionalString(entry?.modelProvider);
+  const runtimeModel = normalizeOptionalString(entry?.model);
+  if (runtimeProvider && runtimeModel) {
+    return { provider: runtimeProvider, model: runtimeModel };
+  }
+
+  const resolved = agentId
+    ? resolveDefaultModelForAgent({
+        cfg,
+        agentId,
+        allowPluginNormalization: options?.allowPluginNormalization,
+      })
+    : resolveConfiguredModelRef({
+        cfg,
+        defaultProvider: DEFAULT_PROVIDER,
+        defaultModel: DEFAULT_MODEL,
+        allowPluginNormalization: options?.allowPluginNormalization,
+      });
+
+  const persisted = resolvePersistedSelectedModelRef({
+    defaultProvider: resolved.provider || DEFAULT_PROVIDER,
+    runtimeProvider,
+    runtimeModel,
+    overrideProvider: normalizedOverride.providerOverride,
+    overrideModel: normalizedOverride.modelOverride,
+    allowPluginNormalization: options?.allowPluginNormalization,
+>>>>>>> upstream/main
   });
   if (persisted) {
     return persisted;
@@ -1393,6 +1526,10 @@ export function resolveSessionModelIdentityRef(
     | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
   agentId?: string,
   fallbackModelRef?: string,
+<<<<<<< HEAD
+=======
+  options?: { allowPluginNormalization?: boolean },
+>>>>>>> upstream/main
 ): { provider?: string; model: string } {
   const runtimeModel = entry?.model?.trim();
   const runtimeProvider = entry?.modelProvider?.trim();
@@ -1408,7 +1545,13 @@ export function resolveSessionModelIdentityRef(
       return { provider: inferredProvider, model: runtimeModel };
     }
     if (runtimeModel.includes("/")) {
+<<<<<<< HEAD
       const parsedRuntime = parseModelRef(runtimeModel, DEFAULT_PROVIDER);
+=======
+      const parsedRuntime = parseModelRef(runtimeModel, DEFAULT_PROVIDER, {
+        allowPluginNormalization: options?.allowPluginNormalization,
+      });
+>>>>>>> upstream/main
       if (parsedRuntime) {
         return { provider: parsedRuntime.provider, model: parsedRuntime.model };
       }
@@ -1418,7 +1561,13 @@ export function resolveSessionModelIdentityRef(
   }
   const fallbackRef = fallbackModelRef?.trim();
   if (fallbackRef) {
+<<<<<<< HEAD
     const parsedFallback = parseModelRef(fallbackRef, DEFAULT_PROVIDER);
+=======
+    const parsedFallback = parseModelRef(fallbackRef, DEFAULT_PROVIDER, {
+      allowPluginNormalization: options?.allowPluginNormalization,
+    });
+>>>>>>> upstream/main
     if (parsedFallback) {
       return { provider: parsedFallback.provider, model: parsedFallback.model };
     }
@@ -1431,7 +1580,13 @@ export function resolveSessionModelIdentityRef(
     }
     return { model: fallbackRef };
   }
+<<<<<<< HEAD
   const resolved = resolveSessionModelRef(cfg, entry, agentId);
+=======
+  const resolved = resolveSessionModelRef(cfg, entry, agentId, {
+    allowPluginNormalization: options?.allowPluginNormalization,
+  });
+>>>>>>> upstream/main
   return { provider: resolved.provider, model: resolved.model };
 }
 
@@ -1577,12 +1732,20 @@ export function buildGatewaySessionRow(params: {
     entry,
     agentId: sessionAgentId,
     rowContext,
+<<<<<<< HEAD
+=======
+    allowPluginNormalization: !lightweight,
+>>>>>>> upstream/main
   });
   const resolvedModel = resolveSessionModelIdentityRef(
     cfg,
     entry,
     sessionAgentId,
     subagentRun?.model,
+<<<<<<< HEAD
+=======
+    { allowPluginNormalization: !lightweight },
+>>>>>>> upstream/main
   );
   const runtimeModelPresent =
     Boolean(entry?.model?.trim()) || Boolean(entry?.modelProvider?.trim());
@@ -1696,12 +1859,23 @@ export function buildGatewaySessionRow(params: {
 
   const thinkingProvider = rowModelProvider ?? DEFAULT_PROVIDER;
   const thinkingModel = rowModel ?? DEFAULT_MODEL;
+<<<<<<< HEAD
   const thinkingLevels = resolveSessionRowThinkingLevels({
+=======
+  const thinkingMetadata = resolveSessionRowThinkingMetadata({
+    cfg,
+    agentId: sessionAgentId,
+>>>>>>> upstream/main
     provider: thinkingProvider,
     model: thinkingModel,
     modelCatalog: params.modelCatalog,
     rowContext,
   });
+<<<<<<< HEAD
+=======
+  const thinkingLevels = thinkingMetadata.levels;
+  const thinkingDefault = thinkingMetadata.defaultLevel;
+>>>>>>> upstream/main
   const pluginExtensions =
     !lightweight && entry ? projectPluginSessionExtensionsSync({ sessionKey: key, entry }) : [];
 
@@ -1730,6 +1904,7 @@ export function buildGatewaySessionRow(params: {
     abortedLastRun: entry?.abortedLastRun,
     thinkingLevel: entry?.thinkingLevel,
     thinkingLevels,
+<<<<<<< HEAD
     thinkingOptions: thinkingLevels.map((level) => level.label),
     thinkingDefault: lightweight
       ? entry?.thinkingLevel
@@ -1740,6 +1915,10 @@ export function buildGatewaySessionRow(params: {
           agentId: sessionAgentId,
           modelCatalog: params.modelCatalog,
         }),
+=======
+    thinkingOptions: thinkingLevels?.map((level) => level.label),
+    thinkingDefault,
+>>>>>>> upstream/main
     fastMode: entry?.fastMode,
     verboseLevel: entry?.verboseLevel,
     traceLevel: entry?.traceLevel,
@@ -2066,7 +2245,11 @@ export function listSessionsFromStore(params: {
     totalCount,
     limitApplied,
     hasMore: sessions.length < totalCount,
+<<<<<<< HEAD
     defaults: getSessionDefaults(cfg, params.modelCatalog),
+=======
+    defaults: getSessionDefaults(cfg, params.modelCatalog, { allowPluginNormalization: false }),
+>>>>>>> upstream/main
     sessions,
   };
 }
@@ -2167,7 +2350,11 @@ export async function listSessionsFromStoreAsync(params: {
     totalCount,
     limitApplied,
     hasMore: sessions.length < totalCount,
+<<<<<<< HEAD
     defaults: getSessionDefaults(cfg, params.modelCatalog),
+=======
+    defaults: getSessionDefaults(cfg, params.modelCatalog, { allowPluginNormalization: false }),
+>>>>>>> upstream/main
     sessions,
   };
 }

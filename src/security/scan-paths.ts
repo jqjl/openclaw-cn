@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 
@@ -34,6 +35,9 @@ export function isPathInsideWithRealpath(
   }
   return isPathInside(baseReal, candidateReal);
 }
+=======
+export { isPathInside, isPathInsideWithRealpath } from "../infra/path-safety.js";
+>>>>>>> upstream/main
 
 export function extensionUsesSkippedScannerPath(entry: string): boolean {
   const segments = entry.split(/[\\/]+/).filter(Boolean);

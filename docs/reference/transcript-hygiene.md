@@ -48,7 +48,11 @@ TUI, REST, or SSE clients.
 All transcript hygiene is centralized in the embedded runner:
 
 - Policy selection: `src/agents/transcript-policy.ts`
+<<<<<<< HEAD
 - Sanitization/repair application: `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
+=======
+- Sanitization/repair application: `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/replay-history.ts`
+>>>>>>> upstream/main
 
 The policy uses `provider`, `modelApi`, and `modelId` to decide what to apply.
 
@@ -87,7 +91,11 @@ persisted tool calls (for example, after a rate limit failure).
 Implementation:
 
 - `sanitizeToolCallInputs` in `src/agents/session-transcript-repair.ts`
+<<<<<<< HEAD
 - Applied in `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
+=======
+- Applied in `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/replay-history.ts`
+>>>>>>> upstream/main
 
 ---
 

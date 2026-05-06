@@ -3,9 +3,15 @@ import { EventEmitter } from "node:events";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+<<<<<<< HEAD
 import { WEBHOOK_IN_FLIGHT_DEFAULTS } from "openclaw/plugin-sdk/webhook-request-guards";
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { createMockIncomingRequest } from "openclaw/plugin-sdk/test-env";
+=======
+import { createMockIncomingRequest } from "openclaw/plugin-sdk/test-env";
+import { WEBHOOK_IN_FLIGHT_DEFAULTS } from "openclaw/plugin-sdk/webhook-request-guards";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+>>>>>>> upstream/main
 
 type LineNodeWebhookHandler = (req: IncomingMessage, res: ServerResponse) => Promise<void>;
 
@@ -52,8 +58,14 @@ vi.mock("openclaw/plugin-sdk/runtime-env", async () => {
   };
 });
 
+<<<<<<< HEAD
 vi.mock("openclaw/plugin-sdk/channel-reply-pipeline", () => ({
   createChannelReplyPipeline: vi.fn(() => ({})),
+=======
+vi.mock("openclaw/plugin-sdk/channel-message", () => ({
+  createChannelMessageReplyPipeline: vi.fn(() => ({})),
+  hasFinalChannelMessageReplyDispatch: vi.fn(() => false),
+>>>>>>> upstream/main
 }));
 
 vi.mock("openclaw/plugin-sdk/webhook-ingress", async () => {

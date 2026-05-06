@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
+=======
+>>>>>>> upstream/main
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
+=======
+import { replaceFileAtomic } from "../infra/replace-file.js";
+>>>>>>> upstream/main
 import { isPathInside } from "../security/scan-paths.js";
 import { isRecord } from "../utils.js";
 import { maintainConfigBackups } from "./backup-rotation.js";
@@ -102,6 +109,7 @@ function getSingleTopLevelIncludeTarget(params: {
 }
 
 async function writeJsonFileAtomic(filePath: string, value: unknown): Promise<void> {
+<<<<<<< HEAD
   const dir = path.dirname(filePath);
   const tmp = path.join(
     dir,
@@ -127,6 +135,21 @@ async function writeJsonFileAtomic(filePath: string, value: unknown): Promise<vo
     });
     throw err;
   }
+=======
+  await replaceFileAtomic({
+    filePath,
+    content: `${JSON.stringify(value, null, 2)}\n`,
+    dirMode: 0o700,
+    mode: 0o600,
+    tempPrefix: path.basename(filePath),
+    beforeRename: async () => {
+      await fs.access(filePath).then(
+        async () => await maintainConfigBackups(filePath, fs),
+        () => undefined,
+      );
+    },
+  });
+>>>>>>> upstream/main
 }
 
 async function tryWriteSingleTopLevelIncludeMutation(params: {

@@ -304,7 +304,11 @@ describe("logs cli", () => {
       const stdoutWrites = captureStdoutWrites();
       const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
+<<<<<<< HEAD
       await runLogsCli(["logs", "--follow"]);
+=======
+      await runLogsCli(["logs", "--follow", "--interval", "1"]);
+>>>>>>> upstream/main
 
       expect(stderrWrites.join("")).toContain("Local Gateway RPC unavailable");
       expect(stderrWrites.join("")).not.toContain("gateway disconnected");
@@ -365,7 +369,18 @@ describe("logs cli", () => {
       const stdoutWrites = captureStdoutWrites();
       const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
+<<<<<<< HEAD
       await runLogsCli(["logs", "--follow", "--url", "ws://remote.example.com:18789"]);
+=======
+      await runLogsCli([
+        "logs",
+        "--follow",
+        "--interval",
+        "1",
+        "--url",
+        "ws://remote.example.com:18789",
+      ]);
+>>>>>>> upstream/main
 
       expect(readConfiguredLogTail).not.toHaveBeenCalled();
       expect(stderrWrites.join("")).toContain("gateway disconnected");
@@ -399,7 +414,19 @@ describe("logs cli", () => {
       const stdoutWrites = captureStdoutWrites();
       const exitSpy = vi.spyOn(process, "exit").mockImplementation(() => undefined as never);
 
+<<<<<<< HEAD
       await runLogsCli(["logs", "--follow", "--json", "--url", "ws://remote.example.com:18789"]);
+=======
+      await runLogsCli([
+        "logs",
+        "--follow",
+        "--interval",
+        "1",
+        "--json",
+        "--url",
+        "ws://remote.example.com:18789",
+      ]);
+>>>>>>> upstream/main
 
       const stderr = stderrWrites.join("");
       const noticeRecords = stderr

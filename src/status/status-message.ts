@@ -4,7 +4,10 @@ import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agen
 import { resolveModelAuthMode } from "../agents/model-auth.js";
 import {
   buildModelAliasIndex,
+<<<<<<< HEAD
   isCliProvider,
+=======
+>>>>>>> upstream/main
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "../agents/model-selection.js";
@@ -47,7 +50,10 @@ import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
+<<<<<<< HEAD
 import { sanitizeTerminalText } from "../terminal/safe-text.js";
+=======
+>>>>>>> upstream/main
 import { resolveStatusTtsSnapshot } from "../tts/status-config.js";
 import {
   estimateUsageCost,
@@ -56,6 +62,10 @@ import {
   resolveModelCostConfig,
 } from "../utils/usage-format.js";
 import { VERSION } from "../version.js";
+<<<<<<< HEAD
+=======
+import { resolveAgentRuntimeLabel } from "./agent-runtime-label.js";
+>>>>>>> upstream/main
 import { resolveActiveFallbackState } from "./fallback-notice-state.js";
 import { formatFastModeLabel } from "./status-labels.js";
 
@@ -199,6 +209,7 @@ function resolveExecutionLabel(
   return `${runtime}/${sandboxMode}`;
 }
 
+<<<<<<< HEAD
 const AGENT_RUNTIME_LABELS: Readonly<Record<string, string>> = {
   pi: "OpenClaw Pi Default",
   codex: "OpenAI Codex",
@@ -244,6 +255,8 @@ function resolveAgentRuntimeLabel(
   return AGENT_RUNTIME_LABELS.pi;
 }
 
+=======
+>>>>>>> upstream/main
 const formatTokens = (total: number | null | undefined, contextTokens: number | null) => {
   const ctx = contextTokens ?? null;
   if (total == null) {
@@ -697,12 +710,26 @@ export function buildStatusMessage(args: StatusArgs): string {
     model: selectedModel,
     allowAsyncLoad: false,
   });
+<<<<<<< HEAD
   const activeContextTokens = resolveContextTokensForModel({
     cfg: contextConfig,
     ...(contextLookupProvider ? { provider: contextLookupProvider } : {}),
     model: contextLookupModel,
     allowAsyncLoad: false,
   });
+=======
+  const explicitRuntimeContextTokens =
+    typeof args.runtimeContextTokens === "number" && args.runtimeContextTokens > 0
+      ? args.runtimeContextTokens
+      : undefined;
+  const activeContextTokens =
+    resolveContextTokensForModel({
+      cfg: contextConfig,
+      ...(contextLookupProvider ? { provider: contextLookupProvider } : {}),
+      model: contextLookupModel,
+      allowAsyncLoad: false,
+    }) ?? explicitRuntimeContextTokens;
+>>>>>>> upstream/main
   const channelModelNote = resolveChannelModelNote({
     config: args.config,
     entry,
@@ -718,10 +745,13 @@ export function buildStatusMessage(args: StatusArgs): string {
     typeof args.agent?.contextTokens === "number" && args.agent.contextTokens > 0
       ? args.agent.contextTokens
       : undefined;
+<<<<<<< HEAD
   const explicitRuntimeContextTokens =
     typeof args.runtimeContextTokens === "number" && args.runtimeContextTokens > 0
       ? args.runtimeContextTokens
       : undefined;
+=======
+>>>>>>> upstream/main
   const explicitConfiguredContextTokens =
     typeof args.explicitConfiguredContextTokens === "number" &&
     args.explicitConfiguredContextTokens > 0
@@ -733,14 +763,28 @@ export function buildStatusMessage(args: StatusArgs): string {
         ? Math.min(explicitConfiguredContextTokens, activeContextTokens)
         : explicitConfiguredContextTokens
       : undefined;
+<<<<<<< HEAD
+=======
+  const cappedAgentContextTokens =
+    typeof agentContextTokens === "number"
+      ? typeof activeContextTokens === "number"
+        ? Math.min(agentContextTokens, activeContextTokens)
+        : agentContextTokens
+      : undefined;
+>>>>>>> upstream/main
   const channelOverrideContextTokens = channelModelNote
     ? (explicitRuntimeContextTokens ??
       cappedConfiguredContextTokens ??
       (typeof activeContextTokens === "number"
+<<<<<<< HEAD
         ? typeof agentContextTokens === "number"
           ? Math.min(agentContextTokens, activeContextTokens)
           : activeContextTokens
         : agentContextTokens))
+=======
+        ? (cappedAgentContextTokens ?? activeContextTokens)
+        : cappedAgentContextTokens))
+>>>>>>> upstream/main
     : undefined;
   // When a fallback model is active, the selected-model context limit that
   // callers keep on the agent config is often stale. Prefer an explicit runtime
@@ -789,7 +833,15 @@ export function buildStatusMessage(args: StatusArgs): string {
         ...(contextLookupProvider ? { provider: contextLookupProvider } : {}),
         model: contextLookupModel,
         contextTokensOverride:
+<<<<<<< HEAD
           channelOverrideContextTokens ?? persistedContextTokens ?? agentContextTokens,
+=======
+          channelOverrideContextTokens ??
+          persistedContextTokens ??
+          cappedConfiguredContextTokens ??
+          cappedAgentContextTokens ??
+          explicitRuntimeContextTokens,
+>>>>>>> upstream/main
         fallbackContextTokens: DEFAULT_CONTEXT_TOKENS,
         allowAsyncLoad: false,
       }) ?? DEFAULT_CONTEXT_TOKENS);

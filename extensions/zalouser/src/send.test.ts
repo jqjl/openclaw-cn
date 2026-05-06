@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+<<<<<<< HEAD
+=======
+import { createZalouserSendReceipt } from "./send-receipt.js";
+>>>>>>> upstream/main
 import {
   sendDeliveredZalouser,
   sendImageZalouser,
@@ -35,6 +39,32 @@ const mockSendReaction = vi.mocked(sendZaloReaction);
 const mockSendDelivered = vi.mocked(sendZaloDeliveredEvent);
 const mockSendSeen = vi.mocked(sendZaloSeenEvent);
 
+<<<<<<< HEAD
+=======
+function sendResult(
+  messageId: string,
+  threadId = "thread",
+): {
+  ok: true;
+  messageId: string;
+  receipt: ReturnType<typeof createZalouserSendReceipt>;
+} {
+  return {
+    ok: true,
+    messageId,
+    receipt: createZalouserSendReceipt({ messageId, threadId, kind: "text" }),
+  };
+}
+
+function sendFailure(error: string, threadId = "thread") {
+  return {
+    ok: false,
+    error,
+    receipt: createZalouserSendReceipt({ threadId, kind: "unknown" }),
+  };
+}
+
+>>>>>>> upstream/main
 describe("zalouser send helpers", () => {
   beforeEach(() => {
     mockSendText.mockReset();
@@ -46,7 +76,11 @@ describe("zalouser send helpers", () => {
   });
 
   it("keeps plain text literal by default", async () => {
+<<<<<<< HEAD
     mockSendText.mockResolvedValueOnce({ ok: true, messageId: "mid-1" });
+=======
+    mockSendText.mockResolvedValueOnce(sendResult("mid-1", "thread-1"));
+>>>>>>> upstream/main
 
     const result = await sendMessageZalouser("thread-1", "**hello**", {
       profile: "default",
@@ -61,11 +95,20 @@ describe("zalouser send helpers", () => {
         isGroup: true,
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "mid-1" });
   });
 
   it("formats markdown text when markdown mode is enabled", async () => {
     mockSendText.mockResolvedValueOnce({ ok: true, messageId: "mid-1b" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "mid-1" });
+    expect(result.receipt.primaryPlatformMessageId).toBe("mid-1");
+  });
+
+  it("formats markdown text when markdown mode is enabled", async () => {
+    mockSendText.mockResolvedValueOnce(sendResult("mid-1b", "thread-1"));
+>>>>>>> upstream/main
 
     await sendMessageZalouser("thread-1", "**hello**", {
       profile: "default",
@@ -86,7 +129,11 @@ describe("zalouser send helpers", () => {
   });
 
   it("formats image captions in markdown mode", async () => {
+<<<<<<< HEAD
     mockSendText.mockResolvedValueOnce({ ok: true, messageId: "mid-2" });
+=======
+    mockSendText.mockResolvedValueOnce(sendResult("mid-2", "thread-2"));
+>>>>>>> upstream/main
 
     await sendImageZalouser("thread-2", "https://example.com/a.png", {
       profile: "p2",
@@ -110,7 +157,11 @@ describe("zalouser send helpers", () => {
   });
 
   it("does not keep the raw markdown caption as a media fallback after formatting", async () => {
+<<<<<<< HEAD
     mockSendText.mockResolvedValueOnce({ ok: true, messageId: "mid-2b" });
+=======
+    mockSendText.mockResolvedValueOnce(sendResult("mid-2b", "thread-2"));
+>>>>>>> upstream/main
 
     await sendImageZalouser("thread-2", "https://example.com/a.png", {
       profile: "p2",
@@ -137,8 +188,13 @@ describe("zalouser send helpers", () => {
     const text = "\t".repeat(500) + "a".repeat(1500);
     const formatted = parseZalouserTextStyles(text);
     mockSendText
+<<<<<<< HEAD
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2c-1" })
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2c-2" });
+=======
+      .mockResolvedValueOnce(sendResult("mid-2c-1", "thread-2c"))
+      .mockResolvedValueOnce(sendResult("mid-2c-2", "thread-2c"));
+>>>>>>> upstream/main
 
     const result = await sendMessageZalouser("thread-2c", text, {
       profile: "p2c",
@@ -150,14 +206,23 @@ describe("zalouser send helpers", () => {
     expect(mockSendText).toHaveBeenCalledTimes(2);
     expect(mockSendText.mock.calls.map((call) => call[1]).join("")).toBe(formatted.text);
     expect(mockSendText.mock.calls.every((call) => call[1].length <= 2000)).toBe(true);
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "mid-2c-2" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "mid-2c-2" });
+>>>>>>> upstream/main
   });
 
   it("preserves text styles when splitting long formatted markdown", async () => {
     const text = `**${"a".repeat(2501)}**`;
     mockSendText
+<<<<<<< HEAD
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2d-1" })
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2d-2" });
+=======
+      .mockResolvedValueOnce(sendResult("mid-2d-1", "thread-2d"))
+      .mockResolvedValueOnce(sendResult("mid-2d-2", "thread-2d"));
+>>>>>>> upstream/main
 
     const result = await sendMessageZalouser("thread-2d", text, {
       profile: "p2d",
@@ -187,15 +252,24 @@ describe("zalouser send helpers", () => {
         textStyles: [{ start: 0, len: 501, st: TextStyle.Bold }],
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "mid-2d-2" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "mid-2d-2" });
+>>>>>>> upstream/main
   });
 
   it("preserves formatted text and styles when newline chunk mode splits after parsing", async () => {
     const text = `**${"a".repeat(1995)}**\n\nsecond paragraph`;
     const formatted = parseZalouserTextStyles(text);
     mockSendText
+<<<<<<< HEAD
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2d-3" })
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2d-4" });
+=======
+      .mockResolvedValueOnce(sendResult("mid-2d-3", "thread-2d-2"))
+      .mockResolvedValueOnce(sendResult("mid-2d-4", "thread-2d-2"));
+>>>>>>> upstream/main
 
     const result = await sendMessageZalouser("thread-2d-2", text, {
       profile: "p2d-2",
@@ -230,14 +304,23 @@ describe("zalouser send helpers", () => {
         textStyles: undefined,
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "mid-2d-4" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "mid-2d-4" });
+>>>>>>> upstream/main
   });
 
   it("respects an explicit text chunk limit when splitting formatted markdown", async () => {
     const text = `**${"a".repeat(1501)}**`;
     mockSendText
+<<<<<<< HEAD
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2d-5" })
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2d-6" });
+=======
+      .mockResolvedValueOnce(sendResult("mid-2d-5", "thread-2d-3"))
+      .mockResolvedValueOnce(sendResult("mid-2d-6", "thread-2d-3"));
+>>>>>>> upstream/main
 
     const result = await sendMessageZalouser("thread-2d-3", text, {
       profile: "p2d-3",
@@ -271,15 +354,24 @@ describe("zalouser send helpers", () => {
         textStyles: [{ start: 0, len: 301, st: TextStyle.Bold }],
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "mid-2d-6" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "mid-2d-6" });
+>>>>>>> upstream/main
   });
 
   it("sends overflow markdown captions as follow-up text after the media message", async () => {
     const caption = "\t".repeat(500) + "a".repeat(1500);
     const formatted = parseZalouserTextStyles(caption);
     mockSendText
+<<<<<<< HEAD
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2e-1" })
       .mockResolvedValueOnce({ ok: true, messageId: "mid-2e-2" });
+=======
+      .mockResolvedValueOnce(sendResult("mid-2e-1", "thread-2e"))
+      .mockResolvedValueOnce(sendResult("mid-2e-2", "thread-2e"));
+>>>>>>> upstream/main
 
     const result = await sendImageZalouser("thread-2e", "https://example.com/long.png", {
       profile: "p2e",
@@ -310,11 +402,19 @@ describe("zalouser send helpers", () => {
         mediaUrl: "https://example.com/long.png",
       }),
     );
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, messageId: "mid-2e-2" });
   });
 
   it("delegates link helper to JS transport", async () => {
     mockSendLink.mockResolvedValueOnce({ ok: false, error: "boom" });
+=======
+    expect(result).toMatchObject({ ok: true, messageId: "mid-2e-2" });
+  });
+
+  it("delegates link helper to JS transport", async () => {
+    mockSendLink.mockResolvedValueOnce(sendFailure("boom", "thread-3"));
+>>>>>>> upstream/main
 
     const result = await sendLinkZalouser("thread-3", "https://openclaw.ai", {
       profile: "p3",
@@ -325,7 +425,11 @@ describe("zalouser send helpers", () => {
       profile: "p3",
       isGroup: true,
     });
+<<<<<<< HEAD
     expect(result).toEqual({ ok: false, error: "boom" });
+=======
+    expect(result).toMatchObject({ ok: false, error: "boom" });
+>>>>>>> upstream/main
   });
 
   it("delegates typing helper to JS transport", async () => {
@@ -358,7 +462,12 @@ describe("zalouser send helpers", () => {
       emoji: "👍",
       remove: undefined,
     });
+<<<<<<< HEAD
     expect(result).toEqual({ ok: true, error: undefined });
+=======
+    expect(result).toMatchObject({ ok: true, error: undefined });
+    expect(result.receipt.platformMessageIds).toEqual([]);
+>>>>>>> upstream/main
   });
 
   it("delegates delivered+seen helpers to JS transport", async () => {

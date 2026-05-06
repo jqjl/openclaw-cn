@@ -27,8 +27,13 @@ vi.mock("./managed-binary.js", () => ({
   resolveManagedCodexAppServerStartOptions: mocks.managedBinary.startOptions,
 }));
 
+<<<<<<< HEAD
 vi.mock("openclaw/plugin-sdk/provider-auth", () => ({
   resolveOpenClawAgentDir: mocks.providerAuth.agentDir,
+=======
+vi.mock("openclaw/plugin-sdk/agent-runtime", () => ({
+  resolveDefaultAgentDir: mocks.providerAuth.agentDir,
+>>>>>>> upstream/main
 }));
 
 let listCodexAppServerModels: typeof import("./models.js").listCodexAppServerModels;

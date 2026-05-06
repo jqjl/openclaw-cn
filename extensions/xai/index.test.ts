@@ -221,7 +221,18 @@ describe("xai provider plugin", () => {
         model: createProviderModel({ id: "grok-4-1-fast" }),
       } as never),
     ).toMatchObject({
+<<<<<<< HEAD
       thinkingLevelMap: { off: null },
+=======
+      thinkingLevelMap: {
+        off: null,
+        minimal: null,
+        low: null,
+        medium: null,
+        high: null,
+        xhigh: null,
+      },
+>>>>>>> upstream/main
       compat: {
         toolSchemaProfile: "xai",
         nativeWebSearchTool: true,

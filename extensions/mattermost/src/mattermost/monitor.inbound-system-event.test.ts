@@ -128,7 +128,11 @@ vi.mock("./runtime-api.js", async () => {
       readStoreForDmPolicy: vi.fn(async () => []),
       upsertPairingRequest: vi.fn(async () => ({ code: "123456", created: true })),
     })),
+<<<<<<< HEAD
     createChannelReplyPipeline: vi.fn(() => ({
+=======
+    createChannelMessageReplyPipeline: vi.fn(() => ({
+>>>>>>> upstream/main
       onModelSelected: vi.fn(),
       typingCallbacks: {},
     })),

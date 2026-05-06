@@ -5,8 +5,11 @@ read_when:
 title: "Credits"
 ---
 
+<<<<<<< HEAD
 # Credits and Acknowledgments
 
+=======
+>>>>>>> upstream/main
 ## The name
 
 OpenClaw = CLAW + TARDIS, because every space lobster needs a time and space machine.

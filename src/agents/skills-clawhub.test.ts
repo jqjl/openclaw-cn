@@ -11,7 +11,11 @@ const searchClawHubSkillsMock = vi.fn();
 const archiveCleanupMock = vi.fn();
 const withExtractedArchiveRootMock = vi.fn();
 const installPackageDirMock = vi.fn();
+<<<<<<< HEAD
 const fileExistsMock = vi.fn();
+=======
+const pathExistsMock = vi.fn();
+>>>>>>> upstream/main
 
 vi.mock("../infra/clawhub.js", () => ({
   fetchClawHubSkillDetail: fetchClawHubSkillDetailMock,
@@ -29,8 +33,13 @@ vi.mock("../infra/install-package-dir.js", () => ({
   installPackageDir: installPackageDirMock,
 }));
 
+<<<<<<< HEAD
 vi.mock("../infra/archive.js", () => ({
   fileExists: fileExistsMock,
+=======
+vi.mock("../infra/fs-safe.js", () => ({
+  pathExists: pathExistsMock,
+>>>>>>> upstream/main
 }));
 
 const { installSkillFromClawHub, searchSkillsFromClawHub, updateSkillsFromClawHub } =
@@ -46,10 +55,17 @@ describe("skills-clawhub", () => {
     archiveCleanupMock.mockReset();
     withExtractedArchiveRootMock.mockReset();
     installPackageDirMock.mockReset();
+<<<<<<< HEAD
     fileExistsMock.mockReset();
 
     resolveClawHubBaseUrlMock.mockReturnValue("https://clawhub.ai");
     fileExistsMock.mockImplementation(async (input: string) => input.endsWith("SKILL.md"));
+=======
+    pathExistsMock.mockReset();
+
+    resolveClawHubBaseUrlMock.mockReturnValue("https://clawhub.ai");
+    pathExistsMock.mockImplementation(async (input: string) => input.endsWith("SKILL.md"));
+>>>>>>> upstream/main
     fetchClawHubSkillDetailMock.mockResolvedValue({
       skill: {
         slug: "agentreceipt",

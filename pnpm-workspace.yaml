@@ -33,6 +33,10 @@ minimumReleaseAgeExclude:
   - "sqlite-vec-*"
 
 onlyBuiltDependencies:
+<<<<<<< HEAD
+=======
+  - "@openclaw/fs-safe"
+>>>>>>> upstream/main
   - "@discordjs/opus"
   - "@google/genai"
   - "@lydell/node-pty"

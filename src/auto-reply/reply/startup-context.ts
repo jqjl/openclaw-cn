@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { resolveUserTimezone } from "../../agents/date-time.js";
 import type { OpenClawConfig } from "../../config/config.js";
+<<<<<<< HEAD
 import { openBoundaryFile } from "../../infra/boundary-file-read.js";
+=======
+import { openRootFile } from "../../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 
 const STARTUP_MEMORY_FILE_MAX_BYTES = 16_384;
 const STARTUP_MEMORY_FILE_MAX_CHARS = 1_200;
@@ -205,7 +209,11 @@ async function readStartupMemoryFile(params: {
   maxFileBytes: number;
 }): Promise<string | null> {
   const absolutePath = path.join(params.workspaceDir, params.relativePath);
+<<<<<<< HEAD
   const opened = await openBoundaryFile({
+=======
+  const opened = await openRootFile({
+>>>>>>> upstream/main
     absolutePath,
     rootPath: params.workspaceDir,
     boundaryLabel: "workspace root",

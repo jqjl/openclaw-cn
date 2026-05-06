@@ -55,6 +55,11 @@ export function renderChannels(props: ChannelsProps) {
       }
       return a.order - b.order;
     });
+<<<<<<< HEAD
+=======
+  const showingStaleSnapshot = Boolean(props.loading && props.snapshot && props.lastSuccessAt);
+  const partialWarnings = props.snapshot?.warnings?.filter((warning) => warning.trim()) ?? [];
+>>>>>>> upstream/main
 
   return html`
     <section class="grid grid-cols-2">
@@ -83,6 +88,24 @@ export function renderChannels(props: ChannelsProps) {
           ${props.lastSuccessAt ? formatRelativeTimestamp(props.lastSuccessAt) : t("common.na")}
         </div>
       </div>
+<<<<<<< HEAD
+=======
+      ${showingStaleSnapshot
+        ? html`
+            <div class="callout info" style="margin-top: 12px;">
+              Refreshing channel status in the background; showing the last successful snapshot.
+            </div>
+          `
+        : nothing}
+      ${props.snapshot?.partial
+        ? html`
+            <div class="callout warn" style="margin-top: 12px;">
+              Some channel checks did not finish before the UI budget.
+              ${partialWarnings.length > 0 ? partialWarnings.slice(0, 3).join("; ") : ""}
+            </div>
+          `
+        : nothing}
+>>>>>>> upstream/main
       ${props.lastError
         ? html`<div class="callout danger" style="margin-top: 12px;">${props.lastError}</div>`
         : nothing}

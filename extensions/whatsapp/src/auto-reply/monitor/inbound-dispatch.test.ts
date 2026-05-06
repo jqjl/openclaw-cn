@@ -12,13 +12,36 @@ type CapturedReplyPayload = {
   mediaUrls?: string[];
 };
 
+<<<<<<< HEAD
 const { dispatchReplyWithBufferedBlockDispatcherMock } = vi.hoisted(() => ({
+=======
+const {
+  dispatchReplyWithBufferedBlockDispatcherMock,
+  deliverInboundReplyWithMessageSendContextMock,
+} = vi.hoisted(() => ({
+>>>>>>> upstream/main
   dispatchReplyWithBufferedBlockDispatcherMock: vi.fn(async (params: { ctx: unknown }) => {
     capturedDispatchParams = params;
     return { queuedFinal: false, counts: { tool: 0, block: 0, final: 0 } };
   }),
+<<<<<<< HEAD
 }));
 
+=======
+  deliverInboundReplyWithMessageSendContextMock: vi.fn<(...args: unknown[]) => Promise<unknown>>(
+    async () => null,
+  ),
+}));
+
+vi.mock("openclaw/plugin-sdk/channel-message", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("openclaw/plugin-sdk/channel-message")>();
+  return {
+    ...actual,
+    deliverInboundReplyWithMessageSendContext: deliverInboundReplyWithMessageSendContextMock,
+  };
+});
+
+>>>>>>> upstream/main
 vi.mock("./runtime-api.js", () => ({
   dispatchReplyWithBufferedBlockDispatcher: dispatchReplyWithBufferedBlockDispatcherMock,
   finalizeInboundContext: <T extends Record<string, unknown>>(ctx: T) => ({
@@ -36,7 +59,11 @@ vi.mock("./runtime-api.js", () => ({
     return phone ? `+${phone}` : null;
   },
   logVerbose: () => {},
+<<<<<<< HEAD
   resolveChannelSourceReplyDeliveryMode: ({
+=======
+  resolveChannelMessageSourceReplyDeliveryMode: ({
+>>>>>>> upstream/main
     cfg,
     ctx,
   }: {
@@ -102,12 +129,31 @@ function acceptedSendResult(kind: "media" | "text", id: string): WhatsAppSendRes
   return {
     kind,
     messageId: id,
+<<<<<<< HEAD
     messageIds: [id],
+=======
+>>>>>>> upstream/main
     keys: [{ id }],
     providerAccepted: true,
   };
 }
 
+<<<<<<< HEAD
+=======
+function testReceipt(messageIds: string[]) {
+  return {
+    ...(messageIds[0] ? { primaryPlatformMessageId: messageIds[0] } : {}),
+    platformMessageIds: messageIds,
+    parts: messageIds.map((messageId, index) => ({
+      platformMessageId: messageId,
+      kind: "text" as const,
+      index,
+    })),
+    sentAt: 123,
+  };
+}
+
+>>>>>>> upstream/main
 function makeRoute(overrides: Partial<TestRoute> = {}): TestRoute {
   return {
     agentId: "main",
@@ -189,12 +235,19 @@ function acceptedDeliveryResult() {
       {
         kind: "text" as const,
         messageId: "wa-sent-1",
+<<<<<<< HEAD
         messageIds: ["wa-sent-1"],
+=======
+>>>>>>> upstream/main
         keys: [{ id: "wa-sent-1" }],
         providerAccepted: true,
       },
     ],
+<<<<<<< HEAD
     messageIds: ["wa-sent-1"],
+=======
+    receipt: testReceipt(["wa-sent-1"]),
+>>>>>>> upstream/main
     providerAccepted: true,
   };
 }
@@ -202,7 +255,11 @@ function acceptedDeliveryResult() {
 function unacceptedDeliveryResult() {
   return {
     results: [],
+<<<<<<< HEAD
     messageIds: [],
+=======
+    receipt: testReceipt([]),
+>>>>>>> upstream/main
     providerAccepted: false,
   };
 }
@@ -233,6 +290,14 @@ describe("whatsapp inbound dispatch", () => {
   beforeEach(() => {
     capturedDispatchParams = undefined;
     dispatchReplyWithBufferedBlockDispatcherMock.mockClear();
+<<<<<<< HEAD
+=======
+    deliverInboundReplyWithMessageSendContextMock.mockReset();
+    deliverInboundReplyWithMessageSendContextMock.mockResolvedValue({
+      status: "unsupported",
+      reason: "missing_outbound_handler",
+    });
+>>>>>>> upstream/main
   });
 
   it("builds a finalized inbound context payload", () => {
@@ -513,6 +578,128 @@ describe("whatsapp inbound dispatch", () => {
     expect(rememberSentText).toHaveBeenCalledTimes(4);
   });
 
+<<<<<<< HEAD
+=======
+  it("queues final WhatsApp payloads through durable outbound delivery", async () => {
+    deliverInboundReplyWithMessageSendContextMock.mockResolvedValueOnce({
+      status: "handled_visible",
+      delivery: {
+        messageIds: ["wa-1"],
+        visibleReplySent: true,
+      },
+    });
+    const deliverReply = vi.fn(async () => acceptedDeliveryResult());
+    const rememberSentText = vi.fn();
+
+    await dispatchBufferedReply({
+      context: { Body: "incoming", SessionKey: "agent:main:whatsapp:+15551234567" },
+      deliverReply,
+      rememberSentText,
+      route: makeRoute({
+        accountId: "default",
+        agentId: "main",
+        sessionKey: "agent:main:whatsapp:+15551234567",
+      }),
+    });
+
+    const deliver = getCapturedDeliver();
+    await deliver?.({ text: "final payload" }, { kind: "final" });
+
+    expect(deliverInboundReplyWithMessageSendContextMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "whatsapp",
+        accountId: "default",
+        agentId: "main",
+        to: "+1000",
+        payload: expect.objectContaining({ text: "final payload" }),
+        info: { kind: "final" },
+        ctxPayload: expect.objectContaining({
+          SessionKey: "agent:main:whatsapp:+15551234567",
+        }),
+      }),
+    );
+    expect(deliverReply).not.toHaveBeenCalled();
+    expect(rememberSentText).toHaveBeenCalledWith(
+      "final payload",
+      expect.objectContaining({
+        combinedBody: "incoming",
+        combinedBodySessionKey: "agent:main:whatsapp:+15551234567",
+      }),
+    );
+  });
+
+  it("does not fall back when durable WhatsApp delivery suppresses a send", async () => {
+    deliverInboundReplyWithMessageSendContextMock.mockResolvedValueOnce({
+      status: "handled_no_send",
+      reason: "no_visible_result",
+      delivery: {
+        messageIds: [],
+        visibleReplySent: false,
+      },
+    });
+    const deliverReply = vi.fn(async () => acceptedDeliveryResult());
+    const rememberSentText = vi.fn();
+
+    await dispatchBufferedReply({
+      deliverReply,
+      rememberSentText,
+    });
+
+    const deliver = getCapturedDeliver();
+    await deliver?.({ text: "cancelled by hook" }, { kind: "final" });
+
+    expect(deliverInboundReplyWithMessageSendContextMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "whatsapp",
+        payload: expect.objectContaining({ text: "cancelled by hook" }),
+        info: { kind: "final" },
+      }),
+    );
+    expect(deliverReply).not.toHaveBeenCalled();
+    expect(rememberSentText).not.toHaveBeenCalled();
+  });
+
+  it("keeps media replies on the WhatsApp owner delivery path", async () => {
+    deliverInboundReplyWithMessageSendContextMock.mockResolvedValueOnce({
+      status: "handled_visible",
+      delivery: {
+        messageIds: ["wa-1"],
+        visibleReplySent: true,
+      },
+    });
+    const deliverReply = vi.fn(async () => acceptedDeliveryResult());
+    const rememberSentText = vi.fn();
+
+    await dispatchBufferedReply({
+      deliverReply,
+      rememberSentText,
+    });
+
+    const deliver = getCapturedDeliver();
+    await deliver?.(
+      { text: "generated image", mediaUrls: ["/tmp/generated.jpg"] },
+      { kind: "final" },
+    );
+
+    expect(deliverInboundReplyWithMessageSendContextMock).not.toHaveBeenCalled();
+    expect(deliverReply).toHaveBeenCalledWith(
+      expect.objectContaining({
+        replyResult: expect.objectContaining({
+          mediaUrls: ["/tmp/generated.jpg"],
+          text: "generated image",
+        }),
+      }),
+    );
+    expect(rememberSentText).toHaveBeenCalledWith(
+      "generated image",
+      expect.objectContaining({
+        combinedBody: "hi",
+        combinedBodySessionKey: "agent:main:whatsapp:direct:+1000",
+      }),
+    );
+  });
+
+>>>>>>> upstream/main
   it("normalizes WhatsApp payload text before delivery and echo bookkeeping", async () => {
     const deliverReply = vi.fn(async () => acceptedDeliveryResult());
     const rememberSentText = vi.fn();

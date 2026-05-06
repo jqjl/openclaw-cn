@@ -10,6 +10,13 @@ vLLM can serve open-source (and some custom) models via an **OpenAI-compatible**
 
 OpenClaw can also **auto-discover** available models from vLLM when you opt in with `VLLM_API_KEY` (any value works if your server does not enforce auth) and you do not define an explicit `models.providers.vllm` entry.
 
+<<<<<<< HEAD
+=======
+OpenClaw treats `vllm` as a local OpenAI-compatible provider that supports
+streamed usage accounting, so status/context token counts can update from
+`stream_options.include_usage` responses.
+
+>>>>>>> upstream/main
 | Property         | Value                                    |
 | ---------------- | ---------------------------------------- |
 | Provider ID      | `vllm`                                   |

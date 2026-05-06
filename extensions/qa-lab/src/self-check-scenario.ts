@@ -1,7 +1,14 @@
 import { extractQaToolPayload } from "./extract-tool-payload.js";
 import type { QaScenarioDefinition } from "./scenario.js";
 
+<<<<<<< HEAD
 export function createQaSelfCheckScenario(): QaScenarioDefinition {
+=======
+export function createQaSelfCheckScenario(options?: {
+  waitTimeoutMs?: number;
+}): QaScenarioDefinition {
+  const waitTimeoutMs = options?.waitTimeoutMs ?? 5_000;
+>>>>>>> upstream/main
   return {
     name: "Synthetic Slack-class roundtrip",
     steps: [
@@ -18,7 +25,11 @@ export function createQaSelfCheckScenario(): QaScenarioDefinition {
             kind: "message-text",
             textIncludes: "qa-echo: hello from qa",
             direction: "outbound",
+<<<<<<< HEAD
             timeoutMs: 5_000,
+=======
+            timeoutMs: waitTimeoutMs,
+>>>>>>> upstream/main
           });
         },
       },
@@ -52,7 +63,11 @@ export function createQaSelfCheckScenario(): QaScenarioDefinition {
             kind: "message-text",
             textIncludes: "qa-echo: inside thread",
             direction: "outbound",
+<<<<<<< HEAD
             timeoutMs: 5_000,
+=======
+            timeoutMs: waitTimeoutMs,
+>>>>>>> upstream/main
           });
           return threadId;
         },

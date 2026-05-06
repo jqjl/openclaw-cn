@@ -2,7 +2,11 @@ import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+<<<<<<< HEAD
 import { writeJsonAtomic } from "../infra/json-files.js";
+=======
+import { writeJson } from "../infra/json-files.js";
+>>>>>>> upstream/main
 
 export type NodeHostGatewayConfig = {
   host?: string;
@@ -55,7 +59,11 @@ export async function loadNodeHostConfig(): Promise<NodeHostConfig | null> {
 
 export async function saveNodeHostConfig(config: NodeHostConfig): Promise<void> {
   const filePath = resolveNodeHostConfigPath();
+<<<<<<< HEAD
   await writeJsonAtomic(filePath, config, { mode: 0o600 });
+=======
+  await writeJson(filePath, config, { mode: 0o600 });
+>>>>>>> upstream/main
 }
 
 export async function ensureNodeHostConfig(): Promise<NodeHostConfig> {

@@ -26,6 +26,7 @@ function resolveProviderContractProvidersFromPublicArtifact(
 }
 
 export function describeProviderContracts(pluginId: string) {
+<<<<<<< HEAD
   const resolveProviderEntries = (): ProviderContractEntry[] => {
     const publicArtifactProviders = resolveProviderContractProvidersFromPublicArtifact(pluginId);
     if (publicArtifactProviders) {
@@ -35,6 +36,23 @@ export function describeProviderContracts(pluginId: string) {
       pluginId,
       provider,
     }));
+=======
+  let providerEntries: ProviderContractEntry[] | undefined;
+  const resolveProviderEntries = (): ProviderContractEntry[] => {
+    if (providerEntries) {
+      return providerEntries;
+    }
+    const publicArtifactProviders = resolveProviderContractProvidersFromPublicArtifact(pluginId);
+    if (publicArtifactProviders) {
+      providerEntries = publicArtifactProviders;
+      return providerEntries;
+    }
+    providerEntries = resolveProviderContractProvidersForPluginIds([pluginId]).map((provider) => ({
+      pluginId,
+      provider,
+    }));
+    return providerEntries;
+>>>>>>> upstream/main
   };
   const resolveProviderIds = (): string[] =>
     resolveProviderEntries().map((entry) => entry.provider.id);

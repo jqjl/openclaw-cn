@@ -41,6 +41,10 @@ export function createSlackActions(
   return {
     describeMessageTool: describeSlackMessageTool,
     extractToolSend: ({ args }) => extractSlackToolSend(args),
+<<<<<<< HEAD
+=======
+    prepareSendPayload: ({ ctx, payload }) => (ctx.action === "send" ? payload : null),
+>>>>>>> upstream/main
     handleAction: async (ctx) => {
       return await handleSlackMessageAction({
         providerId,

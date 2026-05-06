@@ -26,6 +26,11 @@ const GATEWAY_RUN_VALUE_FLAGS = [
   "--ws-log",
 ] as const;
 
+<<<<<<< HEAD
+=======
+const INTERACTIVE_TTY_COMMANDS = new Set(["tui", "terminal", "chat"]);
+
+>>>>>>> upstream/main
 function isForegroundGatewayRunArgv(argv: string[]): boolean {
   const positionals = getCommandPositionalsWithRootOptions(argv, {
     commandPath: ["gateway"],
@@ -42,6 +47,18 @@ export function shouldSkipRespawnForArgv(argv: string[]): boolean {
   const invocation = resolveCliArgvInvocation(argv);
   return (
     invocation.hasHelpOrVersion ||
+<<<<<<< HEAD
+=======
+    (invocation.primary !== null && INTERACTIVE_TTY_COMMANDS.has(invocation.primary)) ||
+    (invocation.primary === "gateway" && isForegroundGatewayRunArgv(argv))
+  );
+}
+
+export function shouldSkipStartupEnvironmentRespawnForArgv(argv: string[]): boolean {
+  const invocation = resolveCliArgvInvocation(argv);
+  return (
+    invocation.hasHelpOrVersion ||
+>>>>>>> upstream/main
     (invocation.primary === "gateway" && isForegroundGatewayRunArgv(argv))
   );
 }

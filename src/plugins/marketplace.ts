@@ -3,7 +3,13 @@ import os from "node:os";
 import path from "node:path";
 import { resolveArchiveKind } from "../infra/archive.js";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
 import { resolveOsHomeRelativePath } from "../infra/home-dir.js";
+=======
+import { pathExists } from "../infra/fs-safe.js";
+import { resolveOsHomeRelativePath } from "../infra/home-dir.js";
+import { tryReadJson } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { fetchWithSsrFGuard } from "../infra/net/fetch-guard.js";
 import { isPathInside } from "../infra/path-guards.js";
 import { runCommandWithTimeout } from "../process/exec.js";
@@ -308,6 +314,7 @@ function parseMarketplaceManifest(
   };
 }
 
+<<<<<<< HEAD
 async function pathExists(target: string): Promise<boolean> {
   try {
     await fs.access(target);
@@ -317,18 +324,24 @@ async function pathExists(target: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 async function readClaudeKnownMarketplaces(): Promise<Record<string, KnownMarketplaceRecord>> {
   const knownPath = resolveOsHomeRelativePath(CLAUDE_KNOWN_MARKETPLACES_PATH);
   if (!(await pathExists(knownPath))) {
     return {};
   }
 
+<<<<<<< HEAD
   let parsed: unknown;
   try {
     parsed = JSON.parse(await fs.readFile(knownPath, "utf-8"));
   } catch {
     return {};
   }
+=======
+  const parsed = await tryReadJson<unknown>(knownPath);
+>>>>>>> upstream/main
 
   if (!parsed || typeof parsed !== "object") {
     return {};

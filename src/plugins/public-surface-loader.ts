@@ -2,8 +2,13 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { sameFileIdentity } from "../infra/file-identity.js";
+=======
+import { openRootFileSync } from "../infra/boundary-file-read.js";
+import { sameFileIdentity } from "../infra/fs-safe-advanced.js";
+>>>>>>> upstream/main
 import { resolveBundledPluginsDir } from "./bundled-dir.js";
 import {
   createPluginModuleLoaderCache,
@@ -129,7 +134,11 @@ export function loadBundledPluginPublicArtifactModuleSync<T extends object>(para
     return cached as T;
   }
 
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
+=======
+  const opened = openRootFileSync({
+>>>>>>> upstream/main
     absolutePath: location.modulePath,
     rootPath: location.boundaryRoot,
     boundaryLabel:

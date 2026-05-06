@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 summary: "OpenClaw on Raspberry Pi (budget self-hosted setup)"
 read_when:
   - Setting up OpenClaw on a Raspberry Pi
@@ -418,3 +419,17 @@ echo 'wireless-power off' | sudo tee -a /etc/network/interfaces
 - [Hetzner guide](/install/hetzner) — Docker setup
 - [Tailscale](/gateway/tailscale) — remote access
 - [Nodes](/nodes) — pair your laptop/phone with the Pi gateway
+=======
+summary: "Redirect to /install/raspberry-pi"
+title: "Raspberry Pi (platform)"
+redirect: /install/raspberry-pi
+---
+
+This page has moved to [Raspberry Pi](/install/raspberry-pi).
+
+## Related
+
+- [Install overview](/install)
+- [Linux server](/vps)
+- [Platforms](/platforms)
+>>>>>>> upstream/main

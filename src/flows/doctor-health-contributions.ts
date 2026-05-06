@@ -313,6 +313,26 @@ async function runStateIntegrityHealth(ctx: DoctorHealthFlowContext): Promise<vo
   await noteStateIntegrity(ctx.cfg, ctx.prompter, ctx.configPath);
 }
 
+<<<<<<< HEAD
+=======
+async function runCodexSessionRouteHealth(ctx: DoctorHealthFlowContext): Promise<void> {
+  const { maybeRepairCodexSessionRoutes } =
+    await import("../commands/doctor/shared/codex-route-warnings.js");
+  const { note } = await import("../terminal/note.js");
+  const result = await maybeRepairCodexSessionRoutes({
+    cfg: ctx.cfg,
+    env: ctx.env ?? process.env,
+    shouldRepair: ctx.prompter.shouldRepair,
+  });
+  if (result.changes.length > 0) {
+    note(result.changes.join("\n"), "Doctor changes");
+  }
+  if (result.warnings.length > 0) {
+    note(result.warnings.join("\n"), "Doctor warnings");
+  }
+}
+
+>>>>>>> upstream/main
 async function runSessionLocksHealth(ctx: DoctorHealthFlowContext): Promise<void> {
   const { noteSessionLockHealth } = await import("../commands/doctor-session-locks.js");
   await noteSessionLockHealth({ shouldRepair: ctx.prompter.shouldRepair });
@@ -676,6 +696,14 @@ export function resolveDoctorHealthContributions(): DoctorHealthContribution[] {
       run: runStateIntegrityHealth,
     }),
     createDoctorHealthContribution({
+<<<<<<< HEAD
+=======
+      id: "doctor:codex-session-routes",
+      label: "Codex session routes",
+      run: runCodexSessionRouteHealth,
+    }),
+    createDoctorHealthContribution({
+>>>>>>> upstream/main
       id: "doctor:session-locks",
       label: "Session locks",
       run: runSessionLocksHealth,

@@ -51,6 +51,23 @@ export type ChannelPresentationCapabilities = {
 
 export type ChannelDeliveryCapabilities = {
   pin?: boolean;
+<<<<<<< HEAD
+=======
+  durableFinal?: {
+    text?: boolean;
+    media?: boolean;
+    payload?: boolean;
+    silent?: boolean;
+    replyTo?: boolean;
+    thread?: boolean;
+    nativeQuote?: boolean;
+    messageSendingHooks?: boolean;
+    batch?: boolean;
+    reconcileUnknownSend?: boolean;
+    afterSendSuccess?: boolean;
+    afterCommit?: boolean;
+  };
+>>>>>>> upstream/main
 };
 
 export type ChannelOutboundPayloadHint =

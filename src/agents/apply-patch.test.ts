@@ -9,6 +9,7 @@ import {
 import { applyPatch } from "./apply-patch.js";
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 
+<<<<<<< HEAD
 const pinnedPathHelper = vi.hoisted(() => {
   const fs = require("node:fs/promises") as typeof import("node:fs/promises");
   const path = require("node:path") as typeof import("node:path");
@@ -114,6 +115,8 @@ vi.mock("../infra/fs-pinned-write-helper.js", () => ({
   runPinnedWriteHelper: pinnedPathHelper.runPinnedWriteHelper,
 }));
 
+=======
+>>>>>>> upstream/main
 async function withTempDir<T>(fn: (dir: string) => Promise<T>) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-patch-"));
   try {
@@ -556,7 +559,13 @@ describe("applyPatch", () => {
             symlinkTarget: outside,
             timing: "before-realpath",
             run: async () => {
+<<<<<<< HEAD
               await expect(applyPatch(patch, { cwd: dir })).rejects.toThrow(/under root/i);
+=======
+              await expect(applyPatch(patch, { cwd: dir })).rejects.toThrow(
+                /path alias under sandbox root|path escapes sandbox root|under root|unable to resolve opened file path/i,
+              );
+>>>>>>> upstream/main
             },
           });
           await expect(fs.stat(path.join(outside, "nested"))).rejects.toMatchObject({

@@ -55,6 +55,26 @@ export type TalkProviderConfig = {
   [key: string]: unknown;
 };
 
+<<<<<<< HEAD
+=======
+export type TalkRealtimeConfig = {
+  /** Active realtime voice provider. */
+  provider?: string;
+  /** Provider-specific realtime voice config keyed by provider id. */
+  providers?: Record<string, TalkProviderConfig>;
+  /** Provider model override for realtime sessions. */
+  model?: string;
+  /** Provider voice override for realtime sessions. */
+  voice?: string;
+  /** Realtime execution mode. */
+  mode?: "realtime" | "stt-tts" | "transcription";
+  /** Byte/session transport. */
+  transport?: "webrtc" | "provider-websocket" | "gateway-relay" | "managed-room";
+  /** Tool/agent strategy for realtime sessions. */
+  brain?: "agent-consult" | "direct-tools" | "none";
+};
+
+>>>>>>> upstream/main
 export type ResolvedTalkConfig = {
   /** Active Talk TTS provider resolved from the current config payload. */
   provider: string;
@@ -67,6 +87,11 @@ export type TalkConfig = {
   provider?: string;
   /** Provider-specific Talk config keyed by provider id. */
   providers?: Record<string, TalkProviderConfig>;
+<<<<<<< HEAD
+=======
+  /** Realtime Talk provider, model, voice, mode, transport, and brain config. */
+  realtime?: TalkRealtimeConfig;
+>>>>>>> upstream/main
   /** BCP 47 locale id used for Talk speech recognition on device nodes. */
   speechLocale?: string;
   /** Stop speaking when user starts talking (default: true). */

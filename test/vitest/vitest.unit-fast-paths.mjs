@@ -129,8 +129,13 @@ export const forcedUnitFastTestFiles = [
   "src/proxy-capture/runtime.test.ts",
   "src/proxy-capture/proxy-server.test.ts",
   "src/proxy-capture/store.sqlite.test.ts",
+<<<<<<< HEAD
   "src/realtime-voice/agent-consult-runtime.test.ts",
   "src/realtime-voice/session-runtime.test.ts",
+=======
+  "src/talk/agent-consult-runtime.test.ts",
+  "src/talk/session-runtime.test.ts",
+>>>>>>> upstream/main
   "src/security/audit-channel-account-metadata.test.ts",
   "src/security/audit-channel-source-config-discord.test.ts",
   "src/security/audit-config-basics.test.ts",
@@ -174,7 +179,11 @@ export const forcedUnitFastTestFiles = [
   "src/security/audit-config-include-perms.test.ts",
   "src/security/context-visibility.test.ts",
   "src/realtime-transcription/websocket-session.test.ts",
+<<<<<<< HEAD
   "src/realtime-voice/agent-consult-tool.test.ts",
+=======
+  "src/talk/agent-consult-tool.test.ts",
+>>>>>>> upstream/main
   "src/routing/resolve-route.test.ts",
   "src/sessions/transcript-events.test.ts",
   "src/status/status-message.test.ts",

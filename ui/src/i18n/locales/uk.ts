@@ -205,13 +205,35 @@ export const uk: TranslationMap = {
     autoThreshold: "автоматичний поріг",
     overflowRetry: "повторна спроба після переповнення",
     timeoutRetry: "повторна спроба після тайм-ауту",
+<<<<<<< HEAD
     tokenRange: "{before} → {after} токенів",
+=======
+    tokenRange: "{before} to {after} токенів",
+>>>>>>> upstream/main
     tokensBefore: "{count} токенів до",
     tokenDeltaUnavailable: "дельта токенів недоступна",
     checkpoints: "{count} контрольних точок",
     checkpoint: "{count} контрольна точка",
+<<<<<<< HEAD
     showCheckpoints: "Показати контрольні точки",
     hideCheckpoints: "Приховати контрольні точки",
+=======
+    showSessionDetails: "Показати подробиці сеансу для {count}",
+    hideSessionDetails: "Приховати подробиці сеансу для {count}",
+    sessionDetails: "Подробиці сеансу",
+    compactionHistory: "Історія стиснення",
+    status: "Статус",
+    model: "Модель",
+    provider: "Провайдер",
+    runtime: "Середовище виконання",
+    surface: "Поверхня",
+    subject: "Тема",
+    room: "Кімната",
+    space: "Простір",
+    sessionId: "ID сеансу",
+    activeRun: "Активний запуск",
+    archived: "Архівовано",
+>>>>>>> upstream/main
     loadingCheckpoints: "Завантаження контрольних точок…",
     noCheckpoints: "Для цього сеансу не записано контрольних точок стиснення.",
     noSummary: "Підсумок не зафіксовано.",

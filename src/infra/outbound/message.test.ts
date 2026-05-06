@@ -4,6 +4,10 @@ const mocks = vi.hoisted(() => ({
   getChannelPlugin: vi.fn(),
   resolveOutboundTarget: vi.fn(),
   deliverOutboundPayloads: vi.fn(),
+<<<<<<< HEAD
+=======
+  resolveOutboundDurableFinalDeliverySupport: vi.fn(),
+>>>>>>> upstream/main
   resolveRuntimePluginRegistry: vi.fn(),
 }));
 
@@ -43,6 +47,10 @@ vi.mock("./targets.js", () => ({
 
 vi.mock("./deliver.js", () => ({
   deliverOutboundPayloads: mocks.deliverOutboundPayloads,
+<<<<<<< HEAD
+=======
+  resolveOutboundDurableFinalDeliverySupport: mocks.resolveOutboundDurableFinalDeliverySupport,
+>>>>>>> upstream/main
 }));
 
 vi.mock("../../utils/message-channel.js", async () => {
@@ -78,6 +86,10 @@ describe("sendMessage", () => {
     mocks.getChannelPlugin.mockClear();
     mocks.resolveOutboundTarget.mockClear();
     mocks.deliverOutboundPayloads.mockClear();
+<<<<<<< HEAD
+=======
+    mocks.resolveOutboundDurableFinalDeliverySupport.mockClear();
+>>>>>>> upstream/main
     mocks.resolveRuntimePluginRegistry.mockClear();
 
     mocks.getChannelPlugin.mockReturnValue({
@@ -85,6 +97,10 @@ describe("sendMessage", () => {
     });
     mocks.resolveOutboundTarget.mockImplementation(({ to }: { to: string }) => ({ ok: true, to }));
     mocks.deliverOutboundPayloads.mockResolvedValue([{ channel: "forum", messageId: "m1" }]);
+<<<<<<< HEAD
+=======
+    mocks.resolveOutboundDurableFinalDeliverySupport.mockResolvedValue({ ok: true });
+>>>>>>> upstream/main
   });
 
   it("passes explicit agentId to outbound delivery for scoped media roots", async () => {
@@ -227,6 +243,69 @@ describe("sendMessage", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("forwards prepared payloads and required queue policy into outbound delivery", async () => {
+    const mediaAccess = {
+      localRoots: ["/tmp/media"],
+      readFile: vi.fn(async () => Buffer.from("media")),
+    };
+
+    await sendMessage({
+      cfg: {},
+      channel: "forum",
+      to: "123456",
+      content: "fallback text",
+      payloads: [{ text: "prepared", channelData: { forum: { card: true } } }],
+      queuePolicy: "required",
+      mediaAccess,
+    });
+
+    expect(mocks.deliverOutboundPayloads).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payloads: [
+          expect.objectContaining({
+            text: "prepared",
+            channelData: { forum: { card: true } },
+          }),
+        ],
+        queuePolicy: "required",
+        mediaAccess,
+      }),
+    );
+    expect(mocks.resolveOutboundDurableFinalDeliverySupport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        channel: "forum",
+        requirements: expect.objectContaining({
+          payload: true,
+          reconcileUnknownSend: true,
+        }),
+      }),
+    );
+  });
+
+  it("rejects required durable sends before enqueue when replay safety is unsupported", async () => {
+    mocks.resolveOutboundDurableFinalDeliverySupport.mockResolvedValueOnce({
+      ok: false,
+      reason: "capability_mismatch",
+      capability: "reconcileUnknownSend",
+    });
+
+    await expect(
+      sendMessage({
+        cfg: {},
+        channel: "forum",
+        to: "123456",
+        content: "fallback text",
+        payloads: [{ text: "prepared", channelData: { forum: { card: true } } }],
+        queuePolicy: "required",
+      }),
+    ).rejects.toThrow("missing reconcileUnknownSend");
+
+    expect(mocks.deliverOutboundPayloads).not.toHaveBeenCalled();
+  });
+
+>>>>>>> upstream/main
   it("applies mirror matrix semantics for MEDIA and silent token variants", async () => {
     const matrix: Array<{
       name: string;

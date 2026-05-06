@@ -4,7 +4,11 @@ import type { GatewayRequestHandlerOptions } from "./types.js";
 
 const mocks = vi.hoisted(() => ({
   getRuntimeConfig: vi.fn(() => ({})),
+<<<<<<< HEAD
   resolveOpenClawAgentDir: vi.fn(() => "/tmp/agent"),
+=======
+  resolveDefaultAgentDir: vi.fn(() => "/tmp/agent"),
+>>>>>>> upstream/main
   ensureAuthProfileStore: vi.fn((agentDir?: string, options?: unknown) => {
     void agentDir;
     void options;
@@ -20,8 +24,13 @@ vi.mock("../../config/config.js", () => ({
   getRuntimeConfig: mocks.getRuntimeConfig,
 }));
 
+<<<<<<< HEAD
 vi.mock("../../agents/agent-paths.js", () => ({
   resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
+=======
+vi.mock("../../agents/agent-scope.js", () => ({
+  resolveDefaultAgentDir: mocks.resolveDefaultAgentDir,
+>>>>>>> upstream/main
 }));
 
 vi.mock("../../agents/auth-profiles.js", async () => {

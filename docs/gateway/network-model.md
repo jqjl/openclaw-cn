@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 summary: "How the Gateway, nodes, and canvas host connect."
 read_when:
   - You want a concise view of the Gateway networking model
@@ -21,6 +22,16 @@ process that owns channel connections and the WebSocket control plane.
   - `/__openclaw__/a2ui/`
     When `gateway.auth` is configured and the Gateway binds beyond loopback, these routes are protected by Gateway auth. Node clients use node-scoped capability URLs tied to their active WS session. See [Gateway configuration](/gateway/configuration) (`canvasHost`, `gateway`).
 - Remote use is typically SSH tunnel or tailnet VPN. See [Remote access](/gateway/remote) and [Discovery](/gateway/discovery).
+=======
+summary: "Redirect to /network#core-model"
+read_when:
+  - You want a concise view of the Gateway networking model
+title: "Network model"
+redirect: /network#core-model
+---
+
+This content has been merged into [Network — Core model](/network#core-model).
+>>>>>>> upstream/main
 
 ## Related
 

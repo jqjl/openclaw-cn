@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "../agents/agent-paths.js";
+=======
+>>>>>>> upstream/main
 import {
   listAgentIds,
   resolveAgentDir,
   resolveAgentWorkspaceDir,
+<<<<<<< HEAD
+=======
+  resolveDefaultAgentDir,
+>>>>>>> upstream/main
   resolveDefaultAgentId,
 } from "../agents/agent-scope.js";
 import {
@@ -114,7 +121,11 @@ function collectCandidateAgentDirs(
   env: NodeJS.ProcessEnv = process.env,
 ): string[] {
   const dirs = new Set<string>();
+<<<<<<< HEAD
   dirs.add(resolveUserPath(resolveOpenClawAgentDir(env), env));
+=======
+  dirs.add(resolveUserPath(resolveDefaultAgentDir(config, env), env));
+>>>>>>> upstream/main
   for (const agentId of listAgentIds(config)) {
     dirs.add(resolveUserPath(resolveAgentDir(config, agentId, env), env));
   }

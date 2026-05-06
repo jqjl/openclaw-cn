@@ -9,6 +9,7 @@ export {
   isPrivateNetworkAllowedByPolicy,
   matchesHostnameAllowlist,
   normalizeHostname,
+<<<<<<< HEAD
   openFileWithinRoot,
   redactSensitiveText,
   resolvePinnedHostnameWithPolicy,
@@ -17,5 +18,22 @@ export {
   SsrFBlockedError,
   wrapExternalContent,
   writeFileFromPathWithinRoot,
+=======
+  pathScope,
+  redactSensitiveText,
+  resolveExistingPathsWithinRoot,
+  resolvePinnedHostnameWithPolicy,
+  resolvePathsWithinRoot,
+  resolvePathWithinRoot,
+  root,
+  safeEqualSecret,
+  sanitizeUntrustedFileName,
+  resolveStrictExistingPathsWithinRoot,
+  resolveWritablePathWithinRoot,
+  FsSafeError,
+  SsrFBlockedError,
+  writeViaSiblingTempPath,
+  wrapExternalContent,
+>>>>>>> upstream/main
 } from "openclaw/plugin-sdk/security-runtime";
 export type { LookupFn, SsrFPolicy } from "openclaw/plugin-sdk/security-runtime";

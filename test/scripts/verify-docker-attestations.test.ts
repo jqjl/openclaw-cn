@@ -51,11 +51,14 @@ function createAttestation(
   };
 }
 
+<<<<<<< HEAD
 function createAttestationWithoutArtifactType() {
   const { artifactType: _artifactType, ...attestation } = createAttestation();
   return attestation;
 }
 
+=======
+>>>>>>> upstream/main
 describe("verify-docker-attestations", () => {
   it("resolves digest refs from tagged image refs", () => {
     expect(imageRefForDigest("ghcr.io/openclaw/openclaw:2026.4.26", imageDigest)).toBe(
@@ -77,17 +80,48 @@ describe("verify-docker-attestations", () => {
     expect(errors).toEqual([]);
   });
 
+<<<<<<< HEAD
   it("accepts OCI attestation manifests without artifactType", () => {
+=======
+  it("accepts attestation manifests with omitted artifactType", () => {
+>>>>>>> upstream/main
     const errors = collectDockerAttestationErrors({
       imageRef: "ghcr.io/openclaw/openclaw:test",
       index: createIndex(),
       requiredPlatforms: [parsePlatform("linux/amd64")],
+<<<<<<< HEAD
       inspectAttestation: () => createAttestationWithoutArtifactType(),
+=======
+      inspectAttestation: () => {
+        const attestation: Record<string, unknown> = createAttestation();
+        delete attestation.artifactType;
+        return attestation;
+      },
+>>>>>>> upstream/main
     });
 
     expect(errors).toEqual([]);
   });
 
+<<<<<<< HEAD
+=======
+  it("reports unexpected attestation artifact types", () => {
+    const errors = collectDockerAttestationErrors({
+      imageRef: "ghcr.io/openclaw/openclaw:test",
+      index: createIndex(),
+      requiredPlatforms: [parsePlatform("linux/amd64")],
+      inspectAttestation: () => ({
+        ...createAttestation(),
+        artifactType: "application/vnd.unknown",
+      }),
+    });
+
+    expect(errors).toEqual([
+      `ghcr.io/openclaw/openclaw:test: linux/amd64 attestation ${attestationDigest} has unexpected artifactType "application/vnd.unknown"`,
+    ]);
+  });
+
+>>>>>>> upstream/main
   it("reports missing attestation manifests", () => {
     const index = createIndex();
     index.manifests = index.manifests.slice(0, 1);
@@ -116,6 +150,7 @@ describe("verify-docker-attestations", () => {
       "ghcr.io/openclaw/openclaw:test: linux/amd64 missing predicate https://slsa.dev/provenance/v1",
     ]);
   });
+<<<<<<< HEAD
 
   it("reports an unexpected attestation manifest shape", () => {
     const errors = collectDockerAttestationErrors({
@@ -132,4 +167,6 @@ describe("verify-docker-attestations", () => {
       `ghcr.io/openclaw/openclaw:test: linux/amd64 attestation ${attestationDigest} has unexpected manifest shape artifactType="application/vnd.example.invalid" mediaType="application/vnd.oci.image.manifest.v1+json"`,
     ]);
   });
+=======
+>>>>>>> upstream/main
 });

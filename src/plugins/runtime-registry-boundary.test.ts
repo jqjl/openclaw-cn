@@ -6,6 +6,10 @@ import { describe, expect, it } from "vitest";
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const allowedRuntimeResolverRefs = new Set([
   "src/commands/doctor.e2e-harness.ts",
+<<<<<<< HEAD
+=======
+  "src/infra/outbound/channel-bootstrap.runtime.ts",
+>>>>>>> upstream/main
   "src/plugins/capability-provider-runtime.ts",
   "src/plugins/loader.ts",
 ]);

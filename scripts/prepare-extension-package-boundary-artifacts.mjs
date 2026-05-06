@@ -59,6 +59,16 @@ const SLACK_DTS_INPUTS = [
 ];
 const SLACK_DTS_STAMP = "dist/plugin-sdk/extensions/slack/.boundary-dts.stamp";
 const SLACK_DTS_REQUIRED_OUTPUTS = ["dist/plugin-sdk/extensions/slack/api.d.ts"];
+<<<<<<< HEAD
+=======
+const WHATSAPP_DTS_INPUTS = [
+  "extensions/whatsapp/api.ts",
+  "extensions/whatsapp/src/qa-driver.runtime.ts",
+  "extensions/whatsapp/tsconfig.json",
+];
+const WHATSAPP_DTS_STAMP = "dist/plugin-sdk/extensions/whatsapp/.boundary-dts.stamp";
+const WHATSAPP_DTS_REQUIRED_OUTPUTS = ["dist/plugin-sdk/extensions/whatsapp/api.d.ts"];
+>>>>>>> upstream/main
 const ENTRY_SHIMS_INPUTS = [
   "scripts/write-plugin-sdk-entry-dts.ts",
   "scripts/lib/plugin-sdk-entrypoints.json",
@@ -316,6 +326,15 @@ async function main(argv = process.argv.slice(2)) {
         outputPaths: [SLACK_DTS_STAMP, ...SLACK_DTS_REQUIRED_OUTPUTS],
         includeFile: isRelevantTypeInput,
       }) && !hasMissingOutput(SLACK_DTS_REQUIRED_OUTPUTS);
+<<<<<<< HEAD
+=======
+    const whatsappDtsFresh =
+      isArtifactSetFresh({
+        inputPaths: WHATSAPP_DTS_INPUTS,
+        outputPaths: [WHATSAPP_DTS_STAMP, ...WHATSAPP_DTS_REQUIRED_OUTPUTS],
+        includeFile: isRelevantTypeInput,
+      }) && !hasMissingOutput(WHATSAPP_DTS_REQUIRED_OUTPUTS);
+>>>>>>> upstream/main
 
     const prerequisiteSteps = [];
     const dependentSteps = [];
@@ -445,6 +464,40 @@ async function main(argv = process.argv.slice(2)) {
       } else {
         process.stdout.write("[slack boundary dts] fresh; skipping\n");
       }
+<<<<<<< HEAD
+=======
+      if (!whatsappDtsFresh) {
+        removeIncrementalStateForMissingOutput({
+          outputPaths: WHATSAPP_DTS_REQUIRED_OUTPUTS,
+          tsBuildInfoPath: "dist/plugin-sdk/extensions/whatsapp/.tsbuildinfo",
+        });
+        dependentSteps.push({
+          label: "whatsapp boundary dts",
+          args: [
+            runTsgoScript,
+            "-p",
+            "extensions/whatsapp/tsconfig.json",
+            "--declaration",
+            "true",
+            "--emitDeclarationOnly",
+            "true",
+            "--noEmit",
+            "false",
+            "--outDir",
+            "dist/plugin-sdk/extensions/whatsapp",
+            "--rootDir",
+            "extensions/whatsapp",
+            "--tsBuildInfoFile",
+            "dist/plugin-sdk/extensions/whatsapp/.tsbuildinfo",
+          ],
+          env: { OPENCLAW_TSGO_HEAVY_CHECK_LOCK_HELD: "1" },
+          timeoutMs: 300_000,
+          stampPath: WHATSAPP_DTS_STAMP,
+        });
+      } else {
+        process.stdout.write("[whatsapp boundary dts] fresh; skipping\n");
+      }
+>>>>>>> upstream/main
     }
 
     if (prerequisiteSteps.length > 0) {

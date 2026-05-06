@@ -4,6 +4,7 @@
   "type": "object",
   "required": ["requiresOpenaiAuth"],
   "properties": {
+<<<<<<< HEAD
     "account": {
       "anyOf": [
         {
@@ -17,6 +18,10 @@
     "requiresOpenaiAuth": {
       "type": "boolean"
     }
+=======
+    "account": { "anyOf": [{ "$ref": "#/definitions/Account" }, { "type": "null" }] },
+    "requiresOpenaiAuth": { "type": "boolean" }
+>>>>>>> upstream/main
   },
   "definitions": {
     "Account": {
@@ -25,11 +30,15 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "type": {
               "type": "string",
               "enum": ["apiKey"],
               "title": "ApiKeyAccountType"
             }
+=======
+            "type": { "type": "string", "enum": ["apiKey"], "title": "ApiKeyAccountType" }
+>>>>>>> upstream/main
           },
           "title": "ApiKeyAccount"
         },
@@ -37,6 +46,7 @@
           "type": "object",
           "required": ["email", "planType", "type"],
           "properties": {
+<<<<<<< HEAD
             "email": {
               "type": "string"
             },
@@ -48,6 +58,11 @@
               "enum": ["chatgpt"],
               "title": "ChatgptAccountType"
             }
+=======
+            "email": { "type": "string" },
+            "planType": { "$ref": "#/definitions/PlanType" },
+            "type": { "type": "string", "enum": ["chatgpt"], "title": "ChatgptAccountType" }
+>>>>>>> upstream/main
           },
           "title": "ChatgptAccount"
         },

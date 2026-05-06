@@ -152,7 +152,11 @@ test("sessions.list uses the gateway model catalog for effective thinking defaul
       sessions: expect.arrayContaining([
         expect.objectContaining({
           key: "agent:main:main",
+<<<<<<< HEAD
           thinkingDefault: undefined,
+=======
+          thinkingDefault: "medium",
+>>>>>>> upstream/main
           thinkingOptions: ["off", "minimal", "low", "medium", "high"],
         }),
       ]),

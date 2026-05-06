@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
+=======
+import { afterAll, describe, expect, it } from "vitest";
+>>>>>>> upstream/main
 import {
   buildSecretRefCredentialMatrix,
   type SecretRefCredentialMatrixDocument,
@@ -10,6 +14,28 @@ function buildSecretRefCredentialMatrixJson(): string {
   return `${JSON.stringify(buildSecretRefCredentialMatrix(), null, 2)}\n`;
 }
 
+<<<<<<< HEAD
+=======
+const previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+const previousTrustBundledPluginsDir = process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
+
+process.env.OPENCLAW_BUNDLED_PLUGINS_DIR ??= "extensions";
+process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR ??= "1";
+
+afterAll(() => {
+  if (previousBundledPluginsDir === undefined) {
+    delete process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
+  } else {
+    process.env.OPENCLAW_BUNDLED_PLUGINS_DIR = previousBundledPluginsDir;
+  }
+  if (previousTrustBundledPluginsDir === undefined) {
+    delete process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
+  } else {
+    process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR = previousTrustBundledPluginsDir;
+  }
+});
+
+>>>>>>> upstream/main
 describe("secret target registry docs", () => {
   it("stays in sync with docs/reference/secretref-user-supplied-credentials-matrix.json", () => {
     const pathname = path.join(

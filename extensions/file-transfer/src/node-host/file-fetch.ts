@@ -1,7 +1,16 @@
 import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
 import path from "node:path";
+=======
+import path from "node:path";
+import {
+  FsSafeError,
+  resolveAbsolutePathForRead,
+  root,
+} from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { EXTENSION_MIME } from "../shared/mime.js";
 
 export const FILE_FETCH_HARD_MAX_BYTES = 16 * 1024 * 1024;
@@ -70,6 +79,23 @@ function clampMaxBytes(input: unknown): number {
 }
 
 function classifyFsError(err: unknown): FileFetchErrCode {
+<<<<<<< HEAD
+=======
+  if (err instanceof FsSafeError) {
+    if (err.code === "not-found") {
+      return "NOT_FOUND";
+    }
+    if (err.code === "symlink") {
+      return "SYMLINK_REDIRECT";
+    }
+    if (err.code === "invalid-path") {
+      return "INVALID_PATH";
+    }
+    if (err.code === "not-file") {
+      return "IS_DIRECTORY";
+    }
+  }
+>>>>>>> upstream/main
   const code = (err as { code?: string } | null)?.code;
   if (code === "ENOENT") {
     return "NOT_FOUND";
@@ -101,12 +127,48 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
 
   let canonical: string;
   try {
+<<<<<<< HEAD
     canonical = await fs.realpath(requestedPath);
+=======
+    canonical = (
+      await resolveAbsolutePathForRead(requestedPath, {
+        symlinks: followSymlinks ? "follow" : "reject",
+      })
+    ).canonicalPath;
+  } catch (err) {
+    const code = classifyFsError(err);
+    const canonicalPath =
+      err instanceof FsSafeError &&
+      err.cause &&
+      typeof err.cause === "object" &&
+      "canonicalPath" in err.cause &&
+      typeof err.cause.canonicalPath === "string"
+        ? err.cause.canonicalPath
+        : undefined;
+    return {
+      ok: false,
+      code,
+      message:
+        code === "NOT_FOUND"
+          ? "file not found"
+          : code === "SYMLINK_REDIRECT"
+            ? "path traverses a symlink; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowReadPaths to the canonical path)"
+            : `realpath failed: ${String(err)}`,
+      ...(canonicalPath ? { canonicalPath } : {}),
+    };
+  }
+
+  let opened: Awaited<ReturnType<Awaited<ReturnType<typeof root>>["open"]>>;
+  try {
+    const parentRoot = await root(path.dirname(canonical));
+    opened = await parentRoot.open(path.basename(canonical));
+>>>>>>> upstream/main
   } catch (err) {
     const code = classifyFsError(err);
     return {
       ok: false,
       code,
+<<<<<<< HEAD
       message: code === "NOT_FOUND" ? "file not found" : `realpath failed: ${String(err)}`,
     };
   }
@@ -122,10 +184,14 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
       ok: false,
       code: "SYMLINK_REDIRECT",
       message: `path traverses a symlink; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowReadPaths to the canonical path)`,
+=======
+      message: code === "IS_DIRECTORY" ? "path is a directory" : `open failed: ${String(err)}`,
+>>>>>>> upstream/main
       canonicalPath: canonical,
     };
   }
 
+<<<<<<< HEAD
   let stats: Awaited<ReturnType<typeof fs.stat>>;
   try {
     stats = await fs.stat(canonical);
@@ -200,4 +266,62 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
     base64,
     sha256,
   };
+=======
+  try {
+    const stats = opened.stat;
+    if (stats.size > maxBytes) {
+      return {
+        ok: false,
+        code: "FILE_TOO_LARGE",
+        message: `file size ${stats.size} exceeds limit ${maxBytes}`,
+        canonicalPath: opened.realPath,
+      };
+    }
+
+    if (preflightOnly) {
+      return {
+        ok: true,
+        path: opened.realPath,
+        size: stats.size,
+        mimeType: "",
+        base64: "",
+        sha256: "",
+        preflightOnly: true,
+      };
+    }
+
+    const buffer = await opened.handle.readFile();
+    if (buffer.byteLength > maxBytes) {
+      return {
+        ok: false,
+        code: "FILE_TOO_LARGE",
+        message: `read ${buffer.byteLength} bytes exceeds limit ${maxBytes}`,
+        canonicalPath: opened.realPath,
+      };
+    }
+
+    const sha256 = crypto.createHash("sha256").update(buffer).digest("hex");
+    const base64 = buffer.toString("base64");
+    const mimeType = detectMimeType(opened.realPath);
+
+    return {
+      ok: true,
+      path: opened.realPath,
+      size: buffer.byteLength,
+      mimeType,
+      base64,
+      sha256,
+    };
+  } catch (err) {
+    const code = classifyFsError(err);
+    return {
+      ok: false,
+      code,
+      message: `read failed: ${String(err)}`,
+      canonicalPath: opened.realPath,
+    };
+  } finally {
+    await opened.handle.close().catch(() => undefined);
+  }
+>>>>>>> upstream/main
 }

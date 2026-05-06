@@ -7,11 +7,20 @@ import {
   removeAckReactionAfterReply,
   type StatusReactionAdapter,
 } from "openclaw/plugin-sdk/channel-feedback";
+<<<<<<< HEAD
 import { deliverFinalizableDraftPreview } from "openclaw/plugin-sdk/channel-lifecycle";
 import {
   createChannelReplyPipeline,
   resolveChannelSourceReplyDeliveryMode,
 } from "openclaw/plugin-sdk/channel-reply-pipeline";
+=======
+import {
+  createChannelMessageReplyPipeline,
+  defineFinalizableLivePreviewAdapter,
+  deliverWithFinalizableLivePreviewAdapter,
+  resolveChannelMessageSourceReplyDeliveryMode,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import {
   buildChannelProgressDraftLine,
   buildChannelProgressDraftLineForEntry,
@@ -294,7 +303,11 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
     message,
     replyToMode: prepared.replyToMode,
   });
+<<<<<<< HEAD
   const sourceReplyDeliveryMode = resolveChannelSourceReplyDeliveryMode({
+=======
+  const sourceReplyDeliveryMode = resolveChannelMessageSourceReplyDeliveryMode({
+>>>>>>> upstream/main
     cfg,
     ctx: prepared.ctxPayload,
   });
@@ -369,7 +382,11 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
 
   const typingTarget = statusThreadTs ? `${message.channel}/${statusThreadTs}` : message.channel;
   const typingReaction = ctx.typingReaction;
+<<<<<<< HEAD
   const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
+=======
+  const { onModelSelected, ...replyPipeline } = createChannelMessageReplyPipeline({
+>>>>>>> upstream/main
     cfg,
     agentId: route.agentId,
     channel: "slack",
@@ -783,6 +800,7 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       const slackBlocks = readSlackReplyBlocks(payload);
       const trimmedFinalText = reply.trimmedText;
 
+<<<<<<< HEAD
       const result = await deliverFinalizableDraftPreview({
         kind: info.kind,
         payload,
@@ -829,12 +847,76 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
             threadTs: edit.threadTs,
           });
         },
+=======
+      const result = await deliverWithFinalizableLivePreviewAdapter({
+        kind: info.kind,
+        payload,
+        adapter: defineFinalizableLivePreviewAdapter({
+          draft: draftStream
+            ? {
+                flush: draftStream.flush,
+                clear: draftStream.clear,
+                discardPending: draftStream.discardPending,
+                seal: draftStream.seal,
+                id: () => {
+                  const channelId = draftStream.channelId();
+                  const messageId = draftStream.messageId();
+                  return channelId && messageId ? { channelId, messageId } : undefined;
+                },
+              }
+            : undefined,
+          buildFinalEdit: () => {
+            if (
+              !previewStreamingEnabled ||
+              reply.hasMedia ||
+              payload.isError ||
+              (trimmedFinalText.length === 0 && !slackBlocks?.length)
+            ) {
+              return undefined;
+            }
+            return {
+              text: normalizeSlackOutboundText(trimmedFinalText),
+              blocks: slackBlocks,
+              threadTs: usedReplyThreadTs ?? statusThreadTs,
+            };
+          },
+          editFinal: async (preview, edit) => {
+            if (
+              deliveryTracker.hasDelivered({ kind: info.kind, payload, threadTs: edit.threadTs })
+            ) {
+              return;
+            }
+            await finalizeSlackPreviewEdit({
+              client: ctx.app.client,
+              token: ctx.botToken,
+              accountId: account.accountId,
+              channelId: preview.channelId,
+              messageId: preview.messageId,
+              text: edit.text,
+              ...(edit.blocks?.length ? { blocks: edit.blocks } : {}),
+              threadTs: edit.threadTs,
+            });
+          },
+          onPreviewFinalized: (_preview) => {
+            const finalThreadTs = usedReplyThreadTs ?? statusThreadTs;
+            observedReplyDelivery = true;
+            replyPlan.markSent();
+            deliveryTracker.markDelivered({ kind: info.kind, payload, threadTs: finalThreadTs });
+          },
+          logPreviewEditFailure: (err) => {
+            logVerbose(
+              `slack: preview final edit failed; falling back to standard send (${formatErrorMessage(err)})`,
+            );
+          },
+        }),
+>>>>>>> upstream/main
         deliverNormally: async () => {
           await deliverNormally({
             payload,
             kind: info.kind,
           });
         },
+<<<<<<< HEAD
         onPreviewFinalized: (_preview) => {
           const finalThreadTs = usedReplyThreadTs ?? statusThreadTs;
           observedReplyDelivery = true;
@@ -849,6 +931,11 @@ export async function dispatchPreparedSlackMessage(prepared: PreparedSlackMessag
       });
 
       if (result === "preview-finalized") {
+=======
+      });
+
+      if (result.kind === "preview-finalized") {
+>>>>>>> upstream/main
         return;
       }
     },

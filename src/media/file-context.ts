@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { sanitizeUntrustedFileName } from "../infra/fs-safe-advanced.js";
+>>>>>>> upstream/main
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 
 const XML_ESCAPE_MAP: Record<string, string> = {
@@ -21,7 +25,11 @@ function sanitizeFileName(value: string | null | undefined, fallbackName: string
     normalizeOptionalString(
       typeof value === "string" ? value.replace(/[\r\n\t]+/g, " ") : undefined,
     ) ?? "";
+<<<<<<< HEAD
   return normalized || fallbackName;
+=======
+  return sanitizeUntrustedFileName(normalized, fallbackName);
+>>>>>>> upstream/main
 }
 
 export function renderFileContextBlock(params: {

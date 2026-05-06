@@ -603,6 +603,7 @@ The default manifest enables the Slack App Home **Home** tab and subscribes to `
       <Tab title="Socket Mode (default)">
 
 ```json
+<<<<<<< HEAD
     "slash_commands": [
       {
         "command": "/new",
@@ -713,6 +714,8 @@ The default manifest enables the Slack App Home **Home** tab and subscribes to `
         "usage_hint": "off|tokens|full|cost"
       }
     ]
+=======
+>>>>>>> upstream/main
 {
   "slash_commands": [
     {
@@ -1055,7 +1058,13 @@ Manual reply tags are supported:
 - `[[reply_to_current]]`
 - `[[reply_to:<id>]]`
 
+<<<<<<< HEAD
 Note: `replyToMode="off"` disables **all** reply threading in Slack, including explicit `[[reply_to_*]]` tags. This differs from Telegram, where explicit tags are still honored in `"off"` mode. The difference reflects the platform threading models: Slack threads hide messages from the channel, while Telegram replies remain visible in the main chat flow.
+=======
+<Note>
+`replyToMode="off"` disables **all** reply threading in Slack, including explicit `[[reply_to_*]]` tags. This differs from Telegram, where explicit tags are still honored in `"off"` mode. Slack threads hide messages from the channel while Telegram replies stay visible inline.
+</Note>
+>>>>>>> upstream/main
 
 ## Ack reactions
 
@@ -1108,6 +1117,10 @@ Hide raw command/exec text while keeping compact progress lines:
 - Channel, group-chat, and top-level DM roots can still use the normal draft preview when native streaming is unavailable or no reply thread exists.
 - Top-level Slack DMs stay off-thread by default, so they do not show Slack's thread-style native stream/status preview; OpenClaw posts and edits a draft preview in the DM instead.
 - Media and non-text payloads fall back to normal delivery.
+<<<<<<< HEAD
+=======
+- Media/error finals cancel pending preview edits; eligible text/block finals flush only when they can edit the preview in place.
+>>>>>>> upstream/main
 - If streaming fails mid-reply, OpenClaw falls back to normal delivery for remaining payloads.
 
 Use draft preview instead of Slack native text streaming:
@@ -1336,6 +1349,7 @@ Primary reference: [Configuration reference - Slack](/gateway/config-channels#sl
 
 <Accordion title="High-signal Slack fields">
 
+<<<<<<< HEAD
   High-signal Slack fields:
   - mode/auth: `mode`, `botToken`, `appToken`, `signingSecret`, `webhookPath`, `accounts.*`
   - DM access: `dm.enabled`, `dmPolicy`, `allowFrom` (legacy: `dm.policy`, `dm.allowFrom`), `dm.groupEnabled`, `dm.groupChannels`
@@ -1344,6 +1358,17 @@ Primary reference: [Configuration reference - Slack](/gateway/config-channels#sl
   - threading/history: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
   - delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `streaming.nativeTransport`
   - ops/features: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
+=======
+- mode/auth: `mode`, `botToken`, `appToken`, `signingSecret`, `webhookPath`, `accounts.*`
+- DM access: `dm.enabled`, `dmPolicy`, `allowFrom` (legacy: `dm.policy`, `dm.allowFrom`), `dm.groupEnabled`, `dm.groupChannels`
+- compatibility toggle: `dangerouslyAllowNameMatching` (break-glass; keep off unless needed)
+- channel access: `groupPolicy`, `channels.*`, `channels.*.users`, `channels.*.requireMention`
+- threading/history: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
+- delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `streaming.nativeTransport`, `streaming.preview.toolProgress`
+- ops/features: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
+
+</Accordion>
+>>>>>>> upstream/main
 
 ## Troubleshooting
 

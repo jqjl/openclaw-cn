@@ -125,6 +125,23 @@ describe("active-memory plugin", () => {
       "utf8",
     );
   };
+<<<<<<< HEAD
+=======
+  const waitForAbort = async (abortSignal?: AbortSignal): Promise<never> => {
+    if (abortSignal?.aborted) {
+      throw (abortSignal.reason as unknown) ?? new Error("Operation aborted");
+    }
+    return await new Promise<never>((_resolve, reject) => {
+      abortSignal?.addEventListener(
+        "abort",
+        () => {
+          reject((abortSignal.reason as unknown) ?? new Error("Operation aborted"));
+        },
+        { once: true },
+      );
+    });
+  };
+>>>>>>> upstream/main
   const makeMemoryToolAllowlistError = (
     reason: string,
     sources = "runtime toolsAllow: memory_recall, memory_search, memory_get",
@@ -145,6 +162,10 @@ describe("active-memory plugin", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+<<<<<<< HEAD
+=======
+    runEmbeddedPiAgent.mockReset();
+>>>>>>> upstream/main
     stateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-active-memory-test-"));
     configFile = {
       plugins: {
@@ -171,6 +192,12 @@ describe("active-memory plugin", () => {
         },
       },
     };
+<<<<<<< HEAD
+=======
+    for (const key of Object.keys(hoisted.sessionStore)) {
+      delete hoisted.sessionStore[key];
+    }
+>>>>>>> upstream/main
     hoisted.sessionStore["agent:main:main"] = {
       sessionId: "s-main",
       updatedAt: 0,
@@ -188,6 +215,10 @@ describe("active-memory plugin", () => {
       payloads: [{ text: "- lemon pepper wings\n- blue cheese" }],
     });
     __testing.resetActiveRecallCacheForTests();
+<<<<<<< HEAD
+=======
+    __testing.setTimeoutPartialDataGraceMsForTests(5);
+>>>>>>> upstream/main
     plugin.register(api as unknown as OpenClawPluginApi);
   });
 
@@ -1546,6 +1577,7 @@ describe("active-memory plugin", () => {
     const sessionKey = "agent:main:transcript-debug";
     hoisted.sessionStore[sessionKey] = { sessionId: "s-main", updatedAt: 0 };
 
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { sessionFile: string }) => {
       const lines = [
         JSON.stringify({
@@ -1566,6 +1598,30 @@ describe("active-memory plugin", () => {
       await fs.writeFile(params.sessionFile, `${lines.join("\n")}\n`, "utf8");
       return { payloads: [{ text: "wings are fine." }] };
     });
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { sessionFile: string; abortSignal?: AbortSignal }) => {
+        const lines = [
+          JSON.stringify({
+            message: {
+              role: "toolResult",
+              toolName: "memory_search",
+              details: { debug: { backend: "qmd", hits: 3 } },
+            },
+          }),
+          JSON.stringify({
+            message: {
+              role: "toolResult",
+              toolName: "memory_search",
+              details: {},
+            },
+          }),
+        ];
+        await fs.writeFile(params.sessionFile, `${lines.join("\n")}\n`, "utf8");
+        return { payloads: [{ text: "wings are fine." }] };
+      },
+    );
+>>>>>>> upstream/main
 
     await hooks.before_prompt_build(
       { prompt: "debug transcript bug", messages: [] },
@@ -1795,7 +1851,11 @@ describe("active-memory plugin", () => {
     __testing.setSetupGraceTimeoutMsForTests(0);
     api.pluginConfig = {
       agents: ["main"],
+<<<<<<< HEAD
       timeoutMs: 20,
+=======
+      timeoutMs: 250,
+>>>>>>> upstream/main
       maxSummaryChars: 40,
       persistTranscripts: true,
       logging: true,
@@ -1806,6 +1866,7 @@ describe("active-memory plugin", () => {
       sessionId: "s-timeout-partial",
       updatedAt: 0,
     };
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { sessionFile: string }) => {
       await writeTranscriptJsonl(
         params.sessionFile,
@@ -1827,6 +1888,31 @@ describe("active-memory plugin", () => {
       );
       return await new Promise<never>(() => {});
     });
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { sessionFile: string; abortSignal?: AbortSignal }) => {
+        await writeTranscriptJsonl(
+          params.sessionFile,
+          [
+            { type: "message", message: { role: "user", content: "ignore this user text" } },
+            {
+              type: "message",
+              message: { role: "assistant", content: "alpha beta gamma delta" },
+            },
+            {
+              type: "message",
+              message: {
+                role: "assistant",
+                content: [{ type: "text", text: "epsilon zeta eta theta" }],
+              },
+            },
+          ],
+          "\n{",
+        );
+        return await waitForAbort(params.abortSignal);
+      },
+    );
+>>>>>>> upstream/main
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should i order? timeout partial", messages: [] },
@@ -1858,7 +1944,11 @@ describe("active-memory plugin", () => {
     __testing.setSetupGraceTimeoutMsForTests(0);
     api.pluginConfig = {
       agents: ["main"],
+<<<<<<< HEAD
       timeoutMs: 20,
+=======
+      timeoutMs: 250,
+>>>>>>> upstream/main
       maxSummaryChars: 80,
       logging: true,
     };
@@ -1878,6 +1968,7 @@ describe("active-memory plugin", () => {
             message: { role: "assistant", content: "temporary partial recall summary" },
           },
         ]);
+<<<<<<< HEAD
         await new Promise<never>((_resolve, reject) => {
           params.abortSignal?.addEventListener(
             "abort",
@@ -1887,6 +1978,9 @@ describe("active-memory plugin", () => {
             { once: true },
           );
         });
+=======
+        await waitForAbort(params.abortSignal);
+>>>>>>> upstream/main
       },
     );
 
@@ -1898,7 +1992,13 @@ describe("active-memory plugin", () => {
     expect(result).toEqual({
       prependContext: expect.stringContaining("temporary partial recall summary"),
     });
+<<<<<<< HEAD
     await expect(fs.access(tempSessionFile)).rejects.toThrow();
+=======
+    await vi.waitFor(async () => {
+      await expect(fs.access(tempSessionFile)).rejects.toThrow();
+    });
+>>>>>>> upstream/main
     expect(getActiveMemoryLines(sessionKey)).toEqual(
       expect.arrayContaining([
         expect.stringContaining("🧩 Active Memory: status=timeout_partial"),
@@ -1924,10 +2024,19 @@ describe("active-memory plugin", () => {
       sessionId: "s-timeout-empty-transcript",
       updatedAt: 0,
     };
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { sessionFile: string }) => {
       await fs.writeFile(params.sessionFile, "", "utf8");
       return await new Promise<never>(() => {});
     });
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { sessionFile: string; abortSignal?: AbortSignal }) => {
+        await fs.writeFile(params.sessionFile, "", "utf8");
+        return await waitForAbort(params.abortSignal);
+      },
+    );
+>>>>>>> upstream/main
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should i order? empty timeout transcript", messages: [] },
@@ -1955,7 +2064,13 @@ describe("active-memory plugin", () => {
       sessionId: "s-timeout-missing-transcript",
       updatedAt: 0,
     };
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async () => await new Promise<never>(() => {}));
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { abortSignal?: AbortSignal }) => await waitForAbort(params.abortSignal),
+    );
+>>>>>>> upstream/main
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should i order? missing timeout transcript", messages: [] },
@@ -1982,6 +2097,7 @@ describe("active-memory plugin", () => {
       sessionId: "s-timeout-boilerplate-transcript",
       updatedAt: 0,
     };
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { sessionFile: string }) => {
       await writeTranscriptJsonl(params.sessionFile, [
         {
@@ -1994,6 +2110,22 @@ describe("active-memory plugin", () => {
       ]);
       await new Promise<never>(() => {});
     });
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { sessionFile: string; abortSignal?: AbortSignal }) => {
+        await writeTranscriptJsonl(params.sessionFile, [
+          {
+            type: "message",
+            message: {
+              role: "assistant",
+              content: "LLM request timed out after 15000 ms.",
+            },
+          },
+        ]);
+        await waitForAbort(params.abortSignal);
+      },
+    );
+>>>>>>> upstream/main
 
     const result = await hooks.before_prompt_build(
       { prompt: "what wings should i order? timeout boilerplate", messages: [] },
@@ -2369,16 +2501,28 @@ describe("active-memory plugin", () => {
   });
 
   it("ignores late subagent payloads once the active-memory timeout signal has fired", async () => {
+<<<<<<< HEAD
+=======
+    const CONFIGURED_TIMEOUT_MS = 25;
+>>>>>>> upstream/main
     __testing.setMinimumTimeoutMsForTests(1);
     __testing.setSetupGraceTimeoutMsForTests(0);
     api.pluginConfig = {
       agents: ["main"],
+<<<<<<< HEAD
       timeoutMs: 1,
+=======
+      timeoutMs: CONFIGURED_TIMEOUT_MS,
+>>>>>>> upstream/main
       logging: true,
     };
     plugin.register(api as unknown as OpenClawPluginApi);
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { timeoutMs?: number }) => {
+<<<<<<< HEAD
       await new Promise((resolve) => setTimeout(resolve, (params.timeoutMs ?? 0) + 1));
+=======
+      await new Promise((resolve) => setTimeout(resolve, (params.timeoutMs ?? 0) + 25));
+>>>>>>> upstream/main
       return {
         payloads: [{ text: "late timeout payload that should never become memory context" }],
         meta: { aborted: true },
@@ -2410,12 +2554,21 @@ describe("active-memory plugin", () => {
   });
 
   it("does not spend the model timeout budget on active-memory subagent setup", async () => {
+<<<<<<< HEAD
     const CONFIGURED_TIMEOUT_MS = 10;
+=======
+    const CONFIGURED_TIMEOUT_MS = 50;
+    const SETUP_GRACE_TIMEOUT_MS = 500;
+>>>>>>> upstream/main
     __testing.setMinimumTimeoutMsForTests(1);
     api.pluginConfig = {
       agents: ["main"],
       timeoutMs: CONFIGURED_TIMEOUT_MS,
+<<<<<<< HEAD
       setupGraceTimeoutMs: 100,
+=======
+      setupGraceTimeoutMs: SETUP_GRACE_TIMEOUT_MS,
+>>>>>>> upstream/main
       logging: true,
     };
     plugin.register(api as unknown as OpenClawPluginApi);
@@ -2435,7 +2588,13 @@ describe("active-memory plugin", () => {
     );
 
     expect(result?.prependContext).toContain("remember the ramen place");
+<<<<<<< HEAD
     expect(runEmbeddedPiAgent.mock.calls.at(-1)?.[0]?.timeoutMs).toBe(CONFIGURED_TIMEOUT_MS + 100);
+=======
+    expect(runEmbeddedPiAgent.mock.calls.at(-1)?.[0]?.timeoutMs).toBe(
+      CONFIGURED_TIMEOUT_MS + SETUP_GRACE_TIMEOUT_MS,
+    );
+>>>>>>> upstream/main
     const infoLines = vi
       .mocked(api.logger.info)
       .mock.calls.map((call: unknown[]) => String(call[0]));
@@ -2493,6 +2652,7 @@ describe("active-memory plugin", () => {
     plugin.register(api as unknown as OpenClawPluginApi);
     const sessionKey = "agent:main:terminal-zero-hit";
     hoisted.sessionStore[sessionKey] = { sessionId: "s-terminal-zero-hit", updatedAt: 0 };
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { sessionFile: string }) => {
       await writeTranscriptJsonl(params.sessionFile, [
         {
@@ -2505,6 +2665,22 @@ describe("active-memory plugin", () => {
       ]);
       await new Promise<never>(() => {});
     });
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { sessionFile: string; abortSignal?: AbortSignal }) => {
+        await writeTranscriptJsonl(params.sessionFile, [
+          {
+            message: {
+              role: "toolResult",
+              toolName: "memory_search",
+              details: { results: [], debug: { backend: "qmd", hits: 0, searchMs: 8 } },
+            },
+          },
+        ]);
+        await waitForAbort(params.abortSignal);
+      },
+    );
+>>>>>>> upstream/main
 
     const result = await hooks.before_prompt_build(
       { prompt: "what food do i usually order? zero hit", messages: [] },
@@ -2578,6 +2754,7 @@ describe("active-memory plugin", () => {
     plugin.register(api as unknown as OpenClawPluginApi);
     const sessionKey = "agent:main:terminal-unavailable";
     hoisted.sessionStore[sessionKey] = { sessionId: "s-terminal-unavailable", updatedAt: 0 };
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async (params: { sessionFile: string }) => {
       await writeTranscriptJsonl(params.sessionFile, [
         {
@@ -2595,6 +2772,27 @@ describe("active-memory plugin", () => {
       ]);
       await new Promise<never>(() => {});
     });
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { sessionFile: string; abortSignal?: AbortSignal }) => {
+        await writeTranscriptJsonl(params.sessionFile, [
+          {
+            message: {
+              role: "toolResult",
+              toolName: "memory_search",
+              details: {
+                disabled: true,
+                warning: "Memory search is unavailable due to an embedding/provider error.",
+                action: "Check the embedding provider configuration, then retry memory_search.",
+                error: "embedding request failed",
+              },
+            },
+          },
+        ]);
+        await waitForAbort(params.abortSignal);
+      },
+    );
+>>>>>>> upstream/main
 
     const result = await hooks.before_prompt_build(
       { prompt: "what food do i usually order? unavailable", messages: [] },
@@ -3368,10 +3566,15 @@ describe("active-memory plugin", () => {
   });
 
   it("keeps subagent transcripts off disk by default by using a temp session file", async () => {
+<<<<<<< HEAD
     const mkdtempSpy = vi
       .spyOn(fs, "mkdtemp")
       .mockResolvedValue("/tmp/openclaw-active-memory-temp");
     const rmSpy = vi.spyOn(fs, "rm").mockResolvedValue(undefined);
+=======
+    const mkdtempSpy = vi.spyOn(fs, "mkdtemp");
+    const rmSpy = vi.spyOn(fs, "rm");
+>>>>>>> upstream/main
 
     await hooks.before_prompt_build(
       { prompt: "what wings should i order? temp transcript path", messages: [] },
@@ -3384,10 +3587,16 @@ describe("active-memory plugin", () => {
     );
 
     expect(mkdtempSpy).toHaveBeenCalled();
+<<<<<<< HEAD
     expect(runEmbeddedPiAgent.mock.calls.at(-1)?.[0]?.sessionFile).toBe(
       "/tmp/openclaw-active-memory-temp/session.jsonl",
     );
     expect(rmSpy).toHaveBeenCalledWith("/tmp/openclaw-active-memory-temp", {
+=======
+    const sessionFile = runEmbeddedPiAgent.mock.calls.at(-1)?.[0]?.sessionFile;
+    expect(sessionFile).toMatch(/openclaw-active-memory-.*\/session\.jsonl$/);
+    expect(rmSpy).toHaveBeenCalledWith(path.dirname(sessionFile), {
+>>>>>>> upstream/main
       recursive: true,
       force: true,
     });
@@ -3583,17 +3792,31 @@ describe("active-memory plugin", () => {
   });
 
   it("skips recall after consecutive timeouts when circuit breaker trips (#74054)", async () => {
+<<<<<<< HEAD
+=======
+    const CONFIGURED_TIMEOUT_MS = 25;
+>>>>>>> upstream/main
     __testing.setMinimumTimeoutMsForTests(1);
     __testing.setSetupGraceTimeoutMsForTests(0);
     api.pluginConfig = {
       agents: ["main"],
+<<<<<<< HEAD
       timeoutMs: 1,
+=======
+      timeoutMs: CONFIGURED_TIMEOUT_MS,
+>>>>>>> upstream/main
       logging: true,
       circuitBreakerMaxTimeouts: 2,
       circuitBreakerCooldownMs: 60_000,
     };
     plugin.register(api as unknown as OpenClawPluginApi);
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementation(async () => await new Promise<never>(() => {}));
+=======
+    runEmbeddedPiAgent.mockImplementation(
+      async (params: { abortSignal?: AbortSignal }) => await waitForAbort(params.abortSignal),
+    );
+>>>>>>> upstream/main
 
     // First two calls should actually attempt the subagent (and timeout).
     await hooks.before_prompt_build(
@@ -3636,11 +3859,19 @@ describe("active-memory plugin", () => {
   });
 
   it("resets circuit breaker after a successful recall", async () => {
+<<<<<<< HEAD
+=======
+    const CONFIGURED_TIMEOUT_MS = 25;
+>>>>>>> upstream/main
     __testing.setMinimumTimeoutMsForTests(1);
     __testing.setSetupGraceTimeoutMsForTests(0);
     api.pluginConfig = {
       agents: ["main"],
+<<<<<<< HEAD
       timeoutMs: 50,
+=======
+      timeoutMs: CONFIGURED_TIMEOUT_MS,
+>>>>>>> upstream/main
       logging: true,
       circuitBreakerMaxTimeouts: 1,
       circuitBreakerCooldownMs: 60_000,
@@ -3648,7 +3879,13 @@ describe("active-memory plugin", () => {
     plugin.register(api as unknown as OpenClawPluginApi);
 
     // First call: timeout (trips the breaker with max=1).
+<<<<<<< HEAD
     runEmbeddedPiAgent.mockImplementationOnce(async () => await new Promise<never>(() => {}));
+=======
+    runEmbeddedPiAgent.mockImplementationOnce(
+      async (params: { abortSignal?: AbortSignal }) => await waitForAbort(params.abortSignal),
+    );
+>>>>>>> upstream/main
     await hooks.before_prompt_build(
       { prompt: "cb reset test timeout", messages: [] },
       {

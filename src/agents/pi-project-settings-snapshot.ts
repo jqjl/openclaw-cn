@@ -1,17 +1,32 @@
+<<<<<<< HEAD
 import fs from "node:fs";
+=======
+>>>>>>> upstream/main
 import path from "node:path";
 import type { SettingsManager } from "@mariozechner/pi-coding-agent";
 import { applyMergePatch } from "../config/merge-patch.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { readRootJsonObjectSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import type { BundleMcpServerConfig } from "../plugins/bundle-mcp.js";
 import {
   normalizePluginsConfigWithResolver,
   resolveEffectivePluginActivationState,
 } from "../plugins/config-policy.js";
+<<<<<<< HEAD
 import { loadPluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.js";
 import { isRecord } from "../utils.js";
+=======
+import {
+  isPluginMetadataSnapshotCompatible,
+  loadPluginMetadataSnapshot,
+  type PluginMetadataSnapshot,
+} from "../plugins/plugin-metadata-snapshot.js";
+>>>>>>> upstream/main
 import { loadEmbeddedPiMcpConfig } from "./embedded-pi-mcp.js";
 
 const log = createSubsystemLogger("embedded-pi-settings");
@@ -43,6 +58,7 @@ function loadBundleSettingsFile(params: {
   relativePath: string;
 }): PiSettingsSnapshot | null {
   const absolutePath = path.join(params.rootDir, params.relativePath);
+<<<<<<< HEAD
   const opened = openBoundaryFileSync({
     absolutePath,
     rootPath: params.rootDir,
@@ -66,28 +82,74 @@ function loadBundleSettingsFile(params: {
   } finally {
     fs.closeSync(opened.fd);
   }
+=======
+  const result = readRootJsonObjectSync({
+    rootDir: params.rootDir,
+    relativePath: params.relativePath,
+    boundaryLabel: "plugin root",
+    rejectHardlinks: true,
+  });
+  if (!result.ok && result.reason === "open") {
+    log.warn(`skipping unsafe bundle settings file: ${absolutePath}`);
+    return null;
+  }
+  if (!result.ok) {
+    log.warn(`${result.error}: ${absolutePath}`);
+    return null;
+  }
+  return sanitizePiSettingsSnapshot(result.value as PiSettingsSnapshot);
+>>>>>>> upstream/main
 }
 
 export function loadEnabledBundlePiSettingsSnapshot(params: {
   cwd: string;
   cfg?: OpenClawConfig;
+<<<<<<< HEAD
+=======
+  env?: NodeJS.ProcessEnv;
+  pluginMetadataSnapshot?: PluginMetadataSnapshot;
+>>>>>>> upstream/main
 }): PiSettingsSnapshot {
   const workspaceDir = params.cwd.trim();
   if (!workspaceDir) {
     return {};
   }
+<<<<<<< HEAD
   const metadataSnapshot = loadPluginMetadataSnapshot({
     workspaceDir,
     config: params.cfg ?? {},
     env: process.env,
   });
+=======
+  const config = params.cfg ?? {};
+  const env = params.env ?? process.env;
+  const providedSnapshot = params.pluginMetadataSnapshot;
+  const metadataSnapshot =
+    providedSnapshot &&
+    isPluginMetadataSnapshotCompatible({
+      snapshot: providedSnapshot,
+      config,
+      env,
+      workspaceDir,
+    })
+      ? providedSnapshot
+      : loadPluginMetadataSnapshot({
+          workspaceDir,
+          config,
+          env,
+        });
+>>>>>>> upstream/main
   const registry = metadataSnapshot.manifestRegistry;
   if (registry.plugins.length === 0) {
     return {};
   }
 
   const normalizedPlugins = normalizePluginsConfigWithResolver(
+<<<<<<< HEAD
     params.cfg?.plugins,
+=======
+    config.plugins,
+>>>>>>> upstream/main
     metadataSnapshot.normalizePluginId,
   );
   let snapshot: PiSettingsSnapshot = {};
@@ -101,7 +163,11 @@ export function loadEnabledBundlePiSettingsSnapshot(params: {
       id: record.id,
       origin: record.origin,
       config: normalizedPlugins,
+<<<<<<< HEAD
       rootConfig: params.cfg,
+=======
+      rootConfig: config,
+>>>>>>> upstream/main
     });
     if (!activationState.activated) {
       continue;
@@ -120,7 +186,11 @@ export function loadEnabledBundlePiSettingsSnapshot(params: {
 
   const embeddedPiMcp = loadEmbeddedPiMcpConfig({
     workspaceDir,
+<<<<<<< HEAD
     cfg: params.cfg,
+=======
+    cfg: config,
+>>>>>>> upstream/main
   });
   for (const diagnostic of embeddedPiMcp.diagnostics) {
     log.warn(`bundle MCP skipped for ${diagnostic.pluginId}: ${diagnostic.message}`);

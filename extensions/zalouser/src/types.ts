@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { MessageReceipt } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { Style } from "./zca-constants.js";
 
 export type ZcaFriend = {
@@ -71,6 +75,10 @@ export type ZaloSendOptions = {
 export type ZaloSendResult = {
   ok: boolean;
   messageId?: string;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
   error?: string;
 };
 

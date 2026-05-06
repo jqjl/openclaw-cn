@@ -6,8 +6,11 @@ read_when:
 title: "Bonjour discovery"
 ---
 
+<<<<<<< HEAD
 # Bonjour / mDNS discovery
 
+=======
+>>>>>>> upstream/main
 OpenClaw can use Bonjour (mDNS / DNS-SD) to discover an active Gateway (WebSocket endpoint).
 Multicast `local.` browsing is a **LAN-only convenience**. The bundled `bonjour`
 plugin owns LAN advertising. It auto-starts on macOS hosts and is opt-in on
@@ -17,6 +20,7 @@ is still best-effort and does **not** replace SSH or Tailnet-based connectivity.
 
 ## Wide-area Bonjour (Unicast DNS-SD) over Tailscale
 
+<<<<<<< HEAD
 If the node and gateway are on different networks, multicast mDNS won’t cross the
 boundary. You can keep the same discovery UX by switching to **unicast DNS‑SD**
 ("Wide‑Area Bonjour") over Tailscale.
@@ -25,12 +29,26 @@ High‑level steps:
 
 1. Run a DNS server on the gateway host (reachable over Tailnet).
 2. Publish DNS‑SD records for `_openclaw-gw._tcp` under a dedicated zone
+=======
+If the node and gateway are on different networks, multicast mDNS won't cross the
+boundary. You can keep the same discovery UX by switching to **unicast DNS-SD**
+("Wide-Area Bonjour") over Tailscale.
+
+High-level steps:
+
+1. Run a DNS server on the gateway host (reachable over Tailnet).
+2. Publish DNS-SD records for `_openclaw-gw._tcp` under a dedicated zone
+>>>>>>> upstream/main
    (example: `openclaw.internal.`).
 3. Configure Tailscale **split DNS** so your chosen domain resolves via that
    DNS server for clients (including iOS).
 
 OpenClaw supports any discovery domain; `openclaw.internal.` is just an example.
+<<<<<<< HEAD
 iOS/Android nodes browse both `local.` and your configured wide‑area domain.
+=======
+iOS/Android nodes browse both `local.` and your configured wide-area domain.
+>>>>>>> upstream/main
 
 ### Gateway config (recommended)
 
@@ -49,10 +67,17 @@ openclaw dns setup --apply
 
 This installs CoreDNS and configures it to:
 
+<<<<<<< HEAD
 - listen on port 53 only on the gateway’s Tailscale interfaces
 - serve your chosen domain (example: `openclaw.internal.`) from `~/.openclaw/dns/<domain>.db`
 
 Validate from a tailnet‑connected machine:
+=======
+- listen on port 53 only on the gateway's Tailscale interfaces
+- serve your chosen domain (example: `openclaw.internal.`) from `~/.openclaw/dns/<domain>.db`
+
+Validate from a tailnet-connected machine:
+>>>>>>> upstream/main
 
 ```bash
 dns-sd -B _openclaw-gw._tcp openclaw.internal.
@@ -63,7 +88,11 @@ dig @<TAILNET_IPV4> -p 53 _openclaw-gw._tcp.openclaw.internal PTR +short
 
 In the Tailscale admin console:
 
+<<<<<<< HEAD
 - Add a nameserver pointing at the gateway’s tailnet IP (UDP/TCP 53).
+=======
+- Add a nameserver pointing at the gateway's tailnet IP (UDP/TCP 53).
+>>>>>>> upstream/main
 - Add split DNS so your discovery domain uses that nameserver.
 
 Once clients accept tailnet DNS, iOS nodes and CLI discovery can browse
@@ -74,7 +103,11 @@ Once clients accept tailnet DNS, iOS nodes and CLI discovery can browse
 The Gateway WS port (default `18789`) binds to loopback by default. For LAN/tailnet
 access, bind explicitly and keep auth enabled.
 
+<<<<<<< HEAD
 For tailnet‑only setups:
+=======
+For tailnet-only setups:
+>>>>>>> upstream/main
 
 - Set `gateway.bind: "tailnet"` in `~/.openclaw/openclaw.json`.
 - Restart the Gateway (or restart the macOS menubar app).
@@ -87,11 +120,19 @@ DNS-SD publishing remains Gateway-owned.
 
 ## Service types
 
+<<<<<<< HEAD
 - `_openclaw-gw._tcp` — gateway transport beacon (used by macOS/iOS/Android nodes).
 
 ## TXT keys (non-secret hints)
 
 The Gateway advertises small non‑secret hints to make UI flows convenient:
+=======
+- `_openclaw-gw._tcp` - gateway transport beacon (used by macOS/iOS/Android nodes).
+
+## TXT keys (non-secret hints)
+
+The Gateway advertises small non-secret hints to make UI flows convenient:
+>>>>>>> upstream/main
 
 - `role=gateway`
 - `displayName=<friendly name>`
@@ -115,7 +156,11 @@ Security notes:
 
 ## Debugging on macOS
 
+<<<<<<< HEAD
 Useful built‑in tools:
+=======
+Useful built-in tools:
+>>>>>>> upstream/main
 
 - Browse instances:
 
@@ -129,7 +174,11 @@ Useful built‑in tools:
   dns-sd -L "<instance>" _openclaw-gw._tcp local.
   ```
 
+<<<<<<< HEAD
 If browsing works but resolving fails, you’re usually hitting a LAN policy or
+=======
+If browsing works but resolving fails, you're usually hitting a LAN policy or
+>>>>>>> upstream/main
 mDNS resolver issue.
 
 ## Debugging in Gateway logs
@@ -158,7 +207,11 @@ To capture logs:
 - Settings → Gateway → Advanced → **Discovery Debug Logs**
 - Settings → Gateway → Advanced → **Discovery Logs** → reproduce → **Copy**
 
+<<<<<<< HEAD
 The log includes browser state transitions and result‑set changes.
+=======
+The log includes browser state transitions and result-set changes.
+>>>>>>> upstream/main
 
 ## When to enable Bonjour
 
@@ -257,8 +310,13 @@ If a node no longer auto-discovers the Gateway after Docker setup:
 
 ## Common failure modes
 
+<<<<<<< HEAD
 - **Bonjour doesn’t cross networks**: use Tailnet or SSH.
 - **Multicast blocked**: some Wi‑Fi networks disable mDNS.
+=======
+- **Bonjour doesn't cross networks**: use Tailnet or SSH.
+- **Multicast blocked**: some Wi-Fi networks disable mDNS.
+>>>>>>> upstream/main
 - **Advertiser stuck in probing/announcing**: hosts with blocked multicast,
   container bridges, WSL, or interface churn can leave the ciao advertiser in a
   non-announced state. OpenClaw retries a few times and then disables Bonjour
@@ -273,7 +331,11 @@ If a node no longer auto-discovers the Gateway after Docker setup:
 
 ## Escaped instance names (`\032`)
 
+<<<<<<< HEAD
 Bonjour/DNS‑SD often escapes bytes in service instance names as decimal `\DDD`
+=======
+Bonjour/DNS-SD often escapes bytes in service instance names as decimal `\DDD`
+>>>>>>> upstream/main
 sequences (e.g. spaces become `\032`).
 
 - This is normal at the protocol level.

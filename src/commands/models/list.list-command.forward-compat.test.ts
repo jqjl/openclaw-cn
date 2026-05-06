@@ -45,7 +45,11 @@ const mocks = vi.hoisted(() => {
     loadModelsConfigWithSource: vi.fn(),
     ensureOpenClawModelsJson: vi.fn(),
     ensureAuthProfileStore: vi.fn(),
+<<<<<<< HEAD
     resolveOpenClawAgentDir: vi.fn(),
+=======
+    resolveDefaultAgentDir: vi.fn(),
+>>>>>>> upstream/main
     loadModelRegistry: vi.fn(),
     loadModelCatalog: vi.fn(),
     loadProviderCatalogModelsForList: vi.fn(),
@@ -69,7 +73,11 @@ function resetMocks() {
   });
   mocks.ensureOpenClawModelsJson.mockResolvedValue({ wrote: false });
   mocks.ensureAuthProfileStore.mockReturnValue({ version: 1, profiles: {}, order: {} });
+<<<<<<< HEAD
   mocks.resolveOpenClawAgentDir.mockReturnValue("/tmp/openclaw-agent");
+=======
+  mocks.resolveDefaultAgentDir.mockReturnValue("/tmp/openclaw-agent");
+>>>>>>> upstream/main
   mocks.loadModelRegistry.mockResolvedValue({
     models: [],
     availableKeys: new Set(),
@@ -201,8 +209,15 @@ function installModelsListCommandForwardCompatMocks() {
     loadAuthProfileStoreWithoutExternalProfiles: mocks.ensureAuthProfileStore,
   }));
 
+<<<<<<< HEAD
   vi.doMock("../../agents/agent-paths.js", () => ({
     resolveOpenClawAgentDir: mocks.resolveOpenClawAgentDir,
+=======
+  vi.doMock("../../agents/agent-scope.js", () => ({
+    resolveAgentWorkspaceDir: vi.fn(() => "/tmp/openclaw-workspace"),
+    resolveDefaultAgentDir: mocks.resolveDefaultAgentDir,
+    resolveDefaultAgentId: vi.fn(() => "main"),
+>>>>>>> upstream/main
   }));
 
   vi.doMock("../../agents/model-catalog.js", () => ({

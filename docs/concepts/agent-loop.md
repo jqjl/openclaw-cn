@@ -2,11 +2,20 @@
 summary: "Agent loop lifecycle, streams, and wait semantics"
 read_when:
   - You need an exact walkthrough of the agent loop or lifecycle events
+<<<<<<< HEAD
 title: "Agent Loop"
 ---
 
 An agentic loop is the full “real” run of an agent: intake → context assembly → model inference →
 tool execution → streaming replies → persistence. It’s the authoritative path that turns a message
+=======
+  - You are changing session queueing, transcript writes, or session write lock behavior
+title: "Agent loop"
+---
+
+An agentic loop is the full "real" run of an agent: intake → context assembly → model inference →
+tool execution → streaming replies → persistence. It's the authoritative path that turns a message
+>>>>>>> upstream/main
 into actions and a final reply, while keeping session state consistent.
 
 In OpenClaw, a loop is a single, serialized run per session that emits lifecycle and stream events
@@ -60,11 +69,21 @@ wired end-to-end.
 - Workspace is resolved and created; sandboxed runs may redirect to a sandbox workspace root.
 - Skills are loaded (or reused from a snapshot) and injected into env and prompt.
 - Bootstrap/context files are resolved and injected into the system prompt report.
+<<<<<<< HEAD
 - A session write lock is acquired; `SessionManager` is opened and prepared before streaming.
 
 ## Prompt assembly + system prompt
 
 - System prompt is built from OpenClaw’s base prompt, skills prompt, bootstrap context, and per-run overrides.
+=======
+- A session write lock is acquired; `SessionManager` is opened and prepared before streaming. Any
+  later transcript rewrite, compaction, or truncation path must take the same lock before opening or
+  mutating the transcript file.
+
+## Prompt assembly + system prompt
+
+- System prompt is built from OpenClaw's base prompt, skills prompt, bootstrap context, and per-run overrides.
+>>>>>>> upstream/main
 - Model-specific limits and compaction reserve tokens are enforced.
 - See [System prompt](/concepts/system-prompt) for what the model sees.
 

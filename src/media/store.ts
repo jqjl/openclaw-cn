@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import "../infra/fs-safe-defaults.js";
+>>>>>>> upstream/main
 import crypto from "node:crypto";
 import { createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
@@ -5,12 +9,25 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import path from "node:path";
 import { pipeline } from "node:stream/promises";
+<<<<<<< HEAD
 import { retainSafeHeadersForCrossOriginRedirect } from "../infra/net/redirect-headers.js";
 import { resolvePinnedHostname } from "../infra/net/ssrf.js";
 import { normalizeOptionalString } from "../shared/string-coerce.js";
 import { resolveConfigDir } from "../utils.js";
 import { detectMime, extensionForMime } from "./mime.js";
 import { isSafeOpenError, readLocalFileSafely, type SafeOpenLikeError } from "./store.runtime.js";
+=======
+import { fileStore } from "../infra/file-store.js";
+import { sanitizeUntrustedFileName } from "../infra/fs-safe-advanced.js";
+import { isPathInside } from "../infra/fs-safe.js";
+import { retainSafeHeadersForCrossOriginRedirect } from "../infra/net/redirect-headers.js";
+import { resolvePinnedHostname } from "../infra/net/ssrf.js";
+import { writeSiblingTempFile } from "../infra/sibling-temp-file.js";
+import { normalizeOptionalString } from "../shared/string-coerce.js";
+import { resolveConfigDir } from "../utils.js";
+import { detectMime, extensionForMime } from "./mime.js";
+import { isFsSafeError, readLocalFileSafely, type FsSafeLikeError } from "./store.runtime.js";
+>>>>>>> upstream/main
 
 const resolveMediaDir = () => path.join(resolveConfigDir(), "media");
 export const MEDIA_MAX_BYTES = 5 * 1024 * 1024; // 5MB default
@@ -60,13 +77,37 @@ function resolveMediaScopedDir(subdir: string, caller: string): string {
   const mediaDir = resolveMediaDir();
   const safeSubdir = resolveMediaSubdir(subdir, caller);
   const dir = safeSubdir ? path.join(mediaDir, safeSubdir) : mediaDir;
+<<<<<<< HEAD
   const relative = path.relative(mediaDir, dir);
   if (relative && (relative === ".." || relative.startsWith(`..${path.sep}`))) {
+=======
+  if (!isPathInside(mediaDir, dir)) {
+>>>>>>> upstream/main
     throw new Error(`${caller}: media subdir escapes media directory: ${JSON.stringify(subdir)}`);
   }
   return dir;
 }
 
+<<<<<<< HEAD
+=======
+function resolveMediaRelativePath(id: string, subdir: string, caller: string): string {
+  if (!id || id.includes("/") || id.includes("\\") || id.includes("\0") || id === "..") {
+    throw new Error(`${caller}: unsafe media ID: ${JSON.stringify(id)}`);
+  }
+  const safeSubdir = resolveMediaSubdir(subdir, caller);
+  return safeSubdir ? path.join(safeSubdir, id) : id;
+}
+
+function openMediaStore(maxBytes = MAX_BYTES) {
+  return fileStore({
+    rootDir: resolveMediaDir(),
+    dirMode: 0o700,
+    maxBytes,
+    mode: MEDIA_FILE_MODE,
+  });
+}
+
+>>>>>>> upstream/main
 let httpRequestImpl: RequestImpl = defaultHttpRequestImpl;
 let httpsRequestImpl: RequestImpl = defaultHttpsRequestImpl;
 let resolvePinnedHostnameImpl: ResolvePinnedHostnameImpl = defaultResolvePinnedHostnameImpl;
@@ -87,11 +128,19 @@ export function setMediaStoreNetworkDepsForTest(deps?: {
  * Keeps: alphanumeric, dots, hyphens, underscores, Unicode letters/numbers.
  */
 function sanitizeFilename(name: string): string {
+<<<<<<< HEAD
   const trimmed = name.trim();
   if (!trimmed) {
     return "";
   }
   const sanitized = trimmed.replace(/[^\p{L}\p{N}._-]+/gu, "_");
+=======
+  const base = sanitizeUntrustedFileName(name, "");
+  if (!base) {
+    return "";
+  }
+  const sanitized = base.replace(/[^\p{L}\p{N}._-]+/gu, "_");
+>>>>>>> upstream/main
   // Collapse multiple underscores, trim leading/trailing, limit length
   return sanitized.replace(/_+/g, "_").replace(/^_|_$/g, "").slice(0, 60);
 }
@@ -131,14 +180,36 @@ export async function ensureMediaDir() {
   return mediaDir;
 }
 
+<<<<<<< HEAD
 function isMissingPathError(err: unknown): err is NodeJS.ErrnoException {
   return err instanceof Error && "code" in err && err.code === "ENOENT";
+=======
+function findErrorWithCode(err: unknown, code: string): NodeJS.ErrnoException | undefined {
+  if (!(err instanceof Error)) {
+    return undefined;
+  }
+  if ("code" in err && err.code === code) {
+    return err as NodeJS.ErrnoException;
+  }
+  return findErrorWithCode(err.cause, code);
+}
+
+function isMissingPathError(err: unknown): boolean {
+  return findErrorWithCode(err, "ENOENT") !== undefined;
+>>>>>>> upstream/main
 }
 
 async function retryAfterRecreatingDir<T>(dir: string, run: () => Promise<T>): Promise<T> {
   try {
     return await run();
   } catch (err) {
+<<<<<<< HEAD
+=======
+    const noSpaceError = findErrorWithCode(err, "ENOSPC");
+    if (noSpaceError) {
+      throw noSpaceError;
+    }
+>>>>>>> upstream/main
     if (!isMissingPathError(err)) {
       throw err;
     }
@@ -150,6 +221,7 @@ async function retryAfterRecreatingDir<T>(dir: string, run: () => Promise<T>): P
 }
 
 export async function cleanOldMedia(ttlMs = DEFAULT_TTL_MS, options: CleanOldMediaOptions = {}) {
+<<<<<<< HEAD
   const mediaDir = await ensureMediaDir();
   const now = Date.now();
   const recursive = options.recursive ?? false;
@@ -207,6 +279,14 @@ export async function cleanOldMedia(ttlMs = DEFAULT_TTL_MS, options: CleanOldMed
       await fs.rm(full, { force: true }).catch(() => {});
     }
   }
+=======
+  await openMediaStore().pruneExpired({
+    maxDepth: options.recursive ? undefined : 1,
+    ttlMs,
+    recursive: options.recursive ?? true,
+    pruneEmptyDirs: options.pruneEmptyDirs,
+  });
+>>>>>>> upstream/main
 }
 
 function looksLikeUrl(src: string) {
@@ -340,6 +420,7 @@ function buildSavedMediaResult(params: {
 }
 
 async function writeSavedMediaBuffer(params: {
+<<<<<<< HEAD
   dir: string;
   id: string;
   buffer: Buffer;
@@ -373,6 +454,21 @@ async function syncSavedMediaHandle(handle: fs.FileHandle): Promise<void> {
     }
     throw err;
   }
+=======
+  subdir: string;
+  id: string;
+  buffer: Buffer;
+}): Promise<string> {
+  const dir = resolveMediaScopedDir(params.subdir, "writeSavedMediaBuffer");
+  const relativePath = resolveMediaRelativePath(params.id, params.subdir, "writeSavedMediaBuffer");
+  return await retryAfterRecreatingDir(
+    dir,
+    async () =>
+      await openMediaStore(params.buffer.byteLength).write(relativePath, params.buffer, {
+        tempPrefix: `.${params.id}`,
+      }),
+  );
+>>>>>>> upstream/main
 }
 
 export type SaveMediaSourceErrorCode =
@@ -392,10 +488,14 @@ export class SaveMediaSourceError extends Error {
   }
 }
 
+<<<<<<< HEAD
 function toSaveMediaSourceError(
   err: SafeOpenLikeError,
   maxBytes = MAX_BYTES,
 ): SaveMediaSourceError {
+=======
+function toSaveMediaSourceError(err: FsSafeLikeError, maxBytes = MAX_BYTES): SaveMediaSourceError {
+>>>>>>> upstream/main
   switch (err.code) {
     case "symlink":
       return new SaveMediaSourceError("invalid-path", "Media path must not be a symlink", {
@@ -438,6 +538,7 @@ export async function saveMediaSource(
   await cleanOldMedia(DEFAULT_TTL_MS, { recursive: false });
   const baseId = crypto.randomUUID();
   if (looksLikeUrl(source)) {
+<<<<<<< HEAD
     const tempDest = path.join(dir, `${baseId}.tmp`);
     const { headerMime, sniffBuffer, size } = await retryAfterRecreatingDir(dir, () =>
       downloadToFile(source, tempDest, headers, 5, maxBytes),
@@ -452,16 +553,56 @@ export async function saveMediaSource(
     const finalDest = path.join(dir, id);
     await fs.rename(tempDest, finalDest);
     return buildSavedMediaResult({ dir, id, size, contentType: mime });
+=======
+    const saved = await retryAfterRecreatingDir(dir, () =>
+      writeSiblingTempFile({
+        dir,
+        mode: MEDIA_FILE_MODE,
+        tempPrefix: `.${baseId}`,
+        writeTemp: async (tempPath) => {
+          const { headerMime, sniffBuffer, size } = await downloadToFile(
+            source,
+            tempPath,
+            headers,
+            5,
+            maxBytes,
+          );
+          const mime = await detectMime({
+            buffer: sniffBuffer,
+            headerMime,
+            filePath: source,
+          });
+          const ext = extensionForMime(mime) ?? path.extname(new URL(source).pathname);
+          const id = buildSavedMediaId({ baseId, ext });
+          return { id, size, contentType: mime };
+        },
+        resolveFinalPath: (result) => path.join(dir, result.id),
+      }),
+    );
+    return buildSavedMediaResult({
+      dir,
+      id: saved.result.id,
+      size: saved.result.size,
+      contentType: saved.result.contentType,
+    });
+>>>>>>> upstream/main
   }
   try {
     const { buffer, stat } = await readLocalFileSafely({ filePath: source, maxBytes });
     const mime = await detectMime({ buffer, filePath: source });
     const ext = extensionForMime(mime) ?? path.extname(source);
     const id = buildSavedMediaId({ baseId, ext });
+<<<<<<< HEAD
     await writeSavedMediaBuffer({ dir, id, buffer });
     return buildSavedMediaResult({ dir, id, size: stat.size, contentType: mime });
   } catch (err) {
     if (isSafeOpenError(err)) {
+=======
+    await writeSavedMediaBuffer({ subdir, id, buffer });
+    return buildSavedMediaResult({ dir, id, size: stat.size, contentType: mime });
+  } catch (err) {
+    if (isFsSafeError(err)) {
+>>>>>>> upstream/main
       throw toSaveMediaSourceError(err, maxBytes);
     }
     throw err;
@@ -486,7 +627,11 @@ export async function saveMediaBuffer(
   const ext =
     headerExt ?? extensionForMime(mime) ?? safeOriginalFilenameExtension(originalFilename) ?? "";
   const id = buildSavedMediaId({ baseId: uuid, ext, originalFilename });
+<<<<<<< HEAD
   await writeSavedMediaBuffer({ dir, id, buffer });
+=======
+  await writeSavedMediaBuffer({ subdir, id, buffer });
+>>>>>>> upstream/main
   return buildSavedMediaResult({ dir, id, size: buffer.byteLength, contentType: mime });
 }
 
@@ -510,6 +655,7 @@ export async function saveMediaBuffer(
  * @returns       Absolute path to the file on disk.
  * @throws        If the ID is unsafe, the file does not exist, or is not a
  *                regular file.
+<<<<<<< HEAD
  */
 export async function resolveMediaBufferPath(id: string, subdir = "inbound"): Promise<string> {
   // Guard against path traversal and null-byte injection.
@@ -549,12 +695,69 @@ export async function resolveMediaBufferPath(id: string, subdir = "inbound"): Pr
     );
   }
   if (!stat.isFile()) {
+=======
+ *
+ * Prefer readMediaBuffer when the caller needs the bytes; this path-returning
+ * helper is for channel surfaces that need a stable local attachment path.
+ */
+export async function resolveMediaBufferPath(id: string, subdir = "inbound"): Promise<string> {
+  const relativePath = resolveMediaRelativePath(id, subdir, "resolveMediaBufferPath");
+  const opened = await openMediaStore()
+    .open(relativePath)
+    .catch(() => null);
+  if (!opened?.stat.isFile()) {
+>>>>>>> upstream/main
     throw new Error(
       `resolveMediaBufferPath: media ID does not resolve to a file: ${JSON.stringify(id)}`,
     );
   }
+<<<<<<< HEAD
 
   return resolved;
+=======
+  try {
+    return opened.realPath;
+  } finally {
+    await opened.handle.close().catch(() => undefined);
+  }
+}
+
+export type ReadMediaBufferResult = {
+  id: string;
+  path: string;
+  buffer: Buffer;
+  size: number;
+};
+
+export async function readMediaBuffer(
+  id: string,
+  subdir = "inbound",
+  maxBytes = MAX_BYTES,
+): Promise<ReadMediaBufferResult> {
+  const relativePath = resolveMediaRelativePath(id, subdir, "readMediaBuffer");
+  const opened = await openMediaStore(maxBytes)
+    .open(relativePath)
+    .catch(() => null);
+  if (!opened?.stat.isFile()) {
+    throw new Error(`readMediaBuffer: media ID does not resolve to a file: ${JSON.stringify(id)}`);
+  }
+  try {
+    if (opened.stat.size > maxBytes) {
+      throw new Error(
+        `readMediaBuffer: media ID ${JSON.stringify(id)} is ${opened.stat.size} bytes; maximum is ${maxBytes} bytes`,
+      );
+    }
+    const buffer = await opened.handle.readFile();
+    if (buffer.byteLength > maxBytes) {
+      throw new Error(
+        `readMediaBuffer: media ID ${JSON.stringify(id)} read ${buffer.byteLength} bytes; maximum is ${maxBytes} bytes`,
+      );
+    }
+    return { id, path: opened.realPath, buffer, size: buffer.byteLength };
+  } finally {
+    await opened.handle.close().catch(() => undefined);
+  }
+>>>>>>> upstream/main
 }
 
 /**
@@ -565,8 +768,13 @@ export async function resolveMediaBufferPath(id: string, subdir = "inbound"): Pr
  * fails validation and the entire parse is aborted, preventing orphaned files
  * from accumulating on disk ahead of the periodic TTL sweep.
  *
+<<<<<<< HEAD
  * Uses resolveMediaBufferPath to apply the same path-safety guards as the
  * read path (separator checks, symlink rejection, etc.) before unlinking.
+=======
+ * Uses a media-root handle to apply the same path-safety guards as the read
+ * path while removing the file under the pinned media root.
+>>>>>>> upstream/main
  *
  * Errors are intentionally not suppressed — callers that want best-effort
  * cleanup should catch and discard exceptions themselves (e.g. via
@@ -576,6 +784,11 @@ export async function resolveMediaBufferPath(id: string, subdir = "inbound"): Pr
  * @param subdir The subdirectory the file was saved into (default "inbound").
  */
 export async function deleteMediaBuffer(id: string, subdir: "inbound" = "inbound"): Promise<void> {
+<<<<<<< HEAD
   const physicalPath = await resolveMediaBufferPath(id, subdir);
   await fs.unlink(physicalPath);
+=======
+  const relativePath = resolveMediaRelativePath(id, subdir, "deleteMediaBuffer");
+  await openMediaStore().remove(relativePath);
+>>>>>>> upstream/main
 }

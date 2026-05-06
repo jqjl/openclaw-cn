@@ -76,7 +76,11 @@ xcodebuild -version
 xcrun swift --version
 ```
 
+<<<<<<< HEAD
 If versions don’t match, update macOS/Xcode and re-run the build.
+=======
+If versions don't match, update macOS/Xcode and re-run the build.
+>>>>>>> upstream/main
 
 ### App crashes on permission grant
 

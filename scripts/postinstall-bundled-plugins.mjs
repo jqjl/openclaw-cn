@@ -814,6 +814,13 @@ function shouldRunBundledPluginPostinstall(params) {
   return true;
 }
 
+<<<<<<< HEAD
+=======
+function isCompileCachePrunePermissionDenied(error) {
+  return error?.code === "EACCES" || error?.code === "EPERM";
+}
+
+>>>>>>> upstream/main
 export function pruneOpenClawCompileCache(params = {}) {
   const env = params.env ?? process.env;
   const pathExists = params.existsSync ?? existsSync;
@@ -842,10 +849,22 @@ export function pruneOpenClawCompileCache(params = {}) {
             retryDelay: 100,
           });
         } catch (error) {
+<<<<<<< HEAD
+=======
+          if (isCompileCachePrunePermissionDenied(error)) {
+            continue;
+          }
+>>>>>>> upstream/main
           log.warn?.(`[postinstall] could not prune OpenClaw compile cache: ${String(error)}`);
         }
       }
     } catch (error) {
+<<<<<<< HEAD
+=======
+      if (isCompileCachePrunePermissionDenied(error)) {
+        continue;
+      }
+>>>>>>> upstream/main
       log.warn?.(`[postinstall] could not prune OpenClaw compile cache: ${String(error)}`);
     }
   }

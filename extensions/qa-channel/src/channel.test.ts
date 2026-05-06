@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { createStartAccountContext } from "openclaw/plugin-sdk/channel-test-helpers";
 import type { PluginRuntime } from "openclaw/plugin-sdk/core";
 import {
@@ -126,6 +130,10 @@ async function startQaChannelTestHarness(params?: {
   );
   return {
     state,
+<<<<<<< HEAD
+=======
+    baseUrl: bus.baseUrl,
+>>>>>>> upstream/main
     async stop() {
       abort.abort();
       await task;
@@ -211,6 +219,50 @@ describe("qa-channel plugin", () => {
     expect(route?.threadId).toBeUndefined();
   });
 
+<<<<<<< HEAD
+=======
+  it("backs declared message adapter capabilities with qa bus sends", async () => {
+    const harness = await startQaChannelTestHarness({ allowFrom: ["*"] });
+    try {
+      const adapter = qaChannelPlugin.message;
+      expect(adapter).toBeDefined();
+
+      const proveText = async () => {
+        const result = await adapter!.send!.text!({
+          cfg: createQaChannelConfig({ baseUrl: harness.baseUrl, allowFrom: ["*"] }),
+          to: "thread:qa-room/thread-1",
+          text: "hello",
+          accountId: "default",
+          replyToId: "parent-1",
+          threadId: "thread-1",
+        });
+        expect(result.receipt.parts[0]).toEqual(
+          expect.objectContaining({
+            kind: "text",
+            replyToId: "parent-1",
+            threadId: "thread-1",
+          }),
+        );
+      };
+
+      await verifyChannelMessageAdapterCapabilityProofs({
+        adapterName: "qaChannelMessageAdapter",
+        adapter: adapter!,
+        proofs: {
+          text: proveText,
+          replyTo: proveText,
+          thread: proveText,
+          messageSendingHooks: () => {
+            expect(adapter!.send!.text).toBeTypeOf("function");
+          },
+        },
+      });
+    } finally {
+      await harness.stop();
+    }
+  });
+
+>>>>>>> upstream/main
   it("roundtrips inbound DM traffic through the qa bus", { timeout: 20_000 }, async () => {
     const harness = await startQaChannelTestHarness({ allowFrom: ["*"] });
 

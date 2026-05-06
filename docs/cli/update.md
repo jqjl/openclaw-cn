@@ -37,9 +37,18 @@ openclaw --update
 - `--channel <stable|beta|dev>`: set the update channel (git + npm; persisted in config).
 - `--tag <dist-tag|version|spec>`: override the package target for this update only. For package installs, `main` maps to `github:openclaw/openclaw#main`.
 - `--dry-run`: preview planned update actions (channel/tag/target/restart flow) without writing config, installing, syncing plugins, or restarting.
+<<<<<<< HEAD
 - `--json`: print machine-readable `UpdateRunResult` JSON.
 - `--timeout <seconds>`: per-step timeout (default is 1200s).
 - `--yes`: skip confirmation prompts (for example downgrade confirmation)
+=======
+- `--json`: print machine-readable `UpdateRunResult` JSON, including
+  `postUpdate.plugins.warnings` when corrupt or unloadable managed plugins need
+  repair after the core update succeeds, and `postUpdate.plugins.integrityDrifts`
+  when npm plugin artifact drift is detected during post-update plugin sync.
+- `--timeout <seconds>`: per-step timeout (default is 1800s).
+- `--yes`: skip confirmation prompts (for example downgrade confirmation).
+>>>>>>> upstream/main
 
 `openclaw update` does not have a `--verbose` flag. Use `--dry-run` to preview
 the planned channel/tag/install/restart actions, `--json` for machine-readable
@@ -134,6 +143,7 @@ manually.
 
 ### Update steps
 
+<<<<<<< HEAD
 1. Requires a clean worktree (no uncommitted changes).
 2. Switches to the selected channel (tag or branch).
 3. Fetches upstream (dev only).
@@ -143,6 +153,8 @@ manually.
 7. Builds + builds the Control UI.
 8. Runs `openclaw doctor` as the final “safe update” check.
 9. Syncs plugins to the active channel (dev uses bundled extensions; stable/beta uses npm) and updates npm-installed plugins.
+=======
+>>>>>>> upstream/main
 <Steps>
   <Step title="Verify clean worktree">
     Requires no uncommitted changes.
@@ -154,7 +166,11 @@ manually.
     Dev only.
   </Step>
   <Step title="Preflight build (dev only)">
+<<<<<<< HEAD
     Runs lint and TypeScript build in a temp worktree. If the tip fails, walks back up to 10 commits to find the newest clean build.
+=======
+    Runs the TypeScript build in a temp worktree. If the tip fails, walks back up to 10 commits to find the newest buildable commit. Set `OPENCLAW_UPDATE_PREFLIGHT_LINT=1` to also run lint during this preflight; lint runs in constrained serial mode because user update hosts are often smaller than CI runners.
+>>>>>>> upstream/main
   </Step>
   <Step title="Rebase">
     Rebases onto the selected commit (dev only).
@@ -184,7 +200,11 @@ If an exact pinned npm plugin update resolves to an artifact whose integrity dif
 </Warning>
 
 <Note>
+<<<<<<< HEAD
 Post-update plugin sync failures fail the update result and stop restart follow-up work. Fix the plugin install or update error, then rerun `openclaw update`.
+=======
+Post-update plugin sync failures that are scoped to a managed plugin are reported as warnings after the core update succeeds. The JSON result keeps the top-level update `status: "ok"` and reports `postUpdate.plugins.status: "warning"` with `openclaw doctor --fix` and `openclaw plugins inspect <id> --runtime --json` guidance. Unexpected updater or sync exceptions still fail the update result. Fix the plugin install or update error, then rerun `openclaw doctor --fix` or `openclaw update`.
+>>>>>>> upstream/main
 
 When the updated Gateway starts, plugin loading is verify-only: startup does not run package managers or mutate dependency trees. Package-manager `update.run` restarts bypass the normal idle deferral and restart cooldown after the package tree has been swapped, so the old process cannot keep lazy-loading removed chunks.
 

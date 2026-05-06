@@ -12,8 +12,17 @@ OpenClaw can convert outbound replies into audio across **14 speech providers**
 and deliver native voice messages on Feishu, Matrix, Telegram, and WhatsApp,
 audio attachments everywhere else, and PCM/Ulaw streams for telephony and Talk.
 
+<<<<<<< HEAD
 OpenClaw can convert outbound replies into audio using ElevenLabs, Google Gemini, Microsoft, MiniMax, or OpenAI.
 It works anywhere OpenClaw can send audio.
+=======
+TTS is the speech-output half of Talk's `stt-tts` mode. Provider-native
+`realtime` Talk sessions synthesize speech inside the realtime provider instead
+of calling this TTS path, while `transcription` sessions do not synthesize an
+assistant voice response.
+
+## Quick start
+>>>>>>> upstream/main
 
 <Steps>
   <Step title="Pick a provider">
@@ -28,11 +37,24 @@ It works anywhere OpenClaw can send audio.
   <Step title="Enable in config">
     Set `messages.tts.auto: "always"` and `messages.tts.provider`:
 
+<<<<<<< HEAD
 - **ElevenLabs** (primary or fallback provider)
 - **Google Gemini** (primary or fallback provider; uses Gemini API TTS)
 - **Microsoft** (primary or fallback provider; current bundled implementation uses `node-edge-tts`)
 - **MiniMax** (primary or fallback provider; uses the T2A v2 API)
 - **OpenAI** (primary or fallback provider; also used for summaries)
+=======
+    ```json5
+    {
+      messages: {
+        tts: {
+          auto: "always",
+          provider: "elevenlabs",
+        },
+      },
+    }
+    ```
+>>>>>>> upstream/main
 
   </Step>
   <Step title="Try it in chat">
@@ -69,6 +91,7 @@ speech.
 | **xAI**           | `XAI_API_KEY`                                                                                                    | xAI batch TTS. Native Opus voice-note is **not** supported.             |
 | **Xiaomi MiMo**   | `XIAOMI_API_KEY`                                                                                                 | MiMo TTS through Xiaomi chat completions.                               |
 
+<<<<<<< HEAD
 If you want OpenAI, ElevenLabs, Google Gemini, or MiniMax:
 
 - `ELEVENLABS_API_KEY` (or `XI_API_KEY`)
@@ -106,6 +129,25 @@ TTS config lives under `messages.tts` in `openclaw.json`.
 Full schema is in [Gateway configuration](/gateway/configuration).
 
 ### Minimal config (enable + provider)
+=======
+If multiple providers are configured, the selected one is used first and the
+others are fallback options. Auto-summary uses `summaryModel` (or
+`agents.defaults.model.primary`), so that provider must also be authenticated
+if you keep summaries enabled.
+
+<Warning>
+The bundled **Microsoft** provider uses Microsoft Edge's online neural TTS
+service via `node-edge-tts`. It is a public web service without a published
+SLA or quota — treat it as best-effort. The legacy provider id `edge` is
+normalized to `microsoft` and `openclaw doctor --fix` rewrites persisted
+config; new configs should always use `microsoft`.
+</Warning>
+
+## Configuration
+
+TTS config lives under `messages.tts` in `~/.openclaw/openclaw.json`. Pick a
+preset and adapt the provider block:
+>>>>>>> upstream/main
 
 <Tabs>
   <Tab title="Azure Speech">
@@ -301,6 +343,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
   },
 }
 ```
+<<<<<<< HEAD
 
 Google Gemini TTS uses the Gemini API key path. A Google Cloud Console API key
 restricted to the Gemini API is valid here, and it is the same style of key used
@@ -310,6 +353,69 @@ by the bundled Google image-generation provider. Resolution order is
 
 ### Disable Microsoft speech
 
+=======
+  </Tab>
+  <Tab title="OpenRouter">
+```json5
+{
+  messages: {
+    tts: {
+      auto: "always",
+      provider: "openrouter",
+      providers: {
+        openrouter: {
+          apiKey: "${OPENROUTER_API_KEY}",
+          model: "hexgrad/kokoro-82m",
+          voice: "af_alloy",
+          responseFormat: "mp3",
+        },
+      },
+    },
+  },
+}
+```
+  </Tab>
+  <Tab title="Volcengine">
+```json5
+{
+  messages: {
+    tts: {
+      auto: "always",
+      provider: "volcengine",
+      providers: {
+        volcengine: {
+          apiKey: "${VOLCENGINE_TTS_API_KEY}",
+          resourceId: "seed-tts-1.0",
+          voice: "en_female_anna_mars_bigtts",
+        },
+      },
+    },
+  },
+}
+```
+  </Tab>
+  <Tab title="xAI">
+```json5
+{
+  messages: {
+    tts: {
+      auto: "always",
+      provider: "xai",
+      providers: {
+        xai: {
+          apiKey: "${XAI_API_KEY}",
+          voiceId: "eve",
+          language: "en",
+          responseFormat: "mp3",
+        },
+      },
+    },
+  },
+}
+```
+  </Tab>
+  <Tab title="Xiaomi MiMo">
+>>>>>>> upstream/main
 ```json5
 {
   messages: {
@@ -494,6 +600,7 @@ The active persona is selected deterministically:
 2. `messages.tts.persona`, if set.
 3. No persona.
 
+<<<<<<< HEAD
 - `auto`: auto‑TTS mode (`off`, `always`, `inbound`, `tagged`).
   - `inbound` only sends audio after an inbound voice message.
   - `tagged` only sends audio when the reply includes `[[tts:key=value]]` directives or a `[[tts:text]]...[[/tts:text]]` block.
@@ -543,6 +650,9 @@ The active persona is selected deterministically:
 - `providers.microsoft.proxy`: proxy URL for Microsoft speech requests.
 - `providers.microsoft.timeoutMs`: request timeout override (ms).
 - `edge.*`: legacy alias for the same Microsoft settings.
+=======
+Provider selection runs explicit-first:
+>>>>>>> upstream/main
 
 1. Direct overrides (CLI, gateway, Talk, allowed TTS directives).
 2. `/tts provider <id>` local preference.
@@ -598,6 +708,14 @@ attempted provider:
 The whole TTS request only fails when **every** attempted provider is skipped
 or fails.
 
+<<<<<<< HEAD
+=======
+Talk session provider selection is session-scoped. A Talk client should choose
+provider ids, model ids, voice ids, and locales from `talk.catalog` and pass
+them through the Talk session or handoff request. Opening a voice session should
+not mutate `messages.tts` or global Talk provider defaults.
+
+>>>>>>> upstream/main
 ## Model-driven directives
 
 By default, the assistant **can** emit `[[tts:...]]` directives to override
@@ -616,9 +734,22 @@ When `messages.tts.auto` is `"tagged"`, **directives are required** to trigger
 audio. Streaming block delivery strips directives from visible text before the
 channel sees them, even when split across adjacent blocks.
 
+<<<<<<< HEAD
 - `provider` (registered speech provider id, for example `openai`, `elevenlabs`, `google`, `minimax`, or `microsoft`; requires `allowProvider: true`)
 - `voice` (OpenAI voice), `voiceName` / `voice_name` / `google_voice` (Google voice), or `voiceId` (ElevenLabs / MiniMax)
 - `model` (OpenAI TTS model, ElevenLabs model id, or MiniMax model) or `google_model` (Google TTS model)
+=======
+`provider=...` is ignored unless `modelOverrides.allowProvider: true`. When a
+reply declares `provider=...`, the other keys in that directive are parsed
+only by that provider; unsupported keys are stripped and reported as TTS
+directive warnings.
+
+**Available directive keys:**
+
+- `provider` (registered provider id; requires `allowProvider: true`)
+- `voice` / `voiceName` / `voice_name` / `google_voice` / `voiceId`
+- `model` / `google_model`
+>>>>>>> upstream/main
 - `stability`, `similarityBoost`, `style`, `speed`, `useSpeakerBoost`
 - `vol` / `volume` (MiniMax volume, 0–10)
 - `pitch` (MiniMax integer pitch, −12 to 12; fractional values are truncated)
@@ -708,8 +839,20 @@ delivery.
   and CAF outputs are marked for iMessage voice memo delivery.
 - **Other channels**: MP3 (`mp3_44100_128` from ElevenLabs, `mp3` from OpenAI).
   - 44.1kHz / 128kbps is the default balance for speech clarity.
+<<<<<<< HEAD
 - **MiniMax**: MP3 (`speech-2.8-hd` model, 32kHz sample rate). Voice-note format not natively supported; use OpenAI or ElevenLabs for guaranteed Opus voice messages.
 - **Google Gemini**: Gemini API TTS returns raw 24kHz PCM. OpenClaw wraps it as WAV for audio attachments and returns PCM directly for Talk/telephony. Native Opus voice-note format is not supported by this path.
+=======
+- **MiniMax**: MP3 (`speech-2.8-hd` model, 32kHz sample rate) for normal audio attachments. For channel-advertised voice-note targets, OpenClaw transcodes the MiniMax MP3 to 48kHz Opus with `ffmpeg` before delivery when the channel advertises transcoding.
+- **Xiaomi MiMo**: MP3 by default, or WAV when configured. For channel-advertised voice-note targets, OpenClaw transcodes Xiaomi output to 48kHz Opus with `ffmpeg` before delivery when the channel advertises transcoding.
+- **Local CLI**: uses the configured `outputFormat`. Voice-note targets are
+  converted to Ogg/Opus and telephony output is converted to raw 16 kHz mono PCM
+  with `ffmpeg`.
+- **Google Gemini**: Gemini API TTS returns raw 24kHz PCM. OpenClaw wraps it as WAV for audio attachments, transcodes it to 48kHz Opus for voice-note targets, and returns PCM directly for Talk/telephony.
+- **Gradium**: WAV for audio attachments, Opus for voice-note targets, and `ulaw_8000` at 8 kHz for telephony.
+- **Inworld**: MP3 for normal audio attachments, native `OGG_OPUS` for voice-note targets, and raw `PCM` at 22050 Hz for Talk/telephony.
+- **xAI**: MP3 by default; `responseFormat` may be `mp3`, `wav`, `pcm`, `mulaw`, or `alaw`. OpenClaw uses xAI's batch REST TTS endpoint and returns a complete audio attachment; xAI's streaming TTS WebSocket is not used by this provider path. Native Opus voice-note format is not supported by this path.
+>>>>>>> upstream/main
 - **Microsoft**: uses `microsoft.outputFormat` (default `audio-24khz-48kbitrate-mono-mp3`).
   - The bundled transport accepts an `outputFormat`, but not all formats are available from the service.
   - Output format values follow Microsoft Speech output formats (including Ogg/WebM Opus).

@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 import type { Agent } from "node:http";
+<<<<<<< HEAD
 import process from "node:process";
 import { HttpsProxyAgent } from "https-proxy-agent";
+=======
+import { createRequire } from "node:module";
+import process from "node:process";
+>>>>>>> upstream/main
 import {
   resolveDebugProxyBlobDir,
   resolveDebugProxyCertDir,
@@ -28,6 +33,17 @@ export type DebugProxySettings = {
 };
 
 let cachedImplicitSessionId: string | undefined;
+<<<<<<< HEAD
+=======
+let cachedHttpsProxyAgent: typeof import("https-proxy-agent").HttpsProxyAgent | undefined;
+
+function loadHttpsProxyAgent(): typeof import("https-proxy-agent").HttpsProxyAgent {
+  cachedHttpsProxyAgent ??= (
+    createRequire(import.meta.url)("https-proxy-agent") as typeof import("https-proxy-agent")
+  ).HttpsProxyAgent;
+  return cachedHttpsProxyAgent;
+}
+>>>>>>> upstream/main
 
 function isTruthy(value: string | undefined): boolean {
   return value === "1" || value === "true" || value === "yes" || value === "on";
@@ -80,6 +96,10 @@ export function createDebugProxyWebSocketAgent(settings: DebugProxySettings): Ag
   if (!settings.enabled || !settings.proxyUrl) {
     return undefined;
   }
+<<<<<<< HEAD
+=======
+  const HttpsProxyAgent = loadHttpsProxyAgent();
+>>>>>>> upstream/main
   return new HttpsProxyAgent(settings.proxyUrl);
 }
 

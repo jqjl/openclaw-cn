@@ -51,7 +51,11 @@
     {
       "id": "provider_mismatch_missing_resolved",
       "defaultProvider": "elevenlabs",
+<<<<<<< HEAD
       "payloadValid": false,
+=======
+      "payloadValid": true,
+>>>>>>> upstream/main
       "expectedSelection": null,
       "talk": {
         "provider": "acme",
@@ -65,7 +69,11 @@
     {
       "id": "ambiguous_providers_missing_resolved",
       "defaultProvider": "elevenlabs",
+<<<<<<< HEAD
       "payloadValid": false,
+=======
+      "payloadValid": true,
+>>>>>>> upstream/main
       "expectedSelection": null,
       "talk": {
         "providers": {

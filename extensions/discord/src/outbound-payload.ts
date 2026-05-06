@@ -7,12 +7,21 @@ import {
   sendPayloadMediaSequenceOrFallback,
   sendTextMediaPayload,
 } from "openclaw/plugin-sdk/reply-payload";
+<<<<<<< HEAD
+=======
+import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+>>>>>>> upstream/main
 import { normalizeDiscordApprovalPayload } from "./outbound-approval.js";
 import {
   resolveDiscordComponentSpec,
   sendDiscordComponentMessageLazy,
 } from "./outbound-components.js";
 import { createDiscordPayloadSendContext } from "./outbound-send-context.js";
+<<<<<<< HEAD
+=======
+import { createDiscordSendReceipt } from "./send.receipt.js";
+import type { DiscordSendComponents, DiscordSendEmbeds } from "./send.shared.js";
+>>>>>>> upstream/main
 
 export async function sendDiscordOutboundPayload(params: {
   ctx: Parameters<NonNullable<ChannelOutboundAdapter["sendPayload"]>>[0];
@@ -71,6 +80,72 @@ export async function sendDiscordOutboundPayload(params: {
 
   const componentSpec = await resolveDiscordComponentSpec(payload);
   if (!componentSpec) {
+<<<<<<< HEAD
+=======
+    const discordData =
+      payload.channelData?.discord &&
+      typeof payload.channelData.discord === "object" &&
+      !Array.isArray(payload.channelData.discord)
+        ? (payload.channelData.discord as Record<string, unknown>)
+        : {};
+    const nativeComponents = Array.isArray(discordData.components)
+      ? (discordData.components as DiscordSendComponents)
+      : undefined;
+    const embeds = Array.isArray(discordData.embeds)
+      ? (discordData.embeds as DiscordSendEmbeds)
+      : undefined;
+    const filename = normalizeOptionalString(discordData.filename);
+    if (nativeComponents || embeds?.length || filename) {
+      const result = await sendPayloadMediaSequenceOrFallback({
+        text: payload.text ?? "",
+        mediaUrls,
+        fallbackResult: {
+          messageId: "",
+          channelId: sendContext.target,
+          receipt: createDiscordSendReceipt({
+            platformMessageIds: [],
+            channelId: sendContext.target,
+            kind: "unknown",
+          }),
+        },
+        sendNoMedia: async () =>
+          await sendContext.withRetry(
+            async () =>
+              await sendContext.send(sendContext.target, payload.text ?? "", {
+                verbose: false,
+                components: nativeComponents,
+                embeds,
+                filename,
+                replyTo: sendContext.resolveReplyTo(),
+                accountId: ctx.accountId ?? undefined,
+                silent: ctx.silent ?? undefined,
+                cfg: ctx.cfg,
+                ...sendContext.formatting,
+              }),
+          ),
+        send: async ({ text, mediaUrl, isFirst }) =>
+          await sendContext.withRetry(
+            async () =>
+              await sendContext.send(sendContext.target, text, {
+                verbose: false,
+                mediaUrl,
+                mediaAccess: ctx.mediaAccess,
+                mediaLocalRoots: ctx.mediaLocalRoots,
+                mediaReadFile: ctx.mediaReadFile,
+                components: isFirst ? nativeComponents : undefined,
+                embeds: isFirst ? embeds : undefined,
+                filename: isFirst ? filename : undefined,
+                replyTo: sendContext.resolveReplyTo(),
+                accountId: ctx.accountId ?? undefined,
+                silent: ctx.silent ?? undefined,
+                cfg: ctx.cfg,
+                ...sendContext.formatting,
+              }),
+          ),
+      });
+      return attachChannelToResult("discord", result);
+    }
+>>>>>>> upstream/main
     return await sendTextMediaPayload({
       channel: "discord",
       ctx: {
@@ -84,7 +159,19 @@ export async function sendDiscordOutboundPayload(params: {
   const result = await sendPayloadMediaSequenceOrFallback({
     text: payload.text ?? "",
     mediaUrls,
+<<<<<<< HEAD
     fallbackResult: { messageId: "", channelId: sendContext.target },
+=======
+    fallbackResult: {
+      messageId: "",
+      channelId: sendContext.target,
+      receipt: createDiscordSendReceipt({
+        platformMessageIds: [],
+        channelId: sendContext.target,
+        kind: "unknown",
+      }),
+    },
+>>>>>>> upstream/main
     sendNoMedia: async () =>
       await sendContext.withRetry(
         async () =>

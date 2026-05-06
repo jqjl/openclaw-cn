@@ -434,7 +434,14 @@ describe("sendStickerDiscord", () => {
       token: "t",
       content: "hiya",
     });
+<<<<<<< HEAD
     expect(res).toEqual({ messageId: "msg1", channelId: "789" });
+=======
+    expect(res).toMatchObject({ messageId: "msg1", channelId: "789" });
+    expect(res.receipt.parts[0]).toEqual(
+      expect.objectContaining({ platformMessageId: "msg1", kind: "card" }),
+    );
+>>>>>>> upstream/main
     expect(postMock).toHaveBeenCalledWith(
       Routes.channelMessages("789"),
       expect.objectContaining({
@@ -467,7 +474,14 @@ describe("sendPollDiscord", () => {
         token: "t",
       },
     );
+<<<<<<< HEAD
     expect(res).toEqual({ messageId: "msg1", channelId: "789" });
+=======
+    expect(res).toMatchObject({ messageId: "msg1", channelId: "789" });
+    expect(res.receipt.parts[0]).toEqual(
+      expect.objectContaining({ platformMessageId: "msg1", kind: "card" }),
+    );
+>>>>>>> upstream/main
     expect(postMock).toHaveBeenCalledWith(
       Routes.channelMessages("789"),
       expect.objectContaining({
@@ -548,9 +562,19 @@ describe("retry rate limits", () => {
         retry: { attempts: 2, minDelayMs: 0, maxDelayMs: 1000, jitter: 0 },
       });
 
+<<<<<<< HEAD
       await expect(promise).resolves.toEqual({
         messageId: "msg1",
         channelId: "789",
+=======
+      await expect(promise).resolves.toMatchObject({
+        messageId: "msg1",
+        channelId: "789",
+        receipt: expect.objectContaining({
+          primaryPlatformMessageId: "msg1",
+          platformMessageIds: ["msg1"],
+        }),
+>>>>>>> upstream/main
       });
       expect(setTimeoutSpy.mock.calls[0]?.[1]).toBe(1);
     } finally {
@@ -598,7 +622,12 @@ describe("retry rate limits", () => {
       retry: { attempts: 2, minDelayMs: 0, maxDelayMs: 0, jitter: 0 },
     });
 
+<<<<<<< HEAD
     expect(result).toEqual({ messageId: "msg1", channelId: "789" });
+=======
+    expect(result).toMatchObject({ messageId: "msg1", channelId: "789" });
+    expect(result.receipt.platformMessageIds).toEqual(["msg1"]);
+>>>>>>> upstream/main
     expect(postMock).toHaveBeenCalledTimes(2);
   });
 

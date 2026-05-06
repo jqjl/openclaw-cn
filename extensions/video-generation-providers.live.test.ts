@@ -1,6 +1,10 @@
 import {
   resolveApiKeyForProvider,
+<<<<<<< HEAD
   resolveOpenClawAgentDir,
+=======
+  resolveDefaultAgentDir,
+>>>>>>> upstream/main
 } from "openclaw/plugin-sdk/agent-runtime";
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import {
@@ -361,7 +365,11 @@ function resolveLiveSmokeDurationSeconds(params: {
 async function runLiveVideoProviderCase(testCase: LiveProviderCase): Promise<void> {
   const cfg = withPluginsEnabled(getRuntimeConfig());
   const configuredModels = resolveConfiguredLiveVideoModels(cfg);
+<<<<<<< HEAD
   const agentDir = resolveOpenClawAgentDir();
+=======
+  const agentDir = resolveDefaultAgentDir(cfg as never);
+>>>>>>> upstream/main
   const attempted: string[] = [];
   const skipped: string[] = [];
   const failures: string[] = [];

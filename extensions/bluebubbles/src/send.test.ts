@@ -717,6 +717,24 @@ describe("send", () => {
       });
 
       expect(result.messageId).toBe("msg-uuid-123");
+<<<<<<< HEAD
+=======
+      expect(result.receipt).toMatchObject({
+        primaryPlatformMessageId: "msg-uuid-123",
+        platformMessageIds: ["msg-uuid-123"],
+        parts: [
+          {
+            platformMessageId: "msg-uuid-123",
+            kind: "text",
+            raw: {
+              channel: "bluebubbles",
+              conversationId: "iMessage;-;+15551234567",
+              messageId: "msg-uuid-123",
+            },
+          },
+        ],
+      });
+>>>>>>> upstream/main
       expect(mockFetch).toHaveBeenCalledTimes(2);
 
       const sendCall = mockFetch.mock.calls[1];
@@ -812,6 +830,19 @@ describe("send", () => {
       });
 
       expect(result.messageId).toBe("new-msg-guid");
+<<<<<<< HEAD
+=======
+      expect(result.receipt).toMatchObject({
+        primaryPlatformMessageId: "new-msg-guid",
+        platformMessageIds: ["new-msg-guid"],
+        parts: [
+          {
+            platformMessageId: "new-msg-guid",
+            kind: "text",
+          },
+        ],
+      });
+>>>>>>> upstream/main
       expect(mockFetch).toHaveBeenCalledTimes(2);
 
       const createCall = mockFetch.mock.calls[1];
@@ -857,6 +888,21 @@ describe("send", () => {
       });
 
       expect(result.messageId).toBe("msg-uuid-124");
+<<<<<<< HEAD
+=======
+      expect(result.receipt).toMatchObject({
+        primaryPlatformMessageId: "msg-uuid-124",
+        platformMessageIds: ["msg-uuid-124"],
+        replyToId: "reply-guid-123",
+        parts: [
+          {
+            platformMessageId: "msg-uuid-124",
+            kind: "text",
+            replyToId: "reply-guid-123",
+          },
+        ],
+      });
+>>>>>>> upstream/main
       expect(mockFetch).toHaveBeenCalledTimes(2);
 
       const sendCall = mockFetch.mock.calls[1];
@@ -1053,6 +1099,11 @@ describe("send", () => {
       });
 
       expect(result.messageId).toBe("ok");
+<<<<<<< HEAD
+=======
+      expect(result.receipt.platformMessageIds).toEqual([]);
+      expect(result.receipt.parts).toEqual([]);
+>>>>>>> upstream/main
     });
 
     it("handles invalid JSON response body", async () => {
@@ -1068,6 +1119,11 @@ describe("send", () => {
       });
 
       expect(result.messageId).toBe("ok");
+<<<<<<< HEAD
+=======
+      expect(result.receipt.platformMessageIds).toEqual([]);
+      expect(result.receipt.parts).toEqual([]);
+>>>>>>> upstream/main
     });
 
     it("extracts messageId from various response formats", async () => {

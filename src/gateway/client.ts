@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
 import http from "node:http";
 import https from "node:https";
+=======
+>>>>>>> upstream/main
 import { WebSocket, type ClientOptions, type CertMeta } from "ws";
 import {
   clearDeviceAuthToken,
@@ -13,7 +16,14 @@ import {
   publicKeyRawBase64UrlFromPem,
   signDevicePayload,
 } from "../infra/device-identity.js";
+<<<<<<< HEAD
 import { dangerouslyBypassManagedProxyForGatewayLoopbackControlPlane } from "../infra/net/proxy/proxy-lifecycle.js";
+=======
+import {
+  ensureInheritedManagedProxyRoutingActive,
+  withManagedProxyGatewayLoopbackRouting,
+} from "../infra/net/proxy/proxy-lifecycle.js";
+>>>>>>> upstream/main
 import { normalizeFingerprint } from "../infra/tls/fingerprint.js";
 import { rawDataToString } from "../infra/ws.js";
 import { logDebug, logError } from "../logger.js";
@@ -87,12 +97,18 @@ type FingerprintCheckingClientOptions = Omit<ClientOptions, "checkServerIdentity
   checkServerIdentity?: (servername: string, cert: CertMeta) => Error | undefined;
 };
 
+<<<<<<< HEAD
+=======
+const DEFAULT_GATEWAY_CLIENT_URL = "ws://127.0.0.1:18789";
+
+>>>>>>> upstream/main
 export type GatewayReconnectPausedInfo = {
   code: number;
   reason: string;
   detailCode: string | null;
 };
 
+<<<<<<< HEAD
 function createDirectGatewayAgent(url: string): http.Agent | https.Agent | undefined {
   let hostname: string;
   try {
@@ -106,6 +122,8 @@ function createDirectGatewayAgent(url: string): http.Agent | https.Agent | undef
   return url.startsWith("wss://") ? new https.Agent() : new http.Agent();
 }
 
+=======
+>>>>>>> upstream/main
 export class GatewayClientRequestError extends Error {
   readonly gatewayCode: string;
   readonly details?: unknown;
@@ -261,7 +279,11 @@ export class GatewayClient {
     this.clearConnectChallengeTimeout();
     this.connectNonce = null;
     this.connectSent = false;
+<<<<<<< HEAD
     const url = this.opts.url ?? "ws://127.0.0.1:18789";
+=======
+    const url = this.opts.url ?? DEFAULT_GATEWAY_CLIENT_URL;
+>>>>>>> upstream/main
     if (this.opts.tlsFingerprint && !url.startsWith("wss://")) {
       this.opts.onConnectError?.(new Error("gateway tls fingerprint requires wss:// gateway url"));
       return;
@@ -293,10 +315,16 @@ export class GatewayClient {
       return;
     }
     // Allow node screen snapshots and other large responses.
+<<<<<<< HEAD
     const directAgent = createDirectGatewayAgent(url);
     const wsOptions: FingerprintCheckingClientOptions = {
       maxPayload: 25 * 1024 * 1024,
       ...(directAgent ? { agent: directAgent } : {}),
+=======
+    ensureInheritedManagedProxyRoutingActive();
+    const wsOptions: FingerprintCheckingClientOptions = {
+      maxPayload: 25 * 1024 * 1024,
+>>>>>>> upstream/main
     };
     if (url.startsWith("wss://") && this.opts.tlsFingerprint) {
       wsOptions.rejectUnauthorized = false;
@@ -321,10 +349,17 @@ export class GatewayClient {
         return undefined;
       };
     }
+<<<<<<< HEAD
     const createWebSocket = () => new WebSocket(url, wsOptions as ClientOptions);
     const ws = directAgent
       ? dangerouslyBypassManagedProxyForGatewayLoopbackControlPlane(url, createWebSocket)
       : createWebSocket();
+=======
+    const ws = withManagedProxyGatewayLoopbackRouting(
+      url,
+      () => new WebSocket(url, wsOptions as ClientOptions),
+    );
+>>>>>>> upstream/main
     this.ws = ws;
     this.socketOpened = false;
     this.connectNonce = null;
@@ -799,7 +834,13 @@ export class GatewayClient {
     // no explicit shared token is present.
     const authToken = explicitGatewayToken ?? resolvedDeviceToken;
     const authBootstrapToken =
+<<<<<<< HEAD
       !explicitGatewayToken && !resolvedDeviceToken ? explicitBootstrapToken : undefined;
+=======
+      !explicitGatewayToken && !resolvedDeviceToken && !authPassword
+        ? explicitBootstrapToken
+        : undefined;
+>>>>>>> upstream/main
     return {
       authToken,
       authBootstrapToken,

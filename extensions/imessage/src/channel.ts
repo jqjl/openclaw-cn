@@ -1,5 +1,14 @@
 import { buildDmGroupAccountAllowlistAdapter } from "openclaw/plugin-sdk/allowlist-config-edit";
 import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  defineChannelMessageAdapter,
+  type ChannelMessageSendResult,
+  type MessageReceiptPartKind,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { buildPassiveProbedChannelStatusSummary } from "openclaw/plugin-sdk/extension-shared";
 import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
 import { sanitizeForPlainText } from "openclaw/plugin-sdk/outbound-runtime";
@@ -27,6 +36,10 @@ import {
   resolveIMessageGroupRequireMention,
   resolveIMessageGroupToolPolicy,
 } from "./group-policy.js";
+<<<<<<< HEAD
+=======
+import { sanitizeOutboundText } from "./monitor/sanitize-outbound.js";
+>>>>>>> upstream/main
 import type { IMessageProbe } from "./probe.js";
 import { imessageSetupAdapter } from "./setup-core.js";
 import {
@@ -44,6 +57,73 @@ import {
 
 const loadIMessageChannelRuntime = createLazyRuntimeModule(() => import("./channel.runtime.js"));
 
+<<<<<<< HEAD
+=======
+type IMessageMessageContextExtras = {
+  deps?: { [channelId: string]: unknown };
+};
+
+function toIMessageMessageSendResult(
+  result: { messageId?: string; receipt?: ChannelMessageSendResult["receipt"] },
+  kind: MessageReceiptPartKind,
+  replyToId?: string | null,
+): ChannelMessageSendResult {
+  const receipt =
+    result.receipt ??
+    createMessageReceiptFromOutboundResults({
+      results: result.messageId ? [{ channel: "imessage", messageId: result.messageId }] : [],
+      kind,
+      ...(replyToId ? { replyToId } : {}),
+    });
+  return {
+    messageId: result.messageId || receipt.primaryPlatformMessageId,
+    receipt,
+  };
+}
+
+const imessageMessageAdapter = defineChannelMessageAdapter({
+  id: "imessage",
+  durableFinal: {
+    capabilities: {
+      text: true,
+      media: true,
+      replyTo: true,
+      messageSendingHooks: true,
+    },
+  },
+  send: {
+    text: async (ctx) => {
+      const result = await (
+        await loadIMessageChannelRuntime()
+      ).sendIMessageOutbound({
+        cfg: ctx.cfg,
+        to: ctx.to,
+        text: ctx.text,
+        accountId: ctx.accountId ?? undefined,
+        deps: (ctx as typeof ctx & IMessageMessageContextExtras).deps,
+        replyToId: ctx.replyToId ?? undefined,
+      });
+      return toIMessageMessageSendResult(result, "text", ctx.replyToId);
+    },
+    media: async (ctx) => {
+      const result = await (
+        await loadIMessageChannelRuntime()
+      ).sendIMessageOutbound({
+        cfg: ctx.cfg,
+        to: ctx.to,
+        text: ctx.text,
+        mediaUrl: ctx.mediaUrl,
+        mediaLocalRoots: ctx.mediaLocalRoots,
+        accountId: ctx.accountId ?? undefined,
+        deps: (ctx as typeof ctx & IMessageMessageContextExtras).deps,
+        replyToId: ctx.replyToId ?? undefined,
+      });
+      return toIMessageMessageSendResult(result, "media", ctx.replyToId);
+    },
+  },
+});
+
+>>>>>>> upstream/main
 function buildIMessageBaseSessionKey(params: {
   cfg: Parameters<typeof resolveIMessageAccount>[0]["cfg"];
   agentId: string;
@@ -228,6 +308,10 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount, IMessageProb
           }
         },
       },
+<<<<<<< HEAD
+=======
+      message: imessageMessageAdapter,
+>>>>>>> upstream/main
     },
     pairing: {
       text: {
@@ -244,7 +328,19 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount, IMessageProb
         chunker: chunkTextForOutbound,
         chunkerMode: "text",
         textChunkLimit: 4000,
+<<<<<<< HEAD
         sanitizeText: ({ text }) => sanitizeForPlainText(text),
+=======
+        sanitizeText: ({ text }) => sanitizeForPlainText(sanitizeOutboundText(text)),
+        deliveryCapabilities: {
+          durableFinal: {
+            text: true,
+            media: true,
+            replyTo: true,
+            messageSendingHooks: true,
+          },
+        },
+>>>>>>> upstream/main
       },
       attachedResults: {
         channel: "imessage",

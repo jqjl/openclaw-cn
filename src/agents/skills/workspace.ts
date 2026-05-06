@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import fs, { type Dirent } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+=======
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import type { OpenClawConfig } from "../../config/types.openclaw.js";
+import { walkDirectorySync } from "../../infra/fs-safe.js";
+>>>>>>> upstream/main
 import { resolveOsHomeDir } from "../../infra/home-dir.js";
 import { isPathInside } from "../../infra/path-guards.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -181,6 +189,7 @@ function listChildDirectories(
     opts?.maxRawEntriesToScan === undefined
       ? resolveRawEntryScanLimit(opts?.maxCandidateDirs)
       : Math.max(0, opts.maxRawEntriesToScan);
+<<<<<<< HEAD
   try {
     const dirs: string[] = [];
     let scannedEntryCount = 0;
@@ -219,6 +228,23 @@ function listChildDirectories(
   } catch {
     return { dirs: [], scannedEntryCount: 0, truncated: false };
   }
+=======
+  const scan = walkDirectorySync(dir, {
+    maxDepth: 1,
+    maxEntries: maxRawEntriesToScan,
+    symlinks: "follow",
+    include: (entry) =>
+      entry.kind === "directory" && !entry.name.startsWith(".") && entry.name !== "node_modules",
+  });
+  if (scan.scannedEntryCount === 0 && scan.entries.length === 0) {
+    return { dirs: [], scannedEntryCount: 0, truncated: false };
+  }
+  return {
+    dirs: scan.entries.map((entry) => entry.name),
+    scannedEntryCount: scan.scannedEntryCount,
+    truncated: scan.truncated,
+  };
+>>>>>>> upstream/main
 }
 
 function resolveRawEntryScanLimit(maxCandidateDirs: number | undefined): number {

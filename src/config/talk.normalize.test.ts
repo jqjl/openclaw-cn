@@ -31,6 +31,22 @@ describe("talk normalization", () => {
           custom: true,
         },
       },
+<<<<<<< HEAD
+=======
+      realtime: {
+        provider: "openai",
+        providers: {
+          openai: {
+            model: "gpt-realtime",
+          },
+        },
+        model: "gpt-realtime",
+        voice: "alloy",
+        mode: "realtime",
+        transport: "webrtc",
+        brain: "agent-consult",
+      },
+>>>>>>> upstream/main
       interruptOnSpeech: true,
     });
 
@@ -42,6 +58,22 @@ describe("talk normalization", () => {
           custom: true,
         },
       },
+<<<<<<< HEAD
+=======
+      realtime: {
+        provider: "openai",
+        providers: {
+          openai: {
+            model: "gpt-realtime",
+          },
+        },
+        model: "gpt-realtime",
+        voice: "alloy",
+        mode: "realtime",
+        transport: "webrtc",
+        brain: "agent-consult",
+      },
+>>>>>>> upstream/main
       interruptOnSpeech: true,
     });
   });
@@ -103,6 +135,48 @@ describe("talk normalization", () => {
     });
   });
 
+<<<<<<< HEAD
+=======
+  it("does not report an active provider when the configured speech provider cannot resolve", () => {
+    const mismatchPayload = buildTalkConfigResponse({
+      provider: "acme",
+      providers: {
+        elevenlabs: {
+          voiceId: "voice-123",
+        },
+      },
+    });
+    expect(mismatchPayload).toEqual({
+      providers: {
+        elevenlabs: {
+          voiceId: "voice-123",
+        },
+      },
+    });
+
+    const ambiguousPayload = buildTalkConfigResponse({
+      providers: {
+        acme: {
+          voiceId: "voice-acme",
+        },
+        elevenlabs: {
+          voiceId: "voice-123",
+        },
+      },
+    });
+    expect(ambiguousPayload).toEqual({
+      providers: {
+        acme: {
+          voiceId: "voice-acme",
+        },
+        elevenlabs: {
+          voiceId: "voice-123",
+        },
+      },
+    });
+  });
+
+>>>>>>> upstream/main
   it("preserves SecretRef apiKey values during normalization", () => {
     const normalized = normalizeTalkSection({
       provider: TALK_TEST_PROVIDER_ID,

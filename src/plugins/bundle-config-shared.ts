@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 import { applyMergePatch } from "../config/merge-patch.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { matchBoundaryFileOpenFailure, openBoundaryFileSync } from "../infra/boundary-file-read.js";
 import { isRecord } from "../utils.js";
+=======
+import { applyMergePatch } from "../config/merge-patch.js";
+import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { matchRootFileOpenFailure, type RootFileOpenFailure } from "../infra/boundary-file-read.js";
+import { readRootJsonObjectSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { normalizePluginsConfig, resolveEffectivePluginActivationState } from "./config-state.js";
 import type { PluginBundleFormat } from "./manifest-types.js";
 import { loadPluginManifestRegistryForPluginRegistry } from "./plugin-registry.js";
@@ -22,6 +29,7 @@ export type BundleServerRuntimeSupport = {
 export function readBundleJsonObject(params: {
   rootDir: string;
   relativePath: string;
+<<<<<<< HEAD
   onOpenFailure?: (
     failure: Extract<ReturnType<typeof openBoundaryFileSync>, { ok: false }>,
   ) => ReadBundleJsonResult;
@@ -55,6 +63,31 @@ export function resolveBundleJsonOpenFailure(params: {
   allowMissing?: boolean;
 }): ReadBundleJsonResult {
   return matchBoundaryFileOpenFailure(params.failure, {
+=======
+  onOpenFailure?: (failure: RootFileOpenFailure) => ReadBundleJsonResult;
+}): ReadBundleJsonResult {
+  const result = readRootJsonObjectSync({
+    rootDir: params.rootDir,
+    relativePath: params.relativePath,
+    boundaryLabel: "plugin root",
+    rejectHardlinks: true,
+  });
+  if (result.ok) {
+    return { ok: true, raw: result.value };
+  }
+  if (result.reason === "open") {
+    return params.onOpenFailure?.(result.failure) ?? { ok: true, raw: {} };
+  }
+  return { ok: false, error: result.error };
+}
+
+export function resolveBundleJsonOpenFailure(params: {
+  failure: RootFileOpenFailure;
+  relativePath: string;
+  allowMissing?: boolean;
+}): ReadBundleJsonResult {
+  return matchRootFileOpenFailure(params.failure, {
+>>>>>>> upstream/main
     path: () => {
       if (params.allowMissing) {
         return { ok: true, raw: {} };

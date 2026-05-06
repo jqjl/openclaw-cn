@@ -288,4 +288,9 @@ export type OutboundCallOptions = {
   mode?: CallMode;
   /** DTMF digits to send after the call is connected */
   dtmfSequence?: string;
+<<<<<<< HEAD
+=======
+  /** Session that initiated the call, used for agent context/delegated message routing */
+  requesterSessionKey?: string;
+>>>>>>> upstream/main
 };

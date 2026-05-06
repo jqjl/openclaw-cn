@@ -148,6 +148,14 @@
       "help": "Controls the shared openclaw_agent_consult tool.",
       "advanced": true
     },
+<<<<<<< HEAD
+=======
+    "realtime.consultPolicy": {
+      "label": "Realtime Consult Policy",
+      "help": "Guides when the realtime voice model should call openclaw_agent_consult.",
+      "advanced": true
+    },
+>>>>>>> upstream/main
     "realtime.fastContext.enabled": {
       "label": "Enable Fast Realtime Context",
       "help": "Searches memory/session context before the full consult agent.",
@@ -169,6 +177,34 @@
       "label": "Fallback To Full Consult",
       "advanced": true
     },
+<<<<<<< HEAD
+=======
+    "realtime.agentContext.enabled": {
+      "label": "Enable Agent Voice Context",
+      "help": "Injects a compact agent identity, system prompt, and workspace context capsule into realtime voice instructions.",
+      "advanced": true
+    },
+    "realtime.agentContext.maxChars": {
+      "label": "Agent Voice Context Limit",
+      "advanced": true
+    },
+    "realtime.agentContext.includeIdentity": {
+      "label": "Include Agent Identity",
+      "advanced": true
+    },
+    "realtime.agentContext.includeSystemPrompt": {
+      "label": "Include Agent System Prompt",
+      "advanced": true
+    },
+    "realtime.agentContext.includeWorkspaceFiles": {
+      "label": "Include Agent Workspace Files",
+      "advanced": true
+    },
+    "realtime.agentContext.files": {
+      "label": "Agent Voice Context Files",
+      "advanced": true
+    },
+>>>>>>> upstream/main
     "realtime.providers": {
       "label": "Realtime Provider Config",
       "advanced": true
@@ -481,6 +517,13 @@
             "type": "string",
             "enum": ["safe-read-only", "owner", "none"]
           },
+<<<<<<< HEAD
+=======
+          "consultPolicy": {
+            "type": "string",
+            "enum": ["auto", "substantive", "always"]
+          },
+>>>>>>> upstream/main
           "tools": {
             "type": "array",
             "items": {
@@ -550,6 +593,38 @@
               }
             }
           },
+<<<<<<< HEAD
+=======
+          "agentContext": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "maxChars": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "includeIdentity": {
+                "type": "boolean"
+              },
+              "includeSystemPrompt": {
+                "type": "boolean"
+              },
+              "includeWorkspaceFiles": {
+                "type": "boolean"
+              },
+              "files": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+>>>>>>> upstream/main
           "providers": {
             "type": "object",
             "additionalProperties": {

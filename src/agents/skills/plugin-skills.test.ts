@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import fsSync from "node:fs";
+=======
+import fsSync, { type Dirent } from "node:fs";
+>>>>>>> upstream/main
 import fs from "node:fs/promises";
 import path from "node:path";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
@@ -366,7 +370,22 @@ describe("resolvePluginSkillDirs", () => {
 });
 
 describe("publishPluginSkills", () => {
+<<<<<<< HEAD
   const { publishPluginSkills } = __testing;
+=======
+  const { isGeneratedPluginSkillEntry, publishPluginSkills, resolvePluginSkillLinkType } =
+    __testing;
+
+  function withPlatform<T>(platform: NodeJS.Platform, fn: () => T): T {
+    const originalPlatform = process.platform;
+    Object.defineProperty(process, "platform", { configurable: true, value: platform });
+    try {
+      return fn();
+    } finally {
+      Object.defineProperty(process, "platform", { configurable: true, value: originalPlatform });
+    }
+  }
+>>>>>>> upstream/main
 
   async function writeSkillDir(
     parentDir: string,
@@ -399,6 +418,15 @@ describe("publishPluginSkills", () => {
     expect(fsSync.readlinkSync(linkB)).toBe(dirB);
   });
 
+<<<<<<< HEAD
+=======
+  it("uses junction links for plugin skill directories on Windows", async () => {
+    expect(resolvePluginSkillLinkType("win32")).toBe("junction");
+    expect(resolvePluginSkillLinkType("linux")).toBe("dir");
+    expect(resolvePluginSkillLinkType("darwin")).toBe("dir");
+  });
+
+>>>>>>> upstream/main
   it("is idempotent: skips symlinks that already point to the same target", async () => {
     const skillParent = await tempDirs.make("plugin-skills-");
     const managedDir = await tempDirs.make("managed-skills-");
@@ -446,6 +474,40 @@ describe("publishPluginSkills", () => {
     expect(fsSync.existsSync(path.join(managedDir, "stale-skill"))).toBe(false);
   });
 
+<<<<<<< HEAD
+=======
+  it("cleans up stale generated junction-like directories on Windows", async () => {
+    const skillParent = await tempDirs.make("plugin-skills-");
+    const managedDir = await tempDirs.make("managed-skills-");
+
+    const dir = await writeSkillDir(skillParent, "current-skill");
+    const staleDir = path.join(managedDir, "stale-skill");
+    await fs.mkdir(staleDir, { recursive: true });
+
+    await withPlatform("win32", async () => {
+      publishPluginSkills([dir], { pluginSkillsDir: managedDir });
+    });
+
+    expect(fsSync.existsSync(path.join(managedDir, "current-skill"))).toBe(true);
+    expect(fsSync.existsSync(staleDir)).toBe(false);
+  });
+
+  it("treats Windows directory entries as generated plugin skill entries", () => {
+    const directoryEntry = {
+      isDirectory: () => true,
+      isSymbolicLink: () => false,
+    } as Dirent;
+    const regularEntry = {
+      isDirectory: () => false,
+      isSymbolicLink: () => false,
+    } as Dirent;
+
+    expect(withPlatform("win32", () => isGeneratedPluginSkillEntry(directoryEntry))).toBe(true);
+    expect(withPlatform("linux", () => isGeneratedPluginSkillEntry(directoryEntry))).toBe(false);
+    expect(withPlatform("win32", () => isGeneratedPluginSkillEntry(regularEntry))).toBe(false);
+  });
+
+>>>>>>> upstream/main
   it("cleans up broken symlinks (dangling)", async () => {
     const skillParent = await tempDirs.make("plugin-skills-");
     const managedDir = await tempDirs.make("managed-skills-");

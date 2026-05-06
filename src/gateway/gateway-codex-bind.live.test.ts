@@ -4,6 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { describe, it } from "vitest";
 import { isLiveTestEnabled } from "../agents/live-test-helpers.js";
+<<<<<<< HEAD
+=======
+import type { ChannelOutboundContext } from "../channels/plugins/types.public.js";
+>>>>>>> upstream/main
 import { clearConfigCache, clearRuntimeConfigSnapshot } from "../config/config.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { isTruthyEnvValue } from "../infra/env.js";
@@ -31,7 +35,18 @@ const CODEX_BIND_TIMEOUT_MS = 10 * 60_000;
 const CODEX_BIND_REQUEST_TIMEOUT_MS = 180_000;
 const DEFAULT_CODEX_BIND_MODEL = "gpt-5.4";
 
+<<<<<<< HEAD
 function createSlackCurrentConversationBindingRegistry() {
+=======
+type CapturedOutboundReply = {
+  accountId?: string;
+  text: string;
+  threadId?: string | number;
+  to: string;
+};
+
+function createSlackCurrentConversationBindingRegistry(outboundReplies: CapturedOutboundReply[]) {
+>>>>>>> upstream/main
   return createTestRegistry([
     {
       pluginId: "slack",
@@ -54,6 +69,21 @@ function createSlackCurrentConversationBindingRegistry() {
         conversationBindings: {
           supportsCurrentConversationBinding: true,
         },
+<<<<<<< HEAD
+=======
+        outbound: {
+          deliveryMode: "direct",
+          sendText: async ({ accountId, text, threadId, to }: ChannelOutboundContext) => {
+            outboundReplies.push({
+              ...(accountId ? { accountId } : {}),
+              text,
+              ...(threadId != null ? { threadId } : {}),
+              to,
+            });
+            return { channel: "slack", messageId: `slack-${outboundReplies.length}` };
+          },
+        },
+>>>>>>> upstream/main
         bindings: {
           compileConfiguredBinding: () => null,
           matchInboundConversation: () => null,
@@ -104,6 +134,39 @@ function formatAssistantTextPreview(texts: string[], maxChars = 800): string {
   return combined.length <= maxChars ? combined : combined.slice(-maxChars);
 }
 
+<<<<<<< HEAD
+=======
+async function waitForOutboundText(params: {
+  replies: CapturedOutboundReply[];
+  contains: string;
+  minReplyCount?: number;
+  timeoutMs?: number;
+}): Promise<{ outboundTexts: string[]; matchedText: string }> {
+  const timeoutMs = params.timeoutMs ?? 60_000;
+  const startedAt = Date.now();
+
+  while (Date.now() - startedAt < timeoutMs) {
+    const outboundTexts = params.replies
+      .map((reply) => reply.text)
+      .filter((value) => value.trim().length > 0);
+    const minReplyCount = params.minReplyCount ?? 1;
+    const matchedText = outboundTexts
+      .slice(Math.max(0, minReplyCount - 1))
+      .find((text) => text.includes(params.contains));
+    if (outboundTexts.length >= minReplyCount && matchedText) {
+      return { outboundTexts, matchedText };
+    }
+    await sleep(500);
+  }
+
+  throw new Error(
+    `timed out waiting for outbound text containing ${params.contains}: ${formatAssistantTextPreview(
+      params.replies.map((reply) => reply.text),
+    )}`,
+  );
+}
+
+>>>>>>> upstream/main
 function restoreEnvVar(name: string, value: string | undefined): void {
   if (value === undefined) {
     delete process.env[name];
@@ -131,6 +194,10 @@ async function sendChatAndWait(params: {
   originatingChannel: string;
   originatingTo: string;
   originatingAccountId: string;
+<<<<<<< HEAD
+=======
+  deliver?: boolean;
+>>>>>>> upstream/main
   attachments?: Array<{
     mimeType: string;
     fileName: string;
@@ -144,6 +211,10 @@ async function sendChatAndWait(params: {
     originatingChannel: params.originatingChannel,
     originatingTo: params.originatingTo,
     originatingAccountId: params.originatingAccountId,
+<<<<<<< HEAD
+=======
+    deliver: params.deliver,
+>>>>>>> upstream/main
     attachments: params.attachments,
   });
   if (started?.status !== "started" || typeof started.runId !== "string") {
@@ -291,6 +362,10 @@ async function writeGatewayConfig(params: {
         agentRuntime: { id: "codex" },
         model: { primary: `codex/${params.model}` },
         skipBootstrap: true,
+<<<<<<< HEAD
+=======
+        heartbeat: { every: "0m" },
+>>>>>>> upstream/main
         sandbox: { mode: "off" },
       },
     },
@@ -326,6 +401,10 @@ describeLive("gateway live (native Codex conversation binding)", () => {
       const conversationId = `user:${slackUserId}`;
       const bindModel =
         process.env.OPENCLAW_LIVE_CODEX_BIND_MODEL?.trim() || DEFAULT_CODEX_BIND_MODEL;
+<<<<<<< HEAD
+=======
+      const outboundReplies: CapturedOutboundReply[] = [];
+>>>>>>> upstream/main
 
       await fs.mkdir(workspace, { recursive: true });
       await fs.writeFile(
@@ -373,7 +452,11 @@ describeLive("gateway live (native Codex conversation binding)", () => {
         requestTimeoutMs: CODEX_BIND_REQUEST_TIMEOUT_MS,
         clientDisplayName: "vitest-codex-bind-live",
       });
+<<<<<<< HEAD
       const channelRegistry = createSlackCurrentConversationBindingRegistry();
+=======
+      const channelRegistry = createSlackCurrentConversationBindingRegistry(outboundReplies);
+>>>>>>> upstream/main
       pinActivePluginChannelRegistry(channelRegistry);
 
       try {
@@ -392,10 +475,17 @@ describeLive("gateway live (native Codex conversation binding)", () => {
           originatingChannel: "slack",
           originatingTo: conversationId,
           originatingAccountId: accountId,
+<<<<<<< HEAD
         });
         const bindHistory = await waitForAssistantText({
           client,
           sessionKey,
+=======
+          deliver: true,
+        });
+        const bindReply = await waitForOutboundText({
+          replies: outboundReplies,
+>>>>>>> upstream/main
           contains: "Bound this conversation to Codex thread",
           timeoutMs: CODEX_BIND_REQUEST_TIMEOUT_MS,
         });
@@ -404,7 +494,11 @@ describeLive("gateway live (native Codex conversation binding)", () => {
           accountId,
           conversationId,
         });
+<<<<<<< HEAD
         let commandAssistantCount = bindHistory.assistantTexts.length;
+=======
+        let commandReplyCount = bindReply.outboundTexts.length;
+>>>>>>> upstream/main
 
         const sendCodexCommand = async (message: string, contains: string, timeoutMs = 60_000) => {
           await sendChatAndWait({
@@ -415,6 +509,7 @@ describeLive("gateway live (native Codex conversation binding)", () => {
             originatingChannel: "slack",
             originatingTo: conversationId,
             originatingAccountId: accountId,
+<<<<<<< HEAD
           });
           const result = await waitForAssistantText({
             client,
@@ -424,6 +519,17 @@ describeLive("gateway live (native Codex conversation binding)", () => {
             timeoutMs,
           });
           commandAssistantCount = result.assistantTexts.length;
+=======
+            deliver: true,
+          });
+          const result = await waitForOutboundText({
+            replies: outboundReplies,
+            contains,
+            minReplyCount: commandReplyCount + 1,
+            timeoutMs,
+          });
+          commandReplyCount = result.outboundTexts.length;
+>>>>>>> upstream/main
           return result;
         };
 
@@ -441,9 +547,15 @@ describeLive("gateway live (native Codex conversation binding)", () => {
         await sendCodexCommand("/codex stop", "No active Codex run to stop.");
 
         const bindingStatus = await sendCodexCommand("/codex binding", "- Fast: on");
+<<<<<<< HEAD
         if (!bindingStatus.matchedAssistantText.includes("- Permissions: default")) {
           throw new Error(
             `binding status did not include default permissions: ${bindingStatus.matchedAssistantText}`,
+=======
+        if (!bindingStatus.matchedText.includes("- Permissions: default")) {
+          throw new Error(
+            `binding status did not include default permissions: ${bindingStatus.matchedText}`,
+>>>>>>> upstream/main
           );
         }
 

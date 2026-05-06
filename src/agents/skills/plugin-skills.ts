@@ -2,12 +2,20 @@ import fs from "node:fs";
 import path from "node:path";
 import { isAcpRuntimeSpawnAvailable } from "../../acp/runtime/availability.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import { walkDirectorySync } from "../../infra/fs-safe.js";
+>>>>>>> upstream/main
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import {
   normalizePluginsConfigWithResolver,
   resolveEffectivePluginActivationState,
   resolveMemorySlotDecision,
 } from "../../plugins/config-policy.js";
+<<<<<<< HEAD
+=======
+import { getCurrentPluginMetadataSnapshot } from "../../plugins/current-plugin-metadata-snapshot.js";
+>>>>>>> upstream/main
 import { loadPluginMetadataSnapshot } from "../../plugins/plugin-metadata-snapshot.js";
 import { hasKind } from "../../plugins/slots.js";
 import { isPathInsideWithRealpath } from "../../security/scan-paths.js";
@@ -15,6 +23,11 @@ import { CONFIG_DIR } from "../../utils.js";
 
 const log = createSubsystemLogger("skills");
 
+<<<<<<< HEAD
+=======
+type PluginSkillLinkType = "dir" | "junction";
+
+>>>>>>> upstream/main
 export function resolvePluginSkillDirs(params: {
   workspaceDir: string | undefined;
   config?: OpenClawConfig;
@@ -25,11 +38,26 @@ export function resolvePluginSkillDirs(params: {
   if (!workspaceDir) {
     return [];
   }
+<<<<<<< HEAD
   const metadataSnapshot = loadPluginMetadataSnapshot({
     workspaceDir,
     config: params.config ?? {},
     env: process.env,
   });
+=======
+  const config = params.config ?? {};
+  const metadataSnapshot =
+    getCurrentPluginMetadataSnapshot({
+      config,
+      env: process.env,
+      workspaceDir,
+    }) ??
+    loadPluginMetadataSnapshot({
+      workspaceDir,
+      config,
+      env: process.env,
+    });
+>>>>>>> upstream/main
   const registry = metadataSnapshot.manifestRegistry;
   if (registry.plugins.length === 0) {
     publishPluginSkills([], {
@@ -38,10 +66,17 @@ export function resolvePluginSkillDirs(params: {
     return [];
   }
   const normalizedPlugins = normalizePluginsConfigWithResolver(
+<<<<<<< HEAD
     params.config?.plugins,
     metadataSnapshot.normalizePluginId,
   );
   const acpRuntimeAvailable = isAcpRuntimeSpawnAvailable({ config: params.config });
+=======
+    config.plugins,
+    metadataSnapshot.normalizePluginId,
+  );
+  const acpRuntimeAvailable = isAcpRuntimeSpawnAvailable({ config });
+>>>>>>> upstream/main
   const memorySlot = normalizedPlugins.slots.memory;
   let selectedMemoryPluginId: string | null = null;
   const seen = new Set<string>();
@@ -55,7 +90,11 @@ export function resolvePluginSkillDirs(params: {
       id: record.id,
       origin: record.origin,
       config: normalizedPlugins,
+<<<<<<< HEAD
       rootConfig: params.config,
+=======
+      rootConfig: config,
+>>>>>>> upstream/main
       enabledByDefault: record.enabledByDefault,
     });
     if (!activationState.activated) {
@@ -110,6 +149,15 @@ function resolveDefaultPluginSkillsDir(): string {
   return path.join(CONFIG_DIR, "plugin-skills");
 }
 
+<<<<<<< HEAD
+=======
+function resolvePluginSkillLinkType(
+  platform: NodeJS.Platform = process.platform,
+): PluginSkillLinkType {
+  return platform === "win32" ? "junction" : "dir";
+}
+
+>>>>>>> upstream/main
 /**
  * Collect skill dir targets from a resolved directory.
  * If the directory contains a direct SKILL.md it is published as-is.
@@ -130,6 +178,7 @@ function collectSkillTargets(dir: string, targets: Map<string, string>): void {
     return;
   }
 
+<<<<<<< HEAD
   let entries: fs.Dirent[];
   try {
     entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -139,6 +188,15 @@ function collectSkillTargets(dir: string, targets: Map<string, string>): void {
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const childPath = path.join(dir, entry.name);
+=======
+  const entries = walkDirectorySync(dir, {
+    maxDepth: 1,
+    symlinks: "skip",
+    include: (entry) => entry.kind === "directory",
+  }).entries;
+  for (const entry of entries) {
+    const childPath = entry.path;
+>>>>>>> upstream/main
     if (!hasPublishableSkillFile({ skillDir: childPath, rootDir: dir })) continue;
     const basename = entry.name;
     const existing = targets.get(basename);
@@ -206,7 +264,11 @@ function publishPluginSkills(skillDirs: string[], opts?: { pluginSkillsDir?: str
       if (existingTarget === target) {
         continue;
       }
+<<<<<<< HEAD
       fs.unlinkSync(linkPath);
+=======
+      removeGeneratedPluginSkillEntry(linkPath);
+>>>>>>> upstream/main
     } catch (err) {
       if (!isNotFoundError(err)) {
         log.warn(`failed to inspect plugin skill symlink "${linkPath}": ${String(err)}`);
@@ -214,7 +276,11 @@ function publishPluginSkills(skillDirs: string[], opts?: { pluginSkillsDir?: str
       }
     }
     try {
+<<<<<<< HEAD
       fs.symlinkSync(target, linkPath, "dir");
+=======
+      fs.symlinkSync(target, linkPath, resolvePluginSkillLinkType());
+>>>>>>> upstream/main
     } catch (err) {
       log.warn(`failed to create plugin skill symlink "${linkPath}" → "${target}": ${String(err)}`);
     }
@@ -230,18 +296,38 @@ function publishPluginSkills(skillDirs: string[], opts?: { pluginSkillsDir?: str
     return;
   }
   for (const entry of existingEntries) {
+<<<<<<< HEAD
     if (!entry.isSymbolicLink()) {
+=======
+    if (!isGeneratedPluginSkillEntry(entry)) {
+>>>>>>> upstream/main
       continue;
     }
     if (managedTargets.has(entry.name)) {
       continue;
     }
     const linkPath = path.join(pluginSkillsDir, entry.name);
+<<<<<<< HEAD
     try {
       fs.unlinkSync(linkPath);
     } catch {
       // best-effort cleanup
     }
+=======
+    removeGeneratedPluginSkillEntry(linkPath);
+  }
+}
+
+function isGeneratedPluginSkillEntry(entry: fs.Dirent): boolean {
+  return entry.isSymbolicLink() || (process.platform === "win32" && entry.isDirectory());
+}
+
+function removeGeneratedPluginSkillEntry(linkPath: string): void {
+  try {
+    fs.rmSync(linkPath, { recursive: true, force: true });
+  } catch {
+    // best-effort cleanup
+>>>>>>> upstream/main
   }
 }
 
@@ -254,5 +340,11 @@ function isNotFoundError(err: unknown): boolean {
 }
 
 export const __testing = {
+<<<<<<< HEAD
   publishPluginSkills,
+=======
+  isGeneratedPluginSkillEntry,
+  publishPluginSkills,
+  resolvePluginSkillLinkType,
+>>>>>>> upstream/main
 };

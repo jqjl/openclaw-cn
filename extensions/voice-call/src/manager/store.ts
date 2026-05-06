@@ -1,6 +1,15 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
+=======
+import path from "node:path";
+import {
+  appendRegularFile,
+  privateFileStore,
+  privateFileStoreSync,
+} from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { CallRecordSchema, TerminalStates, type CallId, type CallRecord } from "../types.js";
 
 const pendingPersistWrites = new Set<Promise<void>>();
@@ -9,8 +18,16 @@ export function persistCallRecord(storePath: string, call: CallRecord): void {
   const logPath = path.join(storePath, "calls.jsonl");
   const line = `${JSON.stringify(call)}\n`;
   // Fire-and-forget async write to avoid blocking event loop.
+<<<<<<< HEAD
   const write = fsp
     .appendFile(logPath, line)
+=======
+  const write = appendRegularFile({
+    filePath: logPath,
+    content: line,
+    rejectSymlinkParents: true,
+  })
+>>>>>>> upstream/main
     .catch((err) => {
       console.error("[voice-call] Failed to persist call record:", err);
     })
@@ -31,7 +48,12 @@ export function loadActiveCallsFromStore(storePath: string): {
   rejectedProviderCallIds: Set<string>;
 } {
   const logPath = path.join(storePath, "calls.jsonl");
+<<<<<<< HEAD
   if (!fs.existsSync(logPath)) {
+=======
+  const content = privateFileStoreSync(storePath).readTextIfExists(path.basename(logPath));
+  if (content === null) {
+>>>>>>> upstream/main
     return {
       activeCalls: new Map(),
       providerCallIdMap: new Map(),
@@ -39,8 +61,11 @@ export function loadActiveCallsFromStore(storePath: string): {
       rejectedProviderCallIds: new Set(),
     };
   }
+<<<<<<< HEAD
 
   const content = fs.readFileSync(logPath, "utf-8");
+=======
+>>>>>>> upstream/main
   const lines = content.split("\n");
 
   const callMap = new Map<CallId, CallRecord>();
@@ -82,6 +107,7 @@ export async function getCallHistoryFromStore(
   limit = 50,
 ): Promise<CallRecord[]> {
   const logPath = path.join(storePath, "calls.jsonl");
+<<<<<<< HEAD
 
   try {
     await fsp.access(logPath);
@@ -90,6 +116,12 @@ export async function getCallHistoryFromStore(
   }
 
   const content = await fsp.readFile(logPath, "utf-8");
+=======
+  const content = await privateFileStore(storePath).readTextIfExists(path.basename(logPath));
+  if (content === null) {
+    return [];
+  }
+>>>>>>> upstream/main
   const lines = content.trim().split("\n").filter(Boolean);
   const calls: CallRecord[] = [];
 

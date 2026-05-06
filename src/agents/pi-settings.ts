@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { AgentCompactionMode } from "../config/types.agent-defaults.js";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import type { ContextEngineInfo } from "../context-engine/types.js";
 import { MIN_PROMPT_BUDGET_RATIO, MIN_PROMPT_BUDGET_TOKENS } from "./pi-compaction-constants.js";
@@ -124,6 +128,18 @@ export function applyPiCompactionSettingsFromConfig(params: {
   };
 }
 
+<<<<<<< HEAD
+=======
+/** Resolve the compaction mode after provider-backed safeguard promotion. */
+export function resolveEffectiveCompactionMode(cfg?: OpenClawConfig): AgentCompactionMode {
+  const compaction = cfg?.agents?.defaults?.compaction;
+  if (compaction?.provider) {
+    return "safeguard";
+  }
+  return compaction?.mode === "safeguard" ? "safeguard" : "default";
+}
+
+>>>>>>> upstream/main
 /**
  * Detect providers whose pi-ai `isContextOverflow` Case 2 (silent overflow)
  * fires on a successful turn and triggers Pi's `_runAutoCompaction` from
@@ -171,6 +187,7 @@ export function isSilentOverflowProneModel(model: {
  * Disable Pi's `_checkCompaction → _runAutoCompaction` (which would otherwise
  * fire from inside `Session.prompt()` and reassign `agent.state.messages`
  * before the provider call) when OpenClaw or a plugin owns compaction:
+<<<<<<< HEAD
  * `contextEngineInfo.ownsCompaction === true`, or the active model is
  * silent-overflow-prone (openclaw#75799). Default-mode runs against ordinary
  * providers keep Pi's auto-compaction as the existing baseline.
@@ -181,6 +198,22 @@ function shouldDisablePiAutoCompaction(params: {
 }): boolean {
   return (
     params.contextEngineInfo?.ownsCompaction === true || params.silentOverflowProneProvider === true
+=======
+ * `contextEngineInfo.ownsCompaction === true`, effective safeguard compaction,
+ * or an active model that is silent-overflow-prone (openclaw#75799).
+ * Default-mode runs against ordinary providers keep Pi's auto-compaction as
+ * the existing baseline.
+ */
+export function shouldDisablePiAutoCompaction(params: {
+  contextEngineInfo?: ContextEngineInfo;
+  compactionMode?: AgentCompactionMode;
+  silentOverflowProneProvider?: boolean;
+}): boolean {
+  return (
+    params.contextEngineInfo?.ownsCompaction === true ||
+    params.compactionMode === "safeguard" ||
+    params.silentOverflowProneProvider === true
+>>>>>>> upstream/main
   );
 }
 
@@ -194,10 +227,18 @@ function shouldDisablePiAutoCompaction(params: {
 export function applyPiAutoCompactionGuard(params: {
   settingsManager: PiSettingsManagerLike;
   contextEngineInfo?: ContextEngineInfo;
+<<<<<<< HEAD
+=======
+  compactionMode?: AgentCompactionMode;
+>>>>>>> upstream/main
   silentOverflowProneProvider?: boolean;
 }): { supported: boolean; disabled: boolean } {
   const disable = shouldDisablePiAutoCompaction({
     contextEngineInfo: params.contextEngineInfo,
+<<<<<<< HEAD
+=======
+    compactionMode: params.compactionMode,
+>>>>>>> upstream/main
     silentOverflowProneProvider: params.silentOverflowProneProvider,
   });
   const hasMethod = typeof params.settingsManager.setCompactionEnabled === "function";

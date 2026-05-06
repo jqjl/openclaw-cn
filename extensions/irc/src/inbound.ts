@@ -333,9 +333,15 @@ export async function handleIrcInbound(params: {
     CommandAuthorized: commandAuthorized,
   });
 
+<<<<<<< HEAD
   const { dispatchInboundReplyWithBase } =
     await import("openclaw/plugin-sdk/inbound-reply-dispatch");
   await dispatchInboundReplyWithBase({
+=======
+  const { dispatchChannelMessageReplyWithBase } =
+    await import("openclaw/plugin-sdk/channel-message");
+  await dispatchChannelMessageReplyWithBase({
+>>>>>>> upstream/main
     cfg: config as OpenClawConfig,
     channel: CHANNEL_ID,
     accountId: account.accountId,

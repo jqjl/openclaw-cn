@@ -4,6 +4,10 @@ import path from "node:path";
 import type { CommandContext } from "../auto-reply/reply/commands-types.js";
 import { resolveStateDir } from "../config/paths.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import { tryReadJson, writeJson } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import type { RuntimeEnv } from "../runtime.js";
 import {
   executeCrestodianOperation,
@@ -81,7 +85,14 @@ async function readPending(
   now = new Date(),
 ): Promise<RescuePendingOperation | null> {
   try {
+<<<<<<< HEAD
     const parsed = JSON.parse(await fs.readFile(pendingPath, "utf8")) as RescuePendingOperation;
+=======
+    const parsed = await tryReadJson<RescuePendingOperation>(pendingPath);
+    if (!parsed) {
+      return null;
+    }
+>>>>>>> upstream/main
     if (Date.parse(parsed.expiresAt) <= now.getTime()) {
       await fs.rm(pendingPath, { force: true });
       return null;
@@ -93,6 +104,7 @@ async function readPending(
 }
 
 async function writePending(pendingPath: string, pending: RescuePendingOperation): Promise<void> {
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(pendingPath), { recursive: true });
   await fs.writeFile(pendingPath, `${JSON.stringify(pending, null, 2)}\n`, {
     encoding: "utf8",
@@ -100,6 +112,12 @@ async function writePending(pendingPath: string, pending: RescuePendingOperation
   });
   await fs.chmod(pendingPath, 0o600).catch(() => {
     // Best-effort on platforms/filesystems without POSIX modes.
+=======
+  await writeJson(pendingPath, pending, {
+    dirMode: 0o700,
+    mode: 0o600,
+    trailingNewline: true,
+>>>>>>> upstream/main
   });
 }
 

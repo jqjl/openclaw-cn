@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptPartKind,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
 import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
 import { isPrivateNetworkOptInEnabled } from "openclaw/plugin-sdk/ssrf-runtime";
@@ -49,6 +57,10 @@ export type MattermostSendOpts = {
 export type MattermostSendResult = {
   messageId: string;
   channelId: string;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 export type MattermostReplyButtons = Array<
@@ -67,6 +79,42 @@ const dmChannelCache = new Map<string, string>();
 
 const getCore = () => getMattermostRuntime();
 
+<<<<<<< HEAD
+=======
+function createMattermostSendReceipt(params: {
+  messageId: string;
+  channelId: string;
+  kind: MessageReceiptPartKind;
+  replyToId?: string;
+}): MessageReceipt {
+  const messageIds =
+    params.messageId.trim() && params.messageId !== "unknown" ? [params.messageId] : [];
+  return createMessageReceiptFromOutboundResults({
+    kind: params.kind,
+    ...(params.replyToId ? { replyToId: params.replyToId } : {}),
+    results: messageIds.map((messageId) => ({
+      channel: "mattermost",
+      messageId,
+      channelId: params.channelId,
+    })),
+  });
+}
+
+function resolveMattermostReceiptKind(params: {
+  fileIds?: readonly string[];
+  buttons?: readonly unknown[];
+  props?: Record<string, unknown>;
+}): MessageReceiptPartKind {
+  if (params.fileIds?.length) {
+    return "media";
+  }
+  if (params.buttons?.length || params.props) {
+    return "card";
+  }
+  return "text";
+}
+
+>>>>>>> upstream/main
 function recordMattermostOutboundActivity(accountId: string): void {
   try {
     getCore().channel.activity.record({
@@ -474,9 +522,27 @@ export async function sendMessageMattermost(
   });
 
   recordMattermostOutboundActivity(accountId);
+<<<<<<< HEAD
 
   return {
     messageId: post.id ?? "unknown",
     channelId,
+=======
+  const messageId = post.id ?? "unknown";
+
+  return {
+    messageId,
+    channelId,
+    receipt: createMattermostSendReceipt({
+      messageId,
+      channelId,
+      kind: resolveMattermostReceiptKind({
+        fileIds,
+        buttons: opts.buttons,
+        props,
+      }),
+      replyToId: opts.replyToId,
+    }),
+>>>>>>> upstream/main
   };
 }

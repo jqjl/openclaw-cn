@@ -30,6 +30,14 @@ import {
 import { readRecentCodexRateLimits, rememberCodexRateLimits } from "./rate-limit-cache.js";
 import { formatCodexUsageLimitErrorMessage } from "./rate-limits.js";
 import { readCodexMirroredSessionHistoryMessages } from "./session-history.js";
+<<<<<<< HEAD
+=======
+import {
+  resolveCodexToolProgressDetailMode,
+  sanitizeCodexAgentEventRecord,
+  sanitizeCodexToolArguments,
+} from "./tool-progress-normalization.js";
+>>>>>>> upstream/main
 import { attachCodexMirrorIdentity } from "./transcript-mirror.js";
 
 export type CodexAppServerToolTelemetry = {
@@ -396,6 +404,10 @@ export class CodexAppServerEventProjector {
       });
     }
     this.emitStandardItemEvent({ phase: "start", item });
+<<<<<<< HEAD
+=======
+    this.emitNormalizedToolItemEvent({ phase: "start", item });
+>>>>>>> upstream/main
     this.emitToolResultSummary(item);
     this.emitAgentEvent({
       stream: "codex_app_server.item",
@@ -449,6 +461,10 @@ export class CodexAppServerEventProjector {
     }
     this.recordToolMeta(item);
     this.emitStandardItemEvent({ phase: "end", item });
+<<<<<<< HEAD
+=======
+    this.emitNormalizedToolItemEvent({ phase: "result", item });
+>>>>>>> upstream/main
     this.emitToolResultSummary(item);
     this.emitToolResultOutput(item);
     this.emitAgentEvent({
@@ -656,6 +672,10 @@ export class CodexAppServerEventProjector {
       return;
     }
     const meta = itemMeta(item, this.toolProgressDetailMode());
+<<<<<<< HEAD
+=======
+    const suppressChannelProgress = shouldSuppressChannelProgressForItem(item);
+>>>>>>> upstream/main
     this.emitAgentEvent({
       stream: "item",
       data: {
@@ -666,6 +686,45 @@ export class CodexAppServerEventProjector {
         status: params.phase === "start" ? "running" : itemStatus(item),
         ...(itemName(item) ? { name: itemName(item) } : {}),
         ...(meta ? { meta } : {}),
+<<<<<<< HEAD
+=======
+        ...(suppressChannelProgress ? { suppressChannelProgress: true } : {}),
+      },
+    });
+  }
+
+  private emitNormalizedToolItemEvent(params: {
+    phase: "start" | "result";
+    item: CodexThreadItem | undefined;
+  }): void {
+    const { item } = params;
+    if (!item || !shouldSynthesizeToolProgressForItem(item)) {
+      return;
+    }
+    const name = itemName(item);
+    if (!name) {
+      return;
+    }
+    const meta = itemMeta(item, this.toolProgressDetailMode());
+    const args = params.phase === "start" ? itemToolArgs(item) : undefined;
+    const status = params.phase === "result" ? itemStatus(item) : "running";
+    this.emitAgentEvent({
+      stream: "tool",
+      data: {
+        phase: params.phase,
+        name,
+        itemId: item.id,
+        toolCallId: item.id,
+        ...(meta ? { meta } : {}),
+        ...(args ? { args } : {}),
+        ...(params.phase === "result"
+          ? {
+              status,
+              isError: isNonSuccessItemStatus(status),
+              ...itemToolResult(item),
+            }
+          : {}),
+>>>>>>> upstream/main
       },
     });
   }
@@ -743,7 +802,11 @@ export class CodexAppServerEventProjector {
   }
 
   private toolProgressDetailMode(): ToolProgressDetailMode {
+<<<<<<< HEAD
     return this.params.toolProgressDetail === "raw" ? "raw" : "explain";
+=======
+    return resolveCodexToolProgressDetailMode(this.params.toolProgressDetail);
+>>>>>>> upstream/main
   }
 
   private recordToolMeta(item: CodexThreadItem | undefined): void {
@@ -1074,17 +1137,34 @@ function itemTitle(item: CodexThreadItem): string {
   }
 }
 
+<<<<<<< HEAD
 function itemStatus(item: CodexThreadItem): "completed" | "failed" | "running" {
+=======
+function itemStatus(item: CodexThreadItem): "completed" | "failed" | "running" | "blocked" {
+>>>>>>> upstream/main
   const status = readItemString(item, "status");
   if (status === "failed") {
     return "failed";
   }
+<<<<<<< HEAD
+=======
+  if (status === "declined") {
+    return "blocked";
+  }
+>>>>>>> upstream/main
   if (status === "inProgress" || status === "running") {
     return "running";
   }
   return "completed";
 }
 
+<<<<<<< HEAD
+=======
+function isNonSuccessItemStatus(status: ReturnType<typeof itemStatus>): boolean {
+  return status === "failed" || status === "blocked";
+}
+
+>>>>>>> upstream/main
 function itemName(item: CodexThreadItem): string | undefined {
   if (item.type === "dynamicToolCall" && typeof item.tool === "string") {
     return item.tool;
@@ -1105,6 +1185,81 @@ function itemName(item: CodexThreadItem): string | undefined {
   return undefined;
 }
 
+<<<<<<< HEAD
+=======
+function shouldSynthesizeToolProgressForItem(item: CodexThreadItem): boolean {
+  switch (item.type) {
+    case "commandExecution":
+    case "fileChange":
+    case "webSearch":
+    case "mcpToolCall":
+      return true;
+    default:
+      return false;
+  }
+}
+
+function shouldSuppressChannelProgressForItem(item: CodexThreadItem): boolean {
+  if (shouldSynthesizeToolProgressForItem(item)) {
+    return true;
+  }
+  // Dynamic OpenClaw tool requests are emitted at the item/tool/call request
+  // boundary in run-attempt.ts. Re-emitting item notifications to channels can
+  // duplicate start/result progress when the app-server sends both signals.
+  return item.type === "dynamicToolCall";
+}
+
+function itemToolArgs(item: CodexThreadItem): Record<string, unknown> | undefined {
+  if (item.type === "commandExecution") {
+    return sanitizeCodexAgentEventRecord({
+      command: item.command,
+      ...(typeof item.cwd === "string" ? { cwd: item.cwd } : {}),
+    });
+  }
+  if (item.type === "webSearch" && typeof item.query === "string") {
+    return sanitizeCodexAgentEventRecord({ query: item.query });
+  }
+  if (item.type === "mcpToolCall") {
+    return sanitizeCodexToolArguments(item.arguments);
+  }
+  return undefined;
+}
+
+function itemToolResult(item: CodexThreadItem): { result?: Record<string, unknown> } {
+  if (item.type === "commandExecution") {
+    return {
+      result: sanitizeCodexAgentEventRecord({
+        status: item.status,
+        exitCode: item.exitCode,
+        durationMs: item.durationMs,
+      }),
+    };
+  }
+  if (item.type === "fileChange") {
+    return {
+      result: sanitizeCodexAgentEventRecord({
+        status: item.status,
+        changes: item.changes.map((change) => ({ path: change.path, kind: change.kind })),
+      }),
+    };
+  }
+  if (item.type === "mcpToolCall") {
+    return {
+      result: sanitizeCodexAgentEventRecord({
+        status: item.status,
+        durationMs: item.durationMs,
+        ...(item.error ? { error: item.error } : {}),
+        ...(item.result ? { result: item.result } : {}),
+      }),
+    };
+  }
+  if (item.type === "webSearch") {
+    return { result: sanitizeCodexAgentEventRecord({ status: "completed" }) };
+  }
+  return {};
+}
+
+>>>>>>> upstream/main
 function itemMeta(
   item: CodexThreadItem,
   detailMode: ToolProgressDetailMode = "explain",

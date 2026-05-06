@@ -74,6 +74,10 @@ const rootBundledPluginRuntimeDependencies = [
 const config = {
   ignoreFiles: [
     "scripts/**",
+<<<<<<< HEAD
+=======
+    "packages/*/dist/**",
+>>>>>>> upstream/main
     "**/__tests__/**",
     "src/test-utils/**",
     "**/test-helpers/**",
@@ -134,6 +138,10 @@ const config = {
     bundledPluginFile("msteams", "src/polls-store-memory.ts"),
     bundledPluginFile("voice-call", "src/providers/index.ts"),
   ],
+<<<<<<< HEAD
+=======
+  ignore: ["packages/*/dist/**"],
+>>>>>>> upstream/main
   workspaces: {
     ".": {
       entry: rootEntries,
@@ -155,6 +163,13 @@ const config = {
       entry: ["index.html!", "src/main.ts!", "vite.config.ts!", "vitest*.ts!"],
       project: ["src/**/*.{ts,tsx}!"],
     },
+<<<<<<< HEAD
+=======
+    "packages/sdk": {
+      entry: ["src/index.ts!"],
+      project: ["src/**/*.ts!"],
+    },
+>>>>>>> upstream/main
     "packages/*": {
       entry: ["index.js!", "scripts/postinstall.js!"],
       project: ["index.js!", "scripts/**/*.js!"],

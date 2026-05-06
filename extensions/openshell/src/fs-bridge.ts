@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import fsPromises from "node:fs/promises";
 import type { FileHandle } from "node:fs/promises";
 import path from "node:path";
 import { writeFileWithinRoot } from "openclaw/plugin-sdk/file-access-runtime";
+=======
+import fsPromises from "node:fs/promises";
+import path from "node:path";
+import { root as fsRoot } from "openclaw/plugin-sdk/file-access-runtime";
+>>>>>>> upstream/main
 import type {
   SandboxFsBridge,
   SandboxFsStat,
   SandboxResolvedPath,
 } from "openclaw/plugin-sdk/sandbox";
 import { createWritableRenameTargetResolver } from "openclaw/plugin-sdk/sandbox";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import type { OpenShellFsBridgeContext, OpenShellSandboxBackend } from "./backend.types.js";
 import { movePathWithCopyFallback } from "./mirror.js";
 
@@ -52,6 +62,7 @@ class OpenShellFsBridge implements SandboxFsBridge {
   }): Promise<Buffer> {
     const target = this.resolveTarget(params);
     const hostPath = this.requireHostPath(target);
+<<<<<<< HEAD
     const handle = await openPinnedReadableFile({
       absolutePath: hostPath,
       rootPath: target.mountHostRoot,
@@ -61,6 +72,30 @@ class OpenShellFsBridge implements SandboxFsBridge {
       return (await handle.readFile()) as Buffer;
     } finally {
       await handle.close();
+=======
+    let opened: Awaited<ReturnType<Awaited<ReturnType<typeof fsRoot>>["open"]>>;
+    try {
+      await assertLocalPathSafety({
+        target,
+        root: target.mountHostRoot,
+        allowMissingLeaf: false,
+        allowFinalSymlinkForUnlink: false,
+      });
+      const root = await fsRoot(target.mountHostRoot);
+      opened = await root.open(path.relative(target.mountHostRoot, hostPath), {
+        hardlinks: "reject",
+      });
+      try {
+        return (await opened.handle.readFile()) as Buffer;
+      } finally {
+        await opened.handle.close();
+      }
+    } catch (err) {
+      throw new Error(
+        `Sandbox boundary checks failed; cannot read files: ${target.containerPath}`,
+        { cause: err },
+      );
+>>>>>>> upstream/main
     }
   }
 
@@ -84,10 +119,15 @@ class OpenShellFsBridge implements SandboxFsBridge {
     const buffer = Buffer.isBuffer(params.data)
       ? params.data
       : Buffer.from(params.data, params.encoding ?? "utf8");
+<<<<<<< HEAD
     await writeFileWithinRoot({
       rootDir: target.mountHostRoot,
       relativePath: path.relative(target.mountHostRoot, hostPath),
       data: buffer,
+=======
+    const root = await fsRoot(target.mountHostRoot);
+    await root.write(path.relative(target.mountHostRoot, hostPath), buffer, {
+>>>>>>> upstream/main
       mkdir: params.mkdir,
     });
     await this.backend.syncLocalPathToRemote(hostPath, target.containerPath);
@@ -291,11 +331,14 @@ class OpenShellFsBridge implements SandboxFsBridge {
   }
 }
 
+<<<<<<< HEAD
 function isPathInside(root: string, target: string): boolean {
   const relative = path.relative(root, target);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
 
+=======
+>>>>>>> upstream/main
 async function assertLocalPathSafety(params: {
   target: ResolvedMountPath;
   root: string;
@@ -358,6 +401,7 @@ async function resolveCanonicalCandidate(targetPath: string): Promise<string> {
   }
 }
 
+<<<<<<< HEAD
 async function openPinnedReadableFile(params: {
   absolutePath: string;
   rootPath: string;
@@ -553,4 +597,10 @@ function sameFileIdentity(
   // rather than a mismatch so legitimate Windows fallback reads are not
   // rejected.
   return platform === "win32" && (left.dev === 0 || right.dev === 0);
+=======
+export function setReadOpenFlagsResolverForTest(
+  _resolver: (() => { flags: number; supportsNoFollow: boolean }) | undefined,
+): void {
+  // Retained for older OpenShell tests; pinned reads now delegate to fs-safe.
+>>>>>>> upstream/main
 }

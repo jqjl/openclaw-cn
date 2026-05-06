@@ -21,6 +21,15 @@ async function getFreePort(): Promise<number> {
   });
 }
 
+<<<<<<< HEAD
+=======
+function isIpv6UnavailableError(err: unknown): boolean {
+  const code =
+    typeof err === "object" && err !== null ? (err as { code?: unknown }).code : undefined;
+  return code === "EAFNOSUPPORT" || code === "EADDRNOTAVAIL";
+}
+
+>>>>>>> upstream/main
 function createOpenGatewayClient(requestTimeoutMs: number): {
   client: GatewayClient;
   send: ReturnType<typeof vi.fn>;
@@ -156,6 +165,66 @@ describe("GatewayClient", () => {
     }
   }, 4000);
 
+<<<<<<< HEAD
+=======
+  test("connects to IPv6 loopback while managed proxy Gateway-only mode is active", async () => {
+    wss = new WebSocketServer({ host: "::1", port: 0 });
+    const bind = await new Promise<{ port: number } | null>((resolve, reject) => {
+      wss?.once("listening", () => {
+        const address = wss?.address();
+        if (address === undefined || address === null || typeof address === "string") {
+          reject(new Error("IPv6 WebSocket server did not bind to a TCP port"));
+          return;
+        }
+        resolve({ port: address.port });
+      });
+      wss?.once("error", (err) => {
+        if (isIpv6UnavailableError(err)) {
+          wss = null;
+          resolve(null);
+          return;
+        }
+        reject(err);
+      });
+    });
+    if (bind === null) {
+      return;
+    }
+
+    const { startProxy, stopProxy } = await import("../infra/net/proxy/proxy-lifecycle.js");
+    const handle = await startProxy({
+      enabled: true,
+      proxyUrl: "http://127.0.0.1:9",
+      loopbackMode: "gateway-only",
+    });
+    const onConnectError = vi.fn();
+    const connected = new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error("IPv6 loopback Gateway client did not connect"));
+      }, 2000);
+      wss?.once("connection", (socket) => {
+        clearTimeout(timeout);
+        socket.close(1000, "done");
+        resolve();
+      });
+    });
+    const client = new GatewayClient({
+      url: `ws://[::1]:${bind.port}`,
+      connectChallengeTimeoutMs: 1000,
+      onConnectError,
+    });
+
+    try {
+      expect(() => client.start()).not.toThrow();
+      await connected;
+      expect(onConnectError).not.toHaveBeenCalled();
+    } finally {
+      client.stop();
+      await stopProxy(handle);
+    }
+  }, 5000);
+
+>>>>>>> upstream/main
   test("lets pending requests own their timeout when ticks are missing", async () => {
     vi.useFakeTimers();
     try {

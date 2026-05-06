@@ -5,7 +5,11 @@ import {
 } from "openclaw/plugin-sdk/reply-payload";
 import type { ReplyPayload } from "openclaw/plugin-sdk/reply-runtime";
 import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
+<<<<<<< HEAD
 import type { createIMessageRpcClient } from "../client.js";
+=======
+import type { IMessageRpcClient } from "../client.js";
+>>>>>>> upstream/main
 import { sendMessageIMessage } from "../send.js";
 import {
   chunkTextWithMode,
@@ -20,7 +24,11 @@ export async function deliverReplies(params: {
   cfg: OpenClawConfig;
   replies: ReplyPayload[];
   target: string;
+<<<<<<< HEAD
   client: Awaited<ReturnType<typeof createIMessageRpcClient>>;
+=======
+  client: IMessageRpcClient;
+>>>>>>> upstream/main
   accountId?: string;
   runtime: RuntimeEnv;
   maxBytes: number;
@@ -80,3 +88,26 @@ export async function deliverReplies(params: {
     }
   }
 }
+<<<<<<< HEAD
+=======
+
+export function createIMessageEchoCachingSend(params: {
+  client: IMessageRpcClient;
+  accountId?: string;
+  sentMessageCache?: Pick<SentMessageCache, "remember">;
+}): typeof sendMessageIMessage {
+  return async (target, text, opts) => {
+    const sanitizedText = sanitizeOutboundText(text);
+    const sent = await sendMessageIMessage(target, sanitizedText, {
+      ...opts,
+      client: params.client,
+    });
+    const scope = `${params.accountId ?? opts.accountId ?? ""}:${target}`;
+    params.sentMessageCache?.remember(scope, {
+      text: sent.sentText || undefined,
+      messageId: sent.messageId,
+    });
+    return sent;
+  };
+}
+>>>>>>> upstream/main

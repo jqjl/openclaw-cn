@@ -7,6 +7,7 @@ read_when:
   - Updating community project highlights
 ---
 
+<<<<<<< HEAD
 <!-- markdownlint-disable MD033 -->
 
 # Showcase
@@ -37,11 +38,15 @@ read_when:
     </div>
   </div>
 </div>
+=======
+OpenClaw projects are not toy demos. People are shipping PR review loops, mobile apps, home automation, voice systems, devtools, and memory-heavy workflows from the channels they already use — chat-native builds on Telegram, WhatsApp, Discord, and terminals; real automation for booking, shopping, and support without waiting for an API; and physical-world integrations with printers, vacuums, cameras, and home systems.
+>>>>>>> upstream/main
 
 <Info>
 **Want to be featured?** Share your project in [#self-promotion on Discord](https://discord.gg/clawd) or [tag @openclaw on X](https://x.com/openclaw).
 </Info>
 
+<<<<<<< HEAD
 <div className="showcase-jump-links">
   <a href="#videos">Videos</a>
   <a href="#fresh-from-discord">Fresh from Discord</a>
@@ -55,6 +60,9 @@ read_when:
 </div>
 
 <h2 id="videos">Videos</h2>
+=======
+## Videos
+>>>>>>> upstream/main
 
 Start here if you want the shortest path from "what is this?" to "okay, I get it."
 
@@ -74,7 +82,11 @@ Start here if you want the shortest path from "what is this?" to "okay, I get it
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="fresh-from-discord">Fresh from Discord</h2>
+=======
+## Fresh from Discord
+>>>>>>> upstream/main
 
 Recent standouts across coding, devtools, mobile, and chat-native product building.
 
@@ -200,11 +212,17 @@ Read, send, and archive messages via Beeper Desktop. Uses Beeper local MCP API s
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="automation-workflows">Automation &amp; Workflows</h2>
 
 <p className="showcase-section-intro">
   Scheduling, browser control, support loops, and the “just do the task for me” side of the product.
 </p>
+=======
+## Automation and workflows
+
+Scheduling, browser control, support loops, and the "just do the task for me" side of the product.
+>>>>>>> upstream/main
 
 <CardGroup cols={2}>
 
@@ -282,11 +300,17 @@ Watches a company Slack channel, responds helpfully, and forwards notifications 
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="knowledge-memory">Knowledge &amp; Memory</h2>
 
 <p className="showcase-section-intro">
   Systems that index, search, remember, and reason over personal or team knowledge.
 </p>
+=======
+## Knowledge and memory
+
+Systems that index, search, remember, and reason over personal or team knowledge.
+>>>>>>> upstream/main
 
 <CardGroup cols={2}>
 
@@ -318,11 +342,17 @@ Separate memory manager that turns session files into memories, then beliefs, th
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="voice-phone">Voice &amp; Phone</h2>
 
 <p className="showcase-section-intro">
   Speech-first entry points, phone bridges, and transcription-heavy workflows.
 </p>
+=======
+## Voice and phone
+
+Speech-first entry points, phone bridges, and transcription-heavy workflows.
+>>>>>>> upstream/main
 
 <CardGroup cols={2}>
 
@@ -340,11 +370,17 @@ Multi-lingual audio transcription via OpenRouter (Gemini, and more). Available o
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="infrastructure-deployment">Infrastructure &amp; Deployment</h2>
 
 <p className="showcase-section-intro">
   Packaging, deployment, and integrations that make OpenClaw easier to run and extend.
 </p>
+=======
+## Infrastructure and deployment
+
+Packaging, deployment, and integrations that make OpenClaw easier to run and extend.
+>>>>>>> upstream/main
 
 <CardGroup cols={2}>
 
@@ -374,11 +410,17 @@ Calendar skill using khal and vdirsyncer. Self-hosted calendar integration.
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="home-hardware">Home &amp; Hardware</h2>
 
 <p className="showcase-section-intro">
   The physical-world side of OpenClaw: homes, sensors, cameras, vacuums, and other devices.
 </p>
+=======
+## Home and hardware
+
+The physical-world side of OpenClaw: homes, sensors, cameras, vacuums, and other devices.
+>>>>>>> upstream/main
 
 <CardGroup cols={2}>
 
@@ -400,7 +442,11 @@ Control your Roborock robot vacuum through natural conversation.
 
 </CardGroup>
 
+<<<<<<< HEAD
 <h2 id="community-projects">Community Projects</h2>
+=======
+## Community projects
+>>>>>>> upstream/main
 
 Things that grew beyond a single workflow into broader products or ecosystems.
 
@@ -414,6 +460,7 @@ Full astronomy gear marketplace. Built with and around the OpenClaw ecosystem.
 
 </CardGroup>
 
+<<<<<<< HEAD
 ---
 
 <h2 id="submit-your-project">Submit Your Project</h2>
@@ -423,6 +470,9 @@ Full astronomy gear marketplace. Built with and around the OpenClaw ecosystem.
 </p>
 
 Have something to share? We'd love to feature it!
+=======
+## Submit your project
+>>>>>>> upstream/main
 
 <Steps>
   <Step title="Share it">

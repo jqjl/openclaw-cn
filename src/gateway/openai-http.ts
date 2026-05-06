@@ -148,7 +148,11 @@ function writeAssistantRoleChunk(res: ServerResponse, params: { runId: string; m
     object: "chat.completion.chunk",
     created: Math.floor(Date.now() / 1000),
     model: params.model,
+<<<<<<< HEAD
     choices: [{ index: 0, delta: { role: "assistant" } }],
+=======
+    choices: [{ index: 0, delta: { role: "assistant" }, finish_reason: null }],
+>>>>>>> upstream/main
   });
 }
 
@@ -732,6 +736,12 @@ export async function handleOpenAiHttpRequest(
     unsubscribe();
   });
 
+<<<<<<< HEAD
+=======
+  wroteRole = true;
+  writeAssistantRoleChunk(res, { runId, model });
+
+>>>>>>> upstream/main
   void (async () => {
     try {
       const result = await agentCommandFromIngress(commandInput, defaultRuntime, deps);

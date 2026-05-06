@@ -1,10 +1,18 @@
 import { randomUUID } from "node:crypto";
+<<<<<<< HEAD
 import { appendFileSync, mkdirSync } from "node:fs";
+=======
+import { mkdirSync } from "node:fs";
+>>>>>>> upstream/main
 import { dirname } from "node:path";
 import { performance } from "node:perf_hooks";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { isDiagnosticFlagEnabled } from "./diagnostic-flags.js";
 import { isTruthyEnvValue } from "./env.js";
+<<<<<<< HEAD
+=======
+import { appendRegularFileSync } from "./regular-file.js";
+>>>>>>> upstream/main
 
 const OPENCLAW_DIAGNOSTICS_TIMELINE_SCHEMA_VERSION = "openclaw.diagnostics.v1";
 
@@ -167,7 +175,11 @@ export function emitDiagnosticsTimelineEvent(
       mkdirSync(dir, { recursive: true });
       createdTimelineDirs.add(dir);
     }
+<<<<<<< HEAD
     appendFileSync(path, line, "utf8");
+=======
+    appendRegularFileSync({ filePath: path, content: line });
+>>>>>>> upstream/main
   } catch (error) {
     if (!warnedAboutTimelineWrite) {
       warnedAboutTimelineWrite = true;

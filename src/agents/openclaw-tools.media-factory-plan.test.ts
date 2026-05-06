@@ -12,9 +12,24 @@ import type { PluginManifestRecord } from "../plugins/manifest-registry.js";
 import type { PluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.types.js";
 import { clearSecretsRuntimeSnapshot } from "../secrets/runtime.js";
 import type { AuthProfileStore } from "./auth-profiles/types.js";
+<<<<<<< HEAD
 import { __testing, createOpenClawTools } from "./openclaw-tools.js";
 import * as pdfModelConfigModule from "./tools/pdf-tool.model-config.js";
 
+=======
+import { resolveOptionalMediaToolFactoryPlan } from "./openclaw-tools.media-factory-plan.js";
+import * as pdfModelConfigModule from "./tools/pdf-tool.model-config.js";
+
+type CreateOpenClawToolsOptions = Parameters<
+  typeof import("./openclaw-tools.js").createOpenClawTools
+>[0];
+
+async function createOpenClawToolsForTest(options?: CreateOpenClawToolsOptions) {
+  const { createOpenClawTools } = await import("./openclaw-tools.js");
+  return createOpenClawTools(options);
+}
+
+>>>>>>> upstream/main
 function createAuthStore(providers: string[] = []): AuthProfileStore {
   return {
     version: 1,
@@ -180,7 +195,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["github-copilot"]),
       }),
@@ -206,7 +225,11 @@ describe("optional media tool factory planning", () => {
     installSnapshot(config, []);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(),
       }),
@@ -234,7 +257,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["image-owner", "anthropic"]),
         toolAllowlist: ["image_generate"],
@@ -263,7 +290,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["image-owner", "anthropic"]),
         toolDenylist: ["image_generate", "pdf"],
@@ -287,7 +318,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["anthropic"]),
       }).pdf,
@@ -320,7 +355,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["image-owner", "video-owner", "music-owner", "anthropic"]),
         toolDenylist: ["*_generate", "p*"],
@@ -360,7 +399,11 @@ describe("optional media tool factory planning", () => {
     vi.stubEnv("VIDEO_OWNER_API_KEY", "video-key");
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["image-owner", "music-owner", "media-owner"]),
       }),
@@ -372,12 +415,20 @@ describe("optional media tool factory planning", () => {
     });
   });
 
+<<<<<<< HEAD
   it("defers PDF model resolution from the tool-prep hot path", () => {
+=======
+  it("defers PDF model resolution from the tool-prep hot path", async () => {
+>>>>>>> upstream/main
     const config: OpenClawConfig = {};
     installSnapshot(config, []);
     const resolveSpy = vi.spyOn(pdfModelConfigModule, "resolvePdfModelConfigForTool");
 
+<<<<<<< HEAD
     const tools = createOpenClawTools({
+=======
+    const tools = await createOpenClawToolsForTest({
+>>>>>>> upstream/main
       config,
       agentDir: "/tmp/openclaw-agent-main",
       authProfileStore: createAuthStore(["anthropic"]),
@@ -417,7 +468,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore([
           "external-image",
@@ -434,7 +489,11 @@ describe("optional media tool factory planning", () => {
     });
   });
 
+<<<<<<< HEAD
   it("keeps manifest-declared image provider auth aliases on the factory path", () => {
+=======
+  it("keeps manifest-declared image provider auth aliases on the factory path", async () => {
+>>>>>>> upstream/main
     const config: OpenClawConfig = {};
     const plugins = [
       createPlugin({
@@ -463,7 +522,11 @@ describe("optional media tool factory planning", () => {
     installSnapshot(config, plugins);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["openai-codex"]),
       }),
@@ -472,12 +535,23 @@ describe("optional media tool factory planning", () => {
     });
     installSnapshot(config, plugins, undefined, process.cwd());
     expect(
+<<<<<<< HEAD
       createOpenClawTools({
         config,
         workspaceDir: process.cwd(),
         authProfileStore: createAuthStore(["openai-codex"]),
         pluginToolAllowlist: ["image_generate"],
       }).map((tool) => tool.name),
+=======
+      (
+        await createOpenClawToolsForTest({
+          config,
+          workspaceDir: process.cwd(),
+          authProfileStore: createAuthStore(["openai-codex"]),
+          pluginToolAllowlist: ["image_generate"],
+        })
+      ).map((tool) => tool.name),
+>>>>>>> upstream/main
     ).toContain("image_generate");
   });
 
@@ -528,7 +602,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(),
       }),
@@ -539,7 +617,11 @@ describe("optional media tool factory planning", () => {
     });
   });
 
+<<<<<<< HEAD
   it("does not expose manifest-backed generation providers when plugins are globally disabled", () => {
+=======
+  it("does not expose manifest-backed generation providers when plugins are globally disabled", async () => {
+>>>>>>> upstream/main
     const config: OpenClawConfig = {
       plugins: {
         enabled: false,
@@ -587,7 +669,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(),
       }),
@@ -598,6 +684,7 @@ describe("optional media tool factory planning", () => {
       pdf: false,
     });
     expect(
+<<<<<<< HEAD
       createOpenClawTools({
         config,
         authProfileStore: createAuthStore(),
@@ -607,6 +694,19 @@ describe("optional media tool factory planning", () => {
   });
 
   it("does not count unresolved SecretRef config signals as configured", () => {
+=======
+      (
+        await createOpenClawToolsForTest({
+          config,
+          authProfileStore: createAuthStore(),
+          pluginToolAllowlist: ["image_generate", "video_generate", "music_generate"],
+        })
+      ).map((tool) => tool.name),
+    ).not.toEqual(expect.arrayContaining(["image_generate", "video_generate", "music_generate"]));
+  });
+
+  it("does not count unresolved SecretRef config signals as configured", async () => {
+>>>>>>> upstream/main
     vi.stubEnv("COMFY_TEST_API_KEY", "");
     const workspaceDir = process.cwd();
     const config: OpenClawConfig = {
@@ -660,7 +760,11 @@ describe("optional media tool factory planning", () => {
     );
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         workspaceDir,
         authStore: createAuthStore(),
@@ -672,12 +776,23 @@ describe("optional media tool factory planning", () => {
       pdf: false,
     });
     expect(
+<<<<<<< HEAD
       createOpenClawTools({
         config,
         workspaceDir,
         authProfileStore: createAuthStore(),
         pluginToolAllowlist: ["image_generate", "video_generate", "music_generate"],
       }).map((tool) => tool.name),
+=======
+      (
+        await createOpenClawToolsForTest({
+          config,
+          workspaceDir,
+          authProfileStore: createAuthStore(),
+          pluginToolAllowlist: ["image_generate", "video_generate", "music_generate"],
+        })
+      ).map((tool) => tool.name),
+>>>>>>> upstream/main
     ).not.toEqual(expect.arrayContaining(["image_generate", "video_generate", "music_generate"]));
   });
 
@@ -737,7 +852,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(),
       }),
@@ -748,7 +867,11 @@ describe("optional media tool factory planning", () => {
     });
   });
 
+<<<<<<< HEAD
   it("does not register the image tool without cheap vision availability evidence", () => {
+=======
+  it("does not register the image tool without cheap vision availability evidence", async () => {
+>>>>>>> upstream/main
     const config: OpenClawConfig = {};
     installSnapshot(config, [
       createPlugin({
@@ -759,12 +882,23 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       createOpenClawTools({
         config,
         agentDir: "/tmp/openclaw-agent",
         authProfileStore: createAuthStore(),
         disablePluginTools: true,
       }).map((tool) => tool.name),
+=======
+      (
+        await createOpenClawToolsForTest({
+          config,
+          agentDir: "/tmp/openclaw-agent",
+          authProfileStore: createAuthStore(),
+          disablePluginTools: true,
+        })
+      ).map((tool) => tool.name),
+>>>>>>> upstream/main
     ).not.toContain("image");
   });
 
@@ -804,6 +938,7 @@ describe("optional media tool factory planning", () => {
     },
   ])(
     "registers generation tools from Comfy $name without a current metadata snapshot",
+<<<<<<< HEAD
     ({ config }) => {
       setBundledPluginsDirOverrideForTest(path.join(process.cwd(), "extensions"));
 
@@ -812,6 +947,18 @@ describe("optional media tool factory planning", () => {
         authProfileStore: createAuthStore(),
         pluginToolAllowlist: ["image_generate", "video_generate", "music_generate"],
       }).map((tool) => tool.name);
+=======
+    async ({ config }) => {
+      setBundledPluginsDirOverrideForTest(path.join(process.cwd(), "extensions"));
+
+      const toolNames = (
+        await createOpenClawToolsForTest({
+          config,
+          authProfileStore: createAuthStore(),
+          pluginToolAllowlist: ["image_generate", "video_generate", "music_generate"],
+        })
+      ).map((tool) => tool.name);
+>>>>>>> upstream/main
 
       expect(toolNames).toContain("image_generate");
       expect(toolNames).toContain("video_generate");
@@ -853,7 +1000,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["openai-codex"]),
       }),
@@ -878,7 +1029,11 @@ describe("optional media tool factory planning", () => {
     ]);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(["external-image"]),
       }),
@@ -895,7 +1050,11 @@ describe("optional media tool factory planning", () => {
     installSnapshot(config, []);
 
     expect(
+<<<<<<< HEAD
       __testing.resolveOptionalMediaToolFactoryPlan({
+=======
+      resolveOptionalMediaToolFactoryPlan({
+>>>>>>> upstream/main
         config,
         authStore: createAuthStore(),
       }),

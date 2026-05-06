@@ -5,11 +5,19 @@ import { type NodeApprovalScope, resolveNodePairApprovalScopes } from "./node-pa
 import {
   createAsyncLock,
   pruneExpiredPending,
+<<<<<<< HEAD
   readDurableJsonFile,
   reconcilePendingPairingRequests,
   coercePairingStateRecord,
   resolvePairingPaths,
   writeJsonAtomic,
+=======
+  readJsonIfExists,
+  reconcilePendingPairingRequests,
+  coercePairingStateRecord,
+  resolvePairingPaths,
+  writeJson,
+>>>>>>> upstream/main
 } from "./pairing-files.js";
 import { rejectPendingPairingRequest } from "./pairing-pending.js";
 import { generatePairingToken, verifyPairingToken } from "./pairing-token.js";
@@ -137,8 +145,13 @@ type ApproveNodePairingResult = ApprovedNodePairingResult | ForbiddenNodePairing
 async function loadState(baseDir?: string): Promise<NodePairingStateFile> {
   const { pendingPath, pairedPath } = resolvePairingPaths(baseDir, "nodes");
   const [pending, paired] = await Promise.all([
+<<<<<<< HEAD
     readDurableJsonFile<unknown>(pendingPath),
     readDurableJsonFile<unknown>(pairedPath),
+=======
+    readJsonIfExists<unknown>(pendingPath),
+    readJsonIfExists<unknown>(pairedPath),
+>>>>>>> upstream/main
   ]);
   const state: NodePairingStateFile = {
     pendingById: coercePairingStateRecord<NodePairingPendingRequest>(pending),
@@ -151,8 +164,13 @@ async function loadState(baseDir?: string): Promise<NodePairingStateFile> {
 async function persistState(state: NodePairingStateFile, baseDir?: string) {
   const { pendingPath, pairedPath } = resolvePairingPaths(baseDir, "nodes");
   await Promise.all([
+<<<<<<< HEAD
     writeJsonAtomic(pendingPath, state.pendingById),
     writeJsonAtomic(pairedPath, state.pairedByNodeId),
+=======
+    writeJson(pendingPath, state.pendingById),
+    writeJson(pairedPath, state.pairedByNodeId),
+>>>>>>> upstream/main
   ]);
 }
 

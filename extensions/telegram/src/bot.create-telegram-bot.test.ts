@@ -1186,7 +1186,11 @@ describe("createTelegramBot", () => {
     expect(replySpy).toHaveBeenCalledTimes(1);
   });
 
+<<<<<<< HEAD
   it("persists accepted update offsets before completion", async () => {
+=======
+  it("persists update offsets after successful dispatch completion", async () => {
+>>>>>>> upstream/main
     // For this test we need sequentialize(...) to behave like a normal middleware and call next().
     sequentializeSpy.mockImplementationOnce(
       () => async (_ctx: unknown, next: () => Promise<void>) => {
@@ -1243,6 +1247,7 @@ describe("createTelegramBot", () => {
 
     // Start processing update 101 but keep it pending (simulates a long-running turn).
     const p101 = runMiddlewareChain({ update: { update_id: 101 } }, async () => update101Gate);
+<<<<<<< HEAD
     // Let update 101 enter the chain and persist acceptance before 102 completes.
     await Promise.resolve();
     expect(onUpdateId).toHaveBeenCalledWith(101);
@@ -1250,11 +1255,26 @@ describe("createTelegramBot", () => {
     // Complete update 102 while 101 is still pending. Restart replay protection is at-most-once.
     await runMiddlewareChain({ update: { update_id: 102 } }, async () => {});
     expect(onUpdateId).toHaveBeenCalledWith(102);
+=======
+    // Let update 101 enter the chain. Telegram now persists the restart watermark only after
+    // the handler completes, so a crash during the pending turn can replay the update.
+    await Promise.resolve();
+    expect(onUpdateId).not.toHaveBeenCalled();
+
+    // Complete update 102 while 101 is still pending. The persisted watermark must not advance
+    // past pending lower ids.
+    await runMiddlewareChain({ update: { update_id: 102 } }, async () => {});
+    expect(onUpdateId).not.toHaveBeenCalled();
+>>>>>>> upstream/main
 
     releaseUpdate101?.();
     await p101;
 
+<<<<<<< HEAD
     expect(onUpdateId.mock.calls.map((call) => Number(call[0]))).toEqual([101, 102]);
+=======
+    expect(onUpdateId.mock.calls.map((call) => Number(call[0]))).toEqual([102]);
+>>>>>>> upstream/main
   });
   it("logs and swallows update watermark persistence failures", async () => {
     sequentializeSpy.mockImplementationOnce(
@@ -1326,7 +1346,11 @@ describe("createTelegramBot", () => {
     }
   });
 
+<<<<<<< HEAD
   it("persists failed updates once accepted while preserving same-process retries", async () => {
+=======
+  it("keeps failed updates unpersisted while preserving same-process retries", async () => {
+>>>>>>> upstream/main
     sequentializeSpy.mockImplementationOnce(
       () => async (_ctx: unknown, next: () => Promise<void>) => {
         await next();
@@ -1378,12 +1402,20 @@ describe("createTelegramBot", () => {
       }),
     ).rejects.toThrow("middleware boom");
     await flushTelegramTestMicrotasks();
+<<<<<<< HEAD
     expect(onUpdateId).toHaveBeenCalledWith(201);
+=======
+    expect(onUpdateId).not.toHaveBeenCalled();
+>>>>>>> upstream/main
 
     await runMiddlewareChain({ update: { update_id: 202 } }, async () => {});
 
     await flushTelegramTestMicrotasks();
+<<<<<<< HEAD
     expect(onUpdateId).toHaveBeenCalledWith(202);
+=======
+    expect(onUpdateId).not.toHaveBeenCalled();
+>>>>>>> upstream/main
 
     const retryHandler = vi.fn();
     await runMiddlewareChain({ update: { update_id: 201 } }, async () => {
@@ -1392,7 +1424,11 @@ describe("createTelegramBot", () => {
 
     await flushTelegramTestMicrotasks();
     expect(retryHandler).toHaveBeenCalledTimes(1);
+<<<<<<< HEAD
     expect(onUpdateId.mock.calls.map((call) => Number(call[0]))).toEqual([201, 202]);
+=======
+    expect(onUpdateId.mock.calls.map((call) => Number(call[0]))).toEqual([202]);
+>>>>>>> upstream/main
   });
 
   it("skips replayed update ids even when the semantic update key differs", async () => {
@@ -2786,7 +2822,11 @@ describe("createTelegramBot", () => {
     });
 
     expect(sendMessageSpy).toHaveBeenCalledTimes(1);
+<<<<<<< HEAD
     expect(sendMessageSpy.mock.calls[0][0]).toBe("5");
+=======
+    expect(String(sendMessageSpy.mock.calls[0][0])).toBe("5");
+>>>>>>> upstream/main
     expect(sendMessageSpy.mock.calls[0][1]).toBe(codexRateLimitText);
     expect(String(sendMessageSpy.mock.calls[0][1])).not.toContain(
       "All models are temporarily rate-limited",
@@ -2805,6 +2845,14 @@ describe("createTelegramBot", () => {
         text: "a".repeat(4500),
         replyToId: String(messageId),
       });
+<<<<<<< HEAD
+=======
+      loadConfig.mockReturnValue({
+        channels: {
+          telegram: { dmPolicy: "open", allowFrom: ["*"], streamMode: "off" },
+        },
+      });
+>>>>>>> upstream/main
 
       createTelegramBot({ token: "tok", replyToMode: mode });
       const handler = getOnHandler("message") as (ctx: Record<string, unknown>) => Promise<void>;

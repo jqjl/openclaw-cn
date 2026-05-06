@@ -1,5 +1,13 @@
 import { adaptScopedAccountAccessor } from "openclaw/plugin-sdk/channel-config-helpers";
 import {
+<<<<<<< HEAD
+=======
+  createMessageReceiptFromOutboundResults,
+  defineChannelMessageAdapter,
+  type MessageReceiptPartKind,
+} from "openclaw/plugin-sdk/channel-message";
+import {
+>>>>>>> upstream/main
   composeAccountWarningCollectors,
   createAllowlistProviderOpenWarningCollector,
 } from "openclaw/plugin-sdk/channel-policy";
@@ -36,6 +44,31 @@ const loadGoogleChatChannelRuntime = createLazyRuntimeNamedExport(
   "googleChatChannelRuntime",
 );
 
+<<<<<<< HEAD
+=======
+function createGoogleChatSendReceipt(params: {
+  messageId?: string;
+  chatId: string;
+  kind: MessageReceiptPartKind;
+}) {
+  const messageId = params.messageId?.trim();
+  return createMessageReceiptFromOutboundResults({
+    results: messageId
+      ? [
+          {
+            channel: "googlechat",
+            messageId,
+            chatId: params.chatId,
+            conversationId: params.chatId,
+          },
+        ]
+      : [],
+    threadId: params.chatId,
+    kind: params.kind,
+  });
+}
+
+>>>>>>> upstream/main
 export const formatAllowFromEntry = (entry: string) =>
   normalizeLowercaseStringOrEmpty(
     entry
@@ -200,9 +233,17 @@ export const googlechatOutboundAdapter = {
         text,
         thread,
       });
+<<<<<<< HEAD
       return {
         messageId: result?.messageName ?? "",
         chatId: space,
+=======
+      const messageId = result?.messageName ?? "";
+      return {
+        messageId,
+        chatId: space,
+        receipt: createGoogleChatSendReceipt({ messageId, chatId: space, kind: "text" }),
+>>>>>>> upstream/main
       };
     },
     sendMedia: async ({
@@ -284,10 +325,37 @@ export const googlechatOutboundAdapter = {
             ]
           : undefined,
       });
+<<<<<<< HEAD
       return {
         messageId: result?.messageName ?? "",
         chatId: space,
+=======
+      const messageId = result?.messageName ?? "";
+      return {
+        messageId,
+        chatId: space,
+        receipt: createGoogleChatSendReceipt({ messageId, chatId: space, kind: "media" }),
+>>>>>>> upstream/main
       };
     },
   },
 };
+<<<<<<< HEAD
+=======
+
+export const googlechatMessageAdapter = defineChannelMessageAdapter({
+  id: "googlechat",
+  durableFinal: {
+    capabilities: {
+      text: true,
+      media: true,
+      thread: true,
+      messageSendingHooks: true,
+    },
+  },
+  send: {
+    text: googlechatOutboundAdapter.attachedResults.sendText,
+    media: googlechatOutboundAdapter.attachedResults.sendMedia,
+  },
+});
+>>>>>>> upstream/main

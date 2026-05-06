@@ -113,6 +113,10 @@ export const SessionsCreateParamsSchema = Type.Object(
     label: Type.Optional(SessionLabelString),
     model: Type.Optional(NonEmptyString),
     parentSessionKey: Type.Optional(NonEmptyString),
+<<<<<<< HEAD
+=======
+    emitCommandHooks: Type.Optional(Type.Boolean()),
+>>>>>>> upstream/main
     task: Type.Optional(Type.String()),
     message: Type.Optional(Type.String()),
   },

@@ -35,7 +35,11 @@ describe("unit-fast vitest lane", () => {
     expect(config.test?.include).toContain("src/memory-host-sdk/host/backend-config.test.ts");
     expect(config.test?.include).toContain("src/plugins/config-policy.test.ts");
     expect(config.test?.include).toContain("src/proxy-capture/proxy-server.test.ts");
+<<<<<<< HEAD
     expect(config.test?.include).toContain("src/realtime-voice/agent-consult-tool.test.ts");
+=======
+    expect(config.test?.include).toContain("src/talk/agent-consult-tool.test.ts");
+>>>>>>> upstream/main
     expect(config.test?.include).toContain("src/sessions/session-lifecycle-events.test.ts");
     expect(config.test?.include).toContain("src/sessions/transcript-events.test.ts");
     expect(config.test?.include).toContain(

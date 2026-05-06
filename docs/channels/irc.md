@@ -7,7 +7,11 @@ read_when:
 ---
 
 Use IRC when you want OpenClaw in classic channels (`#room`) and direct messages.
+<<<<<<< HEAD
 IRC ships as an extension plugin, but it is configured in the main config under `channels.irc`.
+=======
+IRC ships as a bundled plugin, but it is configured in the main config under `channels.irc`.
+>>>>>>> upstream/main
 
 ## Quick start
 
@@ -47,7 +51,11 @@ openclaw gateway run
 
 ## Access control
 
+<<<<<<< HEAD
 There are two separate “gates” for IRC channels:
+=======
+There are two separate "gates" for IRC channels:
+>>>>>>> upstream/main
 
 1. **Channel access** (`groupPolicy` + `groups`): whether the bot accepts messages from a channel at all.
 2. **Sender access** (`groupAllowFrom` / per-channel `groups["#channel"].allowFrom`): who is allowed to trigger the bot inside that channel.
@@ -68,7 +76,11 @@ If you see logs like:
 
 - `irc: drop group sender alice!ident@host (policy=allowlist)`
 
+<<<<<<< HEAD
 …it means the sender wasn’t allowed for **group/channel** messages. Fix it by either:
+=======
+...it means the sender wasn't allowed for **group/channel** messages. Fix it by either:
+>>>>>>> upstream/main
 
 - setting `channels.irc.groupAllowFrom` (global for all channels), or
 - setting per-channel sender allowlists: `channels.irc.groups["#channel"].allowFrom`
@@ -236,6 +248,11 @@ Default account supports:
 - `IRC_NICKSERV_PASSWORD`
 - `IRC_NICKSERV_REGISTER_EMAIL`
 
+<<<<<<< HEAD
+=======
+`IRC_HOST` cannot be set from a workspace `.env`; see [Workspace `.env` files](/gateway/security).
+
+>>>>>>> upstream/main
 ## Troubleshooting
 
 - If the bot connects but never replies in channels, verify `channels.irc.groups` **and** whether mention-gating is dropping messages (`missing-mention`). If you want it to reply without pings, set `requireMention:false` for the channel.

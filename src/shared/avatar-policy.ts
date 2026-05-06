@@ -1,4 +1,8 @@
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../infra/path-guards.js";
+>>>>>>> upstream/main
 import { normalizeLowercaseStringOrEmpty } from "./string-coerce.js";
 
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
@@ -64,11 +68,15 @@ export function isWorkspaceRelativeAvatarPath(value: string): boolean {
 }
 
 export function isPathWithinRoot(rootDir: string, targetPath: string): boolean {
+<<<<<<< HEAD
   const relative = path.relative(rootDir, targetPath);
   if (relative === "") {
     return true;
   }
   return !relative.startsWith("..") && !path.isAbsolute(relative);
+=======
+  return isPathInside(rootDir, targetPath);
+>>>>>>> upstream/main
 }
 
 export function looksLikeAvatarPath(value: string): boolean {

@@ -325,6 +325,10 @@ describe("qa-lab server", () => {
       port: 0,
       repoRoot,
       embeddedGateway: "disabled",
+<<<<<<< HEAD
+=======
+      selfCheckWaitTimeoutMs: 1,
+>>>>>>> upstream/main
     });
     cleanups.push(async () => {
       await lab.stop();

@@ -142,7 +142,11 @@ describe("zalouser outbound chunking", () => {
 describe("zalouser channel policies", () => {
   beforeEach(() => {
     mockSendReaction.mockClear();
+<<<<<<< HEAD
     mockSendReaction.mockResolvedValue({ ok: true });
+=======
+    mockSendReaction.mockResolvedValue({ ok: true } as never);
+>>>>>>> upstream/main
   });
 
   it("normalizes dm allowlist entries after trimming channel prefixes", () => {

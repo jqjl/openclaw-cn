@@ -328,7 +328,11 @@ describe("subagent registry persistence", () => {
     expect(after.version).toBe(2);
   });
 
+<<<<<<< HEAD
   it("reuses unchanged persisted registry snapshots without reparsing runs.json", async () => {
+=======
+  it("returns isolated clones for unchanged persisted registry snapshots", async () => {
+>>>>>>> upstream/main
     const registryPath = await writePersistedRegistry(
       {
         version: 2,
@@ -349,8 +353,11 @@ describe("subagent registry persistence", () => {
       },
       { seedChildSessions: false },
     );
+<<<<<<< HEAD
     const readSpy = vi.spyOn(fsSync, "readFileSync");
 
+=======
+>>>>>>> upstream/main
     const first = loadSubagentRegistryFromDisk();
     first.clear();
     const cachedEntry = loadSubagentRegistryFromDisk().get("run-cached");
@@ -373,9 +380,12 @@ describe("subagent registry persistence", () => {
     });
     expect(second.get("run-cached")?.endedAt).toBeUndefined();
     expect(second.get("run-cached")?.cleanupHandled).toBeUndefined();
+<<<<<<< HEAD
     expect(
       readSpy.mock.calls.filter(([pathname]) => String(pathname) === registryPath),
     ).toHaveLength(1);
+=======
+>>>>>>> upstream/main
 
     await fs.writeFile(
       registryPath,
@@ -398,17 +408,24 @@ describe("subagent registry persistence", () => {
     );
 
     expect(loadSubagentRegistryFromDisk().has("run-updated")).toBe(true);
+<<<<<<< HEAD
     expect(
       readSpy.mock.calls.filter(([pathname]) => String(pathname) === registryPath),
     ).toHaveLength(2);
   });
 
   it("reuses unchanged invalid persisted registry snapshots as empty", async () => {
+=======
+  });
+
+  it("returns empty maps for unchanged invalid persisted registry snapshots", async () => {
+>>>>>>> upstream/main
     tempStateDir = await fs.mkdtemp(path.join(os.tmpdir(), "openclaw-subagent-"));
     process.env.OPENCLAW_STATE_DIR = tempStateDir;
     const registryPath = path.join(tempStateDir, "subagents", "runs.json");
     await fs.mkdir(path.dirname(registryPath), { recursive: true });
     await fs.writeFile(registryPath, "{invalid", "utf8");
+<<<<<<< HEAD
     const readSpy = vi.spyOn(fsSync, "readFileSync");
 
     expect(loadSubagentRegistryFromDisk()).toEqual(new Map());
@@ -416,6 +433,11 @@ describe("subagent registry persistence", () => {
     expect(
       readSpy.mock.calls.filter(([pathname]) => String(pathname) === registryPath),
     ).toHaveLength(1);
+=======
+
+    expect(loadSubagentRegistryFromDisk()).toEqual(new Map());
+    expect(loadSubagentRegistryFromDisk()).toEqual(new Map());
+>>>>>>> upstream/main
   });
 
   it("normalizes persisted and newly registered session keys to canonical trimmed values", async () => {

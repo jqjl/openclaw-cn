@@ -27,6 +27,14 @@ const hoisted = await vi.hoisted(async () => {
         await actualAccess(file);
       },
     ),
+<<<<<<< HEAD
+=======
+    statMock: vi.fn(
+      async (file: fs.PathLike, actualStat: (path: fs.PathLike) => Promise<unknown>) => {
+        return await actualStat(file);
+      },
+    ),
+>>>>>>> upstream/main
   };
 });
 
@@ -59,6 +67,10 @@ vi.mock("node:fs/promises", async () => {
   const mockedFs = {
     ...actual,
     access: (file: fs.PathLike) => hoisted.accessMock(file, actual.access),
+<<<<<<< HEAD
+=======
+    stat: (file: fs.PathLike) => hoisted.statMock(file, actual.stat),
+>>>>>>> upstream/main
   };
   return {
     ...mockedFs,
@@ -67,6 +79,10 @@ vi.mock("node:fs/promises", async () => {
 });
 
 const tempDirs: string[] = [];
+<<<<<<< HEAD
+=======
+const mockedSessionFile = "/tmp/target-store/session.jsonl";
+>>>>>>> upstream/main
 
 function makeTempDir(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-export-command-"));
@@ -173,9 +189,26 @@ describe("buildExportTrajectoryReply", () => {
         await actualAccess(file);
       },
     );
+<<<<<<< HEAD
   });
 
   afterEach(() => {
+=======
+    hoisted.statMock.mockImplementation(
+      async (file: fs.PathLike, actualStat: (path: fs.PathLike) => Promise<unknown>) => {
+        if (file.toString() === "/tmp/target-store/session.jsonl") {
+          return {};
+        }
+        return await actualStat(file);
+      },
+    );
+    fs.mkdirSync(path.dirname(mockedSessionFile), { recursive: true });
+    fs.writeFileSync(mockedSessionFile, "{}\n");
+  });
+
+  afterEach(() => {
+    fs.rmSync(mockedSessionFile, { force: true });
+>>>>>>> upstream/main
     for (const dir of tempDirs.splice(0)) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -238,6 +271,10 @@ describe("buildExportTrajectoryReply", () => {
 
   it("does not echo absolute session paths when the transcript is missing", async () => {
     const { buildExportTrajectoryReply } = await import("./commands-export-trajectory.js");
+<<<<<<< HEAD
+=======
+    fs.rmSync(mockedSessionFile, { force: true });
+>>>>>>> upstream/main
     hoisted.accessMock.mockImplementation(
       async (file: fs.PathLike, actualAccess: (path: fs.PathLike) => Promise<void>) => {
         if (file.toString() === "/tmp/target-store/session.jsonl") {
@@ -246,6 +283,17 @@ describe("buildExportTrajectoryReply", () => {
         await actualAccess(file);
       },
     );
+<<<<<<< HEAD
+=======
+    hoisted.statMock.mockImplementation(
+      async (file: fs.PathLike, actualStat: (path: fs.PathLike) => Promise<unknown>) => {
+        if (file.toString() === "/tmp/target-store/session.jsonl") {
+          throw Object.assign(new Error("missing"), { code: "ENOENT" });
+        }
+        return await actualStat(file);
+      },
+    );
+>>>>>>> upstream/main
 
     const reply = await buildExportTrajectoryReply(makeParams());
 

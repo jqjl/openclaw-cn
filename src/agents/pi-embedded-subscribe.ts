@@ -733,9 +733,14 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       return;
     }
 
+<<<<<<< HEAD
     state.lastBlockReplyText = chunk;
     pushAssistantText(chunk);
     if (!params.onBlockReply) {
+=======
+    if (!params.onBlockReply) {
+      pushAssistantText(chunk);
+>>>>>>> upstream/main
       return;
     }
     const splitResult = replyDirectiveAccumulator.consume(chunk);
@@ -750,10 +755,17 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
       replyToTag,
       replyToCurrent,
     } = splitResult;
+<<<<<<< HEAD
     // Skip empty payloads, but always emit if audioAsVoice is set (to propagate the flag)
     if (!cleanedText && (!mediaUrls || mediaUrls.length === 0) && !audioAsVoice) {
       return;
     }
+=======
+    if (!cleanedText && (!mediaUrls || mediaUrls.length === 0) && !audioAsVoice) {
+      return;
+    }
+    pushAssistantText(chunk);
+>>>>>>> upstream/main
     emitBlockReply(
       {
         text: cleanedText,
@@ -769,6 +781,10 @@ export function subscribeEmbeddedPiSession(params: SubscribeEmbeddedPiSessionPar
           options?.final === true || Boolean(mediaUrls?.length || audioAsVoice),
       },
     );
+<<<<<<< HEAD
+=======
+    state.lastBlockReplyText = chunk;
+>>>>>>> upstream/main
   };
 
   const consumeReplyDirectives = (text: string, options?: { final?: boolean }) =>

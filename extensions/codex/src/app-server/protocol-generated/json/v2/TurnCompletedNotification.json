@@ -3,6 +3,7 @@
   "title": "TurnCompletedNotification",
   "type": "object",
   "required": ["threadId", "turn"],
+<<<<<<< HEAD
   "properties": {
     "threadId": {
       "type": "string"
@@ -11,6 +12,9 @@
       "$ref": "#/definitions/Turn"
     }
   },
+=======
+  "properties": { "threadId": { "type": "string" }, "turn": { "$ref": "#/definitions/Turn" } },
+>>>>>>> upstream/main
   "definitions": {
     "AbsolutePathBuf": {
       "description": "A path that is guaranteed to be absolute and normalized (though it is not guaranteed to be canonicalized or exist on the filesystem).\n\nIMPORTANT: When deserializing an `AbsolutePathBuf`, a base path must be set using [AbsolutePathBufGuard::new]. If no base path is set, the deserialization will fail unless the path being deserialized is already absolute.",
@@ -20,6 +24,7 @@
       "type": "object",
       "required": ["end", "start"],
       "properties": {
+<<<<<<< HEAD
         "end": {
           "type": "integer",
           "format": "uint",
@@ -30,6 +35,10 @@
           "format": "uint",
           "minimum": 0.0
         }
+=======
+        "end": { "type": "integer", "format": "uint", "minimum": 0 },
+        "start": { "type": "integer", "format": "uint", "minimum": 0 }
+>>>>>>> upstream/main
       }
     },
     "CodexErrorInfo": {
@@ -57,11 +66,15 @@
             "httpConnectionFailed": {
               "type": "object",
               "properties": {
+<<<<<<< HEAD
                 "httpStatusCode": {
                   "type": ["integer", "null"],
                   "format": "uint16",
                   "minimum": 0.0
                 }
+=======
+                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
+>>>>>>> upstream/main
               }
             }
           },
@@ -76,11 +89,15 @@
             "responseStreamConnectionFailed": {
               "type": "object",
               "properties": {
+<<<<<<< HEAD
                 "httpStatusCode": {
                   "type": ["integer", "null"],
                   "format": "uint16",
                   "minimum": 0.0
                 }
+=======
+                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
+>>>>>>> upstream/main
               }
             }
           },
@@ -95,11 +112,15 @@
             "responseStreamDisconnected": {
               "type": "object",
               "properties": {
+<<<<<<< HEAD
                 "httpStatusCode": {
                   "type": ["integer", "null"],
                   "format": "uint16",
                   "minimum": 0.0
                 }
+=======
+                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
+>>>>>>> upstream/main
               }
             }
           },
@@ -114,11 +135,15 @@
             "responseTooManyFailedAttempts": {
               "type": "object",
               "properties": {
+<<<<<<< HEAD
                 "httpStatusCode": {
                   "type": ["integer", "null"],
                   "format": "uint16",
                   "minimum": 0.0
                 }
+=======
+                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
+>>>>>>> upstream/main
               }
             }
           },
@@ -133,11 +158,15 @@
             "activeTurnNotSteerable": {
               "type": "object",
               "required": ["turnKind"],
+<<<<<<< HEAD
               "properties": {
                 "turnKind": {
                   "$ref": "#/definitions/NonSteerableTurnKind"
                 }
               }
+=======
+              "properties": { "turnKind": { "$ref": "#/definitions/NonSteerableTurnKind" } }
+>>>>>>> upstream/main
             }
           },
           "additionalProperties": false,
@@ -149,12 +178,17 @@
       "type": "object",
       "required": ["status"],
       "properties": {
+<<<<<<< HEAD
         "message": {
           "type": ["string", "null"]
         },
         "status": {
           "$ref": "#/definitions/CollabAgentStatus"
         }
+=======
+        "message": { "type": ["string", "null"] },
+        "status": { "$ref": "#/definitions/CollabAgentStatus" }
+>>>>>>> upstream/main
       }
     },
     "CollabAgentStatus": {
@@ -183,6 +217,7 @@
           "type": "object",
           "required": ["command", "name", "path", "type"],
           "properties": {
+<<<<<<< HEAD
             "command": {
               "type": "string"
             },
@@ -197,6 +232,12 @@
               "enum": ["read"],
               "title": "ReadCommandActionType"
             }
+=======
+            "command": { "type": "string" },
+            "name": { "type": "string" },
+            "path": { "$ref": "#/definitions/AbsolutePathBuf" },
+            "type": { "type": "string", "enum": ["read"], "title": "ReadCommandActionType" }
+>>>>>>> upstream/main
           },
           "title": "ReadCommandAction"
         },
@@ -204,12 +245,17 @@
           "type": "object",
           "required": ["command", "type"],
           "properties": {
+<<<<<<< HEAD
             "command": {
               "type": "string"
             },
             "path": {
               "type": ["string", "null"]
             },
+=======
+            "command": { "type": "string" },
+            "path": { "type": ["string", "null"] },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["listFiles"],
@@ -222,6 +268,7 @@
           "type": "object",
           "required": ["command", "type"],
           "properties": {
+<<<<<<< HEAD
             "command": {
               "type": "string"
             },
@@ -236,6 +283,12 @@
               "enum": ["search"],
               "title": "SearchCommandActionType"
             }
+=======
+            "command": { "type": "string" },
+            "path": { "type": ["string", "null"] },
+            "query": { "type": ["string", "null"] },
+            "type": { "type": "string", "enum": ["search"], "title": "SearchCommandActionType" }
+>>>>>>> upstream/main
           },
           "title": "SearchCommandAction"
         },
@@ -243,6 +296,7 @@
           "type": "object",
           "required": ["command", "type"],
           "properties": {
+<<<<<<< HEAD
             "command": {
               "type": "string"
             },
@@ -251,6 +305,10 @@
               "enum": ["unknown"],
               "title": "UnknownCommandActionType"
             }
+=======
+            "command": { "type": "string" },
+            "type": { "type": "string", "enum": ["unknown"], "title": "UnknownCommandActionType" }
+>>>>>>> upstream/main
           },
           "title": "UnknownCommandAction"
         }
@@ -270,9 +328,13 @@
           "type": "object",
           "required": ["text", "type"],
           "properties": {
+<<<<<<< HEAD
             "text": {
               "type": "string"
             },
+=======
+            "text": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["inputText"],
@@ -285,9 +347,13 @@
           "type": "object",
           "required": ["imageUrl", "type"],
           "properties": {
+<<<<<<< HEAD
             "imageUrl": {
               "type": "string"
             },
+=======
+            "imageUrl": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["inputImage"],
@@ -298,14 +364,19 @@
         }
       ]
     },
+<<<<<<< HEAD
     "DynamicToolCallStatus": {
       "type": "string",
       "enum": ["inProgress", "completed", "failed"]
     },
+=======
+    "DynamicToolCallStatus": { "type": "string", "enum": ["inProgress", "completed", "failed"] },
+>>>>>>> upstream/main
     "FileUpdateChange": {
       "type": "object",
       "required": ["diff", "kind", "path"],
       "properties": {
+<<<<<<< HEAD
         "diff": {
           "type": "string"
         },
@@ -315,11 +386,17 @@
         "path": {
           "type": "string"
         }
+=======
+        "diff": { "type": "string" },
+        "kind": { "$ref": "#/definitions/PatchChangeKind" },
+        "path": { "type": "string" }
+>>>>>>> upstream/main
       }
     },
     "HookPromptFragment": {
       "type": "object",
       "required": ["hookRunId", "text"],
+<<<<<<< HEAD
       "properties": {
         "hookRunId": {
           "type": "string"
@@ -328,21 +405,29 @@
           "type": "string"
         }
       }
+=======
+      "properties": { "hookRunId": { "type": "string" }, "text": { "type": "string" } }
+>>>>>>> upstream/main
     },
     "McpToolCallError": {
       "type": "object",
       "required": ["message"],
+<<<<<<< HEAD
       "properties": {
         "message": {
           "type": "string"
         }
       }
+=======
+      "properties": { "message": { "type": "string" } }
+>>>>>>> upstream/main
     },
     "McpToolCallResult": {
       "type": "object",
       "required": ["content"],
       "properties": {
         "_meta": true,
+<<<<<<< HEAD
         "content": {
           "type": "array",
           "items": true
@@ -354,10 +439,18 @@
       "type": "string",
       "enum": ["inProgress", "completed", "failed"]
     },
+=======
+        "content": { "type": "array", "items": true },
+        "structuredContent": true
+      }
+    },
+    "McpToolCallStatus": { "type": "string", "enum": ["inProgress", "completed", "failed"] },
+>>>>>>> upstream/main
     "MemoryCitation": {
       "type": "object",
       "required": ["entries", "threadIds"],
       "properties": {
+<<<<<<< HEAD
         "entries": {
           "type": "array",
           "items": {
@@ -370,12 +463,17 @@
             "type": "string"
           }
         }
+=======
+        "entries": { "type": "array", "items": { "$ref": "#/definitions/MemoryCitationEntry" } },
+        "threadIds": { "type": "array", "items": { "type": "string" } }
+>>>>>>> upstream/main
       }
     },
     "MemoryCitationEntry": {
       "type": "object",
       "required": ["lineEnd", "lineStart", "note", "path"],
       "properties": {
+<<<<<<< HEAD
         "lineEnd": {
           "type": "integer",
           "format": "uint32",
@@ -392,6 +490,12 @@
         "path": {
           "type": "string"
         }
+=======
+        "lineEnd": { "type": "integer", "format": "uint32", "minimum": 0 },
+        "lineStart": { "type": "integer", "format": "uint32", "minimum": 0 },
+        "note": { "type": "string" },
+        "path": { "type": "string" }
+>>>>>>> upstream/main
       }
     },
     "MessagePhase": {
@@ -409,10 +513,14 @@
         }
       ]
     },
+<<<<<<< HEAD
     "NonSteerableTurnKind": {
       "type": "string",
       "enum": ["review", "compact"]
     },
+=======
+    "NonSteerableTurnKind": { "type": "string", "enum": ["review", "compact"] },
+>>>>>>> upstream/main
     "PatchApplyStatus": {
       "type": "string",
       "enum": ["inProgress", "completed", "failed", "declined"]
@@ -423,11 +531,15 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "type": {
               "type": "string",
               "enum": ["add"],
               "title": "AddPatchChangeKindType"
             }
+=======
+            "type": { "type": "string", "enum": ["add"], "title": "AddPatchChangeKindType" }
+>>>>>>> upstream/main
           },
           "title": "AddPatchChangeKind"
         },
@@ -435,11 +547,15 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "type": {
               "type": "string",
               "enum": ["delete"],
               "title": "DeletePatchChangeKindType"
             }
+=======
+            "type": { "type": "string", "enum": ["delete"], "title": "DeletePatchChangeKindType" }
+>>>>>>> upstream/main
           },
           "title": "DeletePatchChangeKind"
         },
@@ -447,6 +563,7 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "move_path": {
               "type": ["string", "null"]
             },
@@ -455,6 +572,10 @@
               "enum": ["update"],
               "title": "UpdatePatchChangeKindType"
             }
+=======
+            "move_path": { "type": ["string", "null"] },
+            "type": { "type": "string", "enum": ["update"], "title": "UpdatePatchChangeKindType" }
+>>>>>>> upstream/main
           },
           "title": "UpdatePatchChangeKind"
         }
@@ -471,11 +592,15 @@
       "properties": {
         "byteRange": {
           "description": "Byte range in the parent `text` buffer that this element occupies.",
+<<<<<<< HEAD
           "allOf": [
             {
               "$ref": "#/definitions/ByteRange"
             }
           ]
+=======
+          "allOf": [{ "$ref": "#/definitions/ByteRange" }]
+>>>>>>> upstream/main
         },
         "placeholder": {
           "description": "Optional human-readable placeholder for the element, displayed in the UI.",
@@ -489,6 +614,7 @@
           "type": "object",
           "required": ["content", "id", "type"],
           "properties": {
+<<<<<<< HEAD
             "content": {
               "type": "array",
               "items": {
@@ -498,6 +624,10 @@
             "id": {
               "type": "string"
             },
+=======
+            "content": { "type": "array", "items": { "$ref": "#/definitions/UserInput" } },
+            "id": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["userMessage"],
@@ -512,6 +642,7 @@
           "properties": {
             "fragments": {
               "type": "array",
+<<<<<<< HEAD
               "items": {
                 "$ref": "#/definitions/HookPromptFragment"
               }
@@ -519,6 +650,11 @@
             "id": {
               "type": "string"
             },
+=======
+              "items": { "$ref": "#/definitions/HookPromptFragment" }
+            },
+            "id": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["hookPrompt"],
@@ -531,6 +667,7 @@
           "type": "object",
           "required": ["id", "text", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
@@ -559,6 +696,18 @@
             "text": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+            "memoryCitation": {
+              "default": null,
+              "anyOf": [{ "$ref": "#/definitions/MemoryCitation" }, { "type": "null" }]
+            },
+            "phase": {
+              "default": null,
+              "anyOf": [{ "$ref": "#/definitions/MessagePhase" }, { "type": "null" }]
+            },
+            "text": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["agentMessage"],
@@ -572,6 +721,7 @@
           "type": "object",
           "required": ["id", "text", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
@@ -583,6 +733,11 @@
               "enum": ["plan"],
               "title": "PlanThreadItemType"
             }
+=======
+            "id": { "type": "string" },
+            "text": { "type": "string" },
+            "type": { "type": "string", "enum": ["plan"], "title": "PlanThreadItemType" }
+>>>>>>> upstream/main
           },
           "title": "PlanThreadItem"
         },
@@ -590,6 +745,7 @@
           "type": "object",
           "required": ["id", "type"],
           "properties": {
+<<<<<<< HEAD
             "content": {
               "default": [],
               "type": "array",
@@ -612,6 +768,12 @@
               "enum": ["reasoning"],
               "title": "ReasoningThreadItemType"
             }
+=======
+            "content": { "default": [], "type": "array", "items": { "type": "string" } },
+            "id": { "type": "string" },
+            "summary": { "default": [], "type": "array", "items": { "type": "string" } },
+            "type": { "type": "string", "enum": ["reasoning"], "title": "ReasoningThreadItemType" }
+>>>>>>> upstream/main
           },
           "title": "ReasoningThreadItem"
         },
@@ -623,6 +785,7 @@
               "description": "The command's output, aggregated from stdout and stderr.",
               "type": ["string", "null"]
             },
+<<<<<<< HEAD
             "command": {
               "description": "The command to be executed.",
               "type": "string"
@@ -641,6 +804,17 @@
                   "$ref": "#/definitions/AbsolutePathBuf"
                 }
               ]
+=======
+            "command": { "description": "The command to be executed.", "type": "string" },
+            "commandActions": {
+              "description": "A best-effort parsing of the command to understand the action(s) it will perform. This returns a list of CommandAction objects because a single shell command may be composed of many commands piped together.",
+              "type": "array",
+              "items": { "$ref": "#/definitions/CommandAction" }
+            },
+            "cwd": {
+              "description": "The command's working directory.",
+              "allOf": [{ "$ref": "#/definitions/AbsolutePathBuf" }]
+>>>>>>> upstream/main
             },
             "durationMs": {
               "description": "The duration of the command execution in milliseconds.",
@@ -652,15 +826,20 @@
               "type": ["integer", "null"],
               "format": "int32"
             },
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+>>>>>>> upstream/main
             "processId": {
               "description": "Identifier for the underlying PTY process (when available).",
               "type": ["string", "null"]
             },
             "source": {
               "default": "agent",
+<<<<<<< HEAD
               "allOf": [
                 {
                   "$ref": "#/definitions/CommandExecutionSource"
@@ -670,6 +849,11 @@
             "status": {
               "$ref": "#/definitions/CommandExecutionStatus"
             },
+=======
+              "allOf": [{ "$ref": "#/definitions/CommandExecutionSource" }]
+            },
+            "status": { "$ref": "#/definitions/CommandExecutionStatus" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["commandExecution"],
@@ -682,6 +866,7 @@
           "type": "object",
           "required": ["changes", "id", "status", "type"],
           "properties": {
+<<<<<<< HEAD
             "changes": {
               "type": "array",
               "items": {
@@ -694,6 +879,11 @@
             "status": {
               "$ref": "#/definitions/PatchApplyStatus"
             },
+=======
+            "changes": { "type": "array", "items": { "$ref": "#/definitions/FileUpdateChange" } },
+            "id": { "type": "string" },
+            "status": { "$ref": "#/definitions/PatchApplyStatus" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["fileChange"],
@@ -713,6 +903,7 @@
               "format": "int64"
             },
             "error": {
+<<<<<<< HEAD
               "anyOf": [
                 {
                   "$ref": "#/definitions/McpToolCallError"
@@ -747,6 +938,18 @@
             "tool": {
               "type": "string"
             },
+=======
+              "anyOf": [{ "$ref": "#/definitions/McpToolCallError" }, { "type": "null" }]
+            },
+            "id": { "type": "string" },
+            "mcpAppResourceUri": { "type": ["string", "null"] },
+            "result": {
+              "anyOf": [{ "$ref": "#/definitions/McpToolCallResult" }, { "type": "null" }]
+            },
+            "server": { "type": "string" },
+            "status": { "$ref": "#/definitions/McpToolCallStatus" },
+            "tool": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["mcpToolCall"],
@@ -762,15 +965,20 @@
             "arguments": true,
             "contentItems": {
               "type": ["array", "null"],
+<<<<<<< HEAD
               "items": {
                 "$ref": "#/definitions/DynamicToolCallOutputContentItem"
               }
+=======
+              "items": { "$ref": "#/definitions/DynamicToolCallOutputContentItem" }
+>>>>>>> upstream/main
             },
             "durationMs": {
               "description": "The duration of the dynamic tool call in milliseconds.",
               "type": ["integer", "null"],
               "format": "int64"
             },
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
@@ -786,6 +994,13 @@
             "tool": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+            "namespace": { "type": ["string", "null"] },
+            "status": { "$ref": "#/definitions/DynamicToolCallStatus" },
+            "success": { "type": ["boolean", "null"] },
+            "tool": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["dynamicToolCall"],
@@ -809,9 +1024,13 @@
             "agentsStates": {
               "description": "Last known status of the target agents, when available.",
               "type": "object",
+<<<<<<< HEAD
               "additionalProperties": {
                 "$ref": "#/definitions/CollabAgentState"
               }
+=======
+              "additionalProperties": { "$ref": "#/definitions/CollabAgentState" }
+>>>>>>> upstream/main
             },
             "id": {
               "description": "Unique identifier for this collab tool call.",
@@ -827,6 +1046,7 @@
             },
             "reasoningEffort": {
               "description": "Reasoning effort requested for the spawned agent, when applicable.",
+<<<<<<< HEAD
               "anyOf": [
                 {
                   "$ref": "#/definitions/ReasoningEffort"
@@ -835,13 +1055,20 @@
                   "type": "null"
                 }
               ]
+=======
+              "anyOf": [{ "$ref": "#/definitions/ReasoningEffort" }, { "type": "null" }]
+>>>>>>> upstream/main
             },
             "receiverThreadIds": {
               "description": "Thread ID of the receiving agent, when applicable. In case of spawn operation, this corresponds to the newly spawned agent.",
               "type": "array",
+<<<<<<< HEAD
               "items": {
                 "type": "string"
               }
+=======
+              "items": { "type": "string" }
+>>>>>>> upstream/main
             },
             "senderThreadId": {
               "description": "Thread ID of the agent issuing the collab request.",
@@ -849,6 +1076,7 @@
             },
             "status": {
               "description": "Current status of the collab tool call.",
+<<<<<<< HEAD
               "allOf": [
                 {
                   "$ref": "#/definitions/CollabAgentToolCallStatus"
@@ -862,6 +1090,13 @@
                   "$ref": "#/definitions/CollabAgentTool"
                 }
               ]
+=======
+              "allOf": [{ "$ref": "#/definitions/CollabAgentToolCallStatus" }]
+            },
+            "tool": {
+              "description": "Name of the collab tool that was invoked.",
+              "allOf": [{ "$ref": "#/definitions/CollabAgentTool" }]
+>>>>>>> upstream/main
             },
             "type": {
               "type": "string",
@@ -876,6 +1111,7 @@
           "required": ["id", "query", "type"],
           "properties": {
             "action": {
+<<<<<<< HEAD
               "anyOf": [
                 {
                   "$ref": "#/definitions/WebSearchAction"
@@ -896,6 +1132,13 @@
               "enum": ["webSearch"],
               "title": "WebSearchThreadItemType"
             }
+=======
+              "anyOf": [{ "$ref": "#/definitions/WebSearchAction" }, { "type": "null" }]
+            },
+            "id": { "type": "string" },
+            "query": { "type": "string" },
+            "type": { "type": "string", "enum": ["webSearch"], "title": "WebSearchThreadItemType" }
+>>>>>>> upstream/main
           },
           "title": "WebSearchThreadItem"
         },
@@ -903,6 +1146,7 @@
           "type": "object",
           "required": ["id", "path", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
@@ -914,6 +1158,11 @@
               "enum": ["imageView"],
               "title": "ImageViewThreadItemType"
             }
+=======
+            "id": { "type": "string" },
+            "path": { "$ref": "#/definitions/AbsolutePathBuf" },
+            "type": { "type": "string", "enum": ["imageView"], "title": "ImageViewThreadItemType" }
+>>>>>>> upstream/main
           },
           "title": "ImageViewThreadItem"
         },
@@ -921,6 +1170,7 @@
           "type": "object",
           "required": ["id", "result", "status", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
@@ -943,6 +1193,15 @@
             "status": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+            "result": { "type": "string" },
+            "revisedPrompt": { "type": ["string", "null"] },
+            "savedPath": {
+              "anyOf": [{ "$ref": "#/definitions/AbsolutePathBuf" }, { "type": "null" }]
+            },
+            "status": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["imageGeneration"],
@@ -955,12 +1214,17 @@
           "type": "object",
           "required": ["id", "review", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
             "review": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+            "review": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["enteredReviewMode"],
@@ -973,12 +1237,17 @@
           "type": "object",
           "required": ["id", "review", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
             "review": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+            "review": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["exitedReviewMode"],
@@ -991,9 +1260,13 @@
           "type": "object",
           "required": ["id", "type"],
           "properties": {
+<<<<<<< HEAD
             "id": {
               "type": "string"
             },
+=======
+            "id": { "type": "string" },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["contextCompaction"],
@@ -1020,6 +1293,7 @@
         },
         "error": {
           "description": "Only populated when the Turn's status is failed.",
+<<<<<<< HEAD
           "anyOf": [
             {
               "$ref": "#/definitions/TurnError"
@@ -1038,21 +1312,35 @@
           "items": {
             "$ref": "#/definitions/ThreadItem"
           }
+=======
+          "anyOf": [{ "$ref": "#/definitions/TurnError" }, { "type": "null" }]
+        },
+        "id": { "type": "string" },
+        "items": {
+          "description": "Only populated on a `thread/resume` or `thread/fork` response. For all other responses and notifications returning a Turn, the items field will be an empty list.",
+          "type": "array",
+          "items": { "$ref": "#/definitions/ThreadItem" }
+>>>>>>> upstream/main
         },
         "startedAt": {
           "description": "Unix timestamp (in seconds) when the turn started.",
           "type": ["integer", "null"],
           "format": "int64"
         },
+<<<<<<< HEAD
         "status": {
           "$ref": "#/definitions/TurnStatus"
         }
+=======
+        "status": { "$ref": "#/definitions/TurnStatus" }
+>>>>>>> upstream/main
       }
     },
     "TurnError": {
       "type": "object",
       "required": ["message"],
       "properties": {
+<<<<<<< HEAD
         "additionalDetails": {
           "default": null,
           "type": ["string", "null"]
@@ -1070,6 +1358,13 @@
         "message": {
           "type": "string"
         }
+=======
+        "additionalDetails": { "default": null, "type": ["string", "null"] },
+        "codexErrorInfo": {
+          "anyOf": [{ "$ref": "#/definitions/CodexErrorInfo" }, { "type": "null" }]
+        },
+        "message": { "type": "string" }
+>>>>>>> upstream/main
       }
     },
     "TurnStatus": {
@@ -1082,13 +1377,18 @@
           "type": "object",
           "required": ["text", "type"],
           "properties": {
+<<<<<<< HEAD
             "text": {
               "type": "string"
             },
+=======
+            "text": { "type": "string" },
+>>>>>>> upstream/main
             "text_elements": {
               "description": "UI-defined spans within `text` used to render or persist special elements.",
               "default": [],
               "type": "array",
+<<<<<<< HEAD
               "items": {
                 "$ref": "#/definitions/TextElement"
               }
@@ -1098,6 +1398,11 @@
               "enum": ["text"],
               "title": "TextUserInputType"
             }
+=======
+              "items": { "$ref": "#/definitions/TextElement" }
+            },
+            "type": { "type": "string", "enum": ["text"], "title": "TextUserInputType" }
+>>>>>>> upstream/main
           },
           "title": "TextUserInput"
         },
@@ -1105,6 +1410,7 @@
           "type": "object",
           "required": ["type", "url"],
           "properties": {
+<<<<<<< HEAD
             "type": {
               "type": "string",
               "enum": ["image"],
@@ -1113,6 +1419,10 @@
             "url": {
               "type": "string"
             }
+=======
+            "type": { "type": "string", "enum": ["image"], "title": "ImageUserInputType" },
+            "url": { "type": "string" }
+>>>>>>> upstream/main
           },
           "title": "ImageUserInput"
         },
@@ -1120,6 +1430,7 @@
           "type": "object",
           "required": ["path", "type"],
           "properties": {
+<<<<<<< HEAD
             "path": {
               "type": "string"
             },
@@ -1128,6 +1439,10 @@
               "enum": ["localImage"],
               "title": "LocalImageUserInputType"
             }
+=======
+            "path": { "type": "string" },
+            "type": { "type": "string", "enum": ["localImage"], "title": "LocalImageUserInputType" }
+>>>>>>> upstream/main
           },
           "title": "LocalImageUserInput"
         },
@@ -1135,6 +1450,7 @@
           "type": "object",
           "required": ["name", "path", "type"],
           "properties": {
+<<<<<<< HEAD
             "name": {
               "type": "string"
             },
@@ -1146,6 +1462,11 @@
               "enum": ["skill"],
               "title": "SkillUserInputType"
             }
+=======
+            "name": { "type": "string" },
+            "path": { "type": "string" },
+            "type": { "type": "string", "enum": ["skill"], "title": "SkillUserInputType" }
+>>>>>>> upstream/main
           },
           "title": "SkillUserInput"
         },
@@ -1153,6 +1474,7 @@
           "type": "object",
           "required": ["name", "path", "type"],
           "properties": {
+<<<<<<< HEAD
             "name": {
               "type": "string"
             },
@@ -1164,6 +1486,11 @@
               "enum": ["mention"],
               "title": "MentionUserInputType"
             }
+=======
+            "name": { "type": "string" },
+            "path": { "type": "string" },
+            "type": { "type": "string", "enum": ["mention"], "title": "MentionUserInputType" }
+>>>>>>> upstream/main
           },
           "title": "MentionUserInput"
         }
@@ -1175,6 +1502,7 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "queries": {
               "type": ["array", "null"],
               "items": {
@@ -1189,6 +1517,11 @@
               "enum": ["search"],
               "title": "SearchWebSearchActionType"
             }
+=======
+            "queries": { "type": ["array", "null"], "items": { "type": "string" } },
+            "query": { "type": ["string", "null"] },
+            "type": { "type": "string", "enum": ["search"], "title": "SearchWebSearchActionType" }
+>>>>>>> upstream/main
           },
           "title": "SearchWebSearchAction"
         },
@@ -1201,9 +1534,13 @@
               "enum": ["openPage"],
               "title": "OpenPageWebSearchActionType"
             },
+<<<<<<< HEAD
             "url": {
               "type": ["string", "null"]
             }
+=======
+            "url": { "type": ["string", "null"] }
+>>>>>>> upstream/main
           },
           "title": "OpenPageWebSearchAction"
         },
@@ -1211,17 +1548,25 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "pattern": {
               "type": ["string", "null"]
             },
+=======
+            "pattern": { "type": ["string", "null"] },
+>>>>>>> upstream/main
             "type": {
               "type": "string",
               "enum": ["findInPage"],
               "title": "FindInPageWebSearchActionType"
             },
+<<<<<<< HEAD
             "url": {
               "type": ["string", "null"]
             }
+=======
+            "url": { "type": ["string", "null"] }
+>>>>>>> upstream/main
           },
           "title": "FindInPageWebSearchAction"
         },
@@ -1229,11 +1574,15 @@
           "type": "object",
           "required": ["type"],
           "properties": {
+<<<<<<< HEAD
             "type": {
               "type": "string",
               "enum": ["other"],
               "title": "OtherWebSearchActionType"
             }
+=======
+            "type": { "type": "string", "enum": ["other"], "title": "OtherWebSearchActionType" }
+>>>>>>> upstream/main
           },
           "title": "OtherWebSearchAction"
         }

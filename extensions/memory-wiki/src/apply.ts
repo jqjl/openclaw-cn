@@ -1,9 +1,16 @@
+<<<<<<< HEAD
 import fs from "node:fs/promises";
+=======
+>>>>>>> upstream/main
 import path from "node:path";
 import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
 } from "openclaw/plugin-sdk/memory-host-markdown";
+<<<<<<< HEAD
+=======
+import { root as fsRoot } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { compileMemoryWikiVault, type CompileMemoryWikiResult } from "./compile.js";
 import type { ResolvedMemoryWikiConfig } from "./config.js";
 import {
@@ -150,22 +157,39 @@ function buildSynthesisBody(params: {
 }
 
 async function writeWikiPage(params: {
+<<<<<<< HEAD
   absolutePath: string;
   frontmatter: Record<string, unknown>;
   body: string;
 }): Promise<boolean> {
+=======
+  rootDir: string;
+  relativePath: string;
+  frontmatter: Record<string, unknown>;
+  body: string;
+}): Promise<boolean> {
+  const root = await fsRoot(params.rootDir);
+>>>>>>> upstream/main
   const rendered = withTrailingNewline(
     renderWikiMarkdown({
       frontmatter: params.frontmatter,
       body: params.body,
     }),
   );
+<<<<<<< HEAD
   const existing = await fs.readFile(params.absolutePath, "utf8").catch(() => "");
   if (existing === rendered) {
     return false;
   }
   await fs.mkdir(path.dirname(params.absolutePath), { recursive: true });
   await fs.writeFile(params.absolutePath, rendered, "utf8");
+=======
+  const existing = await root.readText(params.relativePath).catch(() => "");
+  if (existing === rendered) {
+    return false;
+  }
+  await root.write(params.relativePath, rendered);
+>>>>>>> upstream/main
   return true;
 }
 
@@ -183,14 +207,24 @@ async function applyCreateSynthesisMutation(params: {
 }): Promise<{ changed: boolean; pagePath: string; pageId: string }> {
   const slug = slugifyWikiSegment(params.mutation.title);
   const pagePath = path.join("syntheses", `${slug}.md`).replace(/\\/g, "/");
+<<<<<<< HEAD
   const absolutePath = path.join(params.config.vault.path, pagePath);
   const existing = await fs.readFile(absolutePath, "utf8").catch(() => "");
+=======
+  const root = await fsRoot(params.config.vault.path);
+  const existing = await root.readText(pagePath).catch(() => "");
+>>>>>>> upstream/main
   const parsed = parseWikiMarkdown(existing);
   const pageId =
     (typeof parsed.frontmatter.id === "string" && parsed.frontmatter.id.trim()) ||
     `synthesis.${slug}`;
   const changed = await writeWikiPage({
+<<<<<<< HEAD
     absolutePath,
+=======
+    rootDir: params.config.vault.path,
+    relativePath: pagePath,
+>>>>>>> upstream/main
     frontmatter: {
       ...parsed.frontmatter,
       pageType: "synthesis",
@@ -278,7 +312,12 @@ async function applyUpdateMetadataMutation(params: {
   }
   const parsed = parseWikiMarkdown(page.raw);
   const changed = await writeWikiPage({
+<<<<<<< HEAD
     absolutePath: page.absolutePath,
+=======
+    rootDir: params.config.vault.path,
+    relativePath: page.relativePath,
+>>>>>>> upstream/main
     frontmatter: buildUpdatedFrontmatter({
       original: parsed.frontmatter,
       mutation: params.mutation,

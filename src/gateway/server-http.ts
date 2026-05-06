@@ -43,7 +43,10 @@ import {
 import type { PreauthConnectionBudget } from "./server/preauth-connection-budget.js";
 import type { ReadinessChecker } from "./server/readiness.js";
 import type { GatewayWsClient } from "./server/ws-types.js";
+<<<<<<< HEAD
 import { VOICECLAW_REALTIME_PATH } from "./voiceclaw-realtime/paths.js";
+=======
+>>>>>>> upstream/main
 
 type PluginHttpRequestHandler = (
   req: IncomingMessage,
@@ -70,9 +73,12 @@ let sessionHistoryHttpModulePromise:
   | undefined;
 let sessionKillHttpModulePromise: Promise<typeof import("./session-kill-http.js")> | undefined;
 let toolsInvokeHttpModulePromise: Promise<typeof import("./tools-invoke-http.js")> | undefined;
+<<<<<<< HEAD
 let voiceClawRealtimeUpgradeModulePromise:
   | Promise<typeof import("./voiceclaw-realtime/upgrade.js")>
   | undefined;
+=======
+>>>>>>> upstream/main
 let canvasAuthModulePromise: Promise<typeof import("./server/http-auth.js")> | undefined;
 let httpAuthUtilsModulePromise: Promise<typeof import("./http-auth-utils.js")> | undefined;
 let pluginRouteRuntimeScopesModulePromise:
@@ -129,11 +135,14 @@ function getToolsInvokeHttpModule() {
   return toolsInvokeHttpModulePromise;
 }
 
+<<<<<<< HEAD
 function getVoiceClawRealtimeUpgradeModule() {
   voiceClawRealtimeUpgradeModulePromise ??= import("./voiceclaw-realtime/upgrade.js");
   return voiceClawRealtimeUpgradeModulePromise;
 }
 
+=======
+>>>>>>> upstream/main
 function getCanvasAuthModule() {
   canvasAuthModulePromise ??= import("./server/http-auth.js");
   return canvasAuthModulePromise;
@@ -214,6 +223,13 @@ function isToolsInvokePath(pathname: string): boolean {
   return pathname === "/tools/invoke";
 }
 
+<<<<<<< HEAD
+=======
+function isManagedOutgoingImagePath(pathname: string): boolean {
+  return pathname.startsWith("/api/chat/media/outgoing/");
+}
+
+>>>>>>> upstream/main
 function isSessionKillPath(pathname: string): boolean {
   return /^\/sessions\/[^/]+\/kill$/.test(pathname);
 }
@@ -724,6 +740,7 @@ export function createGatewayHttpServer(opts: {
         }),
       );
 
+<<<<<<< HEAD
       requestStages.push({
         name: "chat-managed-image-media",
         run: async () =>
@@ -738,6 +755,24 @@ export function createGatewayHttpServer(opts: {
             },
           ),
       });
+=======
+      if (isManagedOutgoingImagePath(scopedRequestPath)) {
+        requestStages.push({
+          name: "chat-managed-image-media",
+          run: async () =>
+            (await getManagedImageAttachmentsModule()).handleManagedOutgoingImageHttpRequest(
+              req,
+              res,
+              {
+                auth: resolvedAuth,
+                trustedProxies,
+                allowRealIpFallback,
+                rateLimiter,
+              },
+            ),
+        });
+      }
+>>>>>>> upstream/main
 
       if (controlUiEnabled) {
         requestStages.push({
@@ -867,6 +902,7 @@ export function attachGatewayUpgradeHandler(opts: {
         }
       }
       const preauthBudgetKey = resolveRequestClientIp(req, trustedProxies, allowRealIpFallback);
+<<<<<<< HEAD
       if (url.pathname === VOICECLAW_REALTIME_PATH) {
         if (!preauthConnectionBudget.acquire(preauthBudgetKey)) {
           writeUpgradeServiceUnavailable(socket, "Too many unauthenticated sockets");
@@ -903,6 +939,8 @@ export function attachGatewayUpgradeHandler(opts: {
           throw new Error("VoiceClaw realtime websocket upgrade failed", { cause: err });
         }
       }
+=======
+>>>>>>> upstream/main
       if (wss.listenerCount("connection") === 0) {
         writeUpgradeServiceUnavailable(socket, "Gateway websocket handlers unavailable");
         socket.destroy();

@@ -19,6 +19,16 @@ export type PluginUninstallOptions = {
   dryRun?: boolean;
 };
 
+<<<<<<< HEAD
+=======
+function isPromptInputClosedError(
+  error: unknown,
+  PromptInputClosedError: typeof import("./prompt.js").PromptInputClosedError,
+): error is InstanceType<typeof PromptInputClosedError> {
+  return error instanceof PromptInputClosedError;
+}
+
+>>>>>>> upstream/main
 export async function runPluginUninstallCommand(
   id: string,
   opts: PluginUninstallOptions = {},
@@ -44,7 +54,11 @@ export async function runPluginUninstallCommand(
   const { refreshPluginRegistryAfterConfigMutation } =
     await import("./plugins-registry-refresh.js");
   const { resolvePluginUninstallId } = await import("./plugins-uninstall-selection.js");
+<<<<<<< HEAD
   const { promptYesNo } = await import("./prompt.js");
+=======
+  const { PromptInputClosedError, promptYesNo } = await import("./prompt.js");
+>>>>>>> upstream/main
   const snapshot = await tracePluginLifecyclePhaseAsync(
     "config read",
     () => readConfigFileSnapshot(),
@@ -143,7 +157,23 @@ export async function runPluginUninstallCommand(
   }
 
   if (!opts.force) {
+<<<<<<< HEAD
     const confirmed = await promptYesNo(`Uninstall plugin "${pluginId}"?`);
+=======
+    let confirmed: boolean;
+    try {
+      confirmed = await promptYesNo(`Uninstall plugin "${pluginId}"?`);
+    } catch (error) {
+      if (isPromptInputClosedError(error, PromptInputClosedError)) {
+        runtime.error(
+          "Error: plugins uninstall requires confirmation input. Re-run in an interactive TTY or pass --force.",
+        );
+        runtime.exit(1);
+        return;
+      }
+      throw error;
+    }
+>>>>>>> upstream/main
     if (!confirmed) {
       runtime.log("Cancelled.");
       return;

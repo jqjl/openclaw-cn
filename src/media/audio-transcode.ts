@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+=======
+import path from "node:path";
+import { withTempWorkspace } from "../infra/private-temp-workspace.js";
+>>>>>>> upstream/main
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { runFfmpeg } from "./ffmpeg-exec.js";
 
@@ -50,6 +55,7 @@ export async function transcodeAudioBufferToOpus(params: {
   bitrate?: string;
   channels?: number;
 }): Promise<Buffer> {
+<<<<<<< HEAD
   const tempRoot = resolvePreferredOpenClawTmpDir();
   await mkdir(tempRoot, { recursive: true, mode: 0o700 });
   const tempDir = await mkdtemp(path.join(tempRoot, normalizeTempPrefix(params.tempPrefix)));
@@ -84,4 +90,43 @@ export async function transcodeAudioBufferToOpus(params: {
   } finally {
     await rm(tempDir, { recursive: true, force: true });
   }
+=======
+  return await withTempWorkspace(
+    {
+      rootDir: resolvePreferredOpenClawTmpDir(),
+      prefix: normalizeTempPrefix(params.tempPrefix),
+    },
+    async (workspace) => {
+      const inputPath = await workspace.write(
+        `input${normalizeAudioExtension(params)}`,
+        params.audioBuffer,
+      );
+      const outputPath = workspace.path(normalizeOutputFileName(params.outputFileName));
+      await runFfmpeg(
+        [
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-y",
+          "-i",
+          inputPath,
+          "-vn",
+          "-sn",
+          "-dn",
+          "-c:a",
+          "libopus",
+          "-b:a",
+          params.bitrate ?? DEFAULT_OPUS_BITRATE,
+          "-ar",
+          String(params.sampleRateHz ?? DEFAULT_OPUS_SAMPLE_RATE_HZ),
+          "-ac",
+          String(params.channels ?? DEFAULT_OPUS_CHANNELS),
+          outputPath,
+        ],
+        { timeoutMs: params.timeoutMs },
+      );
+      return await workspace.read(normalizeOutputFileName(params.outputFileName));
+    },
+  );
+>>>>>>> upstream/main
 }

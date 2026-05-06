@@ -19,6 +19,10 @@ import {
   type SessionEntry as StoreSessionEntry,
 } from "../../config/sessions/types.js";
 import { readLatestRecentSessionUsageFromTranscriptAsync } from "../../gateway/session-utils.fs.js";
+<<<<<<< HEAD
+=======
+import { readRegularFile } from "../../infra/fs-safe.js";
+>>>>>>> upstream/main
 
 type ForkSourceTranscript = {
   cwd: string;
@@ -169,7 +173,11 @@ function collectBranchLabels(params: {
 async function readForkSourceTranscript(
   parentSessionFile: string,
 ): Promise<ForkSourceTranscript | null> {
+<<<<<<< HEAD
   const raw = await fs.readFile(parentSessionFile, "utf-8");
+=======
+  const raw = (await readRegularFile({ filePath: parentSessionFile })).buffer.toString("utf-8");
+>>>>>>> upstream/main
   const fileEntries = parseSessionEntries(raw);
   migrateSessionEntries(fileEntries);
   const header =
@@ -281,6 +289,7 @@ async function writeBranchedSession(params: {
   return { sessionId, sessionFile };
 }
 
+<<<<<<< HEAD
 async function fileExists(filePath: string): Promise<boolean> {
   try {
     const stat = await fs.stat(filePath);
@@ -290,6 +299,8 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 export async function forkSessionFromParentRuntime(params: {
   parentEntry: StoreSessionEntry;
   agentId: string;
@@ -300,7 +311,11 @@ export async function forkSessionFromParentRuntime(params: {
     params.parentEntry,
     { agentId: params.agentId, sessionsDir: params.sessionsDir },
   );
+<<<<<<< HEAD
   if (!parentSessionFile || !(await fileExists(parentSessionFile))) {
+=======
+  if (!parentSessionFile) {
+>>>>>>> upstream/main
     return null;
   }
   try {

@@ -48,7 +48,11 @@ imsg rpc --help
     imessage: {
       enabled: true,
       cliPath: "/usr/local/bin/imsg",
+<<<<<<< HEAD
       dbPath: "/Users/<you>/Library/Messages/chat.db",
+=======
+      dbPath: "/Users/user/Library/Messages/chat.db",
+>>>>>>> upstream/main
     },
   },
 }

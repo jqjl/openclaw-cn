@@ -127,7 +127,11 @@ const STORE_PATH = path.join(
 const SESSION_KEY = "agent:main:main";
 let findCommandByNativeName: typeof import("openclaw/plugin-sdk/command-auth").findCommandByNativeName;
 let resolveCommandArgChoices: typeof import("openclaw/plugin-sdk/command-auth").resolveCommandArgChoices;
+<<<<<<< HEAD
 let resolveDiscordNativeChoiceContext: typeof import("./native-command-ui.js").resolveDiscordNativeChoiceContext;
+=======
+let resolveDiscordNativeChoiceContext: typeof import("./native-command-model-picker-ui.js").resolveDiscordNativeChoiceContext;
+>>>>>>> upstream/main
 
 function installProviderThinkingRegistryForTest(): void {
   const registry = createEmptyPluginRegistry();
@@ -165,10 +169,16 @@ function installProviderThinkingRegistryForTest(): void {
 }
 
 async function loadDiscordThinkAutocompleteModulesForTest() {
+<<<<<<< HEAD
   vi.resetModules();
   installProviderThinkingRegistryForTest();
   const commandAuth = await import("openclaw/plugin-sdk/command-auth");
   const nativeCommandUi = await import("./native-command-ui.js");
+=======
+  installProviderThinkingRegistryForTest();
+  const commandAuth = await import("openclaw/plugin-sdk/command-auth");
+  const nativeCommandUi = await import("./native-command-model-picker-ui.js");
+>>>>>>> upstream/main
   return {
     findCommandByNativeName: commandAuth.findCommandByNativeName,
     resolveCommandArgChoices: commandAuth.resolveCommandArgChoices,
@@ -265,12 +275,22 @@ describe("discord native /think autocomplete", () => {
       channel: { id: "D1", type: ChannelType.DM },
       user: { id: "U1" },
       guild: undefined,
+<<<<<<< HEAD
       client: {},
+=======
+      client: { fetchChannel: async () => ({ id: "D1", type: ChannelType.DM }) },
+>>>>>>> upstream/main
     } as unknown as AutocompleteInteraction & {
       respond: (choices: Array<{ name: string; value: string }>) => Promise<void>;
     };
 
+<<<<<<< HEAD
     const command = findCommandByNativeName("think", "discord");
+=======
+    const command = findCommandByNativeName("think", "discord", {
+      includeBundledChannelFallback: false,
+    });
+>>>>>>> upstream/main
     expect(command).toBeTruthy();
     const levelArg = command?.args?.find((entry) => entry.name === "level");
     expect(levelArg).toBeTruthy();
@@ -295,6 +315,10 @@ describe("discord native /think autocomplete", () => {
       cfg,
       provider: context?.provider,
       model: context?.model,
+<<<<<<< HEAD
+=======
+      catalog: [],
+>>>>>>> upstream/main
     });
     const values = choices.map((choice) => choice.value);
     expect(values).toContain("xhigh");
@@ -333,7 +357,11 @@ describe("discord native /think autocomplete", () => {
       channel: { id: "C1", type: ChannelType.GuildText },
       user: { id: "U1" },
       guild: { id: "G1" },
+<<<<<<< HEAD
       client: {},
+=======
+      client: { fetchChannel: async () => ({ id: "C1", type: ChannelType.GuildText }) },
+>>>>>>> upstream/main
     } as unknown as AutocompleteInteraction & {
       respond: (choices: Array<{ name: string; value: string }>) => Promise<void>;
     };
@@ -344,7 +372,13 @@ describe("discord native /think autocomplete", () => {
       accountId: "default",
       threadBindings: createNoopThreadBindingManager("default"),
     });
+<<<<<<< HEAD
     const command = findCommandByNativeName("think", "discord");
+=======
+    const command = findCommandByNativeName("think", "discord", {
+      includeBundledChannelFallback: false,
+    });
+>>>>>>> upstream/main
     const levelArg = command?.args?.find((entry) => entry.name === "level");
     expect(command).toBeTruthy();
     expect(levelArg).toBeTruthy();
@@ -358,6 +392,10 @@ describe("discord native /think autocomplete", () => {
       cfg,
       provider: context?.provider,
       model: context?.model,
+<<<<<<< HEAD
+=======
+      catalog: [],
+>>>>>>> upstream/main
     });
     const values = choices.map((choice) => choice.value);
     expect(values).toContain("max");
@@ -381,7 +419,11 @@ describe("discord native /think autocomplete", () => {
       channel: { id: "C1", type: ChannelType.GuildText },
       user: { id: "U1" },
       guild: { id: "G1" },
+<<<<<<< HEAD
       client: {},
+=======
+      client: { fetchChannel: async () => ({ id: "C1", type: ChannelType.GuildText }) },
+>>>>>>> upstream/main
     } as unknown as AutocompleteInteraction & {
       respond: (choices: Array<{ name: string; value: string }>) => Promise<void>;
     };
@@ -396,7 +438,13 @@ describe("discord native /think autocomplete", () => {
     expect(context).toBeNull();
     expect(ensureConfiguredBindingRouteReadyMock).toHaveBeenCalledTimes(1);
 
+<<<<<<< HEAD
     const command = findCommandByNativeName("think", "discord");
+=======
+    const command = findCommandByNativeName("think", "discord", {
+      includeBundledChannelFallback: false,
+    });
+>>>>>>> upstream/main
     const levelArg = command?.args?.find((entry) => entry.name === "level");
     expect(command).toBeTruthy();
     expect(levelArg).toBeTruthy();
@@ -409,6 +457,10 @@ describe("discord native /think autocomplete", () => {
       cfg,
       provider: context?.provider,
       model: context?.model,
+<<<<<<< HEAD
+=======
+      catalog: [],
+>>>>>>> upstream/main
     });
     const values = choices.map((choice) => choice.value);
     expect(values).not.toContain("xhigh");

@@ -2,6 +2,10 @@ import fsSync from "node:fs";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { readJsonFileWithFallback } from "openclaw/plugin-sdk/json-store";
+>>>>>>> upstream/main
 import { resolveAcpxPluginRoot } from "./config.js";
 import type { ResolvedAcpxPluginConfig } from "./config.js";
 
@@ -113,7 +117,14 @@ async function resolveInstalledAcpPackageBinPath(
 ): Promise<string | undefined> {
   try {
     const packageJsonPath = requireFromHere.resolve(`${packageName}/package.json`);
+<<<<<<< HEAD
     const manifest = JSON.parse(await fs.readFile(packageJsonPath, "utf8")) as PackageManifest;
+=======
+    const { value: manifest } = await readJsonFileWithFallback<PackageManifest>(
+      packageJsonPath,
+      {},
+    );
+>>>>>>> upstream/main
     if (manifest.name !== packageName) {
       return undefined;
     }

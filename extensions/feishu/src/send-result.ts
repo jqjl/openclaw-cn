@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptPartKind,
+} from "openclaw/plugin-sdk/channel-message";
+
+>>>>>>> upstream/main
 type FeishuMessageApiResponse = {
   code?: number;
   msg?: string;
@@ -6,6 +15,50 @@ type FeishuMessageApiResponse = {
   };
 };
 
+<<<<<<< HEAD
+=======
+export function resolveFeishuReceiptKind(msgType?: string): MessageReceiptPartKind {
+  switch (msgType) {
+    case "audio":
+      return "voice";
+    case "image":
+    case "media":
+    case "file":
+      return "media";
+    case "interactive":
+      return "card";
+    case "post":
+    case "text":
+      return "text";
+    default:
+      return "unknown";
+  }
+}
+
+export function createFeishuSendReceipt(params: {
+  messageId?: string;
+  chatId: string;
+  kind?: MessageReceiptPartKind;
+}): MessageReceipt {
+  const messageId = params.messageId?.trim();
+  const chatId = params.chatId.trim();
+  return createMessageReceiptFromOutboundResults({
+    results: messageId
+      ? [
+          {
+            channel: "feishu",
+            messageId,
+            chatId,
+            conversationId: chatId,
+          },
+        ]
+      : [],
+    ...(chatId ? { threadId: chatId } : {}),
+    kind: params.kind ?? "unknown",
+  });
+}
+
+>>>>>>> upstream/main
 export function assertFeishuMessageApiSuccess(
   response: FeishuMessageApiResponse,
   errorPrefix: string,
@@ -18,6 +71,7 @@ export function assertFeishuMessageApiSuccess(
 export function toFeishuSendResult(
   response: FeishuMessageApiResponse,
   chatId: string,
+<<<<<<< HEAD
 ): {
   messageId: string;
   chatId: string;
@@ -25,5 +79,18 @@ export function toFeishuSendResult(
   return {
     messageId: response.data?.message_id ?? "unknown",
     chatId,
+=======
+  kind?: MessageReceiptPartKind,
+): {
+  messageId: string;
+  chatId: string;
+  receipt: MessageReceipt;
+} {
+  const messageId = response.data?.message_id ?? "unknown";
+  return {
+    messageId,
+    chatId,
+    receipt: createFeishuSendReceipt({ messageId, chatId, kind }),
+>>>>>>> upstream/main
   };
 }

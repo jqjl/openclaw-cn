@@ -12,7 +12,11 @@ import {
   manifestProviderBaseUrlGuardPasses,
 } from "../../plugins/manifest-tool-availability.js";
 import type { PluginMetadataSnapshot } from "../../plugins/plugin-metadata-snapshot.types.js";
+<<<<<<< HEAD
 import { listProfilesForProvider } from "../auth-profiles.js";
+=======
+import { listProfilesForProvider } from "../auth-profiles/profile-list.js";
+>>>>>>> upstream/main
 import type { AuthProfileStore } from "../auth-profiles/types.js";
 
 export type CapabilityContractKey =

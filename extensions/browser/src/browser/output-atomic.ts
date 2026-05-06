@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -9,12 +10,16 @@ function buildSiblingTempPath(targetPath: string): string {
   const safeTail = sanitizeUntrustedFileName(path.basename(targetPath), "output.bin");
   return path.join(path.dirname(targetPath), `.openclaw-output-${id}-${safeTail}.part`);
 }
+=======
+import { writeViaSiblingTempPath as writeViaSiblingTempPathBase } from "../sdk-security-runtime.js";
+>>>>>>> upstream/main
 
 export async function writeViaSiblingTempPath(params: {
   rootDir: string;
   targetPath: string;
   writeTemp: (tempPath: string) => Promise<void>;
 }): Promise<void> {
+<<<<<<< HEAD
   const rootDir = await fs
     .realpath(path.resolve(params.rootDir))
     .catch(() => path.resolve(params.rootDir));
@@ -48,4 +53,11 @@ export async function writeViaSiblingTempPath(params: {
       await fs.rm(tempPath, { force: true }).catch(() => {});
     }
   }
+=======
+  await writeViaSiblingTempPathBase({
+    ...params,
+    fallbackFileName: "output.bin",
+    tempPrefix: ".openclaw-output-",
+  });
+>>>>>>> upstream/main
 }

@@ -6,6 +6,10 @@ import type { OpenClawConfig } from "../config/config.js";
 import {
   hasConfiguredModelFallbacks,
   resolveAgentConfig,
+<<<<<<< HEAD
+=======
+  resolveDefaultAgentDir,
+>>>>>>> upstream/main
   resolveAgentDir,
   resolveAgentEffectiveModelPrimary,
   resolveAgentExplicitModelPrimary,
@@ -595,6 +599,23 @@ describe("resolveAgentConfig", () => {
     expect(agentDir).toBe(path.join(path.resolve(home), ".openclaw", "agents", "main", "agent"));
   });
 
+<<<<<<< HEAD
+=======
+  it("resolves default agentDir from the configured default agent", () => {
+    const stateDir = path.join(path.sep, "tmp", "test-state");
+    vi.stubEnv("OPENCLAW_STATE_DIR", stateDir);
+    const cfg: OpenClawConfig = {
+      agents: {
+        list: [{ id: "main" }, { id: "ops", default: true }],
+      },
+    };
+
+    const agentDir = resolveDefaultAgentDir(cfg);
+
+    expect(agentDir).toBe(path.join(stateDir, "agents", "ops", "agent"));
+  });
+
+>>>>>>> upstream/main
   it("non-default agent uses agents.defaults.workspace as base (#59789)", () => {
     const cfg: OpenClawConfig = {
       agents: {

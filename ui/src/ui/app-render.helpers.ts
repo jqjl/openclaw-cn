@@ -637,6 +637,10 @@ export async function createChatSession(state: AppViewState) {
     {
       agentId: resolveAgentIdFromSessionKey(previousSessionKey),
       parentSessionKey,
+<<<<<<< HEAD
+=======
+      emitCommandHooks: parentSessionKey !== undefined ? true : undefined,
+>>>>>>> upstream/main
     },
     {
       activeMinutes: 0,

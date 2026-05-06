@@ -97,6 +97,26 @@ Model refs are normalized to lowercase. Provider aliases like `z.ai/*` normalize
 Provider configuration examples (including OpenCode) live in [OpenCode](/providers/opencode).
 </Note>
 
+<<<<<<< HEAD
+=======
+### Safe allowlist edits
+
+Use additive writes when updating `agents.defaults.models` by hand:
+
+```bash
+openclaw config set agents.defaults.models '{"openai/gpt-5.4":{}}' --strict-json --merge
+```
+
+<AccordionGroup>
+  <Accordion title="Clobber protection rules">
+    `openclaw config set` protects model/provider maps from accidental clobbers. A plain object assignment to `agents.defaults.models`, `models.providers`, or `models.providers.<id>.models` is rejected when it would remove existing entries. Use `--merge` for additive changes; use `--replace` only when the provided value should become the complete target value.
+
+    Interactive provider setup and `openclaw configure --section model` also merge provider-scoped selections into the existing allowlist, so adding Codex, Ollama, or another provider does not drop unrelated model entries. Configure preserves an existing `agents.defaults.model.primary` when provider auth is re-applied. Explicit default-setting commands such as `openclaw models auth login --provider <id> --set-default` and `openclaw models set <model>` still replace `agents.defaults.model.primary`.
+
+  </Accordion>
+</AccordionGroup>
+
+>>>>>>> upstream/main
 ## "Model is not allowed" (and why replies stop)
 
 If `agents.defaults.models` is set, it becomes the **allowlist** for `/model` and for session overrides. When a user selects a model that isn't in that allowlist, OpenClaw returns:
@@ -157,6 +177,7 @@ You can switch models for the current session without restarting:
     - `/models add` is deprecated and now returns a deprecation message instead of registering models from chat.
     - `/model <#>` selects from that picker.
 
+<<<<<<< HEAD
 - `/model` (and `/model list`) is a compact, numbered picker (model family + available providers).
 - On Discord, `/model` and `/models` open an interactive picker with provider and model dropdowns plus a Submit step.
 - `/model <#>` selects from that picker.
@@ -174,6 +195,27 @@ You can switch models for the current session without restarting:
      If that provider no longer exposes the configured default model, OpenClaw
      instead falls back to the first configured provider/model to avoid
      surfacing a stale removed-provider default.
+=======
+  </Accordion>
+  <Accordion title="Persistence and live switching">
+    - `/model` persists the new session selection immediately.
+    - If the agent is idle, the next run uses the new model right away.
+    - If a run is already active, OpenClaw marks a live switch as pending and only restarts into the new model at a clean retry point.
+    - If tool activity or reply output has already started, the pending switch can stay queued until a later retry opportunity or the next user turn.
+    - A user-selected `/model` ref is strict for that session: if the selected provider/model is unreachable, the reply fails visibly instead of silently answering from `agents.defaults.model.fallbacks`. This is different from configured defaults and cron job primaries, which can still use fallback chains.
+    - `/model status` is the detailed view (auth candidates and, when configured, provider endpoint `baseUrl` + `api` mode).
+
+  </Accordion>
+  <Accordion title="Ref parsing">
+    - Model refs are parsed by splitting on the **first** `/`. Use `provider/model` when typing `/model <ref>`.
+    - If the model ID itself contains `/` (OpenRouter-style), you must include the provider prefix (example: `/model openrouter/moonshotai/kimi-k2`).
+    - If you omit the provider, OpenClaw resolves the input in this order:
+      1. alias match
+      2. unique configured-provider match for that exact unprefixed model id
+      3. deprecated fallback to the configured default provider — if that provider no longer exposes the configured default model, OpenClaw instead falls back to the first configured provider/model to avoid surfacing a stale removed-provider default.
+  </Accordion>
+</AccordionGroup>
+>>>>>>> upstream/main
 
 Full command behavior/config: [Slash commands](/tools/slash-commands).
 
@@ -206,11 +248,29 @@ openclaw models image-fallbacks clear
 
 Shows configured/auth-available models by default. Useful flags:
 
+<<<<<<< HEAD
 - `--all`: full catalog
 - `--local`: local providers only
 - `--provider <name>`: filter by provider
 - `--plain`: one model per line
 - `--json`: machine‑readable output
+=======
+<ParamField path="--all" type="boolean">
+  Full catalog. Includes bundled provider-owned static catalog rows before auth is configured, so discovery-only views can show models that are unavailable until you add matching provider credentials.
+</ParamField>
+<ParamField path="--local" type="boolean">
+  Local providers only.
+</ParamField>
+<ParamField path="--provider <id>" type="string">
+  Filter by provider id, for example `moonshot`. Display labels from interactive pickers are not accepted.
+</ParamField>
+<ParamField path="--plain" type="boolean">
+  One model per line.
+</ParamField>
+<ParamField path="--json" type="boolean">
+  Machine-readable output.
+</ParamField>
+>>>>>>> upstream/main
 
 ### `models status`
 

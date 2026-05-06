@@ -1,5 +1,8 @@
 import crypto from "node:crypto";
+<<<<<<< HEAD
 import fs from "node:fs/promises";
+=======
+>>>>>>> upstream/main
 import {
   callGatewayTool,
   listNodes,
@@ -7,7 +10,11 @@ import {
   type AnyAgentTool,
   type NodeListNode,
 } from "openclaw/plugin-sdk/agent-harness-runtime";
+<<<<<<< HEAD
 import { resolveMediaBufferPath } from "openclaw/plugin-sdk/media-store";
+=======
+import { readMediaBuffer } from "openclaw/plugin-sdk/media-store";
+>>>>>>> upstream/main
 import { appendFileTransferAudit } from "../shared/audit.js";
 import { throwFromNodePayload } from "../shared/errors.js";
 import {
@@ -28,6 +35,7 @@ async function readSourceBytes(input: {
 }): Promise<{ buffer: Buffer; contentBase64: string; source: "inline" | "media" }> {
   const sourceMediaId = input.sourceMediaId?.trim();
   if (sourceMediaId) {
+<<<<<<< HEAD
     const mediaPath = await resolveMediaBufferPath(sourceMediaId, FILE_TRANSFER_SUBDIR);
     const stat = await fs.stat(mediaPath);
     if (stat.size > FILE_WRITE_HARD_MAX_BYTES) {
@@ -36,6 +44,13 @@ async function readSourceBytes(input: {
       );
     }
     const buffer = await fs.readFile(mediaPath);
+=======
+    const { buffer } = await readMediaBuffer(
+      sourceMediaId,
+      FILE_TRANSFER_SUBDIR,
+      FILE_WRITE_HARD_MAX_BYTES,
+    );
+>>>>>>> upstream/main
     return { buffer, contentBase64: buffer.toString("base64"), source: "media" };
   }
   if (input.contentBase64 === undefined) {

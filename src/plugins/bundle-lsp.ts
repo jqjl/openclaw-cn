@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { applyMergePatch } from "../config/merge-patch.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
 import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
+=======
+import { readRootJsonObjectSync } from "../infra/json-files.js";
+>>>>>>> upstream/main
 import { isRecord } from "../utils.js";
 import {
   inspectBundleServerRuntimeSupport,
@@ -60,6 +64,7 @@ function resolveBundleLspConfigPaths(params: {
   return mergeBundlePathLists(defaults, declared);
 }
 
+<<<<<<< HEAD
 function loadBundleLspConfigFile(params: {
   rootDir: string;
   relativePath: string;
@@ -84,6 +89,34 @@ function loadBundleLspConfigFile(params: {
   } finally {
     fs.closeSync(opened.fd);
   }
+=======
+function loadBundleLspConfigFile(params: { rootDir: string; relativePath: string }): {
+  config: BundleLspConfig;
+  diagnostics: string[];
+} {
+  const result = readRootJsonObjectSync({
+    rootDir: params.rootDir,
+    relativePath: params.relativePath,
+    boundaryLabel: "plugin root",
+    rejectHardlinks: true,
+  });
+  if (!result.ok) {
+    if (result.reason === "open") {
+      return {
+        config: { lspServers: {} },
+        diagnostics:
+          result.failure.reason === "path"
+            ? []
+            : [`unable to read ${params.relativePath}: ${result.failure.reason}`],
+      };
+    }
+    return {
+      config: { lspServers: {} },
+      diagnostics: [`unable to read ${params.relativePath}: ${result.error}`],
+    };
+  }
+  return { config: { lspServers: extractLspServerMap(result.value) }, diagnostics: [] };
+>>>>>>> upstream/main
 }
 
 function loadBundleLspConfig(params: {
@@ -109,6 +142,7 @@ function loadBundleLspConfig(params: {
     raw: manifestLoaded.raw,
     rootDir: params.rootDir,
   });
+<<<<<<< HEAD
   for (const relativePath of filePaths) {
     merged = applyMergePatch(
       merged,
@@ -120,6 +154,19 @@ function loadBundleLspConfig(params: {
   }
 
   return { config: merged, diagnostics: [] };
+=======
+  const diagnostics: string[] = [];
+  for (const relativePath of filePaths) {
+    const loaded = loadBundleLspConfigFile({
+      rootDir: params.rootDir,
+      relativePath,
+    });
+    diagnostics.push(...loaded.diagnostics);
+    merged = applyMergePatch(merged, loaded.config) as BundleLspConfig;
+  }
+
+  return { config: merged, diagnostics };
+>>>>>>> upstream/main
 }
 
 export function inspectBundleLspRuntimeSupport(params: {

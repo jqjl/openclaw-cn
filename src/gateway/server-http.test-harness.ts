@@ -107,11 +107,30 @@ export async function dispatchRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
+<<<<<<< HEAD
   server.emit("request", req, res);
   await Promise.race([
     responseEndPromises.get(res) ?? new Promise((resolve) => setImmediate(resolve)),
     new Promise((resolve) => setTimeout(resolve, 2_000)),
   ]);
+=======
+  let timeout: NodeJS.Timeout | undefined;
+  server.emit("request", req, res);
+  try {
+    await Promise.race([
+      responseEndPromises.get(res) ?? new Promise((resolve) => setImmediate(resolve)),
+      new Promise((_, reject) => {
+        timeout = setTimeout(() => {
+          reject(new Error(`gateway test request timed out: ${req.method ?? "GET"} ${req.url}`));
+        }, 15_000);
+      }),
+    ]);
+  } finally {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+  }
+>>>>>>> upstream/main
 }
 
 export async function withGatewayTempConfig(

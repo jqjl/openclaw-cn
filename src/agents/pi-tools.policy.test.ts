@@ -1,7 +1,11 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
+=======
+import { describe, expect, it, vi } from "vitest";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "../config/config.js";
 import {
   filterToolsByPolicy,
@@ -15,6 +19,18 @@ import {
 import { createStubTool } from "./test-helpers/pi-tool-stubs.js";
 import { providerAliasCases } from "./test-helpers/provider-alias-cases.js";
 
+<<<<<<< HEAD
+=======
+vi.mock("../channels/plugins/session-conversation.js", () => ({
+  resolveSessionConversation: ({ rawId }: { rawId: string }) => ({
+    id: rawId,
+    threadId: undefined,
+    baseConversationId: rawId,
+    parentConversationCandidates: [],
+  }),
+}));
+
+>>>>>>> upstream/main
 describe("pi-tools.policy", () => {
   it("treats * in allow as allow-all", () => {
     const tools = [createStubTool("read"), createStubTool("exec")];

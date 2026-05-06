@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import path from "node:path";
 import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
 
@@ -25,3 +26,6 @@ export function sanitizeUntrustedFileName(fileName: string, fallbackName: string
   }
   return base;
 }
+=======
+export { sanitizeUntrustedFileName } from "../sdk-security-runtime.js";
+>>>>>>> upstream/main

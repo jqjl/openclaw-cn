@@ -1,12 +1,17 @@
 import type { FileHandle } from "node:fs/promises";
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { __setFsSafeTestHooksForTest } from "@openclaw/fs-safe/test-hooks";
+>>>>>>> upstream/main
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createRebindableDirectoryAlias,
   withRealpathSymlinkRebindRace,
 } from "../test-utils/symlink-rebind-race.js";
 import { createTrackedTempDirs } from "../test-utils/tracked-temp-dirs.js";
+<<<<<<< HEAD
 import * as pinnedPathHelperModule from "./fs-pinned-path-helper.js";
 import {
   __setFsSafeTestHooksForTest,
@@ -23,6 +28,13 @@ import {
   removePathWithinRoot,
   writeFileWithinRoot,
   writeFileFromPathWithinRoot,
+=======
+import {
+  resolveOpenedFileRealPathForHandle,
+  FsSafeError,
+  readLocalFileSafely,
+  root as openRoot,
+>>>>>>> upstream/main
 } from "./fs-safe.js";
 
 const tempDirs = createTrackedTempDirs();
@@ -33,7 +45,11 @@ afterEach(async () => {
   await tempDirs.cleanup();
 });
 
+<<<<<<< HEAD
 async function expectWriteOpenRaceIsBlocked(params: {
+=======
+async function runWriteOpenRace(params: {
+>>>>>>> upstream/main
   slotPath: string;
   outsideDir: string;
   runWrite: () => Promise<void>;
@@ -44,20 +60,38 @@ async function expectWriteOpenRaceIsBlocked(params: {
     symlinkTarget: params.outsideDir,
     timing: "before-realpath",
     run: async () => {
+<<<<<<< HEAD
       await expect(params.runWrite()).rejects.toMatchObject({
         code: expect.stringMatching(/outside-workspace|invalid-path/),
       });
+=======
+      try {
+        await params.runWrite();
+      } catch (err) {
+        expect(err).toMatchObject({
+          code: expect.stringMatching(/outside-workspace|path-mismatch|path-alias|invalid-path/),
+        });
+      }
+>>>>>>> upstream/main
     },
   });
 }
 
+<<<<<<< HEAD
 async function expectSymlinkWriteRaceRejectsOutside(params: {
+=======
+async function runSymlinkWriteRace(params: {
+>>>>>>> upstream/main
   slotPath: string;
   outsideDir: string;
   runWrite: (relativePath: string) => Promise<void>;
 }): Promise<void> {
   const relativePath = path.join("slot", "target.txt");
+<<<<<<< HEAD
   await expectWriteOpenRaceIsBlocked({
+=======
+  await runWriteOpenRace({
+>>>>>>> upstream/main
     slotPath: params.slotPath,
     outsideDir: params.outsideDir,
     runWrite: async () => await params.runWrite(relativePath),
@@ -128,8 +162,13 @@ describe("fs-safe", () => {
       code: "not-file",
     });
     const err = await readLocalFileSafely({ filePath: dir }).catch((e: unknown) => e);
+<<<<<<< HEAD
     expect(err).toBeInstanceOf(SafeOpenError);
     expect((err as SafeOpenError).message).not.toMatch(/EISDIR/i);
+=======
+    expect(err).toBeInstanceOf(FsSafeError);
+    expect((err as FsSafeError).message).not.toMatch(/EISDIR/i);
+>>>>>>> upstream/main
   });
 
   it("enforces maxBytes", async () => {
@@ -187,10 +226,14 @@ describe("fs-safe", () => {
     await fs.writeFile(file, "outside");
 
     await expect(
+<<<<<<< HEAD
       openFileWithinRoot({
         rootDir: root,
         relativePath: path.join("..", path.basename(outside), "outside.txt"),
       }),
+=======
+      (await openRoot(root)).open(path.join("..", path.basename(outside), "outside.txt")),
+>>>>>>> upstream/main
     ).rejects.toMatchObject({ code: "outside-workspace" });
   });
 
@@ -198,6 +241,7 @@ describe("fs-safe", () => {
     const root = await tempDirs.make("openclaw-fs-safe-root-");
     await fs.mkdir(path.join(root, "memory"), { recursive: true });
 
+<<<<<<< HEAD
     await expect(
       openFileWithinRoot({ rootDir: root, relativePath: "memory" }),
     ).rejects.toMatchObject({ code: expect.stringMatching(/invalid-path|not-file/) });
@@ -208,31 +252,54 @@ describe("fs-safe", () => {
     }).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(SafeOpenError);
     expect((err as SafeOpenError).message).not.toMatch(/EISDIR/i);
+=======
+    const rootFs = await openRoot(root);
+    await expect(rootFs.open("memory")).rejects.toMatchObject({
+      code: expect.stringMatching(/invalid-path|not-file/),
+    });
+
+    const err = await rootFs.open("memory").catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(FsSafeError);
+    expect((err as FsSafeError).message).not.toMatch(/EISDIR/i);
+>>>>>>> upstream/main
   });
 
   it("reads files within root through all read helpers", async () => {
     const root = await tempDirs.make("openclaw-fs-safe-root-");
 
     await fs.writeFile(path.join(root, "inside.txt"), "inside");
+<<<<<<< HEAD
     const byRelativePath = await readFileWithinRoot({
       rootDir: root,
       relativePath: "inside.txt",
     });
+=======
+    const rootFs = await openRoot(root);
+    const byRelativePath = await rootFs.read("inside.txt");
+>>>>>>> upstream/main
     expect(byRelativePath.buffer.toString("utf8")).toBe("inside");
     expect(byRelativePath.realPath).toContain("inside.txt");
     expect(byRelativePath.stat.size).toBe(6);
 
     const absolutePath = path.join(root, "absolute.txt");
     await fs.writeFile(absolutePath, "absolute");
+<<<<<<< HEAD
     const byAbsolutePath = await readPathWithinRoot({
       rootDir: root,
       filePath: absolutePath,
     });
+=======
+    const byAbsolutePath = await rootFs.readAbsolute(absolutePath);
+>>>>>>> upstream/main
     expect(byAbsolutePath.buffer.toString("utf8")).toBe("absolute");
 
     const scopedPath = path.join(root, "scoped.txt");
     await fs.writeFile(scopedPath, "scoped");
+<<<<<<< HEAD
     const readScoped = createRootScopedReadFile({ rootDir: root });
+=======
+    const readScoped = rootFs.reader();
+>>>>>>> upstream/main
     await expect(readScoped(scopedPath)).resolves.toEqual(Buffer.from("scoped"));
   });
 
@@ -244,12 +311,18 @@ describe("fs-safe", () => {
     await fs.writeFile(target, "outside");
     await fs.symlink(target, link);
 
+<<<<<<< HEAD
     await expect(
       openFileWithinRoot({
         rootDir: root,
         relativePath: "link.txt",
       }),
     ).rejects.toMatchObject({ code: "invalid-path" });
+=======
+    await expect((await openRoot(root)).open("link.txt")).rejects.toMatchObject({
+      code: "symlink",
+    });
+>>>>>>> upstream/main
   });
 
   it.runIf(process.platform !== "win32")(
@@ -271,12 +344,19 @@ describe("fs-safe", () => {
       });
 
       await expect(
+<<<<<<< HEAD
         readFileWithinRoot({
           rootDir: root,
           relativePath: "link.txt",
           allowSymlinkTargetWithinRoot: true,
         }),
       ).rejects.toMatchObject({ code: "invalid-path" });
+=======
+        (await openRoot(root)).read("link.txt", {
+          symlinks: "follow-within-root",
+        }),
+      ).rejects.toMatchObject({ code: "path-mismatch" });
+>>>>>>> upstream/main
     },
   );
 
@@ -293,12 +373,16 @@ describe("fs-safe", () => {
       },
     });
 
+<<<<<<< HEAD
     await expect(
       openFileWithinRoot({
         rootDir: root,
         relativePath: "inside.txt",
       }),
     ).rejects.toThrow("after-open boom");
+=======
+    await expect((await openRoot(root)).open("inside.txt")).rejects.toThrow("after-open boom");
+>>>>>>> upstream/main
     expect(openedHandle).toBeDefined();
     await expect(openedHandle?.readFile({ encoding: "utf8" })).rejects.toMatchObject({
       code: "EBADF",
@@ -322,23 +406,33 @@ describe("fs-safe", () => {
     await withOutsideHardlinkAlias({
       aliasPath: hardlinkPath,
       run: async () => {
+<<<<<<< HEAD
         await expect(
           openFileWithinRoot({
             rootDir: root,
             relativePath: "link.txt",
           }),
         ).rejects.toMatchObject({ code: "invalid-path" });
+=======
+        await expect((await openRoot(root)).open("link.txt")).rejects.toMatchObject({
+          code: "hardlink",
+        });
+>>>>>>> upstream/main
       },
     });
   });
 
   it("writes a file within root safely", async () => {
     const root = await tempDirs.make("openclaw-fs-safe-root-");
+<<<<<<< HEAD
     await writeFileWithinRoot({
       rootDir: root,
       relativePath: "nested/out.txt",
       data: "hello",
     });
+=======
+    await (await openRoot(root)).write("nested/out.txt", "hello");
+>>>>>>> upstream/main
     await expect(fs.readFile(path.join(root, "nested", "out.txt"), "utf8")).resolves.toBe("hello");
   });
 
@@ -348,10 +442,16 @@ describe("fs-safe", () => {
     await fs.mkdir(path.dirname(targetPath), { recursive: true });
     await fs.writeFile(targetPath, "seed");
 
+<<<<<<< HEAD
     await appendFileWithinRoot({
       rootDir: root,
       relativePath: "nested/out.txt",
       data: "next",
+=======
+    await (
+      await openRoot(root)
+    ).append("nested/out.txt", "next", {
+>>>>>>> upstream/main
       prependNewlineIfNeeded: true,
     });
 
@@ -364,11 +464,15 @@ describe("fs-safe", () => {
     const sourcePath = path.join(sourceDir, "in.txt");
     await fs.writeFile(sourcePath, "copy-ok");
 
+<<<<<<< HEAD
     await copyFileWithinRoot({
       sourcePath,
       rootDir: root,
       relativePath: "nested/copied.txt",
     });
+=======
+    await (await openRoot(root)).copyIn("nested/copied.txt", sourcePath);
+>>>>>>> upstream/main
 
     await expect(fs.readFile(path.join(root, "nested", "copied.txt"), "utf8")).resolves.toBe(
       "copy-ok",
@@ -381,10 +485,14 @@ describe("fs-safe", () => {
     await fs.mkdir(path.dirname(targetPath), { recursive: true });
     await fs.writeFile(targetPath, "hello");
 
+<<<<<<< HEAD
     await removePathWithinRoot({
       rootDir: root,
       relativePath: "nested/out.txt",
     });
+=======
+    await (await openRoot(root)).remove("nested/out.txt");
+>>>>>>> upstream/main
 
     await expect(fs.stat(targetPath)).rejects.toMatchObject({ code: "ENOENT" });
   });
@@ -392,10 +500,14 @@ describe("fs-safe", () => {
   it("creates directories within root safely", async () => {
     const root = await tempDirs.make("openclaw-fs-safe-root-");
 
+<<<<<<< HEAD
     await mkdirPathWithinRoot({
       rootDir: root,
       relativePath: "nested/deeper",
     });
+=======
+    await (await openRoot(root)).mkdir("nested/deeper");
+>>>>>>> upstream/main
 
     const stat = await fs.stat(path.join(root, "nested", "deeper"));
     expect(stat.isDirectory()).toBe(true);
@@ -410,10 +522,14 @@ describe("fs-safe", () => {
       await fs.mkdir(realDir, { recursive: true });
       await fs.symlink(realDir, aliasDir);
 
+<<<<<<< HEAD
       await mkdirPathWithinRoot({
         rootDir: root,
         relativePath: path.join("alias", "nested", "deeper"),
       });
+=======
+      await (await openRoot(root)).mkdir(path.join("alias", "nested", "deeper"));
+>>>>>>> upstream/main
 
       await expect(fs.stat(path.join(realDir, "nested", "deeper"))).resolves.toMatchObject({
         isDirectory: expect.any(Function),
@@ -431,10 +547,14 @@ describe("fs-safe", () => {
       await fs.symlink(realDir, aliasDir);
       await fs.writeFile(path.join(realDir, "target.txt"), "hello");
 
+<<<<<<< HEAD
       await removePathWithinRoot({
         rootDir: root,
         relativePath: path.join("alias", "target.txt"),
       });
+=======
+      await (await openRoot(root)).remove(path.join("alias", "target.txt"));
+>>>>>>> upstream/main
 
       await expect(fs.stat(path.join(realDir, "target.txt"))).rejects.toMatchObject({
         code: "ENOENT",
@@ -442,6 +562,7 @@ describe("fs-safe", () => {
     },
   );
 
+<<<<<<< HEAD
   it.runIf(process.platform !== "win32")(
     "falls back to legacy remove when the pinned helper cannot spawn",
     async () => {
@@ -485,6 +606,8 @@ describe("fs-safe", () => {
     },
   );
 
+=======
+>>>>>>> upstream/main
   it("enforces maxBytes when copying into root", async () => {
     const root = await tempDirs.make("openclaw-fs-safe-root-");
     const sourceDir = await tempDirs.make("openclaw-fs-safe-source-");
@@ -492,10 +615,14 @@ describe("fs-safe", () => {
     await fs.writeFile(sourcePath, Buffer.alloc(8));
 
     await expect(
+<<<<<<< HEAD
       copyFileWithinRoot({
         sourcePath,
         rootDir: root,
         relativePath: "nested/big.bin",
+=======
+      (await openRoot(root)).copyIn("nested/big.bin", sourcePath, {
+>>>>>>> upstream/main
         maxBytes: 4,
       }),
     ).rejects.toMatchObject({ code: "too-large" });
@@ -509,17 +636,22 @@ describe("fs-safe", () => {
     const outside = await tempDirs.make("openclaw-fs-safe-src-");
     const sourcePath = path.join(outside, "source.bin");
     await fs.writeFile(sourcePath, "hello-from-source");
+<<<<<<< HEAD
     await writeFileFromPathWithinRoot({
       rootDir: root,
       relativePath: "nested/from-source.txt",
       sourcePath,
     });
+=======
+    await (await openRoot(root)).copyIn("nested/from-source.txt", sourcePath);
+>>>>>>> upstream/main
     await expect(fs.readFile(path.join(root, "nested", "from-source.txt"), "utf8")).resolves.toBe(
       "hello-from-source",
     );
   });
   it("rejects write traversal outside root", async () => {
     const root = await tempDirs.make("openclaw-fs-safe-root-");
+<<<<<<< HEAD
     await expect(
       writeFileWithinRoot({
         rootDir: root,
@@ -527,6 +659,11 @@ describe("fs-safe", () => {
         data: "x",
       }),
     ).rejects.toMatchObject({ code: "outside-workspace" });
+=======
+    await expect((await openRoot(root)).write("../escape.txt", "x")).rejects.toMatchObject({
+      code: "outside-workspace",
+    });
+>>>>>>> upstream/main
   });
 
   it.runIf(process.platform !== "win32")("rejects writing through hardlink aliases", async () => {
@@ -535,6 +672,7 @@ describe("fs-safe", () => {
     await withOutsideHardlinkAlias({
       aliasPath: hardlinkPath,
       run: async (outsideFile) => {
+<<<<<<< HEAD
         await expect(
           writeFileWithinRoot({
             rootDir: root,
@@ -542,6 +680,11 @@ describe("fs-safe", () => {
             data: "pwned",
           }),
         ).rejects.toMatchObject({ code: "invalid-path" });
+=======
+        await expect((await openRoot(root)).write("alias.txt", "pwned")).rejects.toMatchObject({
+          code: "path-alias",
+        });
+>>>>>>> upstream/main
         await expect(fs.readFile(outsideFile, "utf8")).resolves.toBe("outside");
       },
     });
@@ -554,6 +697,7 @@ describe("fs-safe", () => {
       aliasPath: hardlinkPath,
       run: async (outsideFile) => {
         await expect(
+<<<<<<< HEAD
           appendFileWithinRoot({
             rootDir: root,
             relativePath: "alias.txt",
@@ -561,6 +705,12 @@ describe("fs-safe", () => {
             prependNewlineIfNeeded: true,
           }),
         ).rejects.toMatchObject({ code: "invalid-path" });
+=======
+          (await openRoot(root)).append("alias.txt", "pwned", {
+            prependNewlineIfNeeded: true,
+          }),
+        ).rejects.toMatchObject({ code: "path-alias" });
+>>>>>>> upstream/main
         await expect(fs.readFile(outsideFile, "utf8")).resolves.toBe("outside");
       },
     });
@@ -571,6 +721,7 @@ describe("fs-safe", () => {
       seedInsideTarget: true,
     });
 
+<<<<<<< HEAD
     await expectSymlinkWriteRaceRejectsOutside({
       slotPath: slot,
       outsideDir: outside,
@@ -579,6 +730,15 @@ describe("fs-safe", () => {
           rootDir: root,
           relativePath,
           data: "new-content",
+=======
+    await runSymlinkWriteRace({
+      slotPath: slot,
+      outsideDir: outside,
+      runWrite: async (relativePath) =>
+        await (
+          await openRoot(root)
+        ).write(relativePath, "new-content", {
+>>>>>>> upstream/main
           mkdir: false,
         }),
     });
@@ -591,6 +751,7 @@ describe("fs-safe", () => {
       seedInsideTarget: true,
     });
 
+<<<<<<< HEAD
     await expectSymlinkWriteRaceRejectsOutside({
       slotPath: slot,
       outsideDir: outside,
@@ -599,6 +760,15 @@ describe("fs-safe", () => {
           rootDir: root,
           relativePath,
           data: "new-content",
+=======
+    await runSymlinkWriteRace({
+      slotPath: slot,
+      outsideDir: outside,
+      runWrite: async (relativePath) =>
+        await (
+          await openRoot(root)
+        ).append(relativePath, "new-content", {
+>>>>>>> upstream/main
           mkdir: false,
           prependNewlineIfNeeded: true,
         }),
@@ -621,12 +791,18 @@ describe("fs-safe", () => {
         timing: "before-realpath",
         run: async () => {
           await expect(
+<<<<<<< HEAD
             removePathWithinRoot({
               rootDir: root,
               relativePath: path.join("slot", "target.txt"),
             }),
           ).rejects.toMatchObject({
             code: expect.stringMatching(/invalid-path|not-found/),
+=======
+            (await openRoot(root)).remove(path.join("slot", "target.txt")),
+          ).rejects.toMatchObject({
+            code: expect.stringMatching(/path-alias|not-found/),
+>>>>>>> upstream/main
           });
         },
       });
@@ -655,12 +831,18 @@ describe("fs-safe", () => {
         timing: "before-realpath",
         run: async () => {
           await expect(
+<<<<<<< HEAD
             mkdirPathWithinRoot({
               rootDir: root,
               relativePath: path.join("slot", "nested", "deep"),
             }),
           ).rejects.toMatchObject({
             code: "invalid-path",
+=======
+            (await openRoot(root)).mkdir(path.join("slot", "nested", "deep")),
+          ).rejects.toMatchObject({
+            code: "path-alias",
+>>>>>>> upstream/main
           });
         },
       });
@@ -675,6 +857,7 @@ describe("fs-safe", () => {
     const sourcePath = path.join(sourceDir, "source.txt");
     await fs.writeFile(sourcePath, "new-content");
 
+<<<<<<< HEAD
     await expectSymlinkWriteRaceRejectsOutside({
       slotPath: slot,
       outsideDir: outside,
@@ -683,6 +866,15 @@ describe("fs-safe", () => {
           rootDir: root,
           relativePath,
           sourcePath,
+=======
+    await runSymlinkWriteRace({
+      slotPath: slot,
+      outsideDir: outside,
+      runWrite: async (relativePath) =>
+        await (
+          await openRoot(root)
+        ).copyIn(relativePath, sourcePath, {
+>>>>>>> upstream/main
           mkdir: false,
         }),
     });
@@ -694,7 +886,11 @@ describe("fs-safe", () => {
     const dir = await tempDirs.make("openclaw-fs-safe-");
     const missing = path.join(dir, "missing.txt");
 
+<<<<<<< HEAD
     await expect(readLocalFileSafely({ filePath: missing })).rejects.toBeInstanceOf(SafeOpenError);
+=======
+    await expect(readLocalFileSafely({ filePath: missing })).rejects.toBeInstanceOf(FsSafeError);
+>>>>>>> upstream/main
     await expect(readLocalFileSafely({ filePath: missing })).rejects.toMatchObject({
       code: "not-found",
     });
@@ -722,20 +918,29 @@ describe("tilde expansion in file tools", () => {
     process.env.OPENCLAW_HOME = root;
     try {
       await fs.writeFile(path.join(root, "hello.txt"), "tilde-works");
+<<<<<<< HEAD
       const result = await openFileWithinRoot({
         rootDir: root,
         relativePath: "~/hello.txt",
       });
+=======
+      const rootFs = await openRoot(root);
+      const result = await rootFs.open("~/hello.txt");
+>>>>>>> upstream/main
       const buf = Buffer.alloc(result.stat.size);
       await result.handle.read(buf, 0, buf.length, 0);
       await result.handle.close();
       expect(buf.toString("utf8")).toBe("tilde-works");
 
+<<<<<<< HEAD
       await writeFileWithinRoot({
         rootDir: root,
         relativePath: "~/output.txt",
         data: "tilde-write-works",
       });
+=======
+      await rootFs.write("~/output.txt", "tilde-write-works");
+>>>>>>> upstream/main
       const content = await fs.readFile(path.join(root, "output.txt"), "utf8");
       expect(content).toBe("tilde-write-works");
     } finally {
@@ -744,12 +949,16 @@ describe("tilde expansion in file tools", () => {
     }
 
     const outsideRoot = await tempDirs.make("openclaw-tilde-outside-");
+<<<<<<< HEAD
     await expect(
       openFileWithinRoot({
         rootDir: outsideRoot,
         relativePath: "~/escape.txt",
       }),
     ).rejects.toMatchObject({
+=======
+    await expect((await openRoot(outsideRoot)).open("~/escape.txt")).rejects.toMatchObject({
+>>>>>>> upstream/main
       code: expect.stringMatching(/outside-workspace|not-found|invalid-path/),
     });
   });

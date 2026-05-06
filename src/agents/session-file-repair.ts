@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { replaceFileAtomic } from "../infra/replace-file.js";
+>>>>>>> upstream/main
 import { STREAM_ERROR_FALLBACK_TEXT } from "./stream-message-shared.js";
 
 /** Placeholder for blank user messages — preserves the user turn so strict
@@ -278,13 +282,17 @@ export async function repairSessionFileIfNeeded(params: {
 
   const cleaned = `${entries.map((entry) => JSON.stringify(entry)).join("\n")}\n`;
   const backupPath = `${sessionFile}.bak-${process.pid}-${Date.now()}`;
+<<<<<<< HEAD
   const tmpPath = `${sessionFile}.repair-${process.pid}-${Date.now()}.tmp`;
+=======
+>>>>>>> upstream/main
   try {
     const stat = await fs.stat(sessionFile).catch(() => null);
     await fs.writeFile(backupPath, content, "utf-8");
     if (stat) {
       await fs.chmod(backupPath, stat.mode);
     }
+<<<<<<< HEAD
     await fs.writeFile(tmpPath, cleaned, "utf-8");
     if (stat) {
       await fs.chmod(tmpPath, stat.mode);
@@ -300,6 +308,15 @@ export async function repairSessionFileIfNeeded(params: {
         )})`,
       );
     }
+=======
+    await replaceFileAtomic({
+      filePath: sessionFile,
+      content: cleaned,
+      preserveExistingMode: true,
+      tempPrefix: `${path.basename(sessionFile)}.repair`,
+    });
+  } catch (err) {
+>>>>>>> upstream/main
     return {
       repaired: false,
       droppedLines,

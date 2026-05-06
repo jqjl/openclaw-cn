@@ -6,6 +6,10 @@ import {
   MIGRATION_REASON_MISSING_SOURCE_OR_TARGET,
 } from "openclaw/plugin-sdk/migration";
 import type { MigrationItem } from "openclaw/plugin-sdk/plugin-entry";
+<<<<<<< HEAD
+=======
+import { appendRegularFile, pathExists } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { parse as parseYaml } from "yaml";
 
 export function resolveHomePath(input: string): string {
@@ -19,12 +23,16 @@ export function resolveHomePath(input: string): string {
 }
 
 export async function exists(filePath: string): Promise<boolean> {
+<<<<<<< HEAD
   try {
     await fs.access(filePath);
     return true;
   } catch {
     return false;
   }
+=======
+  return await pathExists(filePath);
+>>>>>>> upstream/main
 }
 
 export async function isDirectory(dirPath: string): Promise<boolean> {
@@ -126,7 +134,15 @@ export async function appendItem(item: MigrationItem): Promise<MigrationItem> {
     const content = await fs.readFile(item.source, "utf8");
     const header = `\n\n<!-- Imported from Hermes: ${path.basename(item.source)} -->\n\n`;
     await fs.mkdir(path.dirname(item.target), { recursive: true });
+<<<<<<< HEAD
     await fs.appendFile(item.target, `${header}${content.trimEnd()}\n`, "utf8");
+=======
+    await appendRegularFile({
+      filePath: item.target,
+      content: `${header}${content.trimEnd()}\n`,
+      rejectSymlinkParents: true,
+    });
+>>>>>>> upstream/main
     return { ...item, status: "migrated" };
   } catch (err) {
     return markMigrationItemError(item, err instanceof Error ? err.message : String(err));

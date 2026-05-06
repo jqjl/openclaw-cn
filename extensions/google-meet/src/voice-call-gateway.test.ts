@@ -1,6 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { resolveGoogleMeetConfig } from "./config.js";
+<<<<<<< HEAD
 import { joinMeetViaVoiceCallGateway } from "./voice-call-gateway.js";
+=======
+import {
+  endMeetVoiceCallGatewayCall,
+  getMeetVoiceCallGatewayCall,
+  joinMeetViaVoiceCallGateway,
+} from "./voice-call-gateway.js";
+>>>>>>> upstream/main
 
 const gatewayMocks = vi.hoisted(() => ({
   request: vi.fn(),
@@ -28,7 +36,11 @@ describe("Google Meet voice-call gateway", () => {
     gatewayMocks.startGatewayClientWhenEventLoopReady.mockClear();
   });
 
+<<<<<<< HEAD
   it("starts Twilio Meet calls, sends delayed DTMF, then speaks the intro without TwiML fallback", async () => {
+=======
+  it("starts Twilio Meet calls with pre-connect DTMF, then speaks the intro without TwiML fallback", async () => {
+>>>>>>> upstream/main
     const config = resolveGoogleMeetConfig({
       voiceCall: {
         gatewayUrl: "ws://127.0.0.1:18789",
@@ -43,6 +55,11 @@ describe("Google Meet voice-call gateway", () => {
       dialInNumber: "+15551234567",
       dtmfSequence: "123456#",
       message: "Say exactly: I'm here and listening.",
+<<<<<<< HEAD
+=======
+      requesterSessionKey: "agent:main:discord:channel:general",
+      sessionKey: "voice:google-meet:meet-1",
+>>>>>>> upstream/main
     });
 
     await join;
@@ -53,11 +70,18 @@ describe("Google Meet voice-call gateway", () => {
       {
         to: "+15551234567",
         mode: "conversation",
+<<<<<<< HEAD
+=======
+        dtmfSequence: "123456#",
+        requesterSessionKey: "agent:main:discord:channel:general",
+        sessionKey: "voice:google-meet:meet-1",
+>>>>>>> upstream/main
       },
       { timeoutMs: 30_000 },
     );
     expect(gatewayMocks.request).toHaveBeenNthCalledWith(
       2,
+<<<<<<< HEAD
       "voicecall.dtmf",
       {
         callId: "call-1",
@@ -67,6 +91,8 @@ describe("Google Meet voice-call gateway", () => {
     );
     expect(gatewayMocks.request).toHaveBeenNthCalledWith(
       3,
+=======
+>>>>>>> upstream/main
       "voicecall.speak",
       {
         callId: "call-1",
@@ -75,13 +101,20 @@ describe("Google Meet voice-call gateway", () => {
       },
       { timeoutMs: 30_000 },
     );
+<<<<<<< HEAD
     expect(gatewayMocks.request).toHaveBeenCalledTimes(3);
+=======
+    expect(gatewayMocks.request).toHaveBeenCalledTimes(2);
+>>>>>>> upstream/main
   });
 
   it("skips the intro without failing when the realtime bridge is not ready", async () => {
     gatewayMocks.request
       .mockResolvedValueOnce({ callId: "call-1" })
+<<<<<<< HEAD
       .mockResolvedValueOnce({ success: true })
+=======
+>>>>>>> upstream/main
       .mockResolvedValueOnce({ success: false, error: "No active realtime bridge for call" });
     const config = resolveGoogleMeetConfig({
       voiceCall: {
@@ -105,4 +138,41 @@ describe("Google Meet voice-call gateway", () => {
       expect.stringContaining("Skipped intro speech because realtime bridge was not ready"),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("treats missing delegated calls as already ended", async () => {
+    gatewayMocks.request.mockRejectedValueOnce(new Error("Call not found"));
+    const config = resolveGoogleMeetConfig({
+      voiceCall: { gatewayUrl: "ws://127.0.0.1:18789" },
+    });
+
+    await expect(
+      endMeetVoiceCallGatewayCall({ config, callId: "call-1" }),
+    ).resolves.toBeUndefined();
+
+    expect(gatewayMocks.request).toHaveBeenCalledWith(
+      "voicecall.end",
+      { callId: "call-1" },
+      { timeoutMs: 30_000 },
+    );
+  });
+
+  it("reads delegated call status from the gateway", async () => {
+    gatewayMocks.request.mockResolvedValueOnce({ found: false });
+    const config = resolveGoogleMeetConfig({
+      voiceCall: { gatewayUrl: "ws://127.0.0.1:18789" },
+    });
+
+    await expect(getMeetVoiceCallGatewayCall({ config, callId: "call-1" })).resolves.toEqual({
+      found: false,
+    });
+
+    expect(gatewayMocks.request).toHaveBeenCalledWith(
+      "voicecall.status",
+      { callId: "call-1" },
+      { timeoutMs: 30_000 },
+    );
+  });
+>>>>>>> upstream/main
 });

@@ -2,6 +2,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { resolveDefaultAgentWorkspaceDir } from "../agents/workspace.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../infra/path-guards.js";
+>>>>>>> upstream/main
 import type { RuntimeEnv } from "../runtime.js";
 import { resolveHomeDir, resolveUserPath, shortenHomeInString } from "../utils.js";
 
@@ -55,8 +59,12 @@ export function buildCleanupPlan(params: {
 }
 
 export function isPathWithin(child: string, parent: string): boolean {
+<<<<<<< HEAD
   const relative = path.relative(parent, child);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+=======
+  return isPathInside(parent, child);
+>>>>>>> upstream/main
 }
 
 function isUnsafeRemovalTarget(target: string): boolean {

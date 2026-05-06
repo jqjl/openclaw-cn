@@ -1,4 +1,13 @@
 import { type Block, type KnownBlock, type WebClient } from "@slack/web-api";
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptPartKind,
+  type MessageReceiptSourceResult,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import { withTrustedEnvProxyGuardedFetchMode } from "openclaw/plugin-sdk/fetch-runtime";
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
@@ -284,8 +293,39 @@ async function postSlackMessageBestEffort(params: {
 export type SlackSendResult = {
   messageId: string;
   channelId: string;
+<<<<<<< HEAD
 };
 
+=======
+  receipt: MessageReceipt;
+};
+
+function createSlackSendReceipt(params: {
+  platformMessageIds: readonly string[];
+  channelId?: string;
+  kind: MessageReceiptPartKind;
+  threadTs?: string;
+}): MessageReceipt {
+  const platformMessageIds = params.platformMessageIds
+    .map((messageId) => messageId.trim())
+    .filter((messageId) => messageId && messageId !== "unknown" && messageId !== "suppressed");
+  return createMessageReceiptFromOutboundResults({
+    results: platformMessageIds.map((messageId) => {
+      const result: MessageReceiptSourceResult = {
+        channel: "slack",
+        messageId,
+      };
+      if (params.channelId) {
+        result.channelId = params.channelId;
+      }
+      return result;
+    }),
+    kind: params.kind,
+    threadId: params.threadTs,
+  });
+}
+
+>>>>>>> upstream/main
 function resolveToken(params: {
   explicit?: string;
   accountId: string;
@@ -513,7 +553,15 @@ export async function sendMessageSlack(
   const trimmedMessage = normalizeOptionalString(message) ?? "";
   if (isSilentReplyText(trimmedMessage) && !opts.mediaUrl && !opts.blocks) {
     logVerbose("slack send: suppressed NO_REPLY token before API call");
+<<<<<<< HEAD
     return { messageId: "suppressed", channelId: "" };
+=======
+    return {
+      messageId: "suppressed",
+      channelId: "",
+      receipt: createSlackSendReceipt({ platformMessageIds: [], kind: "unknown" }),
+    };
+>>>>>>> upstream/main
   }
   const blocks = opts.blocks == null ? undefined : validateSlackBlocksArray(opts.blocks);
   if (!trimmedMessage && !opts.mediaUrl && !blocks) {
@@ -609,9 +657,22 @@ async function sendMessageSlackQueuedInner(params: {
       identity: opts.identity,
       blocks,
     });
+<<<<<<< HEAD
     return {
       messageId: response.ts ?? "unknown",
       channelId,
+=======
+    const messageId = response.ts ?? "unknown";
+    return {
+      messageId,
+      channelId,
+      receipt: createSlackSendReceipt({
+        platformMessageIds: [messageId],
+        channelId,
+        kind: "card",
+        threadTs: opts.threadTs,
+      }),
+>>>>>>> upstream/main
     };
   }
   const textLimit = resolveTextChunkLimit(cfg, "slack", account.accountId, {
@@ -637,6 +698,10 @@ async function sendMessageSlackQueuedInner(params: {
       ? account.config.mediaMaxMb * 1024 * 1024
       : undefined;
 
+<<<<<<< HEAD
+=======
+  const sentMessageIds: string[] = [];
+>>>>>>> upstream/main
   let lastMessageId = "";
   if (opts.mediaUrl) {
     const [firstChunk, ...rest] = resolvedChunks;
@@ -653,6 +718,10 @@ async function sendMessageSlackQueuedInner(params: {
       threadTs: opts.threadTs,
       maxBytes: mediaMaxBytes,
     });
+<<<<<<< HEAD
+=======
+    sentMessageIds.push(lastMessageId);
+>>>>>>> upstream/main
     for (const chunk of rest) {
       const response = await postSlackMessageBestEffort({
         client,
@@ -662,6 +731,12 @@ async function sendMessageSlackQueuedInner(params: {
         identity: opts.identity,
       });
       lastMessageId = response.ts ?? lastMessageId;
+<<<<<<< HEAD
+=======
+      if (response.ts) {
+        sentMessageIds.push(response.ts);
+      }
+>>>>>>> upstream/main
     }
   } else {
     for (const chunk of resolvedChunks.length ? resolvedChunks : [""]) {
@@ -673,11 +748,30 @@ async function sendMessageSlackQueuedInner(params: {
         identity: opts.identity,
       });
       lastMessageId = response.ts ?? lastMessageId;
+<<<<<<< HEAD
     }
   }
 
   return {
     messageId: lastMessageId || "unknown",
     channelId,
+=======
+      if (response.ts) {
+        sentMessageIds.push(response.ts);
+      }
+    }
+  }
+
+  const messageId = lastMessageId || "unknown";
+  return {
+    messageId,
+    channelId,
+    receipt: createSlackSendReceipt({
+      platformMessageIds: sentMessageIds.length ? sentMessageIds : [messageId],
+      channelId,
+      kind: opts.mediaUrl ? "media" : "text",
+      threadTs: opts.threadTs,
+    }),
+>>>>>>> upstream/main
   };
 }

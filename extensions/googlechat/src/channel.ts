@@ -17,6 +17,10 @@ import {
   formatAllowFromEntry,
   googlechatDirectoryAdapter,
   googlechatGroupsAdapter,
+<<<<<<< HEAD
+=======
+  googlechatMessageAdapter,
+>>>>>>> upstream/main
   googlechatOutboundAdapter,
   googlechatPairingTextAdapter,
   googlechatSecurityAdapter,
@@ -155,6 +159,10 @@ export const googlechatPlugin = createChatChannelPlugin({
       },
     },
     directory: googlechatDirectoryAdapter,
+<<<<<<< HEAD
+=======
+    message: googlechatMessageAdapter,
+>>>>>>> upstream/main
     resolver: {
       resolveTargets: async ({ inputs, kind }) => {
         const resolved = inputs.map((input) => {

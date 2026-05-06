@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
+>>>>>>> upstream/main
 
 export type MemoryWikiImportedSourceGroup = "bridge" | "unsafe-local";
 
@@ -30,6 +34,7 @@ export async function readMemoryWikiSourceSyncState(
   vaultRoot: string,
 ): Promise<MemoryWikiImportedSourceState> {
   const statePath = resolveMemoryWikiSourceSyncStatePath(vaultRoot);
+<<<<<<< HEAD
   const raw = await fs.readFile(statePath, "utf8").catch((err: unknown) => {
     if ((err as NodeJS.ErrnoException)?.code === "ENOENT") {
       return "";
@@ -54,6 +59,16 @@ export async function readMemoryWikiSourceSyncState(
       entries: {},
     };
   }
+=======
+  const { value: parsed } = await readJsonFileWithFallback<Partial<MemoryWikiImportedSourceState>>(
+    statePath,
+    EMPTY_STATE,
+  );
+  return {
+    version: 1,
+    entries: { ...parsed.entries },
+  };
+>>>>>>> upstream/main
 }
 
 export async function writeMemoryWikiSourceSyncState(
@@ -61,8 +76,12 @@ export async function writeMemoryWikiSourceSyncState(
   state: MemoryWikiImportedSourceState,
 ): Promise<void> {
   const statePath = resolveMemoryWikiSourceSyncStatePath(vaultRoot);
+<<<<<<< HEAD
   await fs.mkdir(path.dirname(statePath), { recursive: true });
   await fs.writeFile(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+=======
+  await writeJsonFileAtomically(statePath, state);
+>>>>>>> upstream/main
 }
 
 export async function shouldSkipImportedSourceWrite(params: {

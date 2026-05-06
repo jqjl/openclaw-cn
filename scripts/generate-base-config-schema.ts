@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+<<<<<<< HEAD
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -65,12 +66,23 @@ export function writeBaseConfigSchemaModule(params?: {
   return { changed, wrote: changed, outputPath };
 }
 
+=======
+import { computeBaseConfigSchemaResponse } from "../src/config/schema-base.js";
+
+export function checkBaseConfigSchema(): void {
+  computeBaseConfigSchemaResponse({
+    generatedAt: "2026-05-05T00:00:00.000Z",
+  });
+}
+
+>>>>>>> upstream/main
 const args = new Set(process.argv.slice(2));
 if (args.has("--check") && args.has("--write")) {
   throw new Error("Use either --check or --write, not both.");
 }
 
 if (import.meta.url === new URL(process.argv[1] ?? "", "file://").href) {
+<<<<<<< HEAD
   const result = writeBaseConfigSchemaModule({ check: args.has("--check") });
   if (result.changed) {
     if (args.has("--check")) {
@@ -81,5 +93,12 @@ if (import.meta.url === new URL(process.argv[1] ?? "", "file://").href) {
     } else {
       console.log(`[base-config-schema] wrote ${path.relative(process.cwd(), result.outputPath)}`);
     }
+=======
+  checkBaseConfigSchema();
+  if (args.has("--write")) {
+    console.log("[base-config-schema] runtime-computed; no generated file to write");
+  } else {
+    console.log("[base-config-schema] ok");
+>>>>>>> upstream/main
   }
 }

@@ -1,4 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
+<<<<<<< HEAD
 import {
   chmodSync,
   existsSync,
@@ -9,6 +10,9 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+=======
+import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+>>>>>>> upstream/main
 import {
   createServer,
   request as httpRequest,
@@ -20,6 +24,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import { resolveOpenClawPackageRootSync } from "../../infra/openclaw-root.js";
+<<<<<<< HEAD
+=======
+import { privateFileStoreSync } from "../../infra/private-file-store.js";
+>>>>>>> upstream/main
 import { createSubsystemLogger } from "../../logging/subsystem.js";
 import { PluginApprovalResolutions } from "../../plugins/types.js";
 import { runBeforeToolCallHook } from "../pi-tools.before-tool-call.js";
@@ -823,6 +831,7 @@ function writeNativeHookRelayBridgeRecord(
   registryPath: string,
   record: NativeHookRelayBridgeRecord,
 ): void {
+<<<<<<< HEAD
   const tempPath = path.join(
     path.dirname(registryPath),
     `.${path.basename(registryPath)}.${process.pid}.${randomUUID()}.tmp`,
@@ -835,6 +844,12 @@ function writeNativeHookRelayBridgeRecord(
     rmSync(tempPath, { force: true });
     throw error;
   }
+=======
+  privateFileStoreSync(path.dirname(registryPath)).writeText(
+    path.basename(registryPath),
+    `${JSON.stringify(record)}\n`,
+  );
+>>>>>>> upstream/main
 }
 
 function nativeHookRelayBridgeRegistryPath(relayId: string): string {

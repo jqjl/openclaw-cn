@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+<<<<<<< HEAD
+=======
+import { tryReadJsonSync } from "../../../infra/json-files.js";
+>>>>>>> upstream/main
 import {
   normalizeBundledPluginStringList,
   resolveBundledPluginScanDir,
@@ -59,6 +63,7 @@ export type BundledCapabilityManifest = Pick<
 >;
 
 function readJsonRecord(filePath: string): Record<string, unknown> | undefined {
+<<<<<<< HEAD
   try {
     const raw = JSON.parse(fs.readFileSync(filePath, "utf-8")) as unknown;
     return raw && typeof raw === "object" && !Array.isArray(raw)
@@ -67,6 +72,12 @@ function readJsonRecord(filePath: string): Record<string, unknown> | undefined {
   } catch {
     return undefined;
   }
+=======
+  const raw = tryReadJsonSync(filePath);
+  return raw && typeof raw === "object" && !Array.isArray(raw)
+    ? (raw as Record<string, unknown>)
+    : undefined;
+>>>>>>> upstream/main
 }
 
 function readBundledCapabilityManifest(pluginDir: string): BundledCapabilityManifest | undefined {

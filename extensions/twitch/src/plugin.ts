@@ -29,7 +29,11 @@ import {
   resolveTwitchAccountContext,
   resolveTwitchSnapshotAccountId,
 } from "./config.js";
+<<<<<<< HEAD
 import { twitchOutbound } from "./outbound.js";
+=======
+import { twitchMessageAdapter, twitchOutbound } from "./outbound.js";
+>>>>>>> upstream/main
 import { probeTwitch } from "./probe.js";
 import { resolveTwitchTargets } from "./resolver.js";
 import { twitchSetupAdapter, twitchSetupWizard } from "./setup-surface.js";
@@ -78,6 +82,10 @@ export const twitchPlugin: ChannelPlugin<ResolvedTwitchAccount> =
       capabilities: {
         chatTypes: ["group"],
       },
+<<<<<<< HEAD
+=======
+      message: twitchMessageAdapter,
+>>>>>>> upstream/main
       configSchema: buildChannelConfigSchema(TwitchConfigSchema),
       config: {
         listAccountIds: (cfg: OpenClawConfig): string[] => listAccountIds(cfg),

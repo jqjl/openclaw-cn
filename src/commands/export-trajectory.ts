@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import fsp from "node:fs/promises";
+=======
+>>>>>>> upstream/main
 import path from "node:path";
 import {
   resolveDefaultSessionStorePath,
@@ -8,6 +11,10 @@ import {
 import { loadSessionStore } from "../config/sessions/store.js";
 import type { SessionEntry } from "../config/sessions/types.js";
 import { formatErrorMessage } from "../infra/errors.js";
+<<<<<<< HEAD
+=======
+import { pathExists } from "../infra/fs-safe.js";
+>>>>>>> upstream/main
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../runtime.js";
 import {
@@ -72,6 +79,7 @@ function resolveExportTrajectoryOptions(
   };
 }
 
+<<<<<<< HEAD
 async function fileExists(pathName: string): Promise<boolean> {
   try {
     await fsp.access(pathName);
@@ -81,6 +89,8 @@ async function fileExists(pathName: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 export async function exportTrajectoryCommand(
   opts: ExportTrajectoryCommandOptions,
   runtime: RuntimeEnv,
@@ -123,7 +133,11 @@ export async function exportTrajectoryCommand(
     runtime.exit(1);
     return;
   }
+<<<<<<< HEAD
   if (!(await fileExists(sessionFile))) {
+=======
+  if (!(await pathExists(sessionFile))) {
+>>>>>>> upstream/main
     runtime.error("Session file not found.");
     runtime.exit(1);
     return;

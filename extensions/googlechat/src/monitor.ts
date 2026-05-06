@@ -1,7 +1,10 @@
 import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
 import type { OpenClawConfig } from "../runtime-api.js";
 import {
+<<<<<<< HEAD
   createChannelReplyPipeline,
+=======
+>>>>>>> upstream/main
   resolveInboundRouteEnvelopeBuilderWithRuntime,
   resolveWebhookPath,
 } from "../runtime-api.js";
@@ -9,6 +12,10 @@ import { type ResolvedGoogleChatAccount } from "./accounts.js";
 import { downloadGoogleChatMedia, sendGoogleChatMessage } from "./api.js";
 import { type GoogleChatAudienceType } from "./auth.js";
 import { applyGoogleChatInboundAccessPolicy } from "./monitor-access.js";
+<<<<<<< HEAD
+=======
+import { resolveGoogleChatDurableReplyOptions } from "./monitor-durable.js";
+>>>>>>> upstream/main
 import { deliverGoogleChatReply } from "./monitor-reply-delivery.js";
 import {
   registerGoogleChatWebhookTarget,
@@ -281,6 +288,7 @@ async function processMessageWithPipeline(params: {
     }
   }
 
+<<<<<<< HEAD
   const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
     cfg: config,
     agentId: route.agentId,
@@ -288,6 +296,8 @@ async function processMessageWithPipeline(params: {
     accountId: route.accountId,
   });
 
+=======
+>>>>>>> upstream/main
   await core.channel.turn.run({
     channel: "googlechat",
     accountId: route.accountId,
@@ -313,6 +323,16 @@ async function processMessageWithPipeline(params: {
         dispatchReplyWithBufferedBlockDispatcher:
           core.channel.reply.dispatchReplyWithBufferedBlockDispatcher,
         delivery: {
+<<<<<<< HEAD
+=======
+          durable: (payload, info) =>
+            resolveGoogleChatDurableReplyOptions({
+              payload,
+              infoKind: info.kind,
+              spaceId,
+              typingMessageName,
+            }),
+>>>>>>> upstream/main
           deliver: async (payload) => {
             await deliverGoogleChatReply({
               payload,
@@ -327,16 +347,26 @@ async function processMessageWithPipeline(params: {
             // Only use typing message for first delivery
             typingMessageName = undefined;
           },
+<<<<<<< HEAD
+=======
+          onDelivered: () => {
+            statusSink?.({ lastOutboundAt: Date.now() });
+          },
+>>>>>>> upstream/main
           onError: (err, info) => {
             runtime.error?.(
               `[${account.accountId}] Google Chat ${info.kind} reply failed: ${String(err)}`,
             );
           },
         },
+<<<<<<< HEAD
         dispatcherOptions: replyPipeline,
         replyOptions: {
           onModelSelected,
         },
+=======
+        replyPipeline: {},
+>>>>>>> upstream/main
         record: {
           onRecordError: (err) => {
             runtime.error?.(`googlechat: failed updating session meta: ${String(err)}`);

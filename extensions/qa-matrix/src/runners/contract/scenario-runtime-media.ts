@@ -317,6 +317,7 @@ export async function runGeneratedImageDeliveryScenario(context: MatrixQaScenari
   const roomId = resolveMatrixQaScenarioRoomId(context, MATRIX_QA_MEDIA_ROOM_KEY);
   const { client, startSince } = await primeMatrixQaDriverMediaClient(context);
   const triggerBody = buildMatrixQaImageGenerationPrompt(context.sutUserId);
+<<<<<<< HEAD
   const driverEventId = await client.sendTextMessage({
     body: triggerBody,
     mentionUserIds: [context.sutUserId],
@@ -335,6 +336,44 @@ export async function runGeneratedImageDeliveryScenario(context: MatrixQaScenari
     since: startSince,
     timeoutMs: context.timeoutMs,
   });
+=======
+  const driverEventIds: string[] = [];
+  const isGeneratedImageEvent = (event: MatrixQaObservedEvent) =>
+    event.roomId === roomId &&
+    event.sender === context.sutUserId &&
+    event.type === "m.room.message" &&
+    event.relatesTo === undefined &&
+    event.msgtype === "m.image" &&
+    event.attachment?.kind === "image";
+  let matched = await client.waitForOptionalRoomEvent({
+    observedEvents: context.observedEvents,
+    predicate: isGeneratedImageEvent,
+    roomId,
+    since: startSince,
+    timeoutMs: 0,
+  });
+  for (let attempt = 1; !matched.matched && attempt <= 2; attempt += 1) {
+    const driverEventId = await client.sendTextMessage({
+      body: triggerBody,
+      mentionUserIds: [context.sutUserId],
+      roomId,
+    });
+    driverEventIds.push(driverEventId);
+    matched = await client.waitForOptionalRoomEvent({
+      observedEvents: context.observedEvents,
+      predicate: isGeneratedImageEvent,
+      roomId,
+      since: matched.since ?? startSince,
+      timeoutMs: context.timeoutMs,
+    });
+  }
+  if (!matched.matched) {
+    throw new Error(
+      `timed out after ${context.timeoutMs}ms waiting for Matrix generated image after ${driverEventIds.length} attempt(s)`,
+    );
+  }
+  const matchedEvent = matched.event;
+>>>>>>> upstream/main
   advanceMatrixQaActorCursor({
     actorId: "driver",
     syncState: context.syncState,
@@ -342,25 +381,45 @@ export async function runGeneratedImageDeliveryScenario(context: MatrixQaScenari
     startSince,
   });
   const attachment = requireMatrixQaImageAttachment(
+<<<<<<< HEAD
     matched.event,
+=======
+    matchedEvent,
+>>>>>>> upstream/main
     "Matrix generated image delivery scenario",
   );
   return {
     artifacts: {
+<<<<<<< HEAD
       attachmentBodyPreview: matched.event.body?.slice(0, 200),
       attachmentEventId: matched.event.eventId,
       attachmentFilename: attachment.filename,
       attachmentKind: attachment.kind,
       attachmentMsgtype: matched.event.msgtype,
       driverEventId,
+=======
+      attachmentBodyPreview: matchedEvent.body?.slice(0, 200),
+      attachmentEventId: matchedEvent.eventId,
+      attachmentFilename: attachment.filename,
+      attachmentKind: attachment.kind,
+      attachmentMsgtype: matchedEvent.msgtype,
+      driverEventId: driverEventIds[0],
+      driverEventIds,
+>>>>>>> upstream/main
       roomId,
       triggerBody,
     },
     details: [
       `room id: ${roomId}`,
+<<<<<<< HEAD
       `driver event: ${driverEventId}`,
       ...buildMatrixQaAttachmentDetailLines({
         attachmentEvent: matched.event,
+=======
+      `driver events: ${driverEventIds.join(", ")}`,
+      ...buildMatrixQaAttachmentDetailLines({
+        attachmentEvent: matchedEvent,
+>>>>>>> upstream/main
         label: "generated image",
       }),
     ].join("\n"),

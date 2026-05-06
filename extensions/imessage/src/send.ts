@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+=======
+import {
+  createMessageReceiptFromOutboundResults,
+  type MessageReceipt,
+  type MessageReceiptPartKind,
+  type MessageReceiptSourceResult,
+} from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
 import { kindFromMime } from "openclaw/plugin-sdk/media-runtime";
@@ -39,6 +48,10 @@ type IMessageSendOpts = {
 type IMessageSendResult = {
   messageId: string;
   sentText: string;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 const MAX_REPLY_TO_ID_LENGTH = 256;
@@ -95,6 +108,47 @@ function resolveDeliveredIMessageText(text: string, mediaContentType?: string): 
   return kind === "image" ? "<media:image>" : `<media:${kind}>`;
 }
 
+<<<<<<< HEAD
+=======
+function createIMessageSendReceipt(params: {
+  messageId: string;
+  target: ReturnType<typeof parseIMessageTarget>;
+  kind: MessageReceiptPartKind;
+  replyToId?: string;
+}): MessageReceipt {
+  const messageId = params.messageId.trim();
+  const results: MessageReceiptSourceResult[] =
+    messageId && messageId !== "unknown" && messageId !== "ok"
+      ? [
+          {
+            channel: "imessage",
+            messageId,
+            meta: {
+              targetKind: params.target.kind,
+            },
+          },
+        ]
+      : [];
+  if (results[0]) {
+    if (params.target.kind === "chat_id") {
+      results[0].chatId = String(params.target.chatId);
+    } else if (params.target.kind === "chat_guid") {
+      results[0].conversationId = params.target.chatGuid;
+    } else if (params.target.kind === "chat_identifier") {
+      results[0].conversationId = params.target.chatIdentifier;
+    }
+  }
+  const receiptParams: Parameters<typeof createMessageReceiptFromOutboundResults>[0] = {
+    results,
+    kind: params.kind,
+  };
+  if (params.replyToId) {
+    receiptParams.replyToId = params.replyToId;
+  }
+  return createMessageReceiptFromOutboundResults(receiptParams);
+}
+
+>>>>>>> upstream/main
 export async function sendMessageIMessage(
   to: string,
   text: string,
@@ -183,9 +237,22 @@ export async function sendMessageIMessage(
       timeoutMs: opts.timeoutMs,
     });
     const resolvedId = resolveMessageId(result);
+<<<<<<< HEAD
     return {
       messageId: resolvedId ?? (result?.ok ? "ok" : "unknown"),
       sentText: message,
+=======
+    const messageId = resolvedId ?? (result?.ok ? "ok" : "unknown");
+    return {
+      messageId,
+      sentText: message,
+      receipt: createIMessageSendReceipt({
+        messageId,
+        target,
+        kind: filePath ? "media" : "text",
+        ...(resolvedReplyToId ? { replyToId: resolvedReplyToId } : {}),
+      }),
+>>>>>>> upstream/main
     };
   } finally {
     if (shouldClose) {

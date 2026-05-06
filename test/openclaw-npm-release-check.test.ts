@@ -616,6 +616,24 @@ describe("collectReleasePackageMetadataErrors", () => {
     ).toContain('package.json dependencies["node-llama-cpp"] must be omitted; keep it optional.');
   });
 
+<<<<<<< HEAD
+=======
+  it("rejects local fs-safe dependency specs for npm release", () => {
+    expect(
+      collectReleasePackageMetadataErrors({
+        name: "openclaw",
+        description: "Multi-channel AI gateway with extensible messaging integrations",
+        license: "MIT",
+        repository: { url: "git+https://github.com/openclaw/openclaw.git" },
+        bin: { openclaw: "openclaw.mjs" },
+        dependencies: { "@openclaw/fs-safe": "link:../fs-safe" },
+      }),
+    ).toContain(
+      'package.json dependencies["@openclaw/fs-safe"] must use a published semver range before npm release; found "link:../fs-safe".',
+    );
+  });
+
+>>>>>>> upstream/main
   it("rejects node-llama-cpp as an optional dependency", () => {
     expect(
       collectReleasePackageMetadataErrors({

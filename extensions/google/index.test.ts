@@ -3,13 +3,24 @@ import type {
   ProviderReplaySessionEntry,
   ProviderSanitizeReplayHistoryContext,
 } from "openclaw/plugin-sdk/plugin-entry";
+<<<<<<< HEAD
+=======
+import { createTestPluginApi } from "openclaw/plugin-sdk/plugin-test-api";
+>>>>>>> upstream/main
 import {
   registerProviderPlugin,
   requireRegisteredProvider,
 } from "openclaw/plugin-sdk/plugin-test-runtime";
 import { createCapturedThinkingConfigStream } from "openclaw/plugin-sdk/provider-test-contracts";
+<<<<<<< HEAD
 import { describe, expect, it } from "vitest";
 import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
+=======
+import type { RealtimeVoiceProviderPlugin } from "openclaw/plugin-sdk/realtime-voice";
+import { describe, expect, it } from "vitest";
+import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
+import googlePlugin from "./index.js";
+>>>>>>> upstream/main
 import { registerGoogleProvider } from "./provider-registration.js";
 
 const googleProviderPlugin = {
@@ -226,4 +237,29 @@ describe("google provider plugin hooks", () => {
     expect(googleProvider.buildReplayPolicy).toBe(cliProvider.buildReplayPolicy);
     expect(googleProvider.wrapStreamFn).toBe(cliProvider.wrapStreamFn);
   });
+<<<<<<< HEAD
+=======
+
+  it("buffers early realtime audio while the lazy Google bridge loads", () => {
+    let realtimeProvider: RealtimeVoiceProviderPlugin | undefined;
+    googlePlugin.register(
+      createTestPluginApi({
+        registerRealtimeVoiceProvider(provider) {
+          realtimeProvider = provider;
+        },
+      }),
+    );
+
+    const bridge = realtimeProvider?.createBridge({
+      providerConfig: { apiKey: "gemini-key" },
+      onAudio() {},
+      onClearAudio() {},
+    });
+
+    expect(bridge).toBeDefined();
+    expect(() => bridge?.sendAudio(Buffer.alloc(160))).not.toThrow();
+    expect(() => bridge?.setMediaTimestamp(20)).not.toThrow();
+    expect(() => bridge?.sendUserMessage?.("hello")).not.toThrow();
+  });
+>>>>>>> upstream/main
 });

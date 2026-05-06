@@ -2,6 +2,10 @@ import { isIP } from "node:net";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { hasConfiguredSecretInput } from "../config/types.secrets.js";
 import { resolveGatewayAuth } from "../gateway/auth-resolve.js";
+<<<<<<< HEAD
+=======
+import { resolveGatewayAuthTokenSourceConflict } from "../gateway/auth-token-source-conflict.js";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalLowercaseString,
@@ -116,6 +120,20 @@ export function collectGatewayConfigFindings(
     });
   }
 
+<<<<<<< HEAD
+=======
+  const tokenConflict = resolveGatewayAuthTokenSourceConflict({ cfg: sourceConfig, env });
+  if (tokenConflict) {
+    findings.push({
+      checkId: tokenConflict.checkId,
+      severity: "warn",
+      title: tokenConflict.title,
+      detail: tokenConflict.detail,
+      remediation: tokenConflict.remediation,
+    });
+  }
+
+>>>>>>> upstream/main
   if (bind === "loopback" && controlUiEnabled && trustedProxies.length === 0) {
     findings.push({
       checkId: "gateway.trusted_proxies_missing",

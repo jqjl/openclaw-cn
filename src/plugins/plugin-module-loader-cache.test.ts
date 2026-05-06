@@ -15,6 +15,7 @@ async function loadCachedPluginModuleLoader(scope: string) {
       options,
     }),
   );
+<<<<<<< HEAD
   vi.doMock("jiti", () => ({
     createJiti,
   }));
@@ -25,11 +26,25 @@ async function loadCachedPluginModuleLoader(scope: string) {
 
   const getCachedPluginModuleLoaderWithMock: typeof getCachedPluginModuleLoader = (params) =>
     getCachedPluginModuleLoader({
+=======
+
+  const pluginModuleLoaderCache = await importFreshModule<
+    typeof import("./plugin-module-loader-cache.js")
+  >(import.meta.url, `./plugin-module-loader-cache.js?scope=${scope}`);
+  const getCachedPluginModuleLoader: typeof pluginModuleLoaderCache.getCachedPluginModuleLoader = (
+    params,
+  ) =>
+    pluginModuleLoaderCache.getCachedPluginModuleLoader({
+>>>>>>> upstream/main
       ...params,
       createLoader: params.createLoader ?? asPluginModuleLoaderFactory(createJiti),
     });
 
+<<<<<<< HEAD
   return { createJiti, getCachedPluginModuleLoader: getCachedPluginModuleLoaderWithMock };
+=======
+  return { createJiti, getCachedPluginModuleLoader };
+>>>>>>> upstream/main
 }
 
 function asPluginModuleLoaderFactory(factory: unknown): PluginModuleLoaderFactory {
@@ -372,8 +387,11 @@ describe("getCachedPluginModuleLoader", () => {
   it("serves compiled .js targets from native require without invoking the module loader", async () => {
     const fromSourceTransformer = vi.fn();
     const createJiti = vi.fn(() => fromSourceTransformer);
+<<<<<<< HEAD
     const jitiModuleFactory = vi.fn(() => ({ createJiti }));
     vi.doMock("jiti", jitiModuleFactory);
+=======
+>>>>>>> upstream/main
     const nativeStub = vi.fn((target: string) => ({
       ok: true as const,
       moduleExport: { loadedFrom: target },
@@ -400,6 +418,7 @@ describe("getCachedPluginModuleLoader", () => {
     expect(result.loadedFrom).toBe("/repo/dist/extensions/demo/api.js");
     // Jiti should not be constructed or invoked for .js targets that
     // `tryNativeRequireJavaScriptModule` resolves.
+<<<<<<< HEAD
     expect(jitiModuleFactory).not.toHaveBeenCalled();
     expect(createJiti).not.toHaveBeenCalled();
     expect(fromSourceTransformer).not.toHaveBeenCalled();
@@ -407,6 +426,19 @@ describe("getCachedPluginModuleLoader", () => {
     expect(nativeStub).toHaveBeenCalledWith("/repo/dist/extensions/demo/api.js", {
       allowWindows: true,
     });
+=======
+    expect(createJiti).not.toHaveBeenCalled();
+    expect(fromSourceTransformer).not.toHaveBeenCalled();
+    // allowWindows must be passed so the native fast path works on Windows too.
+    expect(nativeStub).toHaveBeenCalledWith(
+      "/repo/dist/extensions/demo/api.js",
+      expect.objectContaining({
+        allowWindows: true,
+        fallbackOnMissingDependency: true,
+        fallbackOnNativeError: true,
+      }),
+    );
+>>>>>>> upstream/main
     expect(getPluginModuleLoaderStats()).toMatchObject({
       calls: 1,
       nativeHits: 1,
@@ -446,9 +478,20 @@ describe("getCachedPluginModuleLoader", () => {
     expect(() => loader("/repo/dist/extensions/demo/api.js")).toThrow("missing-dep");
     expect(createJiti).not.toHaveBeenCalled();
     expect(fromSourceTransformer).not.toHaveBeenCalled();
+<<<<<<< HEAD
     expect(nativeStub).toHaveBeenCalledWith("/repo/dist/extensions/demo/api.js", {
       allowWindows: true,
     });
+=======
+    expect(nativeStub).toHaveBeenCalledWith(
+      "/repo/dist/extensions/demo/api.js",
+      expect.objectContaining({
+        allowWindows: true,
+        fallbackOnMissingDependency: true,
+        fallbackOnNativeError: true,
+      }),
+    );
+>>>>>>> upstream/main
     expect(getPluginModuleLoaderStats()).toMatchObject({
       calls: 1,
       nativeHits: 0,
@@ -461,7 +504,10 @@ describe("getCachedPluginModuleLoader", () => {
   it("falls back to source transform when the native-require helper declines", async () => {
     const fromSourceTransformer = vi.fn(() => ({ fromSourceTransform: true }));
     const createJiti = vi.fn(() => fromSourceTransformer);
+<<<<<<< HEAD
     vi.doMock("jiti", () => ({ createJiti }));
+=======
+>>>>>>> upstream/main
     vi.doMock("./native-module-require.js", () => ({
       isJavaScriptModulePath: () => true,
       tryNativeRequireJavaScriptModule: () => ({ ok: false }),
@@ -481,6 +527,13 @@ describe("getCachedPluginModuleLoader", () => {
 
     const result = loader("/repo/dist/extensions/demo/api.js") as { fromSourceTransform: boolean };
     expect(result.fromSourceTransform).toBe(true);
+<<<<<<< HEAD
+=======
+    expect(createJiti).toHaveBeenCalledWith(
+      "file:///repo/src/plugins/public-surface-loader.ts",
+      expect.objectContaining({ tryNative: true }),
+    );
+>>>>>>> upstream/main
     expect(fromSourceTransformer).toHaveBeenCalledWith("/repo/dist/extensions/demo/api.js");
     expect(getPluginModuleLoaderStats()).toMatchObject({
       calls: 1,
@@ -496,7 +549,10 @@ describe("getCachedPluginModuleLoader", () => {
     vi.spyOn(process, "platform", "get").mockReturnValue("win32");
     const fromSourceTransformer = vi.fn(() => ({ fromSourceTransform: true }));
     const createJiti = vi.fn(() => fromSourceTransformer);
+<<<<<<< HEAD
     vi.doMock("jiti", () => ({ createJiti }));
+=======
+>>>>>>> upstream/main
     vi.doMock("./native-module-require.js", () => ({
       isJavaScriptModulePath: () => true,
       tryNativeRequireJavaScriptModule: () => ({ ok: false }),
@@ -529,7 +585,10 @@ describe("getCachedPluginModuleLoader", () => {
   it("skips the native-require fast path when tryNative is explicitly false", async () => {
     const fromSourceTransformer = vi.fn(() => ({ fromSourceTransform: true }));
     const createJiti = vi.fn(() => fromSourceTransformer);
+<<<<<<< HEAD
     vi.doMock("jiti", () => ({ createJiti }));
+=======
+>>>>>>> upstream/main
     const nativeStub = vi.fn(() => ({ ok: true, moduleExport: { fromNative: true } }));
     vi.doMock("./native-module-require.js", () => ({
       isJavaScriptModulePath: () => true,
@@ -570,7 +629,10 @@ describe("getCachedPluginModuleLoader", () => {
     vi.spyOn(process, "platform", "get").mockReturnValue("win32");
     const fromSourceTransformer = vi.fn(() => ({ fromSourceTransform: true }));
     const createJiti = vi.fn(() => fromSourceTransformer);
+<<<<<<< HEAD
     vi.doMock("jiti", () => ({ createJiti }));
+=======
+>>>>>>> upstream/main
     const nativeStub = vi.fn(() => ({ ok: true, moduleExport: { fromNative: true } }));
     vi.doMock("./native-module-require.js", () => ({
       isJavaScriptModulePath: () => true,
@@ -605,7 +667,10 @@ describe("getCachedPluginModuleLoader", () => {
   it("forwards extra loader arguments through to the source-transform fallback", async () => {
     const fromSourceTransformer = vi.fn(() => ({ fromSourceTransform: true }));
     const createJiti = vi.fn(() => fromSourceTransformer);
+<<<<<<< HEAD
     vi.doMock("jiti", () => ({ createJiti }));
+=======
+>>>>>>> upstream/main
     vi.doMock("./native-module-require.js", () => ({
       isJavaScriptModulePath: () => true,
       tryNativeRequireJavaScriptModule: () => ({ ok: false }),

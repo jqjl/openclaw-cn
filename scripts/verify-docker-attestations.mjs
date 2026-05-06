@@ -4,11 +4,15 @@ import { execFileSync } from "node:child_process";
 import process from "node:process";
 
 const ATTESTATION_REFERENCE_TYPE = "attestation-manifest";
+<<<<<<< HEAD
 const ATTESTATION_ARTIFACT_TYPE = "application/vnd.docker.attestation.manifest.v1+json";
 const ATTESTATION_MANIFEST_MEDIA_TYPES = new Set([
   "application/vnd.docker.distribution.manifest.v2+json",
   "application/vnd.oci.image.manifest.v1+json",
 ]);
+=======
+const EXPECTED_ATTESTATION_ARTIFACT_TYPE = "application/vnd.docker.attestation.manifest.v1+json";
+>>>>>>> upstream/main
 const REQUIRED_PREDICATES = ["https://spdx.dev/Document", "https://slsa.dev/provenance/v1"];
 
 export function imageRefForDigest(imageRef, digest) {
@@ -44,6 +48,7 @@ function platformMatches(actual, expected) {
   );
 }
 
+<<<<<<< HEAD
 function isAttestationManifest(attestation) {
   if (attestation?.artifactType !== undefined) {
     return attestation.artifactType === ATTESTATION_ARTIFACT_TYPE;
@@ -51,6 +56,8 @@ function isAttestationManifest(attestation) {
   return ATTESTATION_MANIFEST_MEDIA_TYPES.has(attestation?.mediaType);
 }
 
+=======
+>>>>>>> upstream/main
 function parseJson(raw, label) {
   try {
     return JSON.parse(raw);
@@ -97,11 +104,22 @@ export function collectDockerAttestationErrors(params) {
     const predicates = new Set();
     for (const descriptor of attestationDescriptors) {
       const attestation = inspectAttestation(descriptor.digest);
+<<<<<<< HEAD
       if (!isAttestationManifest(attestation)) {
         errors.push(
           `${imageRef}: ${platformLabel} attestation ${descriptor.digest} has unexpected manifest shape artifactType=${JSON.stringify(
             attestation?.artifactType,
           )} mediaType=${JSON.stringify(attestation?.mediaType)}`,
+=======
+      if (
+        attestation?.artifactType !== undefined &&
+        attestation.artifactType !== EXPECTED_ATTESTATION_ARTIFACT_TYPE
+      ) {
+        errors.push(
+          `${imageRef}: ${platformLabel} attestation ${descriptor.digest} has unexpected artifactType ${JSON.stringify(
+            attestation?.artifactType,
+          )}`,
+>>>>>>> upstream/main
         );
       }
       for (const layer of attestation?.layers ?? []) {

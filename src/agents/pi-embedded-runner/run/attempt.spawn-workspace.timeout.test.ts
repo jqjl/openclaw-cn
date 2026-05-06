@@ -2,14 +2,24 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   DEFAULT_UNDICI_STREAM_TIMEOUT_MS: 30 * 60 * 1000,
+<<<<<<< HEAD
   ensureGlobalUndiciEnvProxyDispatcher: vi.fn(),
   ensureGlobalUndiciStreamTimeouts: vi.fn(),
+=======
+  ensureGlobalUndiciDispatcherStreamTimeouts: vi.fn(),
+  ensureGlobalUndiciEnvProxyDispatcher: vi.fn(),
+>>>>>>> upstream/main
 }));
 
 vi.mock("../../../infra/net/undici-global-dispatcher.js", () => ({
   DEFAULT_UNDICI_STREAM_TIMEOUT_MS: mocks.DEFAULT_UNDICI_STREAM_TIMEOUT_MS,
+<<<<<<< HEAD
   ensureGlobalUndiciEnvProxyDispatcher: mocks.ensureGlobalUndiciEnvProxyDispatcher,
   ensureGlobalUndiciStreamTimeouts: mocks.ensureGlobalUndiciStreamTimeouts,
+=======
+  ensureGlobalUndiciDispatcherStreamTimeouts: mocks.ensureGlobalUndiciDispatcherStreamTimeouts,
+  ensureGlobalUndiciEnvProxyDispatcher: mocks.ensureGlobalUndiciEnvProxyDispatcher,
+>>>>>>> upstream/main
 }));
 
 import { configureEmbeddedAttemptHttpRuntime } from "./attempt-http-runtime.js";
@@ -17,14 +27,22 @@ import { configureEmbeddedAttemptHttpRuntime } from "./attempt-http-runtime.js";
 describe("runEmbeddedAttempt undici timeout wiring", () => {
   beforeEach(() => {
     mocks.ensureGlobalUndiciEnvProxyDispatcher.mockReset();
+<<<<<<< HEAD
     mocks.ensureGlobalUndiciStreamTimeouts.mockReset();
+=======
+    mocks.ensureGlobalUndiciDispatcherStreamTimeouts.mockReset();
+>>>>>>> upstream/main
   });
 
   it("does not lower global undici stream tuning below the shared default", () => {
     configureEmbeddedAttemptHttpRuntime({ timeoutMs: 123_456 });
 
     expect(mocks.ensureGlobalUndiciEnvProxyDispatcher).toHaveBeenCalledOnce();
+<<<<<<< HEAD
     expect(mocks.ensureGlobalUndiciStreamTimeouts).toHaveBeenCalledWith({
+=======
+    expect(mocks.ensureGlobalUndiciDispatcherStreamTimeouts).toHaveBeenCalledWith({
+>>>>>>> upstream/main
       timeoutMs: mocks.DEFAULT_UNDICI_STREAM_TIMEOUT_MS,
     });
   });
@@ -35,7 +53,11 @@ describe("runEmbeddedAttempt undici timeout wiring", () => {
     configureEmbeddedAttemptHttpRuntime({ timeoutMs });
 
     expect(mocks.ensureGlobalUndiciEnvProxyDispatcher).toHaveBeenCalledOnce();
+<<<<<<< HEAD
     expect(mocks.ensureGlobalUndiciStreamTimeouts).toHaveBeenCalledWith({
+=======
+    expect(mocks.ensureGlobalUndiciDispatcherStreamTimeouts).toHaveBeenCalledWith({
+>>>>>>> upstream/main
       timeoutMs,
     });
   });

@@ -49,6 +49,10 @@ export type MatrixQaScenarioArtifacts = {
   dedupeCommitObserved?: boolean;
   duplicateWindowMs?: number;
   driverEventId?: string;
+<<<<<<< HEAD
+=======
+  driverEventIds?: string[];
+>>>>>>> upstream/main
   driverUserId?: string;
   editEventId?: string;
   editedToken?: string;

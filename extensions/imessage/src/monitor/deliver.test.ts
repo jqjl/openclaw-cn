@@ -25,6 +25,10 @@ vi.mock("./deliver.runtime.js", () => ({
 }));
 
 let deliverReplies: typeof import("./deliver.js").deliverReplies;
+<<<<<<< HEAD
+=======
+let createIMessageEchoCachingSend: typeof import("./deliver.js").createIMessageEchoCachingSend;
+>>>>>>> upstream/main
 
 describe("deliverReplies", () => {
   const IMESSAGE_TEST_CFG = { channels: { imessage: { accounts: { default: {} } } } };
@@ -32,7 +36,11 @@ describe("deliverReplies", () => {
   const client = {} as Awaited<ReturnType<typeof import("../client.js").createIMessageRpcClient>>;
 
   beforeAll(async () => {
+<<<<<<< HEAD
     ({ deliverReplies } = await import("./deliver.js"));
+=======
+    ({ createIMessageEchoCachingSend, deliverReplies } = await import("./deliver.js"));
+>>>>>>> upstream/main
   });
 
   beforeEach(() => {
@@ -128,6 +136,65 @@ describe("deliverReplies", () => {
     );
   });
 
+<<<<<<< HEAD
+=======
+  it("records durable outbound sends in the sent-message cache", async () => {
+    const remember = vi.fn();
+    const send = createIMessageEchoCachingSend({
+      client,
+      accountId: "acct-5",
+      sentMessageCache: { remember },
+    });
+    sendMessageIMessageMock.mockResolvedValueOnce({
+      messageId: "imsg-durable-1",
+      sentText: "durable hello",
+    });
+
+    await send("chat_id:50", "durable hello", {
+      config: IMESSAGE_TEST_CFG,
+      accountId: "acct-ignored",
+    });
+
+    expect(sendMessageIMessageMock).toHaveBeenCalledWith(
+      "chat_id:50",
+      "durable hello",
+      expect.objectContaining({ client }),
+    );
+    expect(remember).toHaveBeenCalledWith("acct-5:chat_id:50", {
+      text: "durable hello",
+      messageId: "imsg-durable-1",
+    });
+  });
+
+  it("sanitizes durable outbound text before sending", async () => {
+    const remember = vi.fn();
+    const send = createIMessageEchoCachingSend({
+      client,
+      accountId: "acct-6",
+      sentMessageCache: { remember },
+    });
+    sendMessageIMessageMock.mockResolvedValueOnce({
+      messageId: "imsg-durable-2",
+      sentText: "Visible reply",
+    });
+
+    await send("chat_id:60", "<thinking>hidden</thinking>\nVisible reply\nassistant:", {
+      config: IMESSAGE_TEST_CFG,
+      accountId: "acct-ignored",
+    });
+
+    expect(sendMessageIMessageMock).toHaveBeenCalledWith(
+      "chat_id:60",
+      "Visible reply",
+      expect.objectContaining({ client }),
+    );
+    expect(remember).toHaveBeenCalledWith("acct-6:chat_id:60", {
+      text: "Visible reply",
+      messageId: "imsg-durable-2",
+    });
+  });
+
+>>>>>>> upstream/main
   it("records outbound text and message ids in sent-message cache (post-send only)", async () => {
     // Fix for #47830: remember() is called ONLY after each chunk is sent,
     // never with the full un-chunked text before sending begins.

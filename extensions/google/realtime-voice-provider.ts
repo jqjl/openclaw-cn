@@ -32,6 +32,10 @@ import {
   convertPcmToMulaw8k,
   mulawToPcm,
   REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ,
+<<<<<<< HEAD
+=======
+  REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
+>>>>>>> upstream/main
   REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
   resamplePcm,
 } from "openclaw/plugin-sdk/realtime-voice";
@@ -50,6 +54,12 @@ const MAX_PENDING_AUDIO_CHUNKS = 320;
 const DEFAULT_AUDIO_STREAM_END_SILENCE_MS = 500;
 const GOOGLE_REALTIME_BROWSER_SESSION_TTL_MS = 30 * 60 * 1000;
 const GOOGLE_REALTIME_BROWSER_NEW_SESSION_TTL_MS = 60 * 1000;
+<<<<<<< HEAD
+=======
+const GOOGLE_REALTIME_RECONNECT_MAX_ATTEMPTS = 3;
+const GOOGLE_REALTIME_RECONNECT_BASE_DELAY_MS = 250;
+const GOOGLE_REALTIME_RECONNECT_MAX_DELAY_MS = 2_000;
+>>>>>>> upstream/main
 const MULAW_LINEAR_SAMPLES = new Int16Array(256);
 
 for (let i = 0; i < MULAW_LINEAR_SAMPLES.length; i += 1) {
@@ -401,6 +411,27 @@ function isPcm16Silence(audio: Buffer): boolean {
   return true;
 }
 
+<<<<<<< HEAD
+=======
+function formatGoogleLiveCloseEvent(
+  event:
+    | {
+        code?: number;
+        reason?: string;
+        wasClean?: boolean;
+      }
+    | undefined,
+): string {
+  if (!event) {
+    return "code=unknown reason=unknown";
+  }
+  const code = typeof event.code === "number" ? event.code : "unknown";
+  const reason = event.reason?.trim() || "none";
+  const clean = typeof event.wasClean === "boolean" ? ` clean=${event.wasClean}` : "";
+  return `code=${code} reason=${reason}${clean}`;
+}
+
+>>>>>>> upstream/main
 class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
   readonly supportsToolResultContinuation = true;
 
@@ -415,6 +446,11 @@ class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
   private pendingFunctionNames = new Map<string, string>();
   private readonly audioFormat: RealtimeVoiceAudioFormat;
   private resumptionHandle: string | undefined;
+<<<<<<< HEAD
+=======
+  private reconnectAttempts = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+>>>>>>> upstream/main
 
   constructor(private readonly config: GoogleRealtimeVoiceBridgeConfig) {
     this.audioFormat = config.audioFormat ?? REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ;
@@ -464,6 +500,7 @@ class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
                 );
           this.config.onError?.(error);
         },
+<<<<<<< HEAD
         onclose: () => {
           this.connected = false;
           this.sessionConfigured = false;
@@ -471,6 +508,25 @@ class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
           const reason = this.intentionallyClosed ? "completed" : "error";
           this.session = null;
           this.config.onClose?.(reason);
+=======
+        onclose: (event) => {
+          this.connected = false;
+          this.sessionConfigured = false;
+          this.pendingFunctionNames.clear();
+          this.session = null;
+          if (this.intentionallyClosed) {
+            this.config.onClose?.("completed");
+            return;
+          }
+          const closeDetails = formatGoogleLiveCloseEvent(event);
+          if (this.scheduleReconnect(closeDetails)) {
+            return;
+          }
+          this.config.onError?.(
+            new Error(`Google Live session closed after reconnect attempts: ${closeDetails}`),
+          );
+          this.config.onClose?.("error");
+>>>>>>> upstream/main
         },
       },
     })) as GoogleLiveSession;
@@ -596,6 +652,13 @@ class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
     this.intentionallyClosed = true;
     this.connected = false;
     this.sessionConfigured = false;
+<<<<<<< HEAD
+=======
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = undefined;
+    }
+>>>>>>> upstream/main
     this.pendingAudio = [];
     this.consecutiveSilenceMs = 0;
     this.audioStreamEnded = false;
@@ -667,6 +730,10 @@ class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
 
   private handleSetupComplete(): void {
     this.sessionConfigured = true;
+<<<<<<< HEAD
+=======
+    this.reconnectAttempts = 0;
+>>>>>>> upstream/main
     for (const chunk of this.pendingAudio.splice(0)) {
       this.sendAudio(chunk);
     }
@@ -739,6 +806,39 @@ class GoogleRealtimeVoiceBridge implements RealtimeVoiceBridge {
       });
     }
   }
+<<<<<<< HEAD
+=======
+
+  private scheduleReconnect(closeDetails: string): boolean {
+    if (this.reconnectAttempts >= GOOGLE_REALTIME_RECONNECT_MAX_ATTEMPTS) {
+      return false;
+    }
+    const attempt = ++this.reconnectAttempts;
+    const delayMs = Math.min(
+      GOOGLE_REALTIME_RECONNECT_MAX_DELAY_MS,
+      GOOGLE_REALTIME_RECONNECT_BASE_DELAY_MS * 2 ** (attempt - 1),
+    );
+    this.config.onError?.(
+      new Error(
+        `Google Live session closed unexpectedly (${closeDetails}); reconnecting ${attempt}/${GOOGLE_REALTIME_RECONNECT_MAX_ATTEMPTS} in ${delayMs}ms`,
+      ),
+    );
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = undefined;
+      if (this.intentionallyClosed) {
+        return;
+      }
+      this.connect().catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        this.config.onError?.(error instanceof Error ? error : new Error(message));
+        if (!this.scheduleReconnect(`connect failed: ${message}`)) {
+          this.config.onClose?.("error");
+        }
+      });
+    }, delayMs);
+    return true;
+  }
+>>>>>>> upstream/main
 }
 
 function convertMulaw8kToPcm16k(muLaw: Buffer): Buffer {
@@ -809,7 +909,11 @@ async function createGoogleRealtimeBrowserSession(
 
   return {
     provider: "google",
+<<<<<<< HEAD
     transport: "json-pcm-websocket",
+=======
+    transport: "provider-websocket",
+>>>>>>> upstream/main
     protocol: "google-live-bidi",
     clientSecret,
     websocketUrl: GOOGLE_REALTIME_BROWSER_WEBSOCKET_URL,
@@ -832,6 +936,25 @@ export function buildGoogleRealtimeVoiceProvider(): RealtimeVoiceProviderPlugin 
     label: "Google Live Voice",
     defaultModel: GOOGLE_REALTIME_DEFAULT_MODEL,
     autoSelectOrder: 20,
+<<<<<<< HEAD
+=======
+    capabilities: {
+      transports: ["provider-websocket", "gateway-relay"],
+      inputAudioFormats: [
+        REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ,
+        REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
+      ],
+      outputAudioFormats: [
+        REALTIME_VOICE_AUDIO_FORMAT_G711_ULAW_8KHZ,
+        REALTIME_VOICE_AUDIO_FORMAT_PCM16_24KHZ,
+      ],
+      supportsBrowserSession: true,
+      supportsBargeIn: true,
+      supportsToolCalls: true,
+      supportsVideoFrames: true,
+      supportsSessionResumption: true,
+    },
+>>>>>>> upstream/main
     resolveConfig: ({ cfg, rawConfig }) => normalizeProviderConfig(rawConfig, cfg),
     isConfigured: ({ providerConfig }) =>
       Boolean(normalizeProviderConfig(providerConfig).apiKey || resolveEnvApiKey()),

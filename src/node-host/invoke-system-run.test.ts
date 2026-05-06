@@ -802,11 +802,19 @@ describe("handleSystemRunInvoke mac app exec host routing", () => {
           label: "parent symlink",
           setup: () => {
             const tmp = createFixtureDir("openclaw-approval-cwd-parent-link-");
+<<<<<<< HEAD
             const safeRoot = path.join(tmp, "safe-root");
             const safeSub = path.join(safeRoot, "sub");
             const linkRoot = path.join(tmp, "approved-link");
             fs.mkdirSync(safeSub, { recursive: true });
             fs.symlinkSync(safeRoot, linkRoot, "dir");
+=======
+            const safeSymlinkRoot = path.join(tmp, "safe-root");
+            const safeSymlinkSub = path.join(safeSymlinkRoot, "sub");
+            const linkRoot = path.join(tmp, "approved-link");
+            fs.mkdirSync(safeSymlinkSub, { recursive: true });
+            fs.symlinkSync(safeSymlinkRoot, linkRoot, "dir");
+>>>>>>> upstream/main
             return {
               cwd: path.join(linkRoot, "sub"),
               message: "no symlink path components",

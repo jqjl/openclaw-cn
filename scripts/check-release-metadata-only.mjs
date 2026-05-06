@@ -8,7 +8,10 @@ const VERSION_ONLY_TEXT_PATHS = new Set([
   "apps/ios/Config/Version.xcconfig",
   "apps/ios/version.json",
   "apps/macos/Sources/OpenClaw/Resources/Info.plist",
+<<<<<<< HEAD
   "src/config/schema.base.generated.ts",
+=======
+>>>>>>> upstream/main
 ]);
 
 function normalizePath(input) {

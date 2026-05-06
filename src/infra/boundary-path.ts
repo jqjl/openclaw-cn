@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import os from "node:os";
@@ -859,3 +860,14 @@ function resolveSymlinkHopPathSync(symlinkPath: string): string {
     return resolvePathViaExistingAncestorSync(linkAbsolute);
   }
 }
+=======
+import "./fs-safe-defaults.js";
+export {
+  ROOT_PATH_ALIAS_POLICIES,
+  resolvePathViaExistingAncestorSync,
+  resolveRootPath,
+  resolveRootPathSync,
+  type ResolvedRootPath,
+  type RootPathAliasPolicy,
+} from "@openclaw/fs-safe/advanced";
+>>>>>>> upstream/main

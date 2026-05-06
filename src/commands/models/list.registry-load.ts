@@ -1,6 +1,10 @@
 import type { Api, Model } from "@mariozechner/pi-ai";
 import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
+<<<<<<< HEAD
 import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
+=======
+import { resolveDefaultAgentDir } from "../../agents/agent-scope.js";
+>>>>>>> upstream/main
 import { shouldSuppressBuiltInModel } from "../../agents/model-suppression.js";
 import { discoverAuthStorage, discoverModels } from "../../agents/pi-model-discovery.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
@@ -51,7 +55,11 @@ export function loadConfiguredListModelRegistry(
   entries: ConfiguredEntry[],
   opts?: { providerFilter?: string; workspaceDir?: string },
 ) {
+<<<<<<< HEAD
   const agentDir = resolveOpenClawAgentDir();
+=======
+  const agentDir = resolveDefaultAgentDir(cfg);
+>>>>>>> upstream/main
   const authStorage = discoverAuthStorage(agentDir, {
     readOnly: true,
     config: cfg,

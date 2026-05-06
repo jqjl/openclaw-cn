@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import { createChannelMessageReplyPipeline } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OpenClawConfig, PluginRuntime } from "../runtime-api.js";
 import "./monitor.send-mocks.js";
@@ -117,17 +121,38 @@ function installRuntime(params: {
         dispatchResult,
       };
     }
+<<<<<<< HEAD
+=======
+    const { onModelSelected, ...replyPipeline } = createChannelMessageReplyPipeline({
+      cfg: turn.cfg,
+      agentId: turn.agentId,
+      channel: "zalouser",
+      accountId: turn.accountId,
+      ...turn.replyPipeline,
+    });
+>>>>>>> upstream/main
     const dispatchResult = await turn.dispatchReplyWithBufferedBlockDispatcher({
       ctx: turn.ctxPayload,
       cfg: turn.cfg,
       dispatcherOptions: {
+<<<<<<< HEAD
+=======
+        ...replyPipeline,
+>>>>>>> upstream/main
         ...turn.dispatcherOptions,
         deliver: async (...args: Parameters<typeof turn.delivery.deliver>) => {
           await turn.delivery.deliver(...args);
         },
         onError: turn.delivery.onError,
       },
+<<<<<<< HEAD
       replyOptions: turn.replyOptions,
+=======
+      replyOptions: {
+        onModelSelected,
+        ...turn.replyOptions,
+      },
+>>>>>>> upstream/main
       replyResolver: turn.replyResolver,
     });
     return {

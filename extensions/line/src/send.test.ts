@@ -165,7 +165,12 @@ describe("LINE send helpers", () => {
       direction: "outbound",
     });
     expect(logVerboseMock).toHaveBeenCalledWith("line: pushed image to U123");
+<<<<<<< HEAD
     expect(result).toEqual({ messageId: "push", chatId: "U123" });
+=======
+    expect(result).toMatchObject({ messageId: "push", chatId: "U123" });
+    expect(result.receipt.primaryPlatformMessageId).toBe("push");
+>>>>>>> upstream/main
   });
 
   it("replies when reply token is provided", async () => {
@@ -193,7 +198,14 @@ describe("LINE send helpers", () => {
       ],
     });
     expect(logVerboseMock).toHaveBeenCalledWith("line: replied to C1");
+<<<<<<< HEAD
     expect(result).toEqual({ messageId: "reply", chatId: "C1" });
+=======
+    expect(result).toMatchObject({ messageId: "reply", chatId: "C1" });
+    expect(result.receipt.primaryPlatformMessageId).toBe("reply");
+    expect(result.receipt.threadId).toBe("C1");
+    expect(result.receipt.parts[0]?.kind).toBe("media");
+>>>>>>> upstream/main
   });
 
   it("sends video with explicit image preview URL", async () => {

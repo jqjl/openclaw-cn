@@ -8,6 +8,10 @@ import { ensureOwnerDisplaySecret } from "../agents/owner-display.js";
 import { loadDotEnv } from "../infra/dotenv.js";
 import { formatErrorMessage } from "../infra/errors.js";
 import { resolveRequiredHomeDir } from "../infra/home-dir.js";
+<<<<<<< HEAD
+=======
+import { replaceFileAtomic, replaceFileAtomicSync } from "../infra/replace-file.js";
+>>>>>>> upstream/main
 import {
   loadShellEnvFallback,
   resolveShellEnvFallbackTimeoutMs,
@@ -1313,6 +1317,7 @@ export function createConfigIO(
   }
 
   function replaceConfigFileSync(raw: string): void {
+<<<<<<< HEAD
     const dir = path.dirname(configPath);
     deps.fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
     const tmp = path.join(
@@ -1345,6 +1350,17 @@ export function createConfigIO(
       }
       throw err;
     }
+=======
+    replaceFileAtomicSync({
+      filePath: configPath,
+      content: raw,
+      dirMode: 0o700,
+      mode: 0o600,
+      tempPrefix: path.basename(configPath),
+      copyFallbackOnPermissionError: true,
+      fileSystem: deps.fs,
+    });
+>>>>>>> upstream/main
   }
 
   function migrateAndStripShippedPluginInstallConfigRecords(
@@ -2208,15 +2224,19 @@ export function createConfigIO(
       throw err;
     }
 
+<<<<<<< HEAD
     const tmp = path.join(
       dir,
       `${path.basename(configPath)}.${process.pid}.${crypto.randomUUID()}.tmp`,
     );
 
+=======
+>>>>>>> upstream/main
     const pluginInstallConfigMigration =
       ensureShippedPluginInstallConfigRecordsMigratedForWrite(snapshot);
     let configCommitted = false;
     try {
+<<<<<<< HEAD
       await deps.fs.promises.writeFile(tmp, json, {
         encoding: "utf-8",
         mode: 0o600,
@@ -2254,11 +2274,31 @@ export function createConfigIO(
         });
         throw err;
       }
+=======
+      const result = await replaceFileAtomic({
+        filePath: configPath,
+        content: json,
+        dirMode: 0o700,
+        mode: 0o600,
+        tempPrefix: path.basename(configPath),
+        copyFallbackOnPermissionError: true,
+        fileSystem: deps.fs,
+        beforeRename: async () => {
+          if (deps.fs.existsSync(configPath)) {
+            await maintainConfigBackups(configPath, deps.fs.promises);
+          }
+        },
+      });
+>>>>>>> upstream/main
       configCommitted = true;
       logConfigOverwrite();
       logConfigWriteAnomalies();
       await appendWriteAudit(
+<<<<<<< HEAD
         "rename",
+=======
+        result.method,
+>>>>>>> upstream/main
         undefined,
         await deps.fs.promises.stat(configPath).catch(() => null),
       );

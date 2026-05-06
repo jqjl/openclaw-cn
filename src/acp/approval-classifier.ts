@@ -3,6 +3,10 @@ import path from "node:path";
 import { isKnownCoreToolId } from "../agents/tool-catalog.js";
 import { isMutatingToolCall } from "../agents/tool-mutation.js";
 import { resolveOwnerOnlyToolApprovalClass } from "../agents/tool-policy.js";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../infra/path-guards.js";
+>>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -175,9 +179,13 @@ function isReadToolCallScopedToCwd(
   if (!absolutePath) {
     return false;
   }
+<<<<<<< HEAD
   const root = path.resolve(cwd);
   const relative = path.relative(root, absolutePath);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+=======
+  return isPathInside(path.resolve(cwd), absolutePath);
+>>>>>>> upstream/main
 }
 
 export function classifyAcpToolApproval(params: {

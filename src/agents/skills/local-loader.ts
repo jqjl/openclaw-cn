@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
+<<<<<<< HEAD
 import { openVerifiedFileSync } from "../../infra/safe-open-sync.js";
+=======
+import { openRootFileSync } from "../../infra/boundary-file-read.js";
+>>>>>>> upstream/main
 import { parseFrontmatter, resolveSkillInvocationPolicy } from "./frontmatter.js";
 import { createSyntheticSourceInfo, type Skill } from "./skill-contract.js";
 import type { ParsedSkillFrontmatter } from "./types.js";
@@ -10,6 +14,7 @@ type LoadedLocalSkill = {
   frontmatter: ParsedSkillFrontmatter;
 };
 
+<<<<<<< HEAD
 function isPathWithinRoot(rootRealPath: string, candidatePath: string): boolean {
   const relative = path.relative(rootRealPath, candidatePath);
   return (
@@ -18,23 +23,36 @@ function isPathWithinRoot(rootRealPath: string, candidatePath: string): boolean 
   );
 }
 
+=======
+>>>>>>> upstream/main
 function readSkillFileSync(params: {
   rootRealPath: string;
   filePath: string;
   maxBytes?: number;
 }): string | null {
+<<<<<<< HEAD
   const opened = openVerifiedFileSync({
     filePath: params.filePath,
     rejectPathSymlink: true,
+=======
+  const opened = openRootFileSync({
+    absolutePath: params.filePath,
+    rootPath: params.rootRealPath,
+    rootRealPath: params.rootRealPath,
+    boundaryLabel: "skill root",
+>>>>>>> upstream/main
     maxBytes: params.maxBytes,
   });
   if (!opened.ok) {
     return null;
   }
   try {
+<<<<<<< HEAD
     if (!isPathWithinRoot(params.rootRealPath, opened.path)) {
       return null;
     }
+=======
+>>>>>>> upstream/main
     return fs.readFileSync(opened.fd, "utf8");
   } finally {
     fs.closeSync(opened.fd);

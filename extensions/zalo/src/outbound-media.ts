@@ -1,9 +1,17 @@
 import { randomBytes } from "node:crypto";
 import { rmSync } from "node:fs";
+<<<<<<< HEAD
 import { chmod, mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { join } from "node:path";
 import { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
+=======
+import { readdir, readFile, stat, unlink } from "node:fs/promises";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { join } from "node:path";
+import { loadOutboundMediaFromUrl } from "openclaw/plugin-sdk/outbound-media";
+import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/temp-path";
 import { resolveWebhookPath } from "openclaw/plugin-sdk/webhook-ingress";
 
@@ -40,8 +48,13 @@ function createHostedZaloMediaToken(): string {
 }
 
 async function ensureHostedZaloMediaDir(): Promise<void> {
+<<<<<<< HEAD
   await mkdir(ZALO_OUTBOUND_MEDIA_DIR, { recursive: true, mode: 0o700 });
   await chmod(ZALO_OUTBOUND_MEDIA_DIR, 0o700).catch(() => undefined);
+=======
+  await privateFileStore(ZALO_OUTBOUND_MEDIA_DIR).writeText(".ready", "");
+  await unlink(join(ZALO_OUTBOUND_MEDIA_DIR, ".ready")).catch(() => undefined);
+>>>>>>> upstream/main
 }
 
 async function deleteHostedZaloMediaEntry(id: string): Promise<void> {
@@ -142,6 +155,7 @@ export async function prepareHostedZaloMediaUrl(params: {
   const token = createHostedZaloMediaToken();
   const publicBaseUrl = new URL(params.webhookUrl).origin;
 
+<<<<<<< HEAD
   await writeFile(resolveHostedZaloMediaBufferPath(id), media.buffer, { mode: 0o600 });
   try {
     await writeFile(
@@ -154,6 +168,17 @@ export async function prepareHostedZaloMediaUrl(params: {
       } satisfies HostedZaloMediaMetadata),
       { encoding: "utf8", mode: 0o600 },
     );
+=======
+  const store = privateFileStore(ZALO_OUTBOUND_MEDIA_DIR);
+  await store.writeText(`${id}.bin`, media.buffer);
+  try {
+    await store.writeJson(`${id}.json`, {
+      routePath,
+      token,
+      contentType: media.contentType,
+      expiresAt: Date.now() + ZALO_OUTBOUND_MEDIA_TTL_MS,
+    } satisfies HostedZaloMediaMetadata);
+>>>>>>> upstream/main
   } catch (error) {
     await deleteHostedZaloMediaEntry(id);
     throw error;

@@ -2,6 +2,10 @@ import { spawn, type SpawnOptions } from "node:child_process";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
+<<<<<<< HEAD
+=======
+import { pathExists } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { ensureRepoBoundDirectory, resolveRepoRelativeOutputDir } from "../cli-paths.js";
 
 export type MantisVisualTaskVisionMode = "image-describe" | "metadata";
@@ -211,6 +215,7 @@ async function defaultCommandRunner(
   });
 }
 
+<<<<<<< HEAD
 async function pathExists(filePath: string) {
   try {
     await fs.access(filePath);
@@ -220,6 +225,8 @@ async function pathExists(filePath: string) {
   }
 }
 
+=======
+>>>>>>> upstream/main
 async function nonEmptyFileExists(filePath: string) {
   try {
     const stat = await fs.stat(filePath);

@@ -6,8 +6,11 @@ read_when:
 title: "Kubernetes"
 ---
 
+<<<<<<< HEAD
 # OpenClaw on Kubernetes
 
+=======
+>>>>>>> upstream/main
 A minimal starting point for running OpenClaw on Kubernetes — not a production-ready deployment. It covers the core resources and is meant to be adapted to your environment.
 
 ## Why not Helm?

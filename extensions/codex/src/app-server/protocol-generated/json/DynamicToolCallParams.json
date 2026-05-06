@@ -5,6 +5,7 @@
   "required": ["arguments", "callId", "threadId", "tool", "turnId"],
   "properties": {
     "arguments": true,
+<<<<<<< HEAD
     "callId": {
       "type": "string"
     },
@@ -20,5 +21,12 @@
     "turnId": {
       "type": "string"
     }
+=======
+    "callId": { "type": "string" },
+    "namespace": { "type": ["string", "null"] },
+    "threadId": { "type": "string" },
+    "tool": { "type": "string" },
+    "turnId": { "type": "string" }
+>>>>>>> upstream/main
   }
 }

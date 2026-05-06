@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import type { MessageReceipt } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
 import type { RetryConfig } from "openclaw/plugin-sdk/retry-runtime";
 import type { RequestClient } from "./internal/discord.js";
@@ -29,6 +33,10 @@ export const DISCORD_MAX_EVENT_COVER_BYTES = 8 * 1024 * 1024;
 export type DiscordSendResult = {
   messageId: string;
   channelId: string;
+<<<<<<< HEAD
+=======
+  receipt: MessageReceipt;
+>>>>>>> upstream/main
 };
 
 export type DiscordRuntimeAccountContext = {

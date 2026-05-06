@@ -1,5 +1,9 @@
 import { SettingsManager } from "@mariozechner/pi-coding-agent";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
+<<<<<<< HEAD
+=======
+import type { PluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.js";
+>>>>>>> upstream/main
 import {
   buildEmbeddedPiSettingsSnapshot,
   loadEnabledBundlePiSettingsSnapshot,
@@ -11,12 +15,20 @@ function createEmbeddedPiSettingsManager(params: {
   cwd: string;
   agentDir: string;
   cfg?: OpenClawConfig;
+<<<<<<< HEAD
+=======
+  pluginMetadataSnapshot?: PluginMetadataSnapshot;
+>>>>>>> upstream/main
 }): SettingsManager {
   const fileSettingsManager = SettingsManager.create(params.cwd, params.agentDir);
   const policy = resolveEmbeddedPiProjectSettingsPolicy(params.cfg);
   const pluginSettings = loadEnabledBundlePiSettingsSnapshot({
     cwd: params.cwd,
     cfg: params.cfg,
+<<<<<<< HEAD
+=======
+    pluginMetadataSnapshot: params.pluginMetadataSnapshot,
+>>>>>>> upstream/main
   });
   const hasPluginSettings = Object.keys(pluginSettings).length > 0;
   if (policy === "trusted" && !hasPluginSettings) {
@@ -46,6 +58,10 @@ export function createPreparedEmbeddedPiSettingsManager(params: {
   cwd: string;
   agentDir: string;
   cfg?: OpenClawConfig;
+<<<<<<< HEAD
+=======
+  pluginMetadataSnapshot?: PluginMetadataSnapshot;
+>>>>>>> upstream/main
   /** Resolved context window budget so reserve-token floor can be capped for small models. */
   contextTokenBudget?: number;
 }): SettingsManager {

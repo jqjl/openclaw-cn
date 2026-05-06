@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+=======
+import { replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
+>>>>>>> upstream/main
 import { resolveWebCredsPath } from "./creds-files.js";
 
 const CREDS_FILE_MODE = 0o600;
@@ -15,6 +19,7 @@ async function stringifyCreds(creds: unknown): Promise<string> {
   return JSON.stringify(creds, BufferJSON.replacer);
 }
 
+<<<<<<< HEAD
 async function syncDirectory(dirPath: string): Promise<void> {
   let handle: Awaited<ReturnType<typeof fs.open>> | undefined;
   try {
@@ -56,6 +61,20 @@ export async function writeCredsJsonAtomically(authDir: string, creds: unknown):
     });
     throw error;
   }
+=======
+export async function writeCredsJsonAtomically(authDir: string, creds: unknown): Promise<void> {
+  const credsPath = resolveWebCredsPath(authDir);
+  const json = await stringifyCreds(creds);
+  await replaceFileAtomic({
+    filePath: credsPath,
+    content: json,
+    dirMode: 0o700,
+    mode: CREDS_FILE_MODE,
+    tempPrefix: ".creds",
+    syncTempFile: true,
+    syncParentDir: true,
+  });
+>>>>>>> upstream/main
 }
 
 export function enqueueCredsSave(

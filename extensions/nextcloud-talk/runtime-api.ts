@@ -23,7 +23,11 @@ export {
   resolveDefaultGroupPolicy,
   warnMissingProviderGroupPolicyFallbackOnce,
 } from "openclaw/plugin-sdk/runtime-group-policy";
+<<<<<<< HEAD
 export { dispatchInboundReplyWithBase } from "openclaw/plugin-sdk/inbound-reply-dispatch";
+=======
+export { dispatchChannelMessageReplyWithBase } from "openclaw/plugin-sdk/channel-message";
+>>>>>>> upstream/main
 export type { OutboundReplyPayload } from "openclaw/plugin-sdk/reply-payload";
 export { deliverFormattedTextWithAttachments } from "openclaw/plugin-sdk/reply-payload";
 export type { PluginRuntime } from "openclaw/plugin-sdk/runtime-store";

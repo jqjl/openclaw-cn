@@ -1,5 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { pathExists } from "./fs-safe.js";
+>>>>>>> upstream/main
 import { readPackageVersion } from "./package-json.js";
 import {
   collectInstalledGlobalPackageErrors,
@@ -52,6 +56,7 @@ function formatError(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+<<<<<<< HEAD
 async function pathExists(targetPath: string): Promise<boolean> {
   try {
     await fs.access(targetPath);
@@ -61,6 +66,8 @@ async function pathExists(targetPath: string): Promise<boolean> {
   }
 }
 
+=======
+>>>>>>> upstream/main
 async function removePathBestEffort(targetPath: string): Promise<void> {
   await fs
     .rm(targetPath, {

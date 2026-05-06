@@ -53,7 +53,11 @@ const mockState = vi.hoisted(() => ({
 vi.mock("./runtime-api.js", () => {
   return {
     buildModelsProviderData: mockState.buildModelsProviderData,
+<<<<<<< HEAD
     createChannelReplyPipeline: vi.fn(() => ({
+=======
+    createChannelMessageReplyPipeline: vi.fn(() => ({
+>>>>>>> upstream/main
       onModelSelected: vi.fn(),
       typingCallbacks: {},
     })),

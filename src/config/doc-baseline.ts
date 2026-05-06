@@ -4,6 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
+<<<<<<< HEAD
+=======
+import { replaceFileAtomicSync } from "../infra/replace-file.js";
+>>>>>>> upstream/main
 import type { ConfigSchemaResponse } from "./schema.js";
 import { schemaHasChildren } from "./schema.shared.js";
 
@@ -597,8 +601,18 @@ function readFileIfExists(filePath: string): string | null {
 }
 
 function writeFileAtomic(filePath: string, content: string): void {
+<<<<<<< HEAD
   fsSync.mkdirSync(path.dirname(filePath), { recursive: true });
   fsSync.writeFileSync(filePath, content, "utf8");
+=======
+  replaceFileAtomicSync({
+    filePath,
+    content,
+    dirMode: 0o755,
+    mode: 0o644,
+    tempPrefix: path.basename(filePath),
+  });
+>>>>>>> upstream/main
 }
 
 function sha256(content: string): string {

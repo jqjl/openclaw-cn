@@ -6,19 +6,30 @@ read_when:
 title: "Browser login"
 ---
 
+<<<<<<< HEAD
 # Browser login + X/Twitter posting
 
+=======
+>>>>>>> upstream/main
 ## Manual login (recommended)
 
 When a site requires login, **sign in manually** in the **host** browser profile (the openclaw browser).
 
+<<<<<<< HEAD
 Do **not** give the model your credentials. Automated logins often trigger anti‑bot defenses and can lock the account.
+=======
+Do **not** give the model your credentials. Automated logins often trigger anti-bot defenses and can lock the account.
+>>>>>>> upstream/main
 
 Back to the main browser docs: [Browser](/tools/browser).
 
 ## Which Chrome profile is used?
 
+<<<<<<< HEAD
 OpenClaw controls a **dedicated Chrome profile** (named `openclaw`, orange‑tinted UI). This is separate from your daily browser profile.
+=======
+OpenClaw controls a **dedicated Chrome profile** (named `openclaw`, orange-tinted UI). This is separate from your daily browser profile.
+>>>>>>> upstream/main
 
 For agent browser tool calls:
 

@@ -1,4 +1,8 @@
 import path from "node:path";
+<<<<<<< HEAD
+=======
+import { isPathInside } from "../../infra/path-guards.js";
+>>>>>>> upstream/main
 import { normalizeOptionalLowercaseString } from "../../shared/string-coerce.js";
 import { resolveSandboxInputPath, resolveSandboxPath } from "../sandbox-paths.js";
 import type { SandboxFsBridgeContext } from "./backend-handle.types.js";
@@ -228,11 +232,15 @@ function isPathInsideHost(root: string, target: string): boolean {
     path.dirname(resolvedTarget),
   );
   const canonicalTarget = path.resolve(canonicalTargetParent, path.basename(resolvedTarget));
+<<<<<<< HEAD
   const rel = path.relative(canonicalRoot, canonicalTarget);
   if (!rel) {
     return true;
   }
   return !(rel.startsWith("..") || path.isAbsolute(rel));
+=======
+  return isPathInside(canonicalRoot, canonicalTarget);
+>>>>>>> upstream/main
 }
 
 function toHostSegments(relativePosix: string): string[] {

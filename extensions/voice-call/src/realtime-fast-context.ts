@@ -1,4 +1,5 @@
 import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+<<<<<<< HEAD
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import { getActiveMemorySearchManager } from "openclaw/plugin-sdk/memory-host-search";
 import {
@@ -115,10 +116,23 @@ async function lookupFastContext(params: {
   return { status: "hits", hits };
 }
 
+=======
+import {
+  resolveRealtimeVoiceFastContextConsult,
+  type RealtimeVoiceFastContextConsultResult,
+  type RealtimeVoiceFastContextConfig,
+} from "openclaw/plugin-sdk/realtime-voice";
+
+type Logger = {
+  debug?: (message: string) => void;
+};
+
+>>>>>>> upstream/main
 export async function resolveRealtimeFastContextConsult(params: {
   cfg: OpenClawConfig;
   agentId: string;
   sessionKey: string;
+<<<<<<< HEAD
   config: VoiceCallRealtimeFastContextConfig;
   args: unknown;
   logger: Logger;
@@ -162,4 +176,17 @@ export async function resolveRealtimeFastContextConsult(params: {
       ? { handled: false }
       : { handled: true, result: { text: buildMissText(query) } };
   }
+=======
+  config: RealtimeVoiceFastContextConfig;
+  args: unknown;
+  logger: Logger;
+}): Promise<RealtimeVoiceFastContextConsultResult> {
+  return await resolveRealtimeVoiceFastContextConsult({
+    ...params,
+    labels: {
+      audienceLabel: "caller",
+      contextName: "OpenClaw memory or session context",
+    },
+  });
+>>>>>>> upstream/main
 }

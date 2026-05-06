@@ -38,6 +38,13 @@ describe("gateway server chat", () => {
     dispatchInboundMessageMock.mockReset();
   });
 
+<<<<<<< HEAD
+=======
+  const removeTempDir = async (dir: string): Promise<void> => {
+    await fs.rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+  };
+
+>>>>>>> upstream/main
   const buildNoReplyHistoryFixture = (includeMixedAssistant = false) => [
     {
       role: "user",
@@ -109,7 +116,11 @@ describe("gateway server chat", () => {
       return await run(dir);
     } finally {
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   };
 
@@ -223,7 +234,11 @@ describe("gateway server chat", () => {
       expect(res.payload?.messageSeq).toBe(1);
     } finally {
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   });
 
@@ -250,7 +265,11 @@ describe("gateway server chat", () => {
       expect(res.payload?.messageSeq).toBe(1);
     } finally {
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   });
 
@@ -325,7 +344,11 @@ describe("gateway server chat", () => {
       }
     } finally {
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   });
 
@@ -360,7 +383,11 @@ describe("gateway server chat", () => {
       }
     } finally {
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   });
 
@@ -606,7 +633,11 @@ describe("gateway server chat", () => {
       if (webchatWs) {
         webchatWs.close();
       }
+<<<<<<< HEAD
       await Promise.all(tempDirs.map((dir) => fs.rm(dir, { recursive: true, force: true })));
+=======
+      await Promise.all(tempDirs.map((dir) => removeTempDir(dir)));
+>>>>>>> upstream/main
     }
   });
 
@@ -1049,7 +1080,11 @@ describe("gateway server chat", () => {
       testState.agentConfig = undefined;
       testState.agentsConfig = undefined;
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   });
 
@@ -1189,7 +1224,11 @@ describe("gateway server chat", () => {
     } finally {
       resolveAgentRun?.();
       testState.sessionStorePath = undefined;
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
     }
   });
 
@@ -1403,7 +1442,11 @@ describe("gateway server chat", () => {
       }
     } finally {
       webchatWs.close();
+<<<<<<< HEAD
       await fs.rm(dir, { recursive: true, force: true });
+=======
+      await removeTempDir(dir);
+>>>>>>> upstream/main
       testState.sessionStorePath = undefined;
     }
   });

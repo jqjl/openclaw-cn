@@ -1,4 +1,5 @@
 ---
+<<<<<<< HEAD
 summary: "OpenClaw on DigitalOcean (simple paid VPS option)"
 read_when:
   - Setting up OpenClaw on DigitalOcean
@@ -264,3 +265,16 @@ free -h
 - [Docker install](/install/docker) — containerized setup
 - [Tailscale](/gateway/tailscale) — secure remote access
 - [Configuration](/gateway/configuration) — full config reference
+=======
+summary: "Redirect to /install/digitalocean"
+title: "DigitalOcean (platform)"
+redirect: /install/digitalocean
+---
+
+This page has moved to [DigitalOcean](/install/digitalocean).
+
+## Related
+
+- [Install overview](/install)
+- [VPS hosting](/vps)
+>>>>>>> upstream/main

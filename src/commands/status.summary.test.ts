@@ -3,6 +3,10 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 const statusSummaryMocks = vi.hoisted(() => ({
   hasConfiguredChannelsForReadOnlyScope: vi.fn(() => true),
   buildChannelSummary: vi.fn(async () => ["ok"]),
+<<<<<<< HEAD
+=======
+  readSessionStoreReadOnly: vi.fn(() => ({})),
+>>>>>>> upstream/main
 }));
 
 vi.mock("../plugins/channel-plugin-ids.js", () => ({
@@ -20,6 +24,10 @@ vi.mock("./status.summary.runtime.js", () => ({
       provider: "openai",
       model: "gpt-5.5",
     })),
+<<<<<<< HEAD
+=======
+    resolveSessionRuntimeLabel: vi.fn(() => "OpenClaw Pi Default"),
+>>>>>>> upstream/main
     resolveContextTokensForModel: vi.fn(() => 200_000),
   },
 }));
@@ -38,6 +46,17 @@ vi.mock("../config/config.js", () => ({
   getRuntimeConfig: vi.fn(() => ({})),
 }));
 
+<<<<<<< HEAD
+=======
+vi.mock("../config/sessions/paths.js", () => ({
+  resolveStorePath: vi.fn(() => "/tmp/sessions.json"),
+}));
+
+vi.mock("../config/sessions/store-read.js", () => ({
+  readSessionStoreReadOnly: statusSummaryMocks.readSessionStoreReadOnly,
+}));
+
+>>>>>>> upstream/main
 vi.mock("../gateway/agent-list.js", () => ({
   listGatewayAgentsBasic: vi.fn(() => ({
     defaultId: "main",
@@ -132,6 +151,10 @@ describe("getStatusSummary", () => {
     vi.clearAllMocks();
     statusSummaryMocks.hasConfiguredChannelsForReadOnlyScope.mockReturnValue(true);
     statusSummaryMocks.buildChannelSummary.mockResolvedValue(["ok"]);
+<<<<<<< HEAD
+=======
+    statusSummaryMocks.readSessionStoreReadOnly.mockReturnValue({});
+>>>>>>> upstream/main
   });
 
   it("includes runtimeVersion in the status payload", async () => {
@@ -175,4 +198,21 @@ describe("getStatusSummary", () => {
       expect.objectContaining({ allowAsyncLoad: false }),
     );
   });
+<<<<<<< HEAD
+=======
+
+  it("includes the selected agent runtime on recent sessions", async () => {
+    vi.mocked(statusSummaryRuntime.resolveSessionRuntimeLabel).mockReturnValue("OpenAI Codex");
+    statusSummaryMocks.readSessionStoreReadOnly.mockReturnValue({
+      "agent:main:main": {
+        sessionId: "session-1",
+        updatedAt: Date.now(),
+      },
+    });
+
+    const summary = await getStatusSummary();
+
+    expect(summary.sessions.recent[0]?.runtime).toBe("OpenAI Codex");
+  });
+>>>>>>> upstream/main
 });

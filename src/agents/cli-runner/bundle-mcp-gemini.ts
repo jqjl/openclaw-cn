@@ -2,6 +2,10 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { applyMergePatch } from "../../config/merge-patch.js";
+<<<<<<< HEAD
+=======
+import { tryReadJson, writeJson } from "../../infra/json-files.js";
+>>>>>>> upstream/main
 import type { BundleMcpConfig, BundleMcpServerConfig } from "../../plugins/bundle-mcp.js";
 import {
   applyCommonServerConfig,
@@ -11,6 +15,7 @@ import {
 } from "./bundle-mcp-adapter-shared.js";
 
 async function readJsonObject(filePath: string): Promise<Record<string, unknown>> {
+<<<<<<< HEAD
   try {
     const raw = JSON.parse(await fs.readFile(filePath, "utf-8")) as unknown;
     return raw && typeof raw === "object" && !Array.isArray(raw)
@@ -19,6 +24,12 @@ async function readJsonObject(filePath: string): Promise<Record<string, unknown>
   } catch {
     return {};
   }
+=======
+  const raw = await tryReadJson<unknown>(filePath);
+  return raw && typeof raw === "object" && !Array.isArray(raw)
+    ? ({ ...raw } as Record<string, unknown>)
+    : {};
+>>>>>>> upstream/main
 }
 
 function resolveEnvPlaceholder(
@@ -86,7 +97,11 @@ export async function writeGeminiSystemSettings(
   if (!isRecord(settings.mcp) || !isRecord(settings.mcpServers)) {
     throw new Error("Gemini MCP settings merge produced an invalid object");
   }
+<<<<<<< HEAD
   await fs.writeFile(settingsPath, `${JSON.stringify(settings, null, 2)}\n`, "utf-8");
+=======
+  await writeJson(settingsPath, settings, { trailingNewline: true });
+>>>>>>> upstream/main
   return {
     env: {
       ...inheritedEnv,

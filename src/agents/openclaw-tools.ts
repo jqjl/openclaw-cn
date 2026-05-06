@@ -1,9 +1,15 @@
 import { selectApplicableRuntimeConfig } from "../config/config.js";
+<<<<<<< HEAD
 import type { AgentModelConfig } from "../config/types.agents-shared.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { callGateway } from "../gateway/call.js";
 import { isEmbeddedMode } from "../infra/embedded-mode.js";
 import type { PluginMetadataSnapshot } from "../plugins/plugin-metadata-snapshot.types.js";
+=======
+import type { OpenClawConfig } from "../config/types.openclaw.js";
+import { callGateway } from "../gateway/call.js";
+import { isEmbeddedMode } from "../infra/embedded-mode.js";
+>>>>>>> upstream/main
 import {
   getActiveRuntimeWebToolsMetadata,
   getActiveSecretsRuntimeSnapshot,
@@ -11,9 +17,20 @@ import {
 import { normalizeDeliveryContext } from "../utils/delivery-context.js";
 import type { GatewayMessageChannel } from "../utils/message-channel.js";
 import { resolveAgentWorkspaceDir, resolveSessionAgentIds } from "./agent-scope.js";
+<<<<<<< HEAD
 import { listProfilesForProvider } from "./auth-profiles.js";
 import type { AuthProfileStore } from "./auth-profiles/types.js";
 import { resolveOpenClawPluginToolsForOptions } from "./openclaw-plugin-tools.js";
+=======
+import type { AuthProfileStore } from "./auth-profiles/types.js";
+import { resolveOpenClawPluginToolsForOptions } from "./openclaw-plugin-tools.js";
+import {
+  isToolExplicitlyAllowedByFactoryPolicy,
+  mergeFactoryPolicyList,
+  resolveImageToolFactoryAvailable,
+  resolveOptionalMediaToolFactoryPlan,
+} from "./openclaw-tools.media-factory-plan.js";
+>>>>>>> upstream/main
 import { applyNodesToolWorkspaceGuard } from "./openclaw-tools.nodes-workspace-guard.js";
 import {
   collectPresentOpenClawTools,
@@ -22,7 +39,10 @@ import {
 import type { SandboxFsBridge } from "./sandbox/fs-bridge.js";
 import type { SpawnedToolContext } from "./spawned-context.js";
 import type { ToolFsPolicy } from "./tool-fs-policy.js";
+<<<<<<< HEAD
 import { isToolAllowedByPolicyName } from "./tool-policy-match.js";
+=======
+>>>>>>> upstream/main
 import { createAgentsListTool } from "./tools/agents-list-tool.js";
 import { createCanvasTool } from "./tools/canvas-tool.js";
 import type { AnyAgentTool } from "./tools/common.js";
@@ -31,6 +51,7 @@ import { createEmbeddedCallGateway } from "./tools/embedded-gateway-stub.js";
 import { createGatewayTool } from "./tools/gateway-tool.js";
 import { createHeartbeatResponseTool } from "./tools/heartbeat-response-tool.js";
 import { createImageGenerateTool } from "./tools/image-generate-tool.js";
+<<<<<<< HEAD
 import { coerceImageModelConfig } from "./tools/image-tool.helpers.js";
 import { createImageTool } from "./tools/image-tool.js";
 import {
@@ -43,6 +64,12 @@ import { coerceToolModelConfig, hasToolModelConfig } from "./tools/model-config.
 import { createMusicGenerateTool } from "./tools/music-generate-tool.js";
 import { createNodesTool } from "./tools/nodes-tool.js";
 import { coercePdfModelConfig } from "./tools/pdf-tool.helpers.js";
+=======
+import { createImageTool } from "./tools/image-tool.js";
+import { createMessageTool } from "./tools/message-tool.js";
+import { createMusicGenerateTool } from "./tools/music-generate-tool.js";
+import { createNodesTool } from "./tools/nodes-tool.js";
+>>>>>>> upstream/main
 import { createPdfTool } from "./tools/pdf-tool.js";
 import { createSessionStatusTool } from "./tools/session-status-tool.js";
 import { createSessionsHistoryTool } from "./tools/sessions-history-tool.js";
@@ -68,6 +95,7 @@ const defaultOpenClawToolsDeps: OpenClawToolsDeps = {
 
 let openClawToolsDeps: OpenClawToolsDeps = defaultOpenClawToolsDeps;
 
+<<<<<<< HEAD
 type OptionalMediaToolFactoryPlan = {
   imageGenerate: boolean;
   videoGenerate: boolean;
@@ -266,6 +294,8 @@ function resolveOptionalMediaToolFactoryPlan(params: {
   };
 }
 
+=======
+>>>>>>> upstream/main
 export function createOpenClawTools(
   options?: {
     sandboxBrowserBridgeUrl?: string;

@@ -3,7 +3,14 @@ import { createLazyCliRuntimeLoader } from "../live-transports/shared/live-trans
 import type { MantisDesktopBrowserSmokeOptions } from "./desktop-browser-smoke.runtime.js";
 import type { MantisDiscordSmokeOptions } from "./discord-smoke.runtime.js";
 import type { MantisBeforeAfterOptions } from "./run.runtime.js";
+<<<<<<< HEAD
 import type { MantisSlackDesktopSmokeOptions } from "./slack-desktop-smoke.runtime.js";
+=======
+import type {
+  MantisSlackDesktopHydrateMode,
+  MantisSlackDesktopSmokeOptions,
+} from "./slack-desktop-smoke.runtime.js";
+>>>>>>> upstream/main
 import type {
   MantisVisualDriverOptions,
   MantisVisualTaskOptions,
@@ -74,6 +81,11 @@ type MantisBeforeAfterCommanderOptions = {
 };
 
 type MantisDesktopBrowserSmokeCommanderOptions = {
+<<<<<<< HEAD
+=======
+  browserProfileArchiveEnv?: string;
+  browserProfileDir?: string;
+>>>>>>> upstream/main
   browserUrl?: string;
   class?: string;
   crabboxBin?: string;
@@ -86,6 +98,10 @@ type MantisDesktopBrowserSmokeCommanderOptions = {
   provider?: string;
   repoRoot?: string;
   ttl?: string;
+<<<<<<< HEAD
+=======
+  videoDuration?: string;
+>>>>>>> upstream/main
 };
 
 type MantisSlackDesktopSmokeCommanderOptions = {
@@ -96,6 +112,10 @@ type MantisSlackDesktopSmokeCommanderOptions = {
   credentialSource?: string;
   fast?: boolean;
   gatewaySetup?: boolean;
+<<<<<<< HEAD
+=======
+  hydrateMode?: MantisSlackDesktopHydrateMode;
+>>>>>>> upstream/main
   idleTimeout?: string;
   keepLease?: boolean;
   leaseId?: string;
@@ -233,6 +253,17 @@ export function registerMantisCli(qa: Command) {
     .option("--repo-root <path>", "Repository root to target when running from a neutral cwd")
     .option("--output-dir <path>", "Mantis desktop browser artifact directory")
     .option("--browser-url <url>", "URL to open in the visible browser")
+<<<<<<< HEAD
+=======
+    .option(
+      "--browser-profile-archive-env <name>",
+      "Env var containing a base64 .tgz Chrome profile archive to restore before launch",
+    )
+    .option(
+      "--browser-profile-dir <remote-path>",
+      "Remote Chrome user-data-dir path to reuse for browser login state",
+    )
+>>>>>>> upstream/main
     .option("--html-file <path>", "Repo-local HTML file to render in the visible browser")
     .option("--crabbox-bin <path>", "Crabbox binary path")
     .option("--provider <provider>", "Crabbox provider")
@@ -241,9 +272,18 @@ export function registerMantisCli(qa: Command) {
     .option("--lease-id <id>", "Reuse an existing Crabbox lease")
     .option("--idle-timeout <duration>", "Crabbox idle timeout")
     .option("--ttl <duration>", "Crabbox maximum lease lifetime")
+<<<<<<< HEAD
     .option("--keep-lease", "Keep a lease created by this run after a passing smoke")
     .action(async (opts: MantisDesktopBrowserSmokeCommanderOptions) => {
       await runDesktopBrowserSmoke({
+=======
+    .option("--video-duration <seconds>", "Visible desktop recording duration in seconds")
+    .option("--keep-lease", "Keep a lease created by this run after a passing smoke")
+    .action(async (opts: MantisDesktopBrowserSmokeCommanderOptions) => {
+      await runDesktopBrowserSmoke({
+        browserProfileArchiveEnv: opts.browserProfileArchiveEnv,
+        browserProfileDir: opts.browserProfileDir,
+>>>>>>> upstream/main
         browserUrl: opts.browserUrl,
         crabboxBin: opts.crabboxBin,
         htmlFile: opts.htmlFile,
@@ -255,6 +295,10 @@ export function registerMantisCli(qa: Command) {
         provider: opts.provider,
         repoRoot: opts.repoRoot,
         ttl: opts.ttl,
+<<<<<<< HEAD
+=======
+        videoDurationSeconds: parseOptionalInteger(opts.videoDuration, "--video-duration"),
+>>>>>>> upstream/main
       });
     });
 
@@ -278,6 +322,10 @@ export function registerMantisCli(qa: Command) {
     .option("--slack-url <url>", "Slack web URL to open in the visible browser")
     .option("--slack-channel-id <id>", "Slack channel id for gateway setup allowlist")
     .option("--provider-mode <mode>", "QA provider mode")
+<<<<<<< HEAD
+=======
+    .option("--hydrate-mode <mode>", "Remote hydrate mode: source or prehydrated")
+>>>>>>> upstream/main
     .option("--model <ref>", "Primary provider/model ref")
     .option("--alt-model <ref>", "Alternate provider/model ref")
     .option(
@@ -297,6 +345,10 @@ export function registerMantisCli(qa: Command) {
         credentialSource: opts.credentialSource,
         fastMode: opts.fast,
         gatewaySetup: opts.gatewaySetup,
+<<<<<<< HEAD
+=======
+        hydrateMode: opts.hydrateMode,
+>>>>>>> upstream/main
         idleTimeout: opts.idleTimeout,
         keepLease: opts.keepLease,
         leaseId: opts.leaseId,

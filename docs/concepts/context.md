@@ -1,17 +1,27 @@
 ---
 summary: "Context: what the model sees, how it is built, and how to inspect it"
 read_when:
+<<<<<<< HEAD
   - You want to understand what “context” means in OpenClaw
   - You are debugging why the model “knows” something (or forgot it)
+=======
+  - You want to understand what "context" means in OpenClaw
+  - You are debugging why the model "knows" something (or forgot it)
+>>>>>>> upstream/main
   - You want to reduce context overhead (/context, /status, /compact)
 title: "Context"
 ---
 
+<<<<<<< HEAD
 “Context” is **everything OpenClaw sends to the model for a run**. It is bounded by the model’s **context window** (token limit).
+=======
+"Context" is **everything OpenClaw sends to the model for a run**. It is bounded by the model's **context window** (token limit).
+>>>>>>> upstream/main
 
 Beginner mental model:
 
 - **System prompt** (OpenClaw-built): rules, tools, skills list, time/runtime, and injected workspace files.
+<<<<<<< HEAD
 - **Conversation history**: your messages + the assistant’s messages for this session.
 - **Tool calls/results + attachments**: command output, file reads, images/audio, etc.
 
@@ -21,6 +31,17 @@ Context is _not the same thing_ as “memory”: memory can be stored on disk an
 
 - `/status` → quick “how full is my window?” view + session settings.
 - `/context list` → what’s injected + rough sizes (per file + totals).
+=======
+- **Conversation history**: your messages + the assistant's messages for this session.
+- **Tool calls/results + attachments**: command output, file reads, images/audio, etc.
+
+Context is _not the same thing_ as "memory": memory can be stored on disk and reloaded later; context is what's inside the model's current window.
+
+## Quick start (inspect context)
+
+- `/status` → quick "how full is my window?" view + session settings.
+- `/context list` → what's injected + rough sizes (per file + totals).
+>>>>>>> upstream/main
 - `/context detail` → deeper breakdown: per-file, per-tool schema sizes, per-skill entry sizes, and system prompt size.
 - `/usage tokens` → append per-reply usage footer to normal replies.
 - `/compact` → summarize older history into a compact entry to free window space.
@@ -29,7 +50,11 @@ See also: [Slash commands](/tools/slash-commands), [Token use & costs](/referenc
 
 ## Example output
 
+<<<<<<< HEAD
 Values vary by model, provider, tool policy, and what’s in your workspace.
+=======
+Values vary by model, provider, tool policy, and what's in your workspace.
+>>>>>>> upstream/main
 
 ### `/context list`
 
@@ -83,7 +108,11 @@ Everything the model receives counts, including:
 - Tool calls + tool results.
 - Attachments/transcripts (images/audio/files).
 - Compaction summaries and pruning artifacts.
+<<<<<<< HEAD
 - Provider “wrappers” or hidden headers (not visible, still counted).
+=======
+- Provider "wrappers" or hidden headers (not visible, still counted).
+>>>>>>> upstream/main
 
 ## How OpenClaw builds the system prompt
 
@@ -118,14 +147,23 @@ When truncation occurs, the runtime can inject an in-prompt warning block under 
 
 The system prompt includes a compact **skills list** (name + description + location). This list has real overhead.
 
+<<<<<<< HEAD
 Skill instructions are _not_ included by default. The model is expected to `read` the skill’s `SKILL.md` **only when needed**.
+=======
+Skill instructions are _not_ included by default. The model is expected to `read` the skill's `SKILL.md` **only when needed**.
+>>>>>>> upstream/main
 
 ## Tools: there are two costs
 
 Tools affect context in two ways:
 
+<<<<<<< HEAD
 1. **Tool list text** in the system prompt (what you see as “Tooling”).
 2. **Tool schemas** (JSON). These are sent to the model so it can call tools. They count toward context even though you don’t see them as plain text.
+=======
+1. **Tool list text** in the system prompt (what you see as "Tooling").
+2. **Tool schemas** (JSON). These are sent to the model so it can call tools. They count toward context even though you don't see them as plain text.
+>>>>>>> upstream/main
 
 `/context detail` breaks down the biggest tool schemas so you can see what dominates.
 
@@ -137,7 +175,11 @@ Slash commands are handled by the Gateway. There are a few different behaviors:
 - **Directives**: `/think`, `/verbose`, `/trace`, `/reasoning`, `/elevated`, `/model`, `/queue` are stripped before the model sees the message.
   - Directive-only messages persist session settings.
   - Inline directives in a normal message act as per-message hints.
+<<<<<<< HEAD
 - **Inline shortcuts** (allowlisted senders only): certain `/...` tokens inside a normal message can run immediately (example: “hey /status”), and are stripped before the model sees the remaining text.
+=======
+- **Inline shortcuts** (allowlisted senders only): certain `/...` tokens inside a normal message can run immediately (example: "hey /status"), and are stripped before the model sees the remaining text.
+>>>>>>> upstream/main
 
 Details: [Slash commands](/tools/slash-commands).
 
@@ -147,7 +189,11 @@ What persists across messages depends on the mechanism:
 
 - **Normal history** persists in the session transcript until compacted/pruned by policy.
 - **Compaction** persists a summary into the transcript and keeps recent messages intact.
+<<<<<<< HEAD
 - **Pruning** drops old tool results from the _in-memory_ prompt to free context-window space, but does not rewrite the session transcript — the full history is still inspectable on disk.
+=======
+- **Pruning** drops old tool results from the _in-memory_ prompt to free context-window space, but does not rewrite the session transcript - the full history is still inspectable on disk.
+>>>>>>> upstream/main
 
 Docs: [Session](/concepts/session), [Compaction](/concepts/compaction), [Session pruning](/concepts/session-pruning).
 
@@ -165,13 +211,34 @@ pluggable interface, lifecycle hooks, and configuration.
 `/context` prefers the latest **run-built** system prompt report when available:
 
 - `System prompt (run)` = captured from the last embedded (tool-capable) run and persisted in the session store.
+<<<<<<< HEAD
 - `System prompt (estimate)` = computed on the fly when no run report exists (or when running via a CLI backend that doesn’t generate the report).
+=======
+- `System prompt (estimate)` = computed on the fly when no run report exists (or when running via a CLI backend that doesn't generate the report).
+>>>>>>> upstream/main
 
 Either way, it reports sizes and top contributors; it does **not** dump the full system prompt or tool schemas.
 
 ## Related
 
+<<<<<<< HEAD
 - [Context Engine](/concepts/context-engine) — custom context injection via plugins
 - [Compaction](/concepts/compaction) — summarizing long conversations
 - [System Prompt](/concepts/system-prompt) — how the system prompt is built
 - [Agent Loop](/concepts/agent-loop) — the full agent execution cycle
+=======
+<CardGroup cols={2}>
+  <Card title="Context engine" href="/concepts/context-engine" icon="puzzle-piece">
+    Custom context injection via plugins.
+  </Card>
+  <Card title="Compaction" href="/concepts/compaction" icon="compress">
+    Summarizing long conversations to keep them inside the model window.
+  </Card>
+  <Card title="System prompt" href="/concepts/system-prompt" icon="message-lines">
+    How the system prompt is built and what it injects each turn.
+  </Card>
+  <Card title="Agent loop" href="/concepts/agent-loop" icon="arrows-rotate">
+    The full agent execution cycle from inbound message to final reply.
+  </Card>
+</CardGroup>
+>>>>>>> upstream/main
