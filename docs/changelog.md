@@ -8,7 +8,222 @@
 
 - CLI/progress: 抑制嵌套进度条和换行清除，同时 TUI 输入拥有原始 stdin，使 Crestodian `/status` 不再干扰活跃输入行。（#75003）感谢 @velvet-shark。
 
-## 🚀 v2026.4.29（2026年4月30日）
+## 🚀 Unreleased（官方 2026-05-06 · 待发布）
+
+> ⚠️ 此为待发布版本，各项更新尚在开发中，以下内容基于上游 CHANGELOG.md 整理，正式发布时可能有调整。
+
+### ✨ 新增功能（Highlights）
+
+- **Google Meet / Voice Call**：Twilio 电话加入现在通过 realtime Gemini 语音桥接，支持流式音频、防压缓冲、打断队列清除，不再使用 TwiML 回退，Meet 参与者将获得更灵敏的 OpenClaw 语音助手。（#77064）感谢 @scoootscooob。
+
+### 🔧 功能调整（Changes）
+
+- **Discord/Voice**：ElevenLabs TTS 直接流式传输到 Discord 播放，并发送延迟优化参数，使语音回复更快开始
+- **Discord/Voice**：TTS 播放中用户开始说话时保持继续，播放期间忽略新捕获避免回声，接收流中止降级为详细诊断
+- **Discord/Voice**：`channels capabilities --probe` 现审计语音频道权限（连接/发言/读取消息历史），缺失权限在 `/vc join` 前就会显示
+- **Telegram**：`message` 工具在入站 Telegram 消息处理期间同聊发送成功时，不再发送静默回退（#78685）感谢 @neeravmakwana
+- **Channels CLI**：`channels list` 改为仅显示渠道，添加 `--all` 展开未配置/未安装状态，增加 `installed`/`configured`/`enabled` 标签和 JSON `origin` 字段（#78456）感谢 @sliverp
+- **CLI/Cron**：`cron list --json` 和 `cron show <id> --json` 新增 `status` 字段（disabled/running/ok/error/skipped/idle）（#78701）感谢 @aweiker
+- **iMessage**：BlueBubbles 标记为弃用（新增部署不再推荐），引导新部署使用原生 `imsg` 路径，BlueBubbles 保留为兼容legacy选项
+- **Discord/Streaming**：Discord 回复默认使用进度草稿预览，除非显式关闭
+- **OpenAI**：`openai/chat-latest` 现支持作为显式直连 API-Key 模型覆盖，无需更改默认模型
+- **Plugins/Install**：新增 `npm-pack:<path.tgz>` 安装方式，本地 npm pack 产物走统一托管安装路径
+- **Codex App-Server**：暴露 `appServer.turnCompletionIdleTimeoutMs`，后工具阶段停滞不再误报为 idle（#77984）感谢 @roseware-dev 和 @rubencu
+- **Plugin Skills/Windows**：在 Windows 上通过 junction 发布插件技能目录，无需开发者模式即可注册（#77971）感谢 @hclsys 和 @jarro
+- **MS Teams**：日志记录 JWKS 获取网络失败，Bot Connector 发送提示传输层回复失败（#78081）感谢 @Beandon13
+- **Gateway/Sessions**：构建 session 列表行时快速路径已限定模型引用，大型存储不再重复重量级模型解析（#77902）感谢 @ragesaq
+- **Codex/Approvals**：Codex 审批模式下停止安装 pre-guardian 原生 PermissionRequest hook，记住 session 窗口内相同 payload 的 allow-always 决策
+- **Sessions CLI**：`openclaw sessions` 表格现在显示选中的 agent runtime
+- **ACPX/Codex**：启动时收割旧 OpenClaw ACP/Codex 进程树，防止孤儿 harness 拖慢 Gateway 感谢 @91wan
+
+### 🐛 问题修复（Fixes）
+
+- **Control UI**：工具结果卡片支持 Markdown 渲染
+- **Control UI**：修复 Discord 频道规则窄布局下操作按钮重叠
+- **Android**：点击前台服务通知现在打开应用前台（#179）感谢 @Syhids
+- **Cron 工具**：使用 `id` 作为 update/remove/run/runs 参数（与 gateway 参数对齐）（#180）感谢 @adamgall
+- **Control UI**：聊天视图改用页面滚动，固定 header/sidebar 和 composer（无内部滚动框）
+- **macOS**：定位权限设为 always-only 以避免 iOS-only 枚举（#165）感谢 @Nachx639
+- **macOS**：生成符合 Swift 6 严格并发的 `Sendable` Gateway 协议模型（#195）感谢 @andranik-sahakyan
+- **macOS**：捆绑 QR 码渲染模块，DMG Gateway 启动不再因缺少 qrcode-terminal 而崩溃
+- **macOS**：安全解析 JSON5 配置（注释存在时不再清空用户设置）
+- **WhatsApp**：心跳后台任务期间抑制打字指示器（#190）感谢 @mcinteerj
+- **WhatsApp**：将离线历史同步消息标记为已读但不触发自动回复（#193）感谢 @mcinteerj
+- **Discord**：避免 OpenAI/GPT 发送延迟 `text_end` 事件时产生重复回复
+- **Discord**：避免 OpenAI 重复 `message_end` 事件导致重复回复
+- **CLI**：bind 为 tailnet/auto 时使用 tailnet IP 进行本地 gateway 调用（修复 #176）
+- **Env**：全局 `$OPENCLAW_STATE_DIR/.env`（`~/.openclaw/.env`）在 CWD `.env` 之后加载为备选
+- **Env**：可选 login-shell env 备选（opt-in；仅导入期望的 key 且不覆盖现有 env）
+- **Agent Tools**：OpenAI 兼容工具 JSON Schema（修复 `browser`，规范化 union schema）
+- **Onboarding**：源码运行且 UI 资源缺失时自动构建（`bun run ui:build`）
+- **Discord/Slack**：反应和系统通知路由到正确 session（无 main-session 污染）
+- **Agent Tools**：即使 sandbox 关闭也尊重 `agent.tools` allow/deny 策略
+- **Commands**：统一各 provider 的 /status（inline）和命令 auth；授权控制命令 bypass；移除 Discord /clawd 斜杠处理器
+- **CLI**：`openclaw agent` 默认通过 Gateway 运行；使用 `--local` 强制嵌入式模式 感谢 @vignesh07
+
+## 🚀 v2026.5.6（官方 2026-05-06）
+
+> ⚠️ 英文 CHANGELOG.md 中 v2026.5.6 标注为 Unreleased，此处按 tag 日期标注为 2026-05-06，待官方正式发布后更新状态。
+
+### ✨ 新增功能（Highlights）
+
+- **Google Meet / Voice Call**：Twilio 电话加入现在通过 realtime Gemini 语音桥接，支持流式音频、防压缓冲、打断队列清除，不再使用 TwiML 回退，Meet 参与者将获得更灵敏的 OpenClaw 语音助手。（#77064）感谢 @scoootscooob。
+
+### 🔧 功能调整（Changes）
+
+- **Discord/Voice**：ElevenLabs TTS 直接流式传输到 Discord 播放，并发送延迟优化参数，使语音回复更快开始
+- **Discord/Voice**：TTS 播放中用户开始说话时保持继续，播放期间忽略新捕获避免回声，接收流中止降级为详细诊断
+- **Telegram**：`message` 工具在入站 Telegram 消息处理期间同聊发送成功时，不再发送静默回退（#78685）感谢 @neeravmakwana
+- **Channels CLI**：`channels list` 改为仅显示渠道，添加 `--all` 展开未配置/未安装状态，增加 `installed`/`configured`/`enabled` 标签和 JSON `origin` 字段（#78456）感谢 @sliverp
+- **CLI/Cron**：`cron list --json` 和 `cron show <id> --json` 新增 `status` 字段（disabled/running/ok/error/skipped/idle）（#78701）感谢 @aweiker
+- **Discord/Streaming**：Discord 回复默认使用进度草稿预览，除非显式关闭
+- **Codex App-Server**：暴露 `appServer.turnCompletionIdleTimeoutMs`，后工具阶段停滞不再误报为 idle（#77984）感谢 @roseware-dev 和 @rubencu
+- **Plugin Skills/Windows**：在 Windows 上通过 junction 发布插件技能目录，无需开发者模式即可注册（#77971）感谢 @hclsys 和 @jarro
+- **MS Teams**：日志记录 JWKS 获取网络失败，Bot Connector 发送提示传输层回复失败（#78081）感谢 @Beandon13
+- **Gateway/Sessions**：构建 session 列表行时快速路径已限定模型引用，大型存储不再重复重量级模型解析（#77902）感谢 @ragesaq
+- **Codex/Approvals**：Codex 审批模式下停止安装 pre-guardian 原生 PermissionRequest hook，记住 session 窗口内相同 payload 的 allow-always 决策
+- **Sessions CLI**：`openclaw sessions` 表格现在显示选中的 agent runtime
+- **ACPX/Codex**：启动时收割旧 OpenClaw ACP/Codex 进程树，防止孤儿 harness 拖慢 Gateway 感谢 @91wan
+
+### 🐛 问题修复（Fixes）
+
+- **Control UI**：工具结果卡片支持 Markdown 渲染
+- **Control UI**：修复 Discord 频道规则窄布局下操作按钮重叠
+- **Android**：点击前台服务通知现在打开应用前台（#179）感谢 @Syhids
+- **Cron 工具**：使用 `id` 作为 update/remove/run/runs 参数（与 gateway 参数对齐）（#180）感谢 @adamgall
+- **Control UI**：聊天视图改用页面滚动，固定 header/sidebar 和 composer（无内部滚动框）
+- **macOS**：定位权限设为 always-only 以避免 iOS-only 枚举（#165）感谢 @Nachx639
+- **macOS**：生成符合 Swift 6 严格并发的 `Sendable` Gateway 协议模型（#195）感谢 @andranik-sahakyan
+- **macOS**：捆绑 QR 码渲染模块，DMG Gateway 启动不再因缺少 qrcode-terminal 而崩溃
+- **macOS**：安全解析 JSON5 配置（注释存在时不再清空用户设置）
+- **WhatsApp**：心跳后台任务期间抑制打字指示器（#190）感谢 @mcinteerj
+- **WhatsApp**：将离线历史同步消息标记为已读但不触发自动回复（#193）感谢 @mcinteerj
+- **Discord**：避免 OpenAI/GPT 发送延迟 `text_end` 事件时产生重复回复
+- **Discord**：避免 OpenAI 重复 `message_end` 事件导致重复回复
+- **CLI**：bind 为 tailnet/auto 时使用 tailnet IP 进行本地 gateway 调用（修复 #176）
+- **Env**：全局 `$OPENCLAW_STATE_DIR/.env`（`~/.openclaw/.env`）在 CWD `.env` 之后加载为备选
+- **Env**：可选 login-shell env 备选（opt-in；仅导入期望的 key 且不覆盖现有 env）
+- **Agent Tools**：OpenAI 兼容工具 JSON Schema（修复 `browser`，规范化 union schema）
+- **Onboarding**：源码运行且 UI 资源缺失时自动构建（`bun run ui:build`）
+- **Discord/Slack**：反应和系统通知路由到正确 session（无 main-session 污染）
+- **Agent Tools**：即使 sandbox 关闭也尊重 `agent.tools` allow/deny 策略
+- **Commands**：统一各 provider 的 /status（inline）和命令 auth；授权控制命令 bypass；移除 Discord /clawd 斜杠处理器
+- **CLI**：`openclaw agent` 默认通过 Gateway 运行；使用 `--local` 强制嵌入式模式 感谢 @vignesh07
+
+## 🚀 v2026.5.3（2026年5月4日）
+
+### ✨ 新增功能（Highlights）
+
+- **Plugins/file-transfer**：新增内置 file-transfer 插件，提供 `file_fetch`、`dir_list`、`dir_fetch`、`file_write` 工具用于配对节点二进制文件操作；默认拒绝路径策略（需 operator 审批），默认拒绝符号链接遍历（可选开启），单次往返 16 MB 上限。（#74742）感谢 @omarshahine。
+- **Plugins/install**：强化官方插件安装、卸载、更新、入职引导、ClawHub 后备、npm 依赖状态报告和 beta 通道更新路径，使外部化插件获得与内置插件同等对待。
+- **Gateway/performance**：启动热路径懒加载插件/运行时发现、cron、schema、shutdown、sessions 和模型元数据，减少不必要的预热开销。
+- **Channels/replies**：改善 Discord 状态反应和降级传输报告，新增 WhatsApp Channel/Newsletter 目标收件人，强化 Telegram、飞书、Matrix、Microsoft Teams 和 Slack 的投递恢复行为。
+- **Install/update**：修复 macOS LaunchAgent 升级失败、运行时拒绝纯源码插件包、更新/doctor 期间修复陈旧 Gateway/插件状态。
+- **Agent/runtime reliability**：在常见边缘情况下保持流式响应、A2A 延迟会话回复、prompt/工具投递、记忆召回、网络搜索提供商发现和提供商思考/模型元数据。
+
+### 🔧 功能调整（Changes）
+
+- **Channels/Streaming**：统一 `streaming.mode: "progress"` 草稿，自动单字状态标签，Discord、Telegram、Matrix、Slack 和 Microsoft Teams 共用进度配置。
+- **Agents/commands**：新增 `/steer <message>`，session 空闲时直接引导当前运行状态，无需发起新一轮对话。（#76934）
+- **Tools/BTW**：新增 `/side` 作为 `/btw` 边角问题的文本和原生斜杠命令别名。
+- **Doctor/config**：`doctor --fix` 现在在存在无关验证问题（如缺失插件）时也提交安全的 legacy 迁移，使 `agents.defaults.llm` 等已知遗留 key 总是被清理。（#76800）感谢 @hclsys。
+- **Agents/tools**：当有效工具禁止列表已屏蔽可选 media 和 PDF 工具工厂时跳过初始化，减少不必要的热路径设置。（#76773）感谢 @dorukardahan。
+- **Discord/status**：显式 reaction 工具调用可选择通过 `trackToolCalls: true` 跟踪后续工具进度，使用共享工具显示 emoji 表做状态反应。（#76327）感谢 @joshavant。
+- **Gateway/config**：停止 Gateway 启动和热重载自动恢复无效配置；无效配置直接关闭，由 `openclaw doctor --fix` 负责修复。
+- **Plugins/onboarding**：Manual 设置允许安装可选官方插件，包括带 npm 后备的 ClawHub 诊断，并将外部 Codex 插件作为可选 provider 设置项。（#76773）感谢 @dorukardahan 和 @vincentkoc。
+- **Plugins/CLI/update**：包含包依赖安装状态；信任官方外部化 npm 迁移；清理外部化安装的陈旧内置加载路径；beta 通道优先尝试插件 `@beta` 更新。（#76079）感谢 @shakkernerd。
+- **Plugins/ClawHub**：429 错误标注重置窗口和未认证更高限额提示，帮助运维判断何时恢复下载、何时登录有帮助。感谢 @romneyda。
+- **Agents/sandbox**：将沙箱容器和浏览器注册条目存储为 per-runtime 分片文件，减少无关 session 锁竞争。（#74831）感谢 @luckylhb90。
+
+### 🐛 问题修复（Fixes）
+
+- **Update**：在持久化 `openclaw update --channel ...` 前修复 legacy 配置，防止旧 Slack/Telegram streaming key 阻止切换到 beta。感谢 @vincentkoc。
+- **Web fetch**：从活跃运行时快照延迟绑定 `web_fetch` 配置和提供商回退元数据，与 `web_search` 保持一致，防止长生命周期工具使用过时设置。感谢 @vincentkoc。
+- **Plugins/discovery**：已安装的 `origin: "global"` 源码插件的 TypeScript 运行时检查从配置阻塞错误降级为警告，允许运行时通过 jiti 回退到 TypeScript 源码。感谢 @romneyda。
+- **Providers/OpenAI Codex**：停止 OAuth 进度旋转器显示后再展示手动重定向提示，避免回调超时跨终端刷屏 `Browser callback did not finish`。
+- **Gateway/systemd**：re-stage 时保留运维人员添加的 secrets，清除 OpenClaw 自己管理的 key（如 `OPENCLAW_GATEWAY_TOKEN`），防止陈旧 env 文件副本遮盖新的 staging 值。（#76860）感谢 @hclsys。
+- **Google Meet**：Chrome 媒体权限授予实际 Meet tab，OpenClaw 麦克风静音时阻止实时语音，BlackHole 捕获不再让参与者保持静音或沉默。
+- **Memory/LanceDB**：在内置 memory 插件包中声明 `apache-arrow`，使 LanceDB 安装包含其运行时 peer。（#76910）感谢 @afiqfiles-max。
+- **CLI/devices**：配对范围拒绝后用 `operator.admin` 重试显式设备配对审批，使已有管理权限的设备 token 可在升级后恢复 Control UI/浏览器配对。（#76956）感谢 @neo19482。
+- **Control UI/WebChat**：将重复的飞行中文本发送折叠到活跃 Gateway 运行，防止快速重复提交启动新的 `agent:main:main` 分发。（#75737）感谢 @dsdsddd1 和 @BunsDev。
+- **Mattermost**：接受记录的 `channels.mattermost.streaming` 配置并遵守 `streaming: "off"` 禁用草稿预览发布。感谢 @vincentkoc。
+- **Microsoft Teams**：在原生 Teams 进度流中尊重进度草稿工具行，当 `channels.msteams.streaming.progress.toolProgress=false` 时抑制独立工具消息。感谢 @vincentkoc。
+- **Discord**：在流式回复期间保持进度草稿边界回调绑定，progress 预览在 assistant 和 reasoning 块之间过渡时扩展 lint 保持绿色。感谢 @vincentkoc。
+- **Plugins/Anthropic**：从内置 provider-policy artifact 暴露 Claude thinking 配置，使非运行时调用者保留 Opus 4.7 的 `adaptive`、`xhigh` 和 `max` 而非降级到 `high`。（#76779）感谢 @tomascupr 和 @iAbhi001。
+- **Plugins/hooks**：`plugins.entries.<id>.hooks.timeoutMs` 和 `plugins.entries.<id>.hooks.timeouts` 支持从运维配置绑定插件 typed hooks，慢 hook 无需补丁已装插件代码。（#76778）感谢 @vincentkoc。
+- **Telegram**：在顶级和每个账户添加 `channels.telegram.mediaGroupFlushMs`，允许运维人员调整专辑缓冲而非硬编码 500ms。（#76149）感谢 @vincentkoc。
+- **Config/messages**：将布尔值 `messages.visibleReplies` 和 `messages.groupChat.visibleReplies` 强制转换为文档化的枚举模式，使直观 toggle 不再导致配置失效和渠道启动失败。（#75390）感谢 @scottgl9。
+- **Feishu**：接受并遵守顶级和每个账户的 `channels.feishu.blockStreaming`，保留 legacy 默认关闭以避免飞书卡片拒绝文档化配置或静默丢弃 block 回复。（#75555）感谢 @vincentkoc。
+- **Gateway/update**：避免 macOS 更新引导后立即 `launchctl kickstart -k`，在打包 postinstall 和 `doctor --fix` 期间取消链接悬空全局插件运行时符号链接，升级不再 SIGTERM 新启动的 Gateway。（#76929）
+- **Google Chat**：在 google-auth/gaxios 拦截器运行前规范化自定义 Google 认证传输头，恢复 webhook token 验证。（#76742）感谢 @donbowman。
+- **Doctor/plugins**：`doctor --fix` 期间重置陈旧 `plugins.slots.memory` 和 `plugins.slots.contextEngine` 引用，缺失插件配置清理不再留下无法恢复的 slot owner。（#76550 和 #76551）感谢 @vincentkoc。
+- **Docs/WhatsApp**：合并 gateway channel 配置示例中重复的顶级 `web` 对象，使复制粘贴的 WhatsApp 配置保留 `web.whatsapp` 和重连设置。（#76619）感谢 @WadydX。
+- **Plugins/tools**：`tools.alsoAllow` 作为可选插件工具发现提示而非权限加载每个 manifest 标记的可选插件工具。（#76616）
+
+## 🚀 v2026.5.3-1（2026年5月4日）
+
+### 🐛 问题修复（Fixes）
+
+- **Plugins/security**：停止安装扫描器对官方捆绑插件包误报，当 `process.env` 访问和普通 API 发送仅出现在同一编译包的不同远处部分时不再拦截。（感谢 @vincentkoc）
+
+## 🚀 v2026.5.2（2026年5月3日）
+
+### ✨ 新增功能（Highlights）
+
+- **外部插件安装**：覆盖诊断、入职引导、doctor 修复、渠道设置、安装/更新记录和产物元数据，同时保持裸包安装走 npm 作为首次过渡。感谢 @vincentkoc。
+- **Gateway 性能**：针对大型或插件密集型安装优化启动、session 列表、任务维护、prompt 准备、插件加载和文件系统热路径的缓存和扇出。
+- **Control UI 和 WebChat 可靠性**：改善 Sessions、Cron、长期 Gateway WebSocket、分组消息宽度、斜杠命令反馈、iOS PWA 边界、选择对比度和 Talk 诊断。
+- **渠道和提供商修复**：覆盖 Telegram 话题命令和网络、Discord 投递和启动边缘情况、OpenAI 兼容 TTS/Realtime、OpenRouter/DeepSeek 重放、Anthropic 兼容流式处理、Brave/SearXNG/Firecrawl 网络搜索和语音路由。
+
+### 🔧 功能调整（Changes）
+
+- **Gateway/startup**：跳过启动时 secrets 预检的插件备份 auth-profile 叠加，减少 gateway 就绪延迟。（#68327）感谢 @JIRBOY。
+- **Plugins/runtime**：将宽泛运行时预加载限制为从配置、启动规划、已配置渠道、slots 和自动启用规则派生的有效插件 id，不再导入每个可发现插件。
+- **Agents/runtime**：在请求时复用启动加载的插件注册表用于 providers、tools、渠道操作等，稳定嵌入式运行输入不再重复插件注册解析。（感谢 @DmitryPogodaev）
+- **Plugins/tools**：缓存 `api.registerTool(...)` 捕获的插件工具描述符，重复 prompt 规划可跳过插件运行时加载，执行时仍加载实时插件工具。（#76079）感谢 @shakkernerd。
+- **Docs/Codex**：明确 ChatGPT/Codex 订阅设置应使用 `openai/gpt-*` 加 `agentRuntime.id: "codex"` 实现原生 Codex 运行时，而 `openai-codex/*` 保留为 PI OAuth 路由。感谢 @pashpashpash。
+- **Plugins/beta**：将 ACPX 外部化为 `@openclaw/acpx` 包，将诊断 OpenTelemetry 外部化为 `@openclaw/diagnostics-otel` 包。感谢 @vincentkoc。
+- **Plugins/beta**：为 Google Chat、Matrix、Mattermost、BlueBubbles、Google Meet、Nostr、Zalo、Nextcloud Talk 等准备 `2026.5.1-beta.2` npm 和 ClawHub 发布。感谢 @vincentkoc。
+- **Plugins/beta**：为 Discord、Diffs、Lobster、Memory LanceDB、Microsoft Teams、QQ Bot、Voice Call、WhatsApp 等准备 `2026.5.1-beta.1` 发布。感谢 @vincentkoc。
+- **Plugins/beta**：为 Brave、Codex、飞书、Synology Chat、Tlon、Twitch 等准备 `2026.5.1-beta.1` 发布。感谢 @vincentkoc。
+- **Providers/xAI**：新增 Grok 4.3 到内置目录并设为默认 xAI 聊天模型。
+- **Google Meet**：API 创建的房间可设置 `accessType` 和 `entryPointAccess`，新增 `googlemeet end-active-conference` 关闭管理空间。（#74824）感谢 @BsnizND。
+- **Google Meet**：新增 `googlemeet test-listen` 动作，transcribe 模式加入等待真实字幕或转录移动后才报告 listen-first health。（#72478）感谢 @DougButdorf。
+- **Plugins/ClawHub**：ClawHub 发布摘要元数据时优先使用版本化 ClawPack 产物，安装前验证 ClawPack 响应头和下载字节。感谢 @vincentkoc。
+- **Plugins/ClawHub**：在 ClawHub 插件安装和更新记录上持久化 ClawPack 摘要元数据， registry 刷新和下载验证可复用存储的事实。感谢 @vincentkoc。
+- **Plugins/Crestodian**：新增 ClawHub 插件搜索和 Crestodian 插件 list/search/install/uninstall 操作，覆盖安装和卸载的审批和审计。感谢 @vincentkoc。
+- **Channels/thread bindings**：以 `threadBindings.spawnSessions` 替换 split subagent/ACP thread-spawn 切换，默认开启，`openclaw doctor --fix` 迁移 legacy key。（#75943）
+- **Providers/OpenAI**：为 OpenAI 兼容 TTS 端点添加 `extraBody`/`extra_body` 直通，自定义语音服务器可接收 `/audio/speech` 请求中的 `lang` 等字段。（#39900）感谢 @R3NK0R。
+- **Dependencies**：刷新工作区依赖，包括 TypeBox 1.1.37、AWS SDK 3.1041.0、Microsoft Teams 2.0.9 和 Marked 18.0.3。感谢 @mariozechner、@aws 和 @microsoft。
+- **Discord/channels**：新增可复用消息渠道访问组和 Discord 渠道受众 DM 授权，allowlist 可跨渠道 auth 路径引用 `accessGroup:<name>`。（#75813）
+- **Crabbox/scripts**：执行 `pnpm crabbox:*` 前打印选中的二进制、版本和支持的 providers，拒绝缺少 `blacksmith-testbox` provider 支持的陈旧二进制。
+- **Agents/Codex**：为 Codex/message-tool Telegram 直连、Discord 群组和心跳轮次添加已提交快乐路径提示快照，便于审查提示漂移。感谢 @pashpashpash。
+
+### 🐛 问题修复（Fixes）
+
+- **CLI/message**：跳过 eager 模型上下文预热并保留渠道声明的 gateway 执行用于 Discord 和 Telegram 消息动作，避免简单 send/read 命令触发 Codex 发现。感谢 @fuller-stack-dev。
+- **Codex/app-server**：从内置 `dist` chunks 和 `@openai/codex` 包 bin 解析托管二进制，避免安装不提供附近 `.bin/codex` 软链接时误报缺失二进制启动失败。
+- **Control UI**：允许部署通过验证的 `gateway.controlUi.chatMessageMaxWidth` 设置配置分组聊天消息最大宽度，而非升级后补丁 CSS。（#67935）感谢 @xiew4589-lang。
+- **Control UI/Cron**：忽略无有效 payload 的畸形持久化 cron 行并守护陈旧 cron 渲染路径，防止不良 cron 快照后出现空白 Control UI 区域。（#55047 和 #54439）
+- **Control UI/sessions**：将默认 Sessions 标签页查询绑定到近期活动和更少行，避免昂贵全历史加载同时保持过滤器可编辑。（#76050）感谢 @Neomail2。
+- **Control UI/sessions**：应用可靠的 `sessions.changed` 快照原地更新，仅对部分事件重新获取，避免活跃 session 更新期间冗余 `sessions.list` 重新生成。
+- **Gateway/channels**：启动扇出上限四渠道/账户handoff，从 Bonjour ciao 自探针竞态恢复，减少多 Telegram 账户 Windows 启动停滞。（#75687）
+- **Gateway/sessions**：通过复用 list-safe session 缓存/索引并返回轻量压缩检查点预览而非重量级摘要，保持大型 session 存储上 `sessions.list` 轮询响应。感谢 @rolandrscheel。
+- **Control UI/Gateway**：通过协议 ping 保活长期运行的 dashboard WebSocket session，并在重连或重载后恢复 Stop 可用性。（#70991）感谢 @alexandre-leng。
+- **Agents/failover**：工具执行期间触发的运行级超时豁免模型回退、超时触发压缩和通用超时负载合成，避免主模型已响应后仍报误导性 "LLM request timed out"。（#75873）感谢 @simonusa。
+- **Docker**：从摘要固定镜像复制 Bun 1.3.13 并保持 CI 使用同一版本。（#74356）感谢 @fede-kamel 和 @sallyom。
+- **Sessions/transcripts**：对 session transcript 锁获取使用统一的 `session.writeLock.acquireTimeoutMs` 策略，默认等待提升至 60 秒，避免合法慢速准备/清理/压缩/镜像工作中的用户可见锁超时。（#75894）感谢 @shandutta。
+- **TUI/chat**：上下文窗口预热期间跳过全提供商模型标准化，同时保留提供商所有上下文元数据，避免大型模型注册表冷启动停滞。感谢 @547895019。
+- **MCP/OpenAI**：发送工具到 OpenAI 前规范化顶级 `properties` 缺失/为空/无效的无参工具 schema，使无参数 MCP 工具保持可用。（#75362）感谢 @tolkonepiu 和 @SymbolStar。
+- **Control UI/WebChat**：通过现有音频转录管道添加服务端聊天草稿麦克风听写，避免浏览器 Web Speech 同时将提供商凭证保留在 Gateway。（#47311）感谢 @jmomford。
+- **TTS**：遵守显式短 `[[tts:text]]...[[/tts:text]]` 块同时保持无标签短自动 TTS 抑制，使标记语音回复合成而非作为空语音负载被丢弃。（#73758）感谢 @yfge。
+- **Hooks/doctor**：`hooks.transformsDir` 指向规范 hooks 转换目录外时发出警告，使无效 workspace skill 路径在 Gateway 崩溃循环前获得直接恢复提示。（#75853）感谢 @midobk。
+- **Proxy/audio**：代理支持的 undici 获取前转换标准 `FormData` body，使 `HTTP_PROXY` 或 `HTTPS_PROXY` 配置时音频转录和 multipart 上传不再发送 `[object FormData]`。（#48554）感谢 @dco5。
+- **Discord**：在工具专属 guild 渠道允许显式配置的 ack reaction，同时保持自动生命周期/状态 reaction 抑制。（#74922）感谢 @samvilian 和 @BlueBirdBack。
+- **Discord**：启用 session 支持的 A2A announce 目标查找，使 `sessions_send` 使用目标 session 的 `deliveryContext.accountId` 或 `lastAccountId` 而非在多账户设置中回退到默认 bot。（#42652）感谢 @irchelper、@dpalfox 和 @Lanfei。
+- **Discord/setup**：将解析的 guild/渠道 allowlist 选择写入所选 guild 和渠道而非在设置期间回退到通配符 guild。感谢 @Eldersonar。
+- **Discord**：在陈旧 socket 重启期间将中止时 Carbon reconnect-exhausted 事件视为预期关闭，使健康监视器重启不再拒绝监视器生命周期。感谢 @Perttulands。
+- **Discord/native commands**：斜杠命令分派或直接插件执行产生无可见回复时返回显式警告而非成功风格完成确认。（#58986）感谢 @jb510。
 
 ### ✨ 新增与改进
 
