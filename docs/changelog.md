@@ -61,6 +61,43 @@
 - **Commands**：统一各 provider 的 /status（inline）和命令 auth；授权控制命令 bypass；移除 Discord /clawd 斜杠处理器
 - **CLI**：`openclaw agent` 默认通过 Gateway 运行；使用 `--local` 强制嵌入式模式 感谢 @vignesh07
 
+## 🚀 v2026.5.7（官方 2026-05-07）
+
+### 🐛 问题修复（Fixes）
+
+- **发布/插件发布**：重试瞬态 ClawHub CLI 依赖安装失败，在某个预览格失败时保持预览通过的插件可发布，并在发布后验证每个预期的 ClawHub 包版本，使维护版本更快恢复，减少隐藏部分插件发布情况的可能。
+- **OpenAI**：支持 `openai/chat-latest` 作为显式直连 API-Key 模型覆盖，用于尝试移动的 ChatGPT Instant API 别名，同时不改变稳定的默认模型。
+- **Cron CLI**：在 `cron list --json` 和 `cron show --json` 输出中加入计算后的 `status`，使外部工具可以直接读取 disabled/running/ok/error/skipped/idle 状态，无需重新实现 cron 状态推导。（#78701）感谢 @aweiker。
+- **Channels CLI**：`openclaw channels list` 改为仅显示渠道，添加 `--all` 展开捆绑渠道和目录渠道，显示 installed/configured/enabled 状态，并将模型 auth/使用详情移至 `openclaw models auth list`、`openclaw status` 和 `openclaw models list`。（#78456）感谢 @sliverp。
+- **原生命令**：原生命令处理器尊重 owner 强制执行。（#78864）感谢 @pgondhi987。
+- **Active Memory**：全局 memory 开关需要 admin scope。（#78863）感谢 @pgondhi987。
+- **Gateway/sessions**：在 `/new` 和 `sessions.reset` 期间清除缓存的 skills 快照，使长生命周期 channel session 在 skills 变更后可重建可见的 skill 列表。（#78873）感谢 @Evizero。
+- **自动回复**：通过 before-tool-call 授权钩子控制内联 skill 工具调度。（#78517）感谢 @pgondhi987。
+- **Tavily**：从活动 runtime 配置快照解析 `tavily_search` 和 `tavily_extract` 的独立工具凭证，使 `exec` SecretRef 支持的 API Key 不会在未解析状态下到达工具。（#78610）感谢 @VACInc。
+- **Plugins/install**：在托管插件 install、rollback、repair 和 uninstall npm 操作中使用与暂存包更新相同的绝对 POSIX npm 生命周期 shell，防止受限 PATH shell 破坏清理操作。感谢 @vincentkoc。
+- **Agents/context engine**：当源历史缩减或组装失败时使缓存的组装上下文视图失效，防止重用重置前的过期历史。修复 #77968。（#78163）感谢 @brokemac79 和 @ChrisBot2026。
+- **Discord/message**：将 `discord:channel:<id>` 等provider前缀目标解析为 channel 发送而非遗留 Discord DM 目标，跨 channel agent `message(action="send")` 调用不再将 channel ID 误路由到误导性的 `Unknown Channel` 失败。修复 #78572。
+- **Agents/compaction**：将压缩摘要保留 token 限制在每个模型的输出限制内，防止高上下文压缩请求无效的 `max_tokens` 值。（#54392）感谢 @adzendo。
+- **Commands/BTW**：用括号显示 `/btw` 缺失问题用法占位符，使出站 channel 清理后仍可见。修复 #62877。感谢 @RajvardhanPatil07。
+- **Cron/doctor**：在 `openclaw doctor --fix` 期间移除错误的覆盖来修复 `payload.model` 存储为 `"default"`、`"null"`、空或 JSON `null` 的持久化 cron 作业，同时保持 cron runtime 模型验证严格。修复 #78549。感谢 @bizzle12368239。
+- **Telegram**：在应用 Telegram 数字发送者 ID 检查之前，尊重 DMs、群组、原生命令和回调授权的 `accessGroup:*` 发送者白名单。修复 #78660。感谢 @manugc。
+- **Agent delivery**：当出站投递返回无适配器结果时报告 `deliverySucceeded=false`，使声明/空投递路径不再伪装成成功发送。修复 #78532。感谢 @joeyfrasier。
+- **Cron/isolated runs**：当 `delivery.channel=last` 没有先前路由时，在模型执行前使隐式 announce 投递失败，防止定期作业在遇到永久投递目标错误前消耗 token。修复 #78608。感谢 @sallyom。
+- **Gateway/sessions**：在每日 gateway-agent session 轮换改变 session id 时持久化新生成的 transcript 文件，同时保留自定义 transcript 路径。修复 #78607。感谢 @nailujac、@zerone0x 和 @sallyom。
+- **Doctor/Codex OAuth**：在 `doctor --fix` 期间保留工作的 `openai-codex/*` PI 路由，在只有 Codex OAuth auth 可用时恢复 2026.5.5 重写的 `openai/*` GPT-5 路由，使更新修复不会破坏订阅-auth 配置。修复 #78407。感谢 @shakkernerd。
+- **Telegram**：将 polling watchdog 绑定到 `getUpdates` 存活状态，使无关的出站 Bot API 调用无法掩盖卡住的入站 poller。修复 #78422。感谢 @ai-hpc。
+- **Agents/subagents**：完成的 session-mode subagent 注册表行遵循 `agents.defaults.subagents.archiveAfterMinutes` 而非硬编码的 5 分钟 TTL，使注册表支持的 surface 在不同 spawn 模式下保持单一 retention 旋钮。（#78263）感谢 @arniesaha。
+- **Plugins/channel setup**：从非捆绑外部插件设置条目转发 `setChannelRuntime`，使延迟的外部 channel runtime 初始化器在启动轮询前安装。修复 #77779。（#77799）感谢 @openperf。
+- **Telegram**：在入站 Telegram 消息处理期间同聊 `message` 工具出站发送成功时，将其视为已投递，从而决定是否发出重写的静默回退。（#78685）感谢 @neeravmakwana。
+- **Gateway/tasks**：协调其 live run 上下文已消失的陈旧 CLI run-context 任务和绑定的 channel 热重载延迟，防止陈旧任务记录永远阻止 Discord/Slack/Telegram 重载。
+- **Discord/voice**：在 `channels capabilities` 和 `channels status --probe` 中审计 Discord 语音频道权限，包括自动加入目标，使缺失的 Connect/Speak/读取消息历史权限在 `/vc join` 前显示。
+- **Discord/voice**：通过将默认发言后沉默宽限期延长至 2.5 秒使语音捕获更流畅，为嘈杂 Discord session 添加 `voice.captureSilenceGraceMs`，并在使用实时 STT 片段时收紧语音输出提示。感谢 @vincentkoc。
+- **WhatsApp**：通过 Baileys LID 转发映射路由主动电话号码发送，使 LID 地址联系人接收 agent 消息，而非创建仅发送者幽灵聊天。修复 #67378。（#74925）感谢 @edenfunf。
+- **WhatsApp**：发送带字幕的 `MEDIA:` 指令自动回复一次，而非在字幕媒体回复前发出空媒体消息。（#78770）感谢 @ai-hpc。
+- **Codex/approvals**：在 Codex 审批模式下默认停止安装 pre-guardian 原生 `PermissionRequest` hook，使 Codex 审核员在 OpenClaw 显示审批前批准安全命令，在活动 session 窗口内记住相同 Codex 原生 `PermissionRequest` payload 的 `allow-always` 决策，并使插件审批请求验证/渲染其实际允许的决策，防止 Telegram 等原生审批 UI 提供陈旧操作。感谢 @shakkernerd。
+- **模型 providers**：规范化 APNG 嗅探 PNG 上传，保留 Gemini 3 工具调用 thought-signature 重放与回退签名，接受传统 `__env__:VAR` 自定义 provider key，修复 snake_case 工具调用 transcript 清理。修复 #51881、#48915、#77566 和 #42858。
+- **Telegram/models**：解析 `/models` 回调查按钮中包含点的 provider id，使 `hf.co` 模型列表渲染为内联键盘按钮。修复 #38745。
+
 ## 🚀 v2026.5.6（官方 2026-05-06）
 
 > ⚠️ 英文 CHANGELOG.md 中 v2026.5.6 标注为 Unreleased，此处按 tag 日期标注为 2026-05-06，待官方正式发布后更新状态。
