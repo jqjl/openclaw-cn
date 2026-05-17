@@ -19,7 +19,7 @@ export type {
 } from "openclaw/plugin-sdk/core";
 export type { OpenClawConfig as ClawdbotConfig } from "openclaw/plugin-sdk/core";
 export type { RuntimeEnv } from "openclaw/plugin-sdk/runtime";
-export type { GroupToolPolicyConfig } from "openclaw/plugin-sdk/config-types";
+export type { GroupToolPolicyConfig } from "openclaw/plugin-sdk/config-contracts";
 export {
   DEFAULT_ACCOUNT_ID,
   buildChannelConfigSchema,
@@ -33,11 +33,7 @@ export {
 } from "openclaw/plugin-sdk/channel-status";
 export { buildAgentMediaPayload } from "openclaw/plugin-sdk/agent-media-payload";
 export { createChannelPairingController } from "openclaw/plugin-sdk/channel-pairing";
-<<<<<<< HEAD
-export { createReplyPrefixContext } from "openclaw/plugin-sdk/channel-reply-pipeline";
-=======
 export { createReplyPrefixContext } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 export {
   evaluateSupplementalContextVisibility,
   filterSupplementalContextItems,

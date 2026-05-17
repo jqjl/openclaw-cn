@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import type { MessageReceipt } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import type {
   BlockStreamingCoalesceConfig,
   DmConfig,
@@ -148,10 +145,7 @@ export type NextcloudTalkWebhookPayload = {
 export type NextcloudTalkSendResult = {
   messageId: string;
   roomToken: string;
-<<<<<<< HEAD
-=======
   receipt: MessageReceipt;
->>>>>>> upstream/main
   timestamp?: number;
 };
 

@@ -27,6 +27,13 @@ function describeFetchBody(body: BodyInit | null | undefined) {
   return `[${body.constructor.name}]`;
 }
 
+function phaseStatus(
+  phases: Array<{ name: string; status: string }>,
+  name: string,
+): string | undefined {
+  return phases.find((phase) => phase.name === name)?.status;
+}
+
 describe("mantis Slack desktop smoke runtime", () => {
   let repoRoot: string;
 
@@ -119,18 +126,12 @@ describe("mantis Slack desktop smoke runtime", () => {
     )?.args;
     expect(runArgs).not.toContain("--no-sync");
     const remoteScript = runArgs?.at(-1);
-<<<<<<< HEAD
-    expect(remoteScript).toContain("${BROWSER:-}");
-    expect(remoteScript).toContain("${CHROME_BIN:-}");
-    expect(remoteScript).toContain("pnpm install --frozen-lockfile");
-=======
     expect(remoteScript).toContain("hydrate_mode='source'");
     expect(remoteScript).toContain("${BROWSER:-}");
     expect(remoteScript).toContain("${CHROME_BIN:-}");
     expect(remoteScript).toContain("PNPM_STORE_DIR");
     expect(remoteScript).toContain("build-essential python3");
     expect(remoteScript).toContain("pnpm install --frozen-lockfile --prefer-offline");
->>>>>>> upstream/main
     expect(remoteScript).toContain("pnpm build");
     expect(remoteScript).toContain("ffmpeg");
     expect(remoteScript).toContain('sudo apt-get update -y >>"$out/apt.log" 2>&1 || true');
@@ -143,46 +144,32 @@ describe("mantis Slack desktop smoke runtime", () => {
       .filter((entry) => entry.command === "rsync")
       .flatMap((entry) => entry.args);
     expect(rsyncArgs).not.toContain("--delete");
-    expect(rsyncArgs).toEqual(
-      expect.arrayContaining([
-        "crabbox@203.0.113.10:/tmp/openclaw-mantis-slack-desktop-2026-05-04T13-00-00-000Z/",
-        "crabbox@203.0.113.10:/tmp/openclaw-mantis-slack-desktop-2026-05-04T13-00-00-000Z/slack-qa/",
-      ]),
+    expect(rsyncArgs).toContain(
+      "crabbox@203.0.113.10:/tmp/openclaw-mantis-slack-desktop-2026-05-04T13-00-00-000Z/",
+    );
+    expect(rsyncArgs).toContain(
+      "crabbox@203.0.113.10:/tmp/openclaw-mantis-slack-desktop-2026-05-04T13-00-00-000Z/slack-qa/",
     );
     await expect(fs.readFile(result.screenshotPath ?? "", "utf8")).resolves.toBe("png");
     await expect(fs.readFile(result.videoPath ?? "", "utf8")).resolves.toBe("mp4");
     const summary = JSON.parse(await fs.readFile(result.summaryPath, "utf8")) as {
       crabbox: { id: string; vncCommand: string };
-<<<<<<< HEAD
-      status: string;
-=======
       hydrateMode: string;
       status: string;
       timings: { phases: { name: string; status: string }[]; totalMs: number };
->>>>>>> upstream/main
     };
-    expect(summary).toMatchObject({
-      crabbox: {
-        id: "cbx_abc123",
-        vncCommand: "/tmp/crabbox vnc --provider hetzner --id cbx_abc123 --open",
-      },
-<<<<<<< HEAD
-      status: "pass",
-    });
-=======
-      hydrateMode: "source",
-      status: "pass",
-    });
-    expect(summary.timings.totalMs).toBeGreaterThanOrEqual(0);
-    expect(summary.timings.phases.map((phase) => phase.name)).toEqual(
-      expect.arrayContaining([
-        "crabbox.warmup",
-        "crabbox.inspect",
-        "credentials.prepare",
-        "crabbox.remote_run",
-        "artifacts.copy",
-      ]),
+    expect(summary.crabbox.id).toBe("cbx_abc123");
+    expect(summary.crabbox.vncCommand).toBe(
+      "/tmp/crabbox vnc --provider hetzner --id cbx_abc123 --open",
     );
+    expect(summary.hydrateMode).toBe("source");
+    expect(summary.status).toBe("pass");
+    expect(summary.timings.totalMs).toBeGreaterThanOrEqual(0);
+    expect(summary.timings.phases.map((phase) => phase.name)).toContain("crabbox.warmup");
+    expect(summary.timings.phases.map((phase) => phase.name)).toContain("crabbox.inspect");
+    expect(summary.timings.phases.map((phase) => phase.name)).toContain("credentials.prepare");
+    expect(summary.timings.phases.map((phase) => phase.name)).toContain("crabbox.remote_run");
+    expect(summary.timings.phases.map((phase) => phase.name)).toContain("artifacts.copy");
   });
 
   it("supports prehydrated remote workspaces without installing or building inside the VM", async () => {
@@ -238,22 +225,15 @@ describe("mantis Slack desktop smoke runtime", () => {
     };
     expect(summary.hydrateMode).toBe("prehydrated");
     expect(summary.timings.phases.map((phase) => phase.name)).not.toContain("crabbox.warmup");
->>>>>>> upstream/main
   });
 
   it("leases Convex Slack credentials for gateway setup and maps them into the VM env", async () => {
     const commands: { args: readonly string[]; command: string; env?: NodeJS.ProcessEnv }[] = [];
-<<<<<<< HEAD
-    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = describeFetchInput(input);
-      if (url.endsWith("/acquire")) {
-=======
     const events: string[] = [];
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = describeFetchInput(input);
       if (url.endsWith("/acquire")) {
         events.push("acquire");
->>>>>>> upstream/main
         return new Response(
           JSON.stringify({
             credentialId: "cred-slack",
@@ -271,10 +251,7 @@ describe("mantis Slack desktop smoke runtime", () => {
         );
       }
       if (url.endsWith("/release") || url.endsWith("/heartbeat")) {
-<<<<<<< HEAD
-=======
         events.push(url.endsWith("/release") ? "release" : "heartbeat");
->>>>>>> upstream/main
         return new Response(JSON.stringify({ status: "ok" }), { status: 200 });
       }
       throw new Error(`unexpected fetch: ${url} ${describeFetchBody(init?.body)}`);
@@ -284,10 +261,7 @@ describe("mantis Slack desktop smoke runtime", () => {
     const runner = vi.fn(
       async (command: string, args: readonly string[], options: { env?: NodeJS.ProcessEnv }) => {
         commands.push({ command, args, env: options.env });
-<<<<<<< HEAD
-=======
         events.push(`${command}:${args[0]}`);
->>>>>>> upstream/main
         if (command === "/tmp/crabbox" && args[0] === "warmup") {
           return { stdout: "ready lease cbx_c0ffee\n", stderr: "" };
         }
@@ -346,31 +320,22 @@ describe("mantis Slack desktop smoke runtime", () => {
     });
 
     expect(result.status).toBe("pass");
-<<<<<<< HEAD
-=======
-    expect(events).toEqual(
-      expect.arrayContaining([
-        "/tmp/crabbox:warmup",
-        "/tmp/crabbox:inspect",
-        "acquire",
-        "/tmp/crabbox:run",
-        "release",
-      ]),
-    );
+    expect(events).toContain("/tmp/crabbox:warmup");
+    expect(events).toContain("/tmp/crabbox:inspect");
+    expect(events).toContain("acquire");
+    expect(events).toContain("/tmp/crabbox:run");
+    expect(events).toContain("release");
     expect(events.indexOf("acquire")).toBeGreaterThan(events.indexOf("/tmp/crabbox:inspect"));
     expect(events.indexOf("acquire")).toBeLessThan(events.indexOf("/tmp/crabbox:run"));
->>>>>>> upstream/main
     const runCommand = commands.find(
       (entry) => entry.command === "/tmp/crabbox" && entry.args[0] === "run",
     );
-    expect(runCommand?.env).toMatchObject({
-      OPENCLAW_MANTIS_SLACK_APP_TOKEN: "xapp-leased",
-      OPENCLAW_MANTIS_SLACK_BOT_TOKEN: "xoxb-leased",
-      OPENCLAW_MANTIS_SLACK_CHANNEL_ID: "CLEASED",
-      OPENCLAW_QA_SLACK_CHANNEL_ID: "CLEASED",
-      OPENCLAW_QA_SLACK_SUT_APP_TOKEN: "xapp-leased",
-      OPENCLAW_QA_SLACK_SUT_BOT_TOKEN: "xoxb-leased",
-    });
+    expect(runCommand?.env?.OPENCLAW_MANTIS_SLACK_APP_TOKEN).toBe("xapp-leased");
+    expect(runCommand?.env?.OPENCLAW_MANTIS_SLACK_BOT_TOKEN).toBe("xoxb-leased");
+    expect(runCommand?.env?.OPENCLAW_MANTIS_SLACK_CHANNEL_ID).toBe("CLEASED");
+    expect(runCommand?.env?.OPENCLAW_QA_SLACK_CHANNEL_ID).toBe("CLEASED");
+    expect(runCommand?.env?.OPENCLAW_QA_SLACK_SUT_APP_TOKEN).toBe("xapp-leased");
+    expect(runCommand?.env?.OPENCLAW_QA_SLACK_SUT_BOT_TOKEN).toBe("xoxb-leased");
     const remoteScript = runCommand?.args.at(-1);
     expect(remoteScript).toContain("setup_gateway=1");
     expect(remoteScript).toContain("openclaw gateway run");
@@ -390,8 +355,6 @@ describe("mantis Slack desktop smoke runtime", () => {
     expect(summary.slackUrl).toBe("https://app.slack.com/client/TLEASED/CLEASED");
   });
 
-<<<<<<< HEAD
-=======
   it("stops a created no-keep lease when the remote Slack QA run fails", async () => {
     const commands: { args: readonly string[]; command: string }[] = [];
     const runner = vi.fn(async (command: string, args: readonly string[]) => {
@@ -435,17 +398,16 @@ describe("mantis Slack desktop smoke runtime", () => {
     });
 
     expect(result.status).toBe("fail");
-    expect(commands).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          args: ["stop", "--provider", "hetzner", "cbx_fade123"],
-          command: "/tmp/crabbox",
-        }),
-      ]),
-    );
+    expect(
+      commands.some(
+        (entry) =>
+          entry.command === "/tmp/crabbox" &&
+          JSON.stringify(entry.args) ===
+            JSON.stringify(["stop", "--provider", "hetzner", "cbx_fade123"]),
+      ),
+    ).toBe(true);
   });
 
->>>>>>> upstream/main
   it("passes gateway setup when Crabbox returns non-zero after remote metadata proves success", async () => {
     const runner = vi.fn(async (command: string, args: readonly string[]) => {
       if (command === "/tmp/crabbox" && args[0] === "warmup") {
@@ -505,23 +467,12 @@ describe("mantis Slack desktop smoke runtime", () => {
     expect(result.status).toBe("pass");
     const summary = JSON.parse(await fs.readFile(result.summaryPath, "utf8")) as {
       status: string;
-<<<<<<< HEAD
-      warning?: string;
-    };
-    expect(summary.status).toBe("pass");
-    expect(summary.warning).toContain("remote command exited 1");
-=======
       timings: { phases: { name: string; status: string }[] };
       warning?: string;
     };
     expect(summary.status).toBe("pass");
     expect(summary.warning).toBeUndefined();
-    expect(summary.timings.phases).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: "crabbox.remote_run", status: "accepted" }),
-      ]),
-    );
->>>>>>> upstream/main
+    expect(phaseStatus(summary.timings.phases, "crabbox.remote_run")).toBe("accepted");
   });
 
   it("copies the screenshot before reporting a failed remote Slack QA run", async () => {
@@ -572,11 +523,6 @@ describe("mantis Slack desktop smoke runtime", () => {
     const summary = JSON.parse(await fs.readFile(result.summaryPath, "utf8")) as {
       artifacts: { screenshotPath?: string; videoPath?: string };
       error?: string;
-<<<<<<< HEAD
-      status: string;
-    };
-    expect(summary.status).toBe("fail");
-=======
       hydrateMode: string;
       status: string;
       timings: { phases: { name: string; status: string }[]; totalMs: number };
@@ -584,12 +530,7 @@ describe("mantis Slack desktop smoke runtime", () => {
     expect(summary.status).toBe("fail");
     expect(summary.hydrateMode).toBe("source");
     expect(summary.timings.totalMs).toBeGreaterThanOrEqual(0);
-    expect(summary.timings.phases).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ name: "crabbox.remote_run", status: "fail" }),
-      ]),
-    );
->>>>>>> upstream/main
+    expect(phaseStatus(summary.timings.phases, "crabbox.remote_run")).toBe("fail");
     expect(summary.error).toContain("remote Slack QA failed");
     expect(summary.artifacts.screenshotPath).toContain("slack-desktop-smoke.png");
     expect(summary.artifacts.videoPath).toContain("slack-desktop-smoke.mp4");
@@ -643,20 +584,18 @@ describe("mantis Slack desktop smoke runtime", () => {
     });
 
     expect(result.status).toBe("pass");
-    expect(commands).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          args: expect.arrayContaining(["--id", "tbx_abc-123_more"]),
-          command: "/tmp/crabbox",
-        }),
-      ]),
-    );
+    expect(
+      commands.some(
+        (entry) =>
+          entry.command === "/tmp/crabbox" &&
+          entry.args.includes("--id") &&
+          entry.args.includes("tbx_abc-123_more"),
+      ),
+    ).toBe(true);
     const summary = JSON.parse(await fs.readFile(result.summaryPath, "utf8")) as {
       crabbox: { id: string; provider: string };
     };
-    expect(summary.crabbox).toMatchObject({
-      id: "tbx_abc-123_more",
-      provider: "blacksmith-testbox",
-    });
+    expect(summary.crabbox.id).toBe("tbx_abc-123_more");
+    expect(summary.crabbox.provider).toBe("blacksmith-testbox");
   });
 });

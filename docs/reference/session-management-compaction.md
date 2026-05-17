@@ -2,11 +2,7 @@
 summary: "Deep dive: session store + transcripts, lifecycle, and (auto)compaction internals"
 read_when:
   - You need to debug session ids, transcript JSONL, or sessions.json fields
-<<<<<<< HEAD
-  - You are changing auto-compaction behavior or adding “pre-compaction” housekeeping
-=======
   - You are changing auto-compaction behavior or adding "pre-compaction" housekeeping
->>>>>>> upstream/main
   - You want to implement memory flushes or silent system turns
 title: "Session management deep dive"
 ---
@@ -37,11 +33,7 @@ If you want a higher-level overview first, start with:
 OpenClaw is designed around a single **Gateway process** that owns session state.
 
 - UIs (macOS app, web Control UI, TUI) should query the Gateway for session lists and token counts.
-<<<<<<< HEAD
-- In remote mode, session files are on the remote host; “checking your local Mac files” won’t reflect what the Gateway is using.
-=======
 - In remote mode, session files are on the remote host; "checking your local Mac files" won't reflect what the Gateway is using.
->>>>>>> upstream/main
 
 ---
 
@@ -143,11 +135,7 @@ runtime authority from an older run.
 
 ## Session keys (`sessionKey`)
 
-<<<<<<< HEAD
-A `sessionKey` identifies _which conversation bucket_ you’re in (routing + isolation).
-=======
 A `sessionKey` identifies _which conversation bucket_ you're in (routing + isolation).
->>>>>>> upstream/main
 
 Common patterns:
 
@@ -179,11 +167,7 @@ Implementation detail: the decision happens in `initSessionState()` in `src/auto
 
 ## Session store schema (`sessions.json`)
 
-<<<<<<< HEAD
-The store’s value type is `SessionEntry` in `src/config/sessions.ts`.
-=======
 The store's value type is `SessionEntry` in `src/config/sessions.ts`.
->>>>>>> upstream/main
 
 Key fields (not exhaustive):
 
@@ -216,11 +200,7 @@ The store is safe to edit, but the Gateway is the authority: it may rewrite or r
 
 ## Transcript structure (`*.jsonl`)
 
-<<<<<<< HEAD
-Transcripts are managed by `@mariozechner/pi-coding-agent`’s `SessionManager`.
-=======
-Transcripts are managed by `@mariozechner/pi-coding-agent`'s `SessionManager`.
->>>>>>> upstream/main
+Transcripts are managed by `@earendil-works/pi-coding-agent`'s `SessionManager`.
 
 The file is JSONL:
 
@@ -235,11 +215,7 @@ Notable entry types:
 - `compaction`: persisted compaction summary with `firstKeptEntryId` and `tokensBefore`
 - `branch_summary`: persisted summary when navigating a tree branch
 
-<<<<<<< HEAD
-OpenClaw intentionally does **not** “fix up” transcripts; the Gateway uses `SessionManager` to read/write them.
-=======
 OpenClaw intentionally does **not** "fix up" transcripts; the Gateway uses `SessionManager` to read/write them.
->>>>>>> upstream/main
 
 ---
 
@@ -250,17 +226,10 @@ Two different concepts matter:
 1. **Model context window**: hard cap per model (tokens visible to the model)
 2. **Session store counters**: rolling stats written into `sessions.json` (used for /status and dashboards)
 
-<<<<<<< HEAD
-If you’re tuning limits:
-
-- The context window comes from the model catalog (and can be overridden via config).
-- `contextTokens` in the store is a runtime estimate/reporting value; don’t treat it as a strict guarantee.
-=======
 If you're tuning limits:
 
 - The context window comes from the model catalog (and can be overridden via config).
 - `contextTokens` in the store is a runtime estimate/reporting value; don't treat it as a strict guarantee.
->>>>>>> upstream/main
 
 For more, see [/token-use](/reference/token-use).
 
@@ -307,11 +276,7 @@ exceeded`, and similar provider-shaped variants) → compact → retry.
 
 Where:
 
-<<<<<<< HEAD
-- `contextWindow` is the model’s context window
-=======
 - `contextWindow` is the model's context window
->>>>>>> upstream/main
 - `reserveTokens` is headroom reserved for prompts + the next model output
 
 These are Pi runtime semantics (OpenClaw consumes the events, but Pi decides when to compact).
@@ -341,11 +306,7 @@ loop after new tool results have been appended.
 
 ## Compaction settings (`reserveTokens`, `keepRecentTokens`)
 
-<<<<<<< HEAD
-Pi’s compaction settings live in Pi settings:
-=======
 Pi's compaction settings live in Pi settings:
->>>>>>> upstream/main
 
 ```json5
 {
@@ -362,11 +323,7 @@ OpenClaw also enforces a safety floor for embedded runs:
 - If `compaction.reserveTokens < reserveTokensFloor`, OpenClaw bumps it.
 - Default floor is `20000` tokens.
 - Set `agents.defaults.compaction.reserveTokensFloor: 0` to disable the floor.
-<<<<<<< HEAD
-- If it’s already higher, OpenClaw leaves it alone.
-=======
 - If it's already higher, OpenClaw leaves it alone.
->>>>>>> upstream/main
 - Manual `/compact` honors an explicit `agents.defaults.compaction.keepRecentTokens`
   and keeps Pi's recent-tail cut point. Without an explicit keep budget,
   manual compaction remains a hard checkpoint and rebuilt context starts from
@@ -386,11 +343,7 @@ OpenClaw also enforces a safety floor for embedded runs:
   compaction. The old full transcript remains archived and linked from the
   compaction checkpoint instead of being rewritten in place.
 
-<<<<<<< HEAD
-Why: leave enough headroom for multi-turn “housekeeping” (like memory writes) before compaction becomes unavoidable.
-=======
 Why: leave enough headroom for multi-turn "housekeeping" (like memory writes) before compaction becomes unavoidable.
->>>>>>> upstream/main
 
 Implementation: `ensurePiCompactionReserveTokens()` in `src/agents/pi-settings.ts`
 (called from `src/agents/pi-embedded-runner.ts`).
@@ -423,26 +376,19 @@ You can observe compaction and session state via:
 - `/status` (in any chat session)
 - `openclaw status` (CLI)
 - `openclaw sessions` / `sessions --json`
+- Gateway logs (`pnpm gateway:watch` or `openclaw logs --follow`): `embedded run auto-compaction start` + `complete`
 - Verbose mode: `🧹 Auto-compaction complete` + compaction count
 
 ---
 
 ## Silent housekeeping (`NO_REPLY`)
 
-<<<<<<< HEAD
-OpenClaw supports “silent” turns for background tasks where the user should not see intermediate output.
-=======
 OpenClaw supports "silent" turns for background tasks where the user should not see intermediate output.
->>>>>>> upstream/main
 
 Convention:
 
 - The assistant starts its output with the exact silent token `NO_REPLY` /
-<<<<<<< HEAD
-  `no_reply` to indicate “do not deliver a reply to the user”.
-=======
   `no_reply` to indicate "do not deliver a reply to the user".
->>>>>>> upstream/main
 - OpenClaw strips/suppresses this in the delivery layer.
 - Exact silent-token suppression is case-insensitive, so `NO_REPLY` and
   `no_reply` both count when the whole payload is just the silent token.
@@ -450,11 +396,7 @@ Convention:
   ordinary actionable user requests.
 
 As of `2026.1.10`, OpenClaw also suppresses **draft/typing streaming** when a
-<<<<<<< HEAD
-partial chunk begins with `NO_REPLY`, so silent operations don’t leak partial
-=======
 partial chunk begins with `NO_REPLY`, so silent operations don't leak partial
->>>>>>> upstream/main
 output mid-turn.
 
 ---
@@ -462,23 +404,14 @@ output mid-turn.
 ## Pre-compaction "memory flush" (implemented)
 
 Goal: before auto-compaction happens, run a silent agentic turn that writes durable
-<<<<<<< HEAD
-state to disk (e.g. `memory/YYYY-MM-DD.md` in the agent workspace) so compaction can’t
-=======
 state to disk (e.g. `memory/YYYY-MM-DD.md` in the agent workspace) so compaction can't
->>>>>>> upstream/main
 erase critical context.
 
 OpenClaw uses the **pre-threshold flush** approach:
 
 1. Monitor session context usage.
-<<<<<<< HEAD
-2. When it crosses a “soft threshold” (below Pi’s compaction threshold), run a silent
-   “write memory now” directive to the agent.
-=======
 2. When it crosses a "soft threshold" (below Pi's compaction threshold), run a silent
    "write memory now" directive to the agent.
->>>>>>> upstream/main
 3. Use the exact silent token `NO_REPLY` / `no_reply` so the user sees
    nothing.
 
@@ -502,11 +435,7 @@ Notes:
 - The flush is skipped when the session workspace is read-only (`workspaceAccess: "ro"` or `"none"`).
 - See [Memory](/concepts/memory) for the workspace file layout and write patterns.
 
-<<<<<<< HEAD
-Pi also exposes a `session_before_compact` hook in the extension API, but OpenClaw’s
-=======
 Pi also exposes a `session_before_compact` hook in the extension API, but OpenClaw's
->>>>>>> upstream/main
 flush logic lives on the Gateway side today.
 
 ---
@@ -519,11 +448,7 @@ flush logic lives on the Gateway side today.
   - model context window (too small)
   - compaction settings (`reserveTokens` too high for the model window can cause earlier compaction)
   - tool-result bloat: enable/tune session pruning
-<<<<<<< HEAD
-- Silent turns leaking? Confirm the reply starts with `NO_REPLY` (case-insensitive exact token) and you’re on a build that includes the streaming suppression fix.
-=======
 - Silent turns leaking? Confirm the reply starts with `NO_REPLY` (case-insensitive exact token) and you're on a build that includes the streaming suppression fix.
->>>>>>> upstream/main
 
 ## Related
 

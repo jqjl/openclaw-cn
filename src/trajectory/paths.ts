@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { resolveHomeRelativePath } from "../infra/home-dir.js";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../infra/path-guards.js";
->>>>>>> upstream/main
 
 export const TRAJECTORY_RUNTIME_CAPTURE_MAX_BYTES = 10 * 1024 * 1024;
 export const TRAJECTORY_RUNTIME_FILE_MAX_BYTES = 50 * 1024 * 1024;
@@ -36,12 +33,7 @@ export function resolveTrajectoryPointerOpenFlags(
 function resolveContainedPath(baseDir: string, fileName: string): string {
   const resolvedBase = path.resolve(baseDir);
   const resolvedFile = path.resolve(resolvedBase, fileName);
-<<<<<<< HEAD
-  const relative = path.relative(resolvedBase, resolvedFile);
-  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
-=======
   if (resolvedFile === resolvedBase || !isPathInside(resolvedBase, resolvedFile)) {
->>>>>>> upstream/main
     throw new Error("Trajectory file path escaped its configured directory");
   }
   return resolvedFile;

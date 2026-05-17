@@ -13,10 +13,7 @@ import {
 import { resolveGlobalMap } from "openclaw/plugin-sdk/global-singleton";
 import { resolveStateDir } from "openclaw/plugin-sdk/memory-core-host-runtime-core";
 import { getRuntimeConfig } from "openclaw/plugin-sdk/runtime-config-snapshot";
-<<<<<<< HEAD
-=======
 import { pathExists, replaceFileAtomic } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 import {
   loadSessionStore,
   resolveStorePath,
@@ -307,7 +304,8 @@ export function extractNarrativeText(messages: unknown[]): string | null {
             part &&
             typeof part === "object" &&
             !Array.isArray(part) &&
-            (part as Record<string, unknown>).type === "text" &&
+            ((part as Record<string, unknown>).type === "text" ||
+              (part as Record<string, unknown>).type === "output_text") &&
             typeof (part as Record<string, unknown>).text === "string",
         )
         .map((part) => (part as { text: string }).text)
@@ -325,7 +323,7 @@ export function extractNarrativeText(messages: unknown[]): string | null {
 
 export function formatNarrativeDate(epochMs: number, timezone?: string): string {
   const opts: Intl.DateTimeFormatOptions = {
-    timeZone: timezone,
+    timeZone: timezone ?? process.env.TZ,
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -492,31 +490,6 @@ async function assertSafeDreamsPath(dreamsPath: string): Promise<void> {
 
 async function writeDreamsFileAtomic(dreamsPath: string, content: string): Promise<void> {
   await assertSafeDreamsPath(dreamsPath);
-<<<<<<< HEAD
-  const existing = await fs.stat(dreamsPath).catch((err: NodeJS.ErrnoException) => {
-    if (err.code === "ENOENT") {
-      return null;
-    }
-    throw err;
-  });
-  const mode = existing?.mode ?? 0o600;
-  const tempPath = `${dreamsPath}.${process.pid}.${Date.now()}.tmp`;
-  await fs.writeFile(tempPath, content, { encoding: "utf-8", flag: "wx", mode });
-  await fs.chmod(tempPath, mode).catch(() => undefined);
-  try {
-    await fs.rename(tempPath, dreamsPath);
-    await fs.chmod(dreamsPath, mode).catch(() => undefined);
-  } catch (err) {
-    const cleanupError = await fs.rm(tempPath, { force: true }).catch((rmErr) => rmErr);
-    if (cleanupError) {
-      throw new Error(
-        `Atomic DREAMS.md write failed (${formatErrorMessage(err)}); cleanup also failed (${formatErrorMessage(cleanupError)})`,
-        { cause: err },
-      );
-    }
-    throw err;
-  }
-=======
   await replaceFileAtomic({
     filePath: dreamsPath,
     content,
@@ -525,7 +498,6 @@ async function writeDreamsFileAtomic(dreamsPath: string, content: string): Promi
     tempPrefix: `${path.basename(dreamsPath)}.dreams`,
     throwOnCleanupError: true,
   });
->>>>>>> upstream/main
 }
 
 async function updateDreamsFile<T>(params: {
@@ -725,18 +697,6 @@ export async function appendNarrativeEntry(params: {
 
 // ── Orchestrator ───────────────────────────────────────────────────────
 
-<<<<<<< HEAD
-async function safePathExists(pathname: string): Promise<boolean> {
-  try {
-    await fs.stat(pathname);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-=======
->>>>>>> upstream/main
 function normalizeComparablePath(pathname: string): string {
   return process.platform === "win32" ? pathname.toLowerCase() : pathname;
 }
@@ -832,11 +792,7 @@ async function scrubDreamingNarrativeArtifacts(logger: Logger): Promise<void> {
       if (!isDreamingSessionStoreKey(key)) {
         continue;
       }
-<<<<<<< HEAD
-      if (!normalizedSessionFile || !(await safePathExists(normalizedSessionFile))) {
-=======
       if (!normalizedSessionFile || !(await pathExists(normalizedSessionFile))) {
->>>>>>> upstream/main
         needsStoreUpdate = true;
       }
     }
@@ -856,11 +812,7 @@ async function scrubDreamingNarrativeArtifacts(logger: Logger): Promise<void> {
           if (!isDreamingSessionStoreKey(key)) {
             continue;
           }
-<<<<<<< HEAD
-          if (!normalizedSessionFile || !(await safePathExists(normalizedSessionFile))) {
-=======
           if (!normalizedSessionFile || !(await pathExists(normalizedSessionFile))) {
->>>>>>> upstream/main
             delete lockedStore[key];
             prunedForAgent += 1;
           }

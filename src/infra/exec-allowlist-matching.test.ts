@@ -43,14 +43,6 @@ describe("exec allowlist matching", () => {
     expect(matchAllowlist([{ pattern: "rg" }], absoluteResolution)).toBeNull();
   });
 
-<<<<<<< HEAD
-  it("honors Windows argPattern checks for bare command-name matches", () => {
-    const entries = [{ pattern: "rg", argPattern: "^--json$" }];
-
-    expect(matchAllowlist(entries, baseResolution, ["rg", "--json"], "win32")?.pattern).toBe("rg");
-    expect(matchAllowlist(entries, baseResolution, ["rg", "--files"], "win32")).toBeNull();
-  });
-=======
   it.each(["linux", "darwin", "win32"])(
     "honors argPattern checks for bare command-name matches on %s",
     (platform) => {
@@ -62,7 +54,6 @@ describe("exec allowlist matching", () => {
       expect(matchAllowlist(entries, baseResolution, ["rg", "--files"], platform)).toBeNull();
     },
   );
->>>>>>> upstream/main
 
   it("matches bare wildcard patterns against arbitrary resolved executables", () => {
     const cases = [

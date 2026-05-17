@@ -1,33 +1,16 @@
 import type { Command } from "commander";
 import { danger } from "../globals.js";
-<<<<<<< HEAD
-import { listBundledPackageChannelMetadata } from "../plugins/bundled-package-channel-metadata.js";
-=======
->>>>>>> upstream/main
 import { defaultRuntime } from "../runtime.js";
 import { createLazyImportLoader } from "../shared/lazy-promise.js";
 import { formatDocsLink } from "../terminal/links.js";
 import { theme } from "../terminal/theme.js";
-<<<<<<< HEAD
-=======
 import { resolveCliArgvInvocation } from "./argv-invocation.js";
->>>>>>> upstream/main
 import { runChannelLogin, runChannelLogout } from "./channel-auth.js";
 import { formatCliChannelOptions } from "./channel-options.js";
 import { runCommandWithRuntime } from "./cli-utils.js";
 import { hasExplicitOptions } from "./command-options.js";
 import { formatHelpExamples } from "./help-format.js";
 import { applyParentDefaultHelpAction } from "./program/parent-default-help.js";
-<<<<<<< HEAD
-
-type ChannelsCommandsModule = typeof import("../commands/channels.js");
-
-const optionNamesRemove = ["channel", "account", "delete"] as const;
-
-const channelsCommandsLoader = createLazyImportLoader<ChannelsCommandsModule>(
-  () => import("../commands/channels.js"),
-);
-=======
 import { normalizeWindowsArgv } from "./windows-argv.js";
 
 type ChannelsCommandsModule = typeof import("../commands/channels.js");
@@ -47,7 +30,6 @@ const bundledPackageChannelMetadataLoader =
   createLazyImportLoader<BundledPackageChannelMetadataModule>(
     () => import("../plugins/bundled-package-channel-metadata.js"),
   );
->>>>>>> upstream/main
 
 function loadChannelsCommands(): Promise<ChannelsCommandsModule> {
   return channelsCommandsLoader.load();
@@ -68,9 +50,6 @@ function getOptionNames(command: Command): string[] {
   return command.options.map((option) => option.attributeName());
 }
 
-<<<<<<< HEAD
-function addChannelSetupOptions(command: Command): Command {
-=======
 function shouldRegisterChannelSetupOptions(
   argv: string[] = process.argv,
   options: RegisterChannelsCliOptions = {},
@@ -84,7 +63,6 @@ function shouldRegisterChannelSetupOptions(
 
 async function addChannelSetupOptions(command: Command): Promise<Command> {
   const { listBundledPackageChannelMetadata } = await bundledPackageChannelMetadataLoader.load();
->>>>>>> upstream/main
   const seenFlags = new Set(command.options.map((option) => option.flags));
   const channels = listBundledPackageChannelMetadata().toSorted((left, right) => {
     const leftOrder = left.order ?? Number.MAX_SAFE_INTEGER;
@@ -109,15 +87,11 @@ async function addChannelSetupOptions(command: Command): Promise<Command> {
   return command;
 }
 
-<<<<<<< HEAD
-export function registerChannelsCli(program: Command) {
-=======
 export async function registerChannelsCli(
   program: Command,
   argv: string[] = process.argv,
   options: RegisterChannelsCliOptions = {},
 ) {
->>>>>>> upstream/main
   const channelNames = formatCliChannelOptions();
   const channels = program
     .command("channels")
@@ -126,7 +100,9 @@ export async function registerChannelsCli(
       "after",
       () =>
         `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["openclaw channels list", "List configured channels and auth profiles."],
+          ["openclaw channels list", "List configured channels."],
+          ["openclaw channels list --all", "Show configured, bundled, and installable channels."],
+          ["openclaw channels add", "Open guided channel setup."],
           ["openclaw channels status --probe", "Run channel status checks and probes."],
           [
             "openclaw channels add --channel telegram --token <token>",
@@ -141,8 +117,8 @@ export async function registerChannelsCli(
 
   channels
     .command("list")
-    .description("List configured channels + auth profiles")
-    .option("--no-usage", "Skip model provider usage/quota snapshots")
+    .description("List chat channels (configured by default; pass --all for installable catalog)")
+    .option("--all", "Include bundled and installable catalog channels", false)
     .option("--json", "Output JSON", false)
     .action(async (opts) => {
       await runChannelsCommand(async () => {
@@ -154,6 +130,7 @@ export async function registerChannelsCli(
   channels
     .command("status")
     .description("Show gateway channel status (use status --deep for local)")
+    .option("--channel <name>", `Only show one channel (${formatCliChannelOptions(["all"])})`)
     .option("--probe", "Probe channel credentials", false)
     .option("--timeout <ms>", "Timeout in ms", "10000")
     .option("--json", "Output JSON", false)
@@ -216,32 +193,21 @@ export async function registerChannelsCli(
       });
     });
 
-<<<<<<< HEAD
-  addChannelSetupOptions(
-    channels
-      .command("add")
-      .description("Add or update a channel account")
-      .option("--channel <name>", `Channel (${channelNames})`)
-      .option("--account <id>", "Account id (default when omitted)")
-      .option("--name <name>", "Display name for this account")
-      .option("--token <token>", "Channel token or credential payload")
-      .option("--token-file <path>", "Read channel token or credential payload from file")
-      .option("--secret <secret>", "Channel shared secret")
-      .option("--secret-file <path>", "Read channel shared secret from file")
-      .option("--bot-token <token>", "Bot token")
-      .option("--app-token <token>", "App token")
-      .option("--password <password>", "Channel password or login secret")
-      .option("--cli-path <path>", "Channel CLI path")
-      .option("--url <url>", "Channel setup URL")
-      .option("--base-url <url>", "Channel base URL")
-      .option("--http-url <url>", "Channel HTTP service URL")
-      .option("--auth-dir <path>", "Channel auth directory override")
-      .option("--use-env", "Use env-backed credentials when supported", false),
-  ).action(async (opts, command) => {
-=======
   const addCommand = channels
     .command("add")
     .description("Add or update a channel account")
+    .addHelpText(
+      "after",
+      () =>
+        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
+          ["openclaw channels add", "Open guided setup for available chat channels."],
+          [
+            "openclaw channels add --channel telegram --token <token>",
+            "Add or update Telegram non-interactively.",
+          ],
+          ["openclaw channels list --all", "Find channel ids before using --channel."],
+        ])}\n`,
+    )
     .option("--channel <name>", `Channel (${channelNames})`)
     .option("--account <id>", "Account id (default when omitted)")
     .option("--name <name>", "Display name for this account")
@@ -264,7 +230,6 @@ export async function registerChannelsCli(
   }
 
   addCommand.action(async (opts, command) => {
->>>>>>> upstream/main
     await runChannelsCommand(async () => {
       const { channelsAddCommand } = await loadChannelsCommands();
       const hasFlags = hasExplicitOptions(command, getOptionNames(command));

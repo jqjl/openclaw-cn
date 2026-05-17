@@ -97,13 +97,6 @@ ClawDock works with the same Docker config split described in [Docker](/install/
 
 Use `clawdock-show-config` when you want to inspect the `.env` files and `openclaw.json` quickly. It redacts `.env` values in its printed output.
 
-<<<<<<< HEAD
-## Related pages
-
-- [Docker](/install/docker)
-- [Docker VM Runtime](/install/docker-vm-runtime)
-- [Updating](/install/updating)
-=======
 ## Related
 
 <CardGroup cols={2}>
@@ -117,4 +110,3 @@ Use `clawdock-show-config` when you want to inspect the `.env` files and `opencl
     Updating the OpenClaw package and managed services.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

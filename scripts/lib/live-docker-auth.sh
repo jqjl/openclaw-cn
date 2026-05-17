@@ -18,8 +18,6 @@ openclaw_live_trim() {
   printf '%s' "$value"
 }
 
-<<<<<<< HEAD
-=======
 openclaw_live_truthy() {
   case "${1:-}" in
     1 | true | TRUE | yes | YES | on | ON)
@@ -48,7 +46,6 @@ openclaw_live_default_profile_file() {
   printf '%s\n' "$HOME/.profile"
 }
 
->>>>>>> upstream/main
 openclaw_live_validate_relative_home_path() {
   local value
   value="$(openclaw_live_trim "${1:-}")"

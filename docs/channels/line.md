@@ -42,11 +42,7 @@ openclaw plugins install ./path/to/local/line-plugin
 https://gateway-host/line/webhook
 ```
 
-<<<<<<< HEAD
-The gateway responds to LINE’s webhook verification (GET) and inbound events (POST).
-=======
 The gateway responds to LINE's webhook verification (GET) and inbound events (POST).
->>>>>>> upstream/main
 If you need a custom path, set `channels.line.webhookPath` or
 `channels.line.accounts.<id>.webhookPath` and update the URL accordingly.
 
@@ -72,8 +68,6 @@ Minimal config:
 }
 ```
 
-<<<<<<< HEAD
-=======
 Public DM config:
 
 ```json5
@@ -90,7 +84,6 @@ Public DM config:
 }
 ```
 
->>>>>>> upstream/main
 Env vars (default account only):
 
 - `LINE_CHANNEL_ACCESS_TOKEN`
@@ -142,14 +135,11 @@ openclaw pairing approve line <CODE>
 Allowlists and policies:
 
 - `channels.line.dmPolicy`: `pairing | allowlist | open | disabled`
-<<<<<<< HEAD
-- `channels.line.allowFrom`: allowlisted LINE user IDs for DMs
-=======
 - `channels.line.allowFrom`: allowlisted LINE user IDs for DMs; `dmPolicy: "open"` requires `["*"]`
->>>>>>> upstream/main
 - `channels.line.groupPolicy`: `allowlist | open | disabled`
 - `channels.line.groupAllowFrom`: allowlisted LINE user IDs for groups
 - Per-group overrides: `channels.line.groups.<groupId>.allowFrom`
+- Static sender access groups can be referenced from `allowFrom`, `groupAllowFrom`, and per-group `allowFrom` with `accessGroup:<name>`.
 - Runtime note: if `channels.line` is completely missing, runtime falls back to `groupPolicy="allowlist"` for group checks (even if `channels.defaults.groupPolicy` is set).
 
 LINE IDs are case-sensitive. Valid IDs look like:
@@ -229,11 +219,8 @@ The LINE plugin supports sending images, videos, and audio files through the age
 - **Videos**: sent with explicit preview and content-type handling.
 - **Audio**: sent as LINE audio messages.
 
-<<<<<<< HEAD
-=======
 Outbound media URLs must be public HTTPS URLs. OpenClaw validates the target hostname before handing the URL to LINE and rejects loopback, link-local, and private-network targets.
 
->>>>>>> upstream/main
 Generic media sends fall back to the existing image-only route when a LINE-specific path is not available.
 
 ## Troubleshooting

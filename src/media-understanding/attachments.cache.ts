@@ -1,17 +1,14 @@
-<<<<<<< HEAD
-import { constants as fsConstants } from "node:fs";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { logVerbose, shouldLogVerbose } from "../globals.js";
-=======
 import fs from "node:fs/promises";
 import path from "node:path";
 import { logVerbose, shouldLogVerbose } from "../globals.js";
 import { FsSafeError, openLocalFileSafely } from "../infra/fs-safe.js";
->>>>>>> upstream/main
 import type { SsrFPolicy } from "../infra/net/ssrf.js";
 import { isAbortError } from "../infra/unhandled-rejections.js";
-import { fetchRemoteMedia, MediaFetchError } from "../media/fetch.js";
+import {
+  readRemoteMediaBuffer,
+  type MediaFetchRetryOptions,
+  MediaFetchError,
+} from "../media/fetch.js";
 import { isInboundPathAllowed, mergeInboundPathRoots } from "../media/inbound-path-policy.js";
 import { getDefaultMediaLocalRoots } from "../media/local-roots.js";
 import { detectMime } from "../media/mime.js";
@@ -36,6 +33,13 @@ type MediaPathResult = {
 type LocalReadResult = {
   buffer: Buffer;
   filePath: string;
+};
+
+const REMOTE_MEDIA_FETCH_RETRY: MediaFetchRetryOptions = {
+  attempts: 3,
+  minDelayMs: 500,
+  maxDelayMs: 3_000,
+  jitter: 0.2,
 };
 
 type AttachmentCacheEntry = {
@@ -169,11 +173,12 @@ export class MediaAttachmentCache {
     try {
       const fetchImpl = (input: RequestInfo | URL, init?: RequestInit) =>
         fetchWithTimeout(resolveRequestUrl(input), init ?? {}, params.timeoutMs, globalThis.fetch);
-      const fetched = await fetchRemoteMedia({
+      const fetched = await readRemoteMediaBuffer({
         url,
         fetchImpl,
         maxBytes: params.maxBytes,
         ssrfPolicy: this.ssrfPolicy,
+        retry: REMOTE_MEDIA_FETCH_RETRY,
       });
       entry.buffer = fetched.buffer;
       entry.bufferMime =
@@ -327,30 +332,6 @@ export class MediaAttachmentCache {
     }
     try {
       const currentPath = entry.resolvedPath;
-<<<<<<< HEAD
-      const stat = await fs.stat(currentPath);
-      if (!stat.isFile()) {
-        entry.resolvedPath = undefined;
-        throw new MediaUnderstandingSkipError(
-          "empty",
-          `Attachment ${entry.attachment.index + 1} path is not a regular file.`,
-        );
-      }
-      const canonicalPath = await this.resolveCanonicalLocalPath(currentPath);
-      if (!canonicalPath) {
-        entry.resolvedPath = undefined;
-        throw new MediaUnderstandingSkipError(
-          "blocked",
-          `Attachment ${entry.attachment.index + 1} could not be canonicalized.`,
-        );
-      }
-      const canonicalRoots = await this.getCanonicalLocalPathRoots();
-      if (!isInboundPathAllowed({ filePath: canonicalPath, roots: canonicalRoots })) {
-        entry.resolvedPath = undefined;
-        if (shouldLogVerbose()) {
-          logVerbose(
-            `Blocked canonicalized attachment path outside allowed roots: ${canonicalPath}`,
-=======
       const opened = await openLocalFileSafely({ filePath: currentPath });
       let canonicalRoots: readonly string[];
       try {
@@ -363,7 +344,6 @@ export class MediaAttachmentCache {
         if (shouldLogVerbose()) {
           logVerbose(
             `Blocked canonicalized attachment path outside allowed roots: ${opened.realPath}`,
->>>>>>> upstream/main
           );
         }
         throw new MediaUnderstandingSkipError(
@@ -371,21 +351,13 @@ export class MediaAttachmentCache {
           `Attachment ${entry.attachment.index + 1} path is outside allowed roots.`,
         );
       }
-<<<<<<< HEAD
-      entry.resolvedPath = canonicalPath;
-      entry.statSize = stat.size;
-      return stat.size;
-=======
       entry.resolvedPath = opened.realPath;
       entry.statSize = opened.stat.size;
       return opened.stat.size;
->>>>>>> upstream/main
     } catch (err) {
       if (err instanceof MediaUnderstandingSkipError) {
         throw err;
       }
-<<<<<<< HEAD
-=======
       if (err instanceof FsSafeError) {
         entry.resolvedPath = undefined;
         if (err.code === "not-file") {
@@ -406,7 +378,6 @@ export class MediaAttachmentCache {
           `Attachment ${entry.attachment.index + 1} could not be canonicalized.`,
         );
       }
->>>>>>> upstream/main
       entry.resolvedPath = undefined;
       if (shouldLogVerbose()) {
         logVerbose(`Failed to read attachment ${entry.attachment.index + 1}: ${String(err)}`);
@@ -439,28 +410,6 @@ export class MediaAttachmentCache {
     filePath: string;
     maxBytes: number;
   }): Promise<LocalReadResult> {
-<<<<<<< HEAD
-    const flags =
-      fsConstants.O_RDONLY | (process.platform === "win32" ? 0 : fsConstants.O_NOFOLLOW);
-    const handle = await fs.open(params.filePath, flags);
-    try {
-      const stat = await handle.stat();
-      if (!stat.isFile()) {
-        throw new MediaUnderstandingSkipError(
-          "empty",
-          `Attachment ${params.attachmentIndex + 1} path is not a regular file.`,
-        );
-      }
-      const canonicalPath = await this.resolveCanonicalLocalPath(params.filePath);
-      if (!canonicalPath) {
-        throw new MediaUnderstandingSkipError(
-          "blocked",
-          `Attachment ${params.attachmentIndex + 1} could not be canonicalized.`,
-        );
-      }
-      const canonicalRoots = await this.getCanonicalLocalPathRoots();
-      if (!isInboundPathAllowed({ filePath: canonicalPath, roots: canonicalRoots })) {
-=======
     let opened: Awaited<ReturnType<typeof openLocalFileSafely>> | undefined;
     try {
       opened = await openLocalFileSafely({ filePath: params.filePath });
@@ -472,41 +421,18 @@ export class MediaAttachmentCache {
       }
       const canonicalRoots = await this.getCanonicalLocalPathRoots();
       if (!isInboundPathAllowed({ filePath: opened.realPath, roots: canonicalRoots })) {
->>>>>>> upstream/main
         throw new MediaUnderstandingSkipError(
           "blocked",
           `Attachment ${params.attachmentIndex + 1} path is outside allowed roots.`,
         );
       }
-<<<<<<< HEAD
-      const buffer = await handle.readFile();
-=======
       const buffer = await opened.handle.readFile();
->>>>>>> upstream/main
       if (buffer.length > params.maxBytes) {
         throw new MediaUnderstandingSkipError(
           "maxBytes",
           `Attachment ${params.attachmentIndex + 1} exceeds maxBytes ${params.maxBytes}`,
         );
       }
-<<<<<<< HEAD
-      return { buffer, filePath: canonicalPath };
-    } finally {
-      await handle.close().catch(() => {});
-    }
-  }
-
-  private async resolveCanonicalLocalPath(filePath: string): Promise<string | undefined> {
-    try {
-      return await fs.realpath(filePath);
-    } catch (err) {
-      if (shouldLogVerbose()) {
-        logVerbose(
-          `Blocked attachment path when canonicalization failed: ${filePath} (${String(err)})`,
-        );
-      }
-      return undefined;
-=======
       return { buffer, filePath: opened.realPath };
     } catch (err) {
       if (err instanceof FsSafeError) {
@@ -530,7 +456,6 @@ export class MediaAttachmentCache {
       throw err;
     } finally {
       await opened?.handle.close().catch(() => {});
->>>>>>> upstream/main
     }
   }
 }

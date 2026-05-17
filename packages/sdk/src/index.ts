@@ -27,11 +27,8 @@ export type {
   ArtifactsListResult,
   ConnectableOpenClawTransport,
   EnvironmentSelection,
-<<<<<<< HEAD
-=======
   EnvironmentSummary,
   EnvironmentsListResult,
->>>>>>> upstream/main
   GatewayEvent,
   GatewayRequestOptions,
   JsonObject,
@@ -47,6 +44,12 @@ export type {
   SessionCreateParams,
   SessionSendParams,
   SessionTarget,
+  TaskStatus,
+  TaskSummary,
+  TasksCancelResult,
+  TasksGetResult,
+  TasksListParams,
+  TasksListResult,
   ToolInvokeParams,
   ToolInvokeResult,
   WorkspaceSelection,

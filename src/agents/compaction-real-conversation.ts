@@ -1,4 +1,4 @@
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
+import type { AgentMessage } from "@earendil-works/pi-agent-core";
 import { stripHeartbeatToken } from "../auto-reply/heartbeat.js";
 import { isSilentReplyText } from "../auto-reply/tokens.js";
 
@@ -27,9 +27,6 @@ function hasMeaningfulText(text: string): boolean {
 }
 
 export function hasMeaningfulConversationContent(message: AgentMessage): boolean {
-<<<<<<< HEAD
-  const content = (message as { content?: unknown }).content;
-=======
   if ((message as { role?: unknown }).role === "custom") {
     const custom = message as { content?: unknown; display?: unknown };
     return custom.display !== false && hasMeaningfulMessageContent(custom.content);
@@ -56,7 +53,6 @@ export function hasMeaningfulConversationContent(message: AgentMessage): boolean
 }
 
 function hasMeaningfulMessageContent(content: unknown): boolean {
->>>>>>> upstream/main
   if (typeof content === "string") {
     return hasMeaningfulText(content);
   }
@@ -89,8 +85,6 @@ function hasMeaningfulMessageContent(content: unknown): boolean {
   return sawMeaningfulNonTextBlock;
 }
 
-<<<<<<< HEAD
-=======
 function isToolResultConversationAnchor(message: AgentMessage): boolean {
   const role = (message as { role?: unknown }).role;
   return (
@@ -102,15 +96,11 @@ function isToolResultConversationAnchor(message: AgentMessage): boolean {
   );
 }
 
->>>>>>> upstream/main
 export function isRealConversationMessage(
   message: AgentMessage,
   messages: AgentMessage[],
   index: number,
 ): boolean {
-<<<<<<< HEAD
-  if (message.role === "user" || message.role === "assistant") {
-=======
   if (
     message.role === "user" ||
     message.role === "assistant" ||
@@ -118,7 +108,6 @@ export function isRealConversationMessage(
     message.role === "bashExecution" ||
     message.role === "branchSummary"
   ) {
->>>>>>> upstream/main
     return hasMeaningfulConversationContent(message);
   }
   if (message.role !== "toolResult") {
@@ -127,17 +116,10 @@ export function isRealConversationMessage(
   const start = Math.max(0, index - TOOL_RESULT_REAL_CONVERSATION_LOOKBACK);
   for (let i = index - 1; i >= start; i -= 1) {
     const candidate = messages[i];
-<<<<<<< HEAD
-    if (!candidate || candidate.role !== "user") {
-      continue;
-    }
-    if (hasMeaningfulConversationContent(candidate)) {
-=======
     if (!candidate) {
       continue;
     }
     if (isToolResultConversationAnchor(candidate)) {
->>>>>>> upstream/main
       return true;
     }
   }

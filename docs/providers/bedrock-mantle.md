@@ -11,21 +11,12 @@ the Mantle OpenAI-compatible endpoint. Mantle hosts open-source and
 third-party models (GPT-OSS, Qwen, Kimi, GLM, and similar) through a standard
 `/v1/chat/completions` surface backed by Bedrock infrastructure.
 
-<<<<<<< HEAD
-| Property       | Value                                                                               |
-| -------------- | ----------------------------------------------------------------------------------- |
-| Provider ID    | `amazon-bedrock-mantle`                                                             |
-| API            | `openai-completions` (OpenAI-compatible)                                            |
-| Auth           | Explicit `AWS_BEARER_TOKEN_BEDROCK` or IAM credential-chain bearer-token generation |
-| Default region | `us-east-1` (override with `AWS_REGION` or `AWS_DEFAULT_REGION`)                    |
-=======
 | Property       | Value                                                                                       |
 | -------------- | ------------------------------------------------------------------------------------------- |
 | Provider ID    | `amazon-bedrock-mantle`                                                                     |
 | API            | `openai-completions` (OpenAI-compatible) or `anthropic-messages` (Anthropic Messages route) |
 | Auth           | Explicit `AWS_BEARER_TOKEN_BEDROCK` or IAM credential-chain bearer-token generation         |
 | Default region | `us-east-1` (override with `AWS_REGION` or `AWS_DEFAULT_REGION`)                            |
->>>>>>> upstream/main
 
 ## Getting started
 
@@ -99,6 +90,13 @@ region's `/v1/models` endpoint.
 | Discovery cache   | Results cached for 1 hour |
 | IAM token refresh | Hourly                    |
 
+To keep the Mantle plugin enabled but suppress automatic discovery and IAM
+bearer-token generation, disable the plugin-owned discovery toggle:
+
+```bash
+openclaw config set plugins.entries.amazon-bedrock-mantle.config.discovery.enabled false
+```
+
 <Note>
 The bearer token is the same `AWS_BEARER_TOKEN_BEDROCK` used by the standard [Amazon Bedrock](/providers/bedrock) provider.
 </Note>
@@ -154,8 +152,6 @@ If you prefer explicit config instead of auto-discovery:
     continue to work normally.
   </Accordion>
 
-<<<<<<< HEAD
-=======
   <Accordion title="Claude Opus 4.7 via the Anthropic Messages route">
     Mantle also exposes an Anthropic Messages route that carries Claude models through the same bearer-authenticated streaming path. Claude Opus 4.7 (`amazon-bedrock-mantle/claude-opus-4.7`) is callable through this route with provider-owned streaming, so AWS bearer tokens are not treated like Anthropic API keys.
 
@@ -185,7 +181,6 @@ If you prefer explicit config instead of auto-discovery:
 
   </Accordion>
 
->>>>>>> upstream/main
   <Accordion title="Relationship to Amazon Bedrock provider">
     Bedrock Mantle is a separate provider from the standard
     [Amazon Bedrock](/providers/bedrock) provider. Mantle uses an

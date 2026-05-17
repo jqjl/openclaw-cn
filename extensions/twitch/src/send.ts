@@ -5,14 +5,11 @@
  * They support dependency injection via the `deps` parameter for testability.
  */
 
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import { getClientManager as getRegistryClientManager } from "./client-manager-registry.js";
 import { resolveTwitchAccountContext } from "./config.js";
@@ -27,17 +24,12 @@ export interface SendMessageResult {
   ok: boolean;
   /** The message ID (generated for tracking) */
   messageId: string;
-<<<<<<< HEAD
-=======
   /** Receipt for visible sends; empty when no Twitch message was sent */
   receipt: MessageReceipt;
->>>>>>> upstream/main
   /** Error message if the send failed */
   error?: string;
 }
 
-<<<<<<< HEAD
-=======
 function createTwitchSendReceipt(params: {
   messageId: string;
   channel?: string | null;
@@ -60,7 +52,6 @@ function createTwitchSendReceipt(params: {
   });
 }
 
->>>>>>> upstream/main
 /**
  * Internal send function used by the outbound adapter.
  *
@@ -103,10 +94,7 @@ export async function sendMessageTwitchInternal(
     return {
       ok: false,
       messageId: generateMessageId(),
-<<<<<<< HEAD
-=======
       receipt: createTwitchSendReceipt({ messageId: "", channel, visible: false }),
->>>>>>> upstream/main
       error: `Account not found: ${accountId ?? "(default)"}. Available accounts: ${availableAccountIds.join(", ") || "none"}`,
     };
   }
@@ -115,10 +103,7 @@ export async function sendMessageTwitchInternal(
     return {
       ok: false,
       messageId: generateMessageId(),
-<<<<<<< HEAD
-=======
       receipt: createTwitchSendReceipt({ messageId: "", channel, visible: false }),
->>>>>>> upstream/main
       error:
         `Account ${resolvedAccountId} is not properly configured. ` +
         "Required: username, clientId, and token (config or env for default account).",
@@ -130,11 +115,6 @@ export async function sendMessageTwitchInternal(
     return {
       ok: false,
       messageId: generateMessageId(),
-<<<<<<< HEAD
-      error: "No channel specified and no default channel in account config",
-    };
-  }
-=======
       receipt: createTwitchSendReceipt({
         messageId: "",
         channel: normalizedChannel,
@@ -144,21 +124,17 @@ export async function sendMessageTwitchInternal(
     };
   }
   const deliveryChannel = normalizeTwitchChannel(normalizedChannel);
->>>>>>> upstream/main
 
   const cleanedText = stripMarkdown ? stripMarkdownForTwitch(text) : text;
   if (!cleanedText) {
     return {
       ok: true,
       messageId: "skipped",
-<<<<<<< HEAD
-=======
       receipt: createTwitchSendReceipt({
         messageId: "skipped",
         channel: deliveryChannel,
         visible: false,
       }),
->>>>>>> upstream/main
     };
   }
 
@@ -167,14 +143,11 @@ export async function sendMessageTwitchInternal(
     return {
       ok: false,
       messageId: generateMessageId(),
-<<<<<<< HEAD
-=======
       receipt: createTwitchSendReceipt({
         messageId: "",
         channel: deliveryChannel,
         visible: false,
       }),
->>>>>>> upstream/main
       error: `Client manager not found for account: ${resolvedAccountId}. Please start the Twitch gateway first.`,
     };
   }
@@ -182,44 +155,22 @@ export async function sendMessageTwitchInternal(
   try {
     const result = await clientManager.sendMessage(
       account,
-<<<<<<< HEAD
-      normalizeTwitchChannel(normalizedChannel),
-=======
       deliveryChannel,
->>>>>>> upstream/main
       cleanedText,
       cfg,
       resolvedAccountId,
     );
 
     if (!result.ok) {
-<<<<<<< HEAD
-      return {
-        ok: false,
-        messageId: result.messageId ?? generateMessageId(),
-=======
       const messageId = result.messageId ?? generateMessageId();
       return {
         ok: false,
         messageId,
         receipt: createTwitchSendReceipt({ messageId, channel: deliveryChannel, visible: false }),
->>>>>>> upstream/main
         error: result.error ?? "Send failed",
       };
     }
 
-<<<<<<< HEAD
-    return {
-      ok: true,
-      messageId: result.messageId ?? generateMessageId(),
-    };
-  } catch (error) {
-    const errorMsg = formatErrorMessage(error);
-    logger.error(`Failed to send message: ${errorMsg}`);
-    return {
-      ok: false,
-      messageId: generateMessageId(),
-=======
     const messageId = result.messageId ?? generateMessageId();
     return {
       ok: true,
@@ -234,7 +185,6 @@ export async function sendMessageTwitchInternal(
       ok: false,
       messageId,
       receipt: createTwitchSendReceipt({ messageId, channel: deliveryChannel, visible: false }),
->>>>>>> upstream/main
       error: errorMsg,
     };
   }

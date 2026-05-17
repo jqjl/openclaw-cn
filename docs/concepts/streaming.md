@@ -69,29 +69,17 @@ streaming and the provider also includes it in the completed reply.
 
 Block chunking is implemented by `EmbeddedBlockChunker`:
 
-<<<<<<< HEAD
-- **Low bound:** don’t emit until buffer >= `minChars` (unless forced).
-=======
 - **Low bound:** don't emit until buffer >= `minChars` (unless forced).
->>>>>>> upstream/main
 - **High bound:** prefer splits before `maxChars`; if forced, split at `maxChars`.
 - **Break preference:** `paragraph` → `newline` → `sentence` → `whitespace` → hard break.
 - **Code fences:** never split inside fences; when forced at `maxChars`, close + reopen the fence to keep Markdown valid.
 
-<<<<<<< HEAD
-`maxChars` is clamped to the channel `textChunkLimit`, so you can’t exceed per-channel caps.
-=======
 `maxChars` is clamped to the channel `textChunkLimit`, so you can't exceed per-channel caps.
->>>>>>> upstream/main
 
 ## Coalescing (merge streamed blocks)
 
 When block streaming is enabled, OpenClaw can **merge consecutive block chunks**
-<<<<<<< HEAD
-before sending them out. This reduces “single-line spam” while still providing
-=======
 before sending them out. This reduces "single-line spam" while still providing
->>>>>>> upstream/main
 progressive output.
 
 - Coalescing waits for **idle gaps** (`idleMs`) before flushing.
@@ -110,11 +98,7 @@ block replies (after the first block). This makes multi-bubble responses feel
 more natural.
 
 - Config: `agents.defaults.humanDelay` (override per agent via `agents.list[].humanDelay`).
-<<<<<<< HEAD
-- Modes: `off` (default), `natural` (800–2500ms), `custom` (`minMs`/`maxMs`).
-=======
 - Modes: `off` (default), `natural` (800-2500ms), `custom` (`minMs`/`maxMs`).
->>>>>>> upstream/main
 - Applies only to **block replies**, not final replies or tool summaries.
 
 ## "Stream chunks or everything"
@@ -152,14 +136,6 @@ delivery instead of native partial/progress streaming.
 
 ### Channel mapping
 
-<<<<<<< HEAD
-| Channel  | `off` | `partial` | `block` | `progress`        |
-| -------- | ----- | --------- | ------- | ----------------- |
-| Telegram | ✅    | ✅        | ✅      | maps to `partial` |
-| Discord  | ✅    | ✅        | ✅      | maps to `partial` |
-| Slack    | ✅    | ✅        | ✅      | ✅                |
-=======
->>>>>>> upstream/main
 | Channel    | `off` | `partial` | `block` | `progress`              |
 | ---------- | ----- | --------- | ------- | ----------------------- |
 | Telegram   | ✅    | ✅        | ✅      | editable progress draft |
@@ -176,21 +152,17 @@ Slack-only:
 Legacy key migration:
 
 - Telegram: legacy `streamMode` and scalar/boolean `streaming` values are detected and migrated by doctor/config compatibility paths to `streaming.mode`.
-- Discord: `streamMode` + boolean `streaming` auto-migrate to `streaming` enum.
-- Slack: `streamMode` auto-migrates to `streaming.mode`; boolean `streaming` auto-migrates to `streaming.mode` plus `streaming.nativeTransport`; legacy `nativeStreaming` auto-migrates to `streaming.nativeTransport`.
+- Discord: `streamMode` + boolean `streaming` remain runtime aliases for the `streaming` enum; run `openclaw doctor --fix` to rewrite persisted config.
+- Slack: `streamMode` remains a runtime alias for `streaming.mode`; boolean `streaming` remains a runtime alias for `streaming.mode` plus `streaming.nativeTransport`; legacy `nativeStreaming` remains a runtime alias for `streaming.nativeTransport`. Run `openclaw doctor --fix` to rewrite persisted config.
 
 ### Runtime behavior
 
 Telegram:
 
 - Uses `sendMessage` + `editMessageText` preview updates across DMs and group/topics.
-<<<<<<< HEAD
-- Sends a fresh final message instead of editing in place when a preview has been visible for about one minute, then cleans up the preview so Telegram's timestamp reflects reply completion.
-=======
 - Final text edits the active preview in place; long finals reuse that message for the first chunk and send only the remaining chunks.
 - `progress` mode keeps tool progress in an editable status draft, clears that draft at completion, and sends the final answer through normal delivery.
 - If the final edit fails before the completed text is confirmed, OpenClaw uses normal final delivery and cleans up the stale preview.
->>>>>>> upstream/main
 - Preview streaming is skipped when Telegram block streaming is explicitly enabled (to avoid double-streaming).
 - `/reasoning stream` can write reasoning to a transient preview that is deleted after final delivery.
 
@@ -199,10 +171,7 @@ Discord:
 - Uses send + edit preview messages.
 - `block` mode uses draft chunking (`draftChunk`).
 - Preview streaming is skipped when Discord block streaming is explicitly enabled.
-<<<<<<< HEAD
-=======
 - Final media, error, and explicit-reply payloads cancel pending previews without flushing a new draft, then use normal delivery.
->>>>>>> upstream/main
 
 Slack:
 
@@ -226,11 +195,7 @@ Matrix:
 
 ### Tool-progress preview updates
 
-<<<<<<< HEAD
-Preview streaming can also include **tool-progress** updates — short status lines like "searching the web", "reading file", or "calling tool" — that appear in the same preview message while tools are running, ahead of the final reply. This keeps multi-step tool turns visually alive rather than silent between the first thinking preview and the final answer.
-=======
 Preview streaming can also include **tool-progress** updates - short status lines like "searching the web", "reading file", or "calling tool" - that appear in the same preview message while tools are running, ahead of the final reply. This keeps multi-step tool turns visually alive rather than silent between the first thinking preview and the final answer.
->>>>>>> upstream/main
 
 Supported surfaces:
 
@@ -279,15 +244,8 @@ Use the same shape under another compact progress channel key, for example `chan
 
 ## Related
 
-<<<<<<< HEAD
-- [Progress drafts](/concepts/progress-drafts) — visible work-in-progress messages that update during long turns
-- [Messages](/concepts/messages) — message lifecycle and delivery
-- [Retry](/concepts/retry) — retry behavior on delivery failure
-- [Channels](/channels) — per-channel streaming support
-=======
 - [Message lifecycle refactor](/concepts/message-lifecycle-refactor) - target shared preview, edit, stream, and finalization design
 - [Progress drafts](/concepts/progress-drafts) - visible work-in-progress messages that update during long turns
 - [Messages](/concepts/messages) - message lifecycle and delivery
 - [Retry](/concepts/retry) - retry behavior on delivery failure
 - [Channels](/channels) - per-channel streaming support
->>>>>>> upstream/main

@@ -8,11 +8,7 @@ import {
 } from "../shared/string-coerce.js";
 import type { DeviceIdentity } from "./device-identity.js";
 import { formatErrorMessage } from "./errors.js";
-<<<<<<< HEAD
-import { createAsyncLock, readJsonFile, writeJsonAtomic } from "./json-files.js";
-=======
 import { createAsyncLock, tryReadJson, writeJson } from "./json-files.js";
->>>>>>> upstream/main
 import { APNS_HTTP2_CANCEL_CODE, connectApnsHttp2Session } from "./push-apns-http2.js";
 import {
   type ApnsRelayConfig,
@@ -359,11 +355,7 @@ function normalizeStoredRegistration(record: unknown): ApnsRegistration | null {
 
 async function loadRegistrationsState(baseDir?: string): Promise<ApnsRegistrationState> {
   const filePath = resolveApnsRegistrationPath(baseDir);
-<<<<<<< HEAD
-  const existing = await readJsonFile<ApnsRegistrationState>(filePath);
-=======
   const existing = await tryReadJson<ApnsRegistrationState>(filePath);
->>>>>>> upstream/main
   if (!existing || typeof existing !== "object") {
     return { registrationsByNodeId: {} };
   }
@@ -390,15 +382,9 @@ async function persistRegistrationsState(
   baseDir?: string,
 ): Promise<void> {
   const filePath = resolveApnsRegistrationPath(baseDir);
-<<<<<<< HEAD
-  await writeJsonAtomic(filePath, state, {
-    mode: 0o600,
-    ensureDirMode: 0o700,
-=======
   await writeJson(filePath, state, {
     mode: 0o600,
     dirMode: 0o700,
->>>>>>> upstream/main
     trailingNewline: true,
   });
 }

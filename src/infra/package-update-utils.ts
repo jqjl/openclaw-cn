@@ -1,10 +1,6 @@
 import fsSync from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-import { openBoundaryFileSync } from "./boundary-file-read.js";
-=======
 import { readRootJsonObjectSync } from "@openclaw/fs-safe/json";
->>>>>>> upstream/main
 
 export function expectedIntegrityForUpdate(
   spec: string | undefined,
@@ -33,32 +29,12 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function readInstalledPackageManifest(dir: string): Record<string, unknown> | undefined {
-<<<<<<< HEAD
-  const manifestPath = path.join(dir, "package.json");
-  const opened = openBoundaryFileSync({
-    absolutePath: manifestPath,
-    rootPath: dir,
-    boundaryLabel: "installed package directory",
-  });
-  if (!opened.ok) {
-    return undefined;
-  }
-  try {
-    const parsed = JSON.parse(fsSync.readFileSync(opened.fd, "utf-8")) as unknown;
-    return isRecord(parsed) ? parsed : undefined;
-  } catch {
-    return undefined;
-  } finally {
-    fsSync.closeSync(opened.fd);
-  }
-=======
   const result = readRootJsonObjectSync({
     rootDir: dir,
     relativePath: "package.json",
     boundaryLabel: "installed package directory",
   });
   return result.ok ? result.value : undefined;
->>>>>>> upstream/main
 }
 
 export async function readInstalledPackageVersion(dir: string): Promise<string | undefined> {
@@ -66,11 +42,6 @@ export async function readInstalledPackageVersion(dir: string): Promise<string |
   return typeof manifest?.version === "string" ? manifest.version : undefined;
 }
 
-<<<<<<< HEAD
-export function installedPackageNeedsOpenClawPeerLinkRepair(dir: string): boolean {
-  const manifest = readInstalledPackageManifest(dir);
-  const peerDependencies = isRecord(manifest?.peerDependencies) ? manifest.peerDependencies : {};
-=======
 export function readInstalledPackagePeerDependencies(dir: string): Record<string, string> {
   const manifest = readInstalledPackageManifest(dir);
   const peerDependencies = isRecord(manifest?.peerDependencies) ? manifest.peerDependencies : {};
@@ -84,7 +55,6 @@ export function readInstalledPackagePeerDependencies(dir: string): Record<string
 
 export function installedPackageNeedsOpenClawPeerLinkRepair(dir: string): boolean {
   const peerDependencies = readInstalledPackagePeerDependencies(dir);
->>>>>>> upstream/main
   if (!Object.hasOwn(peerDependencies, "openclaw")) {
     return false;
   }

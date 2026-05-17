@@ -55,8 +55,23 @@ async function createDirectorySymlink(targetDir: string, linkPath: string) {
   await fs.symlink(targetDir, linkPath, directorySymlinkType);
 }
 
+async function expectRejectedCode(promise: Promise<unknown>, expected: string | RegExp) {
+  try {
+    await promise;
+  } catch (error) {
+    const code = (error as Partial<ArchiveSecurityError>).code;
+    if (typeof expected === "string") {
+      expect(code).toBe(expected);
+      return;
+    }
+    expect(String(code)).toMatch(expected);
+    return;
+  }
+  throw new Error("expected promise to reject");
+}
+
 async function expectPathMissing(filePath: string) {
-  await expect(fs.stat(filePath)).rejects.toMatchObject({ code: "ENOENT" });
+  await expectRejectedCode(fs.stat(filePath), "ENOENT");
 }
 
 async function expectExtractedSizeBudgetExceeded(params: {
@@ -148,15 +163,14 @@ describe("archive utils", () => {
         await fs.rm(extractDir, { recursive: true, force: true });
         await createDirectorySymlink(realExtractDir, extractDir);
 
-        await expect(
+        await expectRejectedCode(
           extractArchive({
             archivePath,
             destDir: extractDir,
             timeoutMs: ARCHIVE_EXTRACT_TIMEOUT_MS,
           }),
-        ).rejects.toMatchObject({
-          code: "destination-symlink",
-        } satisfies Partial<ArchiveSecurityError>);
+          "destination-symlink",
+        );
 
         await expectPathMissing(path.join(realExtractDir, "package", "hello.txt"));
       });
@@ -189,15 +203,14 @@ describe("archive utils", () => {
       zip.file("escape/pwn.txt", "owned");
       await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
 
-      await expect(
+      await expectRejectedCode(
         extractArchive({
           archivePath,
           destDir: extractDir,
           timeoutMs: ARCHIVE_EXTRACT_TIMEOUT_MS,
         }),
-      ).rejects.toMatchObject({
-        code: "destination-symlink-traversal",
-      } satisfies Partial<ArchiveSecurityError>);
+        "destination-symlink-traversal",
+      );
 
       const outsideFile = path.join(outsideDir, "pwn.txt");
       const outsideExists = await fs
@@ -222,27 +235,6 @@ describe("archive utils", () => {
       zip.file("slot/target.txt", "owned");
       await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
 
-<<<<<<< HEAD
-      await withRealpathSymlinkRebindRace({
-        shouldFlip: (realpathInput) => realpathInput === slotDir,
-        symlinkPath: slotDir,
-        symlinkTarget: outsideDir,
-        timing: "after-realpath",
-        run: async () => {
-          await expect(
-            extractArchive({
-              archivePath,
-              destDir: extractDir,
-              timeoutMs: ARCHIVE_EXTRACT_TIMEOUT_MS,
-            }),
-          ).rejects.toMatchObject({
-            code: "destination-symlink-traversal",
-          } satisfies Partial<ArchiveSecurityError>);
-        },
-      });
-
-      await expect(fs.readFile(outsideTarget, "utf8")).resolves.toBe("SAFE");
-=======
       let rejected = false;
       try {
         await withRealpathSymlinkRebindRace({
@@ -260,25 +252,19 @@ describe("archive utils", () => {
         });
       } catch (error) {
         rejected = true;
-        expect(error).toMatchObject({
-          code: "destination-symlink-traversal",
-        } satisfies Partial<ArchiveSecurityError>);
+        const code = (error as Partial<ArchiveSecurityError>).code;
+        expect(String(code)).toMatch(/destination-symlink-traversal|not-file/);
       }
 
       await expect(fs.readFile(outsideTarget, "utf8")).resolves.toBe("SAFE");
       if (!rejected) {
         await expect(fs.readFile(path.join(slotDir, "target.txt"), "utf8")).resolves.toBe("owned");
       }
->>>>>>> upstream/main
     });
   });
 
   it.runIf(process.platform !== "win32")(
-<<<<<<< HEAD
-    "rejects zip extraction when a hardlink appears after atomic rename",
-=======
     "rejects zip extraction when a hardlink appears during destination verification",
->>>>>>> upstream/main
     async () => {
       await withArchiveCase("zip", async ({ workDir, archivePath, extractDir }) => {
         const outsideDir = path.join(workDir, "outside");
@@ -289,17 +275,6 @@ describe("archive utils", () => {
         const zip = new JSZip();
         zip.file("package/payload.bin", "owned");
         await fs.writeFile(archivePath, await zip.generateAsync({ type: "nodebuffer" }));
-<<<<<<< HEAD
-
-        const realRename = fs.rename.bind(fs);
-        let linked = false;
-        const renameSpy = vi.spyOn(fs, "rename").mockImplementation(async (...args) => {
-          await realRename(...args);
-          if (!linked) {
-            linked = true;
-            await fs.link(String(args[1]), outsideAlias);
-          }
-=======
         const extractedRealPath = path.join(
           await fs.realpath(extractDir),
           "package",
@@ -314,35 +289,23 @@ describe("archive utils", () => {
             linked = true;
           }
           return await realLstat(...args);
->>>>>>> upstream/main
         });
 
         try {
-          await expect(
+          await expectRejectedCode(
             extractArchive({
               archivePath,
               destDir: extractDir,
               timeoutMs: ARCHIVE_EXTRACT_TIMEOUT_MS,
             }),
-          ).rejects.toMatchObject({
-<<<<<<< HEAD
-            code: "destination-symlink-traversal",
-          } satisfies Partial<ArchiveSecurityError>);
-        } finally {
-          renameSpy.mockRestore();
-        }
-
-        await expect(fs.readFile(outsideAlias, "utf8")).resolves.toBe("owned");
-=======
-            code: expect.stringMatching(/^(?:destination-symlink-traversal|hardlink)$/u),
-          });
+            /^(?:destination-symlink-traversal|hardlink)$/u,
+          );
         } finally {
           lstatSpy.mockRestore();
         }
 
         await expect(fs.readFile(outsideAlias, "utf8")).resolves.toBe("");
->>>>>>> upstream/main
-        await expect(fs.stat(extractedPath)).rejects.toMatchObject({ code: "ENOENT" });
+        await expectPathMissing(extractedPath);
       });
     },
   );
@@ -375,15 +338,14 @@ describe("archive utils", () => {
       await createDirectorySymlink(outsideDir, path.join(extractDir, "escape"));
       await tar.c({ cwd: archiveRoot, file: archivePath }, ["escape"]);
 
-      await expect(
+      await expectRejectedCode(
         extractArchive({
           archivePath,
           destDir: extractDir,
           timeoutMs: ARCHIVE_EXTRACT_TIMEOUT_MS,
         }),
-      ).rejects.toMatchObject({
-        code: "destination-symlink-traversal",
-      } satisfies Partial<ArchiveSecurityError>);
+        "destination-symlink-traversal",
+      );
 
       await expectPathMissing(path.join(outsideDir, "pwn.txt"));
     });

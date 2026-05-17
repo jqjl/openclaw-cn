@@ -13,10 +13,7 @@ import {
 } from "../infra/diagnostic-trace-context.js";
 import { expandHomePrefix } from "../infra/home-dir.js";
 import { isBlockedObjectKey } from "../infra/prototype-keys.js";
-<<<<<<< HEAD
-=======
 import { appendRegularFileSync } from "../infra/regular-file.js";
->>>>>>> upstream/main
 import {
   POSIX_OPENCLAW_TMP_DIR,
   resolvePreferredOpenClawTmpDir,
@@ -24,7 +21,7 @@ import {
 import { readLoggingConfig, shouldSkipMutatingLoggingConfigRead } from "./config.js";
 import { resolveEnvLogLevelOverride } from "./env-log-level.js";
 import { type LogLevel, levelToMinLevel, normalizeLogLevel } from "./levels.js";
-import { redactSensitiveText } from "./redact.js";
+import { redactSecrets, redactSensitiveText } from "./redact.js";
 import { loggingState } from "./state.js";
 import { formatTimestamp } from "./timestamps.js";
 import type { LoggerSettings } from "./types.js";
@@ -74,10 +71,7 @@ type ResolvedSettings = {
 };
 export type LoggerResolvedSettings = ResolvedSettings;
 type TsLogRecord = Record<string, unknown>;
-<<<<<<< HEAD
-=======
 type LoggerConfigLoader = () => OpenClawConfig["logging"] | undefined;
->>>>>>> upstream/main
 
 type DiagnosticLogCode = {
   line?: number;
@@ -86,8 +80,6 @@ type DiagnosticLogCode = {
 
 const MAX_DIAGNOSTIC_LOG_BINDINGS_JSON_CHARS = 8 * 1024;
 const MAX_DIAGNOSTIC_LOG_MESSAGE_CHARS = 4 * 1024;
-<<<<<<< HEAD
-=======
 
 const loadLoggerConfigDefault: LoggerConfigLoader = () => readLoggingConfig();
 let loadLoggerConfig: LoggerConfigLoader = loadLoggerConfigDefault;
@@ -97,7 +89,6 @@ export function setLoggerConfigLoaderForTests(loader?: LoggerConfigLoader): void
   loggingState.cachedLogger = null;
   loggingState.cachedSettings = null;
 }
->>>>>>> upstream/main
 const MAX_DIAGNOSTIC_LOG_ATTRIBUTE_COUNT = 32;
 const MAX_DIAGNOSTIC_LOG_ATTRIBUTE_VALUE_CHARS = 2 * 1024;
 const MAX_DIAGNOSTIC_LOG_NAME_CHARS = 120;
@@ -453,10 +444,20 @@ function buildDiagnosticLogRecord(logObj: TsLogRecord) {
   };
 }
 
+function isLogRedactionDisabled(): boolean {
+  return readLoggingConfig()?.redactSensitive === "off";
+}
+
+function redactLogRecordForTransport<T extends LogObj>(record: T): T {
+  return isLogRedactionDisabled() ? record : redactSecrets(record);
+}
+
 function attachDiagnosticEventTransport(logger: TsLogger<LogObj>): void {
   logger.attachTransport((logObj: LogObj) => {
     try {
-      emitDiagnosticEvent(buildDiagnosticLogRecord(logObj as TsLogRecord));
+      emitDiagnosticEvent(
+        buildDiagnosticLogRecord(redactLogRecordForTransport(logObj) as TsLogRecord),
+      );
     } catch {
       // never block on logging failures
     }
@@ -493,11 +494,7 @@ function resolveSettings(): ResolvedSettings {
   }
 
   const cfg: OpenClawConfig["logging"] | undefined =
-<<<<<<< HEAD
-    (loggingState.overrideSettings as LoggerSettings | null) ?? readLoggingConfig();
-=======
     (loggingState.overrideSettings as LoggerSettings | null) ?? loadLoggerConfig();
->>>>>>> upstream/main
   const defaultLevel =
     process.env.VITEST === "true" && process.env.OPENCLAW_TEST_FILE_LOG !== "1" ? "silent" : "info";
   const fromConfig = normalizeLogLevel(cfg?.level, defaultLevel);
@@ -531,6 +528,8 @@ export function isFileLogLevelEnabled(level: LogLevel): boolean {
 function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
   const logger = new TsLogger<LogObj>({
     name: "openclaw",
+    // Custom structured redaction runs at each transport boundary; avoid tslog pre-masking divergent records.
+    maskValuesOfKeys: [],
     minLevel: levelToMinLevel(settings.level),
     type: "hidden", // no ansi formatting
   });
@@ -565,9 +564,8 @@ function buildLogger(settings: ResolvedSettings): TsLogger<LogObj> {
       const time = formatTimestamp(logObj.date ?? new Date(), { style: "long" });
       const traceFields = buildTraceFileLogFields(logObj as TsLogRecord);
       const structuredFields = buildStructuredFileLogFields(logObj as TsLogRecord);
-      const line = redactSensitiveText(
-        JSON.stringify({ ...logObj, time, ...structuredFields, ...traceFields }),
-      );
+      const record = { ...logObj, time, ...structuredFields, ...traceFields };
+      const line = redactSensitiveText(JSON.stringify(redactLogRecordForTransport(record)));
       const payload = `${line}\n`;
       const payloadBytes = Buffer.byteLength(payload, "utf8");
       const nextBytes = currentFileBytes + payloadBytes;
@@ -611,11 +609,7 @@ function getCurrentLogFileBytes(file: string): number {
 
 function appendLogLine(file: string, line: string): boolean {
   try {
-<<<<<<< HEAD
-    fs.appendFileSync(file, line, { encoding: "utf8" });
-=======
     appendRegularFileSync({ filePath: file, content: line });
->>>>>>> upstream/main
     return true;
   } catch {
     return false;
@@ -698,10 +692,7 @@ export function resetLogger() {
   loggingState.cachedSettings = null;
   loggingState.cachedConsoleSettings = null;
   loggingState.overrideSettings = null;
-<<<<<<< HEAD
-=======
   loadLoggerConfig = loadLoggerConfigDefault;
->>>>>>> upstream/main
 }
 
 export const __test__ = {

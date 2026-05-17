@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
-=======
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import { deriveDurableFinalDeliveryRequirements } from "../../channels/message/capabilities.js";
+import { sendDurableMessageBatch } from "../../channels/message/runtime.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import type { OutboundMediaAccess } from "../../media/load-options.js";
->>>>>>> upstream/main
 import type { PollInput } from "../../polls.js";
 import { normalizePollInput } from "../../polls.js";
 import {
@@ -17,15 +14,10 @@ import {
 import { resolveOutboundChannelPlugin } from "./channel-resolution.js";
 import { resolveMessageChannelSelection } from "./channel-selection.js";
 import {
-  deliverOutboundPayloads,
-<<<<<<< HEAD
-  type OutboundDeliveryResult,
-=======
   resolveOutboundDurableFinalDeliverySupport,
   type DurableFinalDeliveryRequirements,
   type OutboundDeliveryResult,
   type OutboundDeliveryQueuePolicy,
->>>>>>> upstream/main
   type OutboundSendDeps,
 } from "./deliver.js";
 import type { OutboundMirror } from "./mirror.js";
@@ -89,12 +81,9 @@ type MessageSendParams = {
   threadId?: string | number;
   dryRun?: boolean;
   bestEffort?: boolean;
-<<<<<<< HEAD
-=======
   queuePolicy?: OutboundDeliveryQueuePolicy;
   payloads?: ReplyPayload[];
   mediaAccess?: OutboundMediaAccess;
->>>>>>> upstream/main
   deps?: OutboundSendDeps;
   cfg?: OpenClawConfig;
   gateway?: MessageGatewayOptions;
@@ -102,6 +91,7 @@ type MessageSendParams = {
   mirror?: OutboundMirror;
   abortSignal?: AbortSignal;
   silent?: boolean;
+  parseMode?: "HTML";
 };
 
 export type MessageSendResult = {
@@ -197,8 +187,6 @@ function resolveRequiredPlugin(channel: string, cfg: OpenClawConfig) {
   return plugin;
 }
 
-<<<<<<< HEAD
-=======
 function payloadRequiresDurablePayloadTransport(payload: ReplyPayload): boolean {
   return (
     payload.presentation !== undefined ||
@@ -269,7 +257,6 @@ async function assertRequiredMessageSendDurability(params: {
   throw new Error(`Required durable message send is unsupported for ${params.channel}: ${suffix}`);
 }
 
->>>>>>> upstream/main
 function resolveGatewayOptions(opts?: MessageGatewayOptions) {
   // Security: backend callers (tools/agents) must not accept user-controlled gateway URLs.
   // Use config-derived gateway target only.
@@ -331,16 +318,6 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
   const channel = await resolveRequiredChannel({ cfg, channel: params.channel });
   const plugin = resolveRequiredPlugin(channel, cfg);
   const deliveryMode = plugin.outbound?.deliveryMode ?? "direct";
-<<<<<<< HEAD
-  const outboundPlan = createOutboundPayloadPlan([
-    {
-      text: params.content,
-      mediaUrl: params.mediaUrl,
-      mediaUrls: params.mediaUrls,
-      audioAsVoice: params.asVoice === true,
-    },
-  ]);
-=======
   const outboundPayloads =
     params.payloads && params.payloads.length > 0
       ? params.payloads
@@ -353,7 +330,6 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
           },
         ];
   const outboundPlan = createOutboundPayloadPlan(outboundPayloads);
->>>>>>> upstream/main
   const normalizedPayloads = projectOutboundPayloadPlanForDelivery(outboundPlan);
   const mirrorProjection = projectOutboundPayloadPlanForMirror(outboundPlan);
   const mirrorText = mirrorProjection.text;
@@ -394,8 +370,6 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
       requesterSenderUsername: params.requesterSenderUsername,
       requesterSenderE164: params.requesterSenderE164,
     });
-<<<<<<< HEAD
-=======
     if (params.queuePolicy === "required") {
       await assertRequiredMessageSendDurability({
         cfg,
@@ -406,8 +380,7 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
         silent: params.silent,
       });
     }
->>>>>>> upstream/main
-    const results = await deliverOutboundPayloads({
+    const send = await sendDurableMessageBatch({
       cfg,
       channel: outboundChannel,
       to: resolvedTarget.to,
@@ -420,15 +393,12 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
       forceDocument: params.forceDocument,
       deps: params.deps,
       bestEffort: params.bestEffort,
-<<<<<<< HEAD
-      abortSignal: params.abortSignal,
-      silent: params.silent,
-=======
-      queuePolicy: params.queuePolicy,
-      abortSignal: params.abortSignal,
+      durability:
+        params.bestEffort || params.queuePolicy === "best_effort" ? "best_effort" : "required",
+      signal: params.abortSignal,
       silent: params.silent,
       mediaAccess: params.mediaAccess,
->>>>>>> upstream/main
+      formatting: params.parseMode ? { parseMode: params.parseMode } : undefined,
       mirror: params.mirror
         ? {
             ...params.mirror,
@@ -438,6 +408,10 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
           }
         : undefined,
     });
+    if (!params.bestEffort && (send.status === "failed" || send.status === "partial_failed")) {
+      throw send.error;
+    }
+    const results = send.status === "sent" || send.status === "partial_failed" ? send.results : [];
 
     return {
       channel,
@@ -463,6 +437,10 @@ export async function sendMessage(params: MessageSendParams): Promise<MessageSen
       agentId: params.agentId,
       channel,
       replyToId: params.replyToId,
+      threadId: params.threadId != null ? String(params.threadId) : undefined,
+      forceDocument: params.forceDocument,
+      silent: params.silent,
+      parseMode: params.parseMode,
       sessionKey: params.mirror?.sessionKey,
       idempotencyKey: await resolveGatewayIdempotencyKey(params.idempotencyKey),
     },

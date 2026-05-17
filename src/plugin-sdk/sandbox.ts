@@ -48,8 +48,6 @@ export {
   type PluginCommandRunResult,
 } from "./run-command.js";
 export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
-<<<<<<< HEAD
-=======
 export {
   tempWorkspace,
   tempWorkspaceSync,
@@ -59,4 +57,3 @@ export {
   withTempWorkspace,
   withTempWorkspaceSync,
 } from "../infra/private-temp-workspace.js";
->>>>>>> upstream/main

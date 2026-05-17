@@ -1,11 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-import { beforeAll, describe, expect, it, vi } from "vitest";
-import type { AuthProfileStore } from "../agents/auth-profiles.js";
-import type { OpenClawConfig } from "../config/config.js";
-import type { PluginOrigin } from "../plugins/types.js";
-=======
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import type { AuthProfileStore } from "../agents/auth-profiles.js";
 import type { OpenClawConfig } from "../config/config.js";
@@ -14,7 +8,6 @@ import type {
   PluginWebFetchProviderEntry,
   PluginWebSearchProviderEntry,
 } from "../plugins/types.js";
->>>>>>> upstream/main
 import { getPath, setPathCreateStrict } from "./path-utils.js";
 import { canonicalizeSecretTargetCoverageId } from "./target-registry-test-helpers.js";
 
@@ -22,8 +15,6 @@ vi.mock("../plugins/installed-plugin-index-records.js", () => ({
   loadInstalledPluginIndexInstallRecordsSync: () => ({}),
 }));
 
-<<<<<<< HEAD
-=======
 function createCoverageWebSearchProvider(params: {
   pluginId: string;
   id: string;
@@ -189,7 +180,6 @@ vi.mock("../plugins/web-provider-public-artifacts.explicit.js", () => ({
   },
 }));
 
->>>>>>> upstream/main
 type SecretRegistryEntry = {
   id: string;
   configFile: "openclaw.json" | "auth-profiles.json";
@@ -249,8 +239,6 @@ let collectConfigAssignments: typeof import("./runtime-config-collectors.js").co
 let createResolverContext: typeof import("./runtime-shared.js").createResolverContext;
 let resolveSecretRefValues: typeof import("./resolve.js").resolveSecretRefValues;
 let resolveRuntimeWebTools: typeof import("./runtime-web-tools.js").resolveRuntimeWebTools;
-<<<<<<< HEAD
-=======
 const previousBundledPluginsDir = process.env.OPENCLAW_BUNDLED_PLUGINS_DIR;
 const previousTrustBundledPluginsDir = process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR;
 
@@ -269,7 +257,6 @@ afterAll(() => {
     process.env.OPENCLAW_TEST_TRUST_BUNDLED_PLUGINS_DIR = previousTrustBundledPluginsDir;
   }
 });
->>>>>>> upstream/main
 
 async function ensureConfigCoverageRuntimeLoaded(): Promise<void> {
   if (!collectConfigAssignments) {
@@ -290,9 +277,11 @@ async function ensureRuntimeWebToolsLoaded(): Promise<void> {
 }
 
 function toConcretePathSegments(pathPattern: string, wildcardToken = "sample"): string[] {
-  const segments = pathPattern.split(".").filter(Boolean);
   const out: string[] = [];
-  for (const segment of segments) {
+  for (const segment of pathPattern.split(".")) {
+    if (!segment) {
+      continue;
+    }
     if (segment === "*") {
       out.push(wildcardToken);
       continue;
@@ -341,8 +330,6 @@ function buildCoverageLoadablePluginOrigins(
   return origins;
 }
 
-<<<<<<< HEAD
-=======
 function resolveCoverageLoadablePluginOrigins(
   entries: readonly SecretRegistryEntry[],
 ): ReadonlyMap<string, PluginOrigin> | undefined {
@@ -360,7 +347,6 @@ function resolveCoverageLoadablePluginOrigins(
   return origins.size > 0 ? origins : undefined;
 }
 
->>>>>>> upstream/main
 function resolveCoverageBatchKey(entry: SecretRegistryEntry): string {
   if (entry.id.startsWith("agents.defaults.")) {
     return entry.id;
@@ -537,8 +523,6 @@ function applyConfigForOpenClawTarget(
       "https://example.com/hook",
     );
   }
-<<<<<<< HEAD
-=======
   if (entry.id === "channels.qqbot.clientSecret") {
     setPathCreateStrict(config, ["channels", "qqbot", "appId"], "sample-app-id");
   }
@@ -549,7 +533,6 @@ function applyConfigForOpenClawTarget(
       "sample-app-id",
     );
   }
->>>>>>> upstream/main
   if (entry.id === "channels.feishu.verificationToken") {
     setPathCreateStrict(config, ["channels", "feishu", "connectionMode"], "webhook");
   }
@@ -774,11 +757,7 @@ async function expectOpenClawCoverageEntriesResolved(
     const snapshot = await prepareConfigCoverageSnapshot({
       config,
       env,
-<<<<<<< HEAD
-      loadablePluginOrigins: COVERAGE_LOADABLE_PLUGIN_ORIGINS,
-=======
       loadablePluginOrigins: resolveCoverageLoadablePluginOrigins(batch),
->>>>>>> upstream/main
       includeRuntimeWebTools: batchNeedsRuntimeWebTools(batch),
       skipConfigCollectors: batchUsesRuntimeWebToolsOnly(batch),
     });
@@ -847,7 +826,9 @@ describe("secrets runtime target coverage", () => {
         loadAuthStore: () => authStore,
       });
       const resolvedStore = snapshot.authStores[0]?.store;
-      expect(resolvedStore).toBeDefined();
+      if (!resolvedStore) {
+        throw new Error("expected resolved auth store snapshot");
+      }
       for (const [index, entry] of batch.entries()) {
         const resolved = getPath(
           resolvedStore,

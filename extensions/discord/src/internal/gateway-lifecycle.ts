@@ -4,8 +4,6 @@ export class GatewayHeartbeatTimers {
   heartbeatInterval?: GatewayTimer;
   firstHeartbeatTimeout?: GatewayTimer;
 
-<<<<<<< HEAD
-=======
   private scheduleHeartbeatCycle(params: {
     intervalMs: number;
     isAcked: () => boolean;
@@ -24,7 +22,6 @@ export class GatewayHeartbeatTimers {
     this.heartbeatInterval.unref?.();
   }
 
->>>>>>> upstream/main
   start(params: {
     intervalMs: number;
     isAcked: () => boolean;
@@ -35,20 +32,6 @@ export class GatewayHeartbeatTimers {
     this.stop();
     const random = params.random ?? Math.random;
     this.firstHeartbeatTimeout = setTimeout(
-<<<<<<< HEAD
-      params.onHeartbeat,
-      Math.max(0, params.intervalMs * random()),
-    );
-    this.firstHeartbeatTimeout.unref?.();
-    this.heartbeatInterval = setInterval(() => {
-      if (!params.isAcked()) {
-        params.onAckTimeout();
-        return;
-      }
-      params.onHeartbeat();
-    }, params.intervalMs);
-    this.heartbeatInterval.unref?.();
-=======
       () => {
         this.firstHeartbeatTimeout = undefined;
         params.onHeartbeat();
@@ -57,16 +40,11 @@ export class GatewayHeartbeatTimers {
       Math.max(0, params.intervalMs * random()),
     );
     this.firstHeartbeatTimeout.unref?.();
->>>>>>> upstream/main
   }
 
   stop(): void {
     if (this.heartbeatInterval) {
-<<<<<<< HEAD
-      clearInterval(this.heartbeatInterval);
-=======
       clearTimeout(this.heartbeatInterval);
->>>>>>> upstream/main
       this.heartbeatInterval = undefined;
     }
     if (this.firstHeartbeatTimeout) {

@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import type { ChannelMessageAdapterShape } from "../message/types.js";
->>>>>>> upstream/main
 import type { ChannelSetupWizard, ChannelSetupWizardAdapter } from "./setup-wizard-types.js";
 import type { ChannelConfigSchema } from "./types.config.js";
 export type {
@@ -89,10 +86,7 @@ export type ChannelPlugin<ResolvedAccount = any, Probe = unknown, Audit = unknow
   conversationBindings?: ChannelConversationBindingSupport;
   streaming?: ChannelStreamingAdapter;
   threading?: ChannelThreadingAdapter;
-<<<<<<< HEAD
-=======
   message?: ChannelMessageAdapterShape;
->>>>>>> upstream/main
   messaging?: ChannelMessagingAdapter;
   agentPrompt?: ChannelAgentPromptAdapter;
   directory?: ChannelDirectoryAdapter;

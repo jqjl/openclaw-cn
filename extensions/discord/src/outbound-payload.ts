@@ -7,21 +7,15 @@ import {
   sendPayloadMediaSequenceOrFallback,
   sendTextMediaPayload,
 } from "openclaw/plugin-sdk/reply-payload";
-<<<<<<< HEAD
-=======
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
->>>>>>> upstream/main
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import { normalizeDiscordApprovalPayload } from "./outbound-approval.js";
 import {
   resolveDiscordComponentSpec,
   sendDiscordComponentMessageLazy,
 } from "./outbound-components.js";
 import { createDiscordPayloadSendContext } from "./outbound-send-context.js";
-<<<<<<< HEAD
-=======
 import { createDiscordSendReceipt } from "./send.receipt.js";
 import type { DiscordSendComponents, DiscordSendEmbeds } from "./send.shared.js";
->>>>>>> upstream/main
 
 export async function sendDiscordOutboundPayload(params: {
   ctx: Parameters<NonNullable<ChannelOutboundAdapter["sendPayload"]>>[0];
@@ -80,8 +74,6 @@ export async function sendDiscordOutboundPayload(params: {
 
   const componentSpec = await resolveDiscordComponentSpec(payload);
   if (!componentSpec) {
-<<<<<<< HEAD
-=======
     const discordData =
       payload.channelData?.discord &&
       typeof payload.channelData.discord === "object" &&
@@ -145,7 +137,6 @@ export async function sendDiscordOutboundPayload(params: {
       });
       return attachChannelToResult("discord", result);
     }
->>>>>>> upstream/main
     return await sendTextMediaPayload({
       channel: "discord",
       ctx: {
@@ -159,9 +150,6 @@ export async function sendDiscordOutboundPayload(params: {
   const result = await sendPayloadMediaSequenceOrFallback({
     text: payload.text ?? "",
     mediaUrls,
-<<<<<<< HEAD
-    fallbackResult: { messageId: "", channelId: sendContext.target },
-=======
     fallbackResult: {
       messageId: "",
       channelId: sendContext.target,
@@ -171,7 +159,6 @@ export async function sendDiscordOutboundPayload(params: {
         kind: "unknown",
       }),
     },
->>>>>>> upstream/main
     sendNoMedia: async () =>
       await sendContext.withRetry(
         async () =>

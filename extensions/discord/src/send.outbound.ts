@@ -1,20 +1,18 @@
 import { ChannelType } from "discord-api-types/v10";
 import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
-import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
 import type { OutboundMediaAccess, PollInput } from "openclaw/plugin-sdk/media-runtime";
 import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
 import { resolveChunkMode, type ChunkMode } from "openclaw/plugin-sdk/reply-chunking";
 import type { RetryConfig } from "openclaw/plugin-sdk/retry-runtime";
-import { convertMarkdownTables, normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
+import { convertMarkdownTables } from "openclaw/plugin-sdk/text-chunking";
 import { resolveDiscordAccount } from "./accounts.js";
 import { createChannelMessage, createThread, type RequestClient } from "./internal/discord.js";
 import { rewriteDiscordKnownMentions } from "./mentions.js";
 import { parseAndResolveRecipient } from "./recipient-resolution.js";
-<<<<<<< HEAD
-=======
 import { createDiscordSendResult, type DiscordReceiptResultSource } from "./send.receipt.js";
->>>>>>> upstream/main
 import {
   buildDiscordMessageRequest,
   buildDiscordSendError,
@@ -59,14 +57,7 @@ type DiscordClientRequest = ReturnType<typeof createDiscordClient>["request"];
 
 const DEFAULT_DISCORD_MEDIA_MAX_MB = 100;
 
-<<<<<<< HEAD
-type DiscordChannelMessageResult = {
-  id?: string | null;
-  channel_id?: string | null;
-};
-=======
 type DiscordChannelMessageResult = DiscordReceiptResultSource;
->>>>>>> upstream/main
 
 async function sendDiscordThreadTextChunks(params: {
   rest: RequestClient;
@@ -113,13 +104,6 @@ function isForumLikeType(channelType?: number): boolean {
 function toDiscordSendResult(
   result: DiscordChannelMessageResult,
   fallbackChannelId: string,
-<<<<<<< HEAD
-): DiscordSendResult {
-  return {
-    messageId: result.id || "unknown",
-    channelId: result.channel_id ?? fallbackChannelId,
-  };
-=======
   params: {
     kind?: Parameters<typeof createDiscordSendResult>[0]["kind"];
     threadId?: string | number;
@@ -138,7 +122,6 @@ function toDiscordSendResult(
     resultParams.replyToId = params.replyToId;
   }
   return createDiscordSendResult(resultParams);
->>>>>>> upstream/main
 }
 
 async function resolveDiscordSendTarget(
@@ -307,18 +290,11 @@ export async function sendMessageDiscord(
         channel_id: resultChannelId,
       },
       channelId,
-<<<<<<< HEAD
-    );
-  }
-
-  let result: { id: string; channel_id: string } | { id: string | null; channel_id: string };
-=======
       { kind: opts.mediaUrl ? "media" : "text", threadId },
     );
   }
 
   let result: DiscordChannelMessageResult;
->>>>>>> upstream/main
   try {
     if (opts.mediaUrl) {
       result = await sendDiscordMedia(
@@ -370,14 +346,10 @@ export async function sendMessageDiscord(
     accountId: accountInfo.accountId,
     direction: "outbound",
   });
-<<<<<<< HEAD
-  return toDiscordSendResult(result, channelId);
-=======
   return toDiscordSendResult(result, channelId, {
     kind: opts.mediaUrl ? "media" : opts.components || opts.embeds ? "card" : "text",
     replyToId: opts.replyTo,
   });
->>>>>>> upstream/main
 }
 
 export async function sendStickerDiscord(
@@ -400,11 +372,7 @@ export async function sendStickerDiscord(
       }),
     "sticker",
   )) as { id: string; channel_id: string };
-<<<<<<< HEAD
-  return toDiscordSendResult(res, channelId);
-=======
   return toDiscordSendResult(res, channelId, { kind: "card" });
->>>>>>> upstream/main
 }
 
 export async function sendPollDiscord(
@@ -432,11 +400,7 @@ export async function sendPollDiscord(
       }),
     "poll",
   )) as { id: string; channel_id: string };
-<<<<<<< HEAD
-  return toDiscordSendResult(res, channelId);
-=======
   return toDiscordSendResult(res, channelId, { kind: "card" });
->>>>>>> upstream/main
 }
 
 async function resolveDiscordStructuredSendContext(

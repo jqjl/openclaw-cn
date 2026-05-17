@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import type { ChannelAccountSnapshot } from "openclaw/plugin-sdk/channel-contract";
 import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-send-result";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
 import { monitorTlonProvider } from "./monitor/index.js";
 import { tlonSetupWizard } from "./setup-surface.js";
@@ -138,8 +138,6 @@ export const tlonRuntimeOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   textChunkLimit: 10000,
   resolveTarget: ({ to }) => resolveTlonOutboundTarget(to),
-<<<<<<< HEAD
-=======
   deliveryCapabilities: {
     durableFinal: {
       text: true,
@@ -149,7 +147,6 @@ export const tlonRuntimeOutbound: ChannelOutboundAdapter = {
       messageSendingHooks: true,
     },
   },
->>>>>>> upstream/main
   sendText: async ({ cfg, to, text, accountId, replyToId, threadId }) => {
     const { account, parsed } = resolveOutboundContext({ cfg, accountId, to });
     return withHttpPokeAccountApi(account, async (api) => {
@@ -194,10 +191,7 @@ export const tlonRuntimeOutbound: ChannelOutboundAdapter = {
           fromShip,
           toShip: parsed.ship,
           story,
-<<<<<<< HEAD
-=======
           kind: "media",
->>>>>>> upstream/main
         });
       }
       return await sendGroupMessageWithStory({
@@ -207,10 +201,7 @@ export const tlonRuntimeOutbound: ChannelOutboundAdapter = {
         channelName: parsed.channelName,
         story,
         replyToId: resolveReplyId(replyToId, threadId),
-<<<<<<< HEAD
-=======
         kind: "media",
->>>>>>> upstream/main
       });
     });
   },

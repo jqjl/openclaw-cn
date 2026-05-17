@@ -3,10 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveOpenClawPackageRootSync } from "../infra/openclaw-root.js";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../infra/path-guards.js";
->>>>>>> upstream/main
 import { normalizeOptionalLowercaseString } from "../shared/string-coerce.js";
 import { resolveUserPath } from "../utils.js";
 
@@ -82,12 +79,7 @@ function safeRealpathSync(targetPath: string): string | null {
 }
 
 function pathContains(parentDir: string, childPath: string): boolean {
-<<<<<<< HEAD
-  const relative = path.relative(parentDir, childPath);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-=======
   return isPathInside(parentDir, childPath);
->>>>>>> upstream/main
 }
 
 function trustedBundledPluginRootsForPackageRoot(packageRoot: string): string[] {

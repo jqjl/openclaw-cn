@@ -2,11 +2,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
-import { resolveBoundaryPath } from "../../infra/boundary-path.js";
-=======
 import { resolveRootPath } from "../../infra/boundary-path.js";
->>>>>>> upstream/main
 import { parseSshTarget } from "../../infra/ssh-tunnel.js";
 import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
 import { resolveUserPath } from "../../utils.js";
@@ -353,11 +349,7 @@ async function assertSafeUploadSymlinks(localDir: string): Promise<void> {
       const entryPath = path.join(currentDir, entry.name);
       if (entry.isSymbolicLink()) {
         try {
-<<<<<<< HEAD
-          await resolveBoundaryPath({
-=======
           await resolveRootPath({
->>>>>>> upstream/main
             absolutePath: entryPath,
             rootPath: rootDir,
             boundaryLabel: "SSH sandbox upload tree",

@@ -1,25 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { resolveMemoryHostEventLogPath } from "openclaw/plugin-sdk/memory-core-host-events";
 import { resolveMemoryDreamingWorkspaces } from "openclaw/plugin-sdk/memory-core-host-status";
 import type { MemoryPluginPublicArtifact } from "openclaw/plugin-sdk/memory-host-core";
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../api.js";
-
-async function pathExists(inputPath: string): Promise<boolean> {
-  try {
-    await fs.access(inputPath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-=======
+import { resolveMemoryHostEventLogPath } from "openclaw/plugin-sdk/memory-host-events";
 import { pathExists } from "openclaw/plugin-sdk/security-runtime";
 import type { OpenClawConfig } from "../api.js";
 
->>>>>>> upstream/main
 async function listMarkdownFilesRecursive(rootDir: string): Promise<string[]> {
   const entries = await fs.readdir(rootDir, { withFileTypes: true }).catch(() => []);
   const files: string[] = [];

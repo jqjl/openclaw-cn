@@ -541,8 +541,6 @@ describe("GatewayChatClient", () => {
     ).toBe(30_000);
   });
 
-<<<<<<< HEAD
-=======
   it("surfaces loopback block-mode start failures through disconnect handler", async () => {
     vi.useFakeTimers();
     const { startProxy, stopProxy } = await import("../infra/net/proxy/proxy-lifecycle.js");
@@ -564,14 +562,13 @@ describe("GatewayChatClient", () => {
       await vi.advanceTimersByTimeAsync(2);
 
       expect(onDisconnected).toHaveBeenCalledWith(
-        expect.stringContaining("blocked by proxy.loopbackMode"),
+        "proxy: Gateway loopback control-plane connections are blocked by proxy.loopbackMode",
       );
     } finally {
       await stopProxy(proxyHandle);
     }
   });
 
->>>>>>> upstream/main
   it("retries startup-unavailable chat history until the gateway finishes booting", async () => {
     vi.useFakeTimers();
 

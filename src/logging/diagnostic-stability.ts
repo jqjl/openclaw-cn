@@ -7,6 +7,7 @@ import {
 const DEFAULT_DIAGNOSTIC_STABILITY_CAPACITY = 1000;
 const DEFAULT_DIAGNOSTIC_STABILITY_LIMIT = 50;
 export const MAX_DIAGNOSTIC_STABILITY_LIMIT = DEFAULT_DIAGNOSTIC_STABILITY_CAPACITY;
+const LIVENESS_EVENT_LOOP_DELAY_WARN_MS = 1_000;
 
 const SAFE_REASON_CODE = /^[A-Za-z0-9_.:-]{1,120}$/u;
 
@@ -27,12 +28,9 @@ export type DiagnosticStabilityEventRecord = {
   phase?: string;
   detector?: string;
   deliveryKind?: string;
-<<<<<<< HEAD
-=======
   talkEventType?: string;
   transport?: string;
   brain?: string;
->>>>>>> upstream/main
   toolName?: string;
   activeWorkKind?: string;
   pairedToolName?: string;
@@ -46,10 +44,7 @@ export type DiagnosticStabilityEventRecord = {
   commandLength?: number;
   exitCode?: number;
   timedOut?: boolean;
-<<<<<<< HEAD
-=======
   final?: boolean;
->>>>>>> upstream/main
   costUsd?: number;
   count?: number;
   bytes?: number;
@@ -176,6 +171,15 @@ function assignReasonCode(
   }
 }
 
+function resolveDiagnosticLivenessRecordLevel(
+  event: Extract<DiagnosticEventPayload, { type: "diagnostic.liveness.warning" }>,
+): "warning" | "info" {
+  const hasBlockingWork = event.waiting > 0 || event.queued > 0;
+  const hasSustainedEventLoopDelay =
+    (event.eventLoopDelayP99Ms ?? 0) >= LIVENESS_EVENT_LOOP_DELAY_WARN_MS;
+  return hasBlockingWork || (event.active > 0 && hasSustainedEventLoopDelay) ? "warning" : "info";
+}
+
 function isRecord(
   record: DiagnosticStabilityEventRecord | undefined,
 ): record is DiagnosticStabilityEventRecord {
@@ -238,8 +242,6 @@ function sanitizeDiagnosticEvent(event: DiagnosticEventPayload): DiagnosticStabi
       record.outcome = "error";
       assignReasonCode(record, event.errorCategory);
       break;
-<<<<<<< HEAD
-=======
     case "talk.event":
       record.talkEventType = event.talkEventType;
       record.mode = event.mode;
@@ -250,7 +252,6 @@ function sanitizeDiagnosticEvent(event: DiagnosticEventPayload): DiagnosticStabi
       record.durationMs = event.durationMs;
       record.bytes = event.byteLength;
       break;
->>>>>>> upstream/main
     case "session.state":
       record.outcome = event.state;
       assignReasonCode(record, event.reason);
@@ -326,7 +327,7 @@ function sanitizeDiagnosticEvent(event: DiagnosticEventPayload): DiagnosticStabi
       record.queued = event.queued;
       break;
     case "diagnostic.liveness.warning":
-      record.level = event.active > 0 || event.waiting > 0 || event.queued > 0 ? "warning" : "info";
+      record.level = resolveDiagnosticLivenessRecordLevel(event);
       record.durationMs = event.intervalMs;
       record.count = event.reasons.length;
       assignReasonCode(record, event.reasons[0]);
@@ -479,6 +480,11 @@ function sanitizeDiagnosticEvent(event: DiagnosticEventPayload): DiagnosticStabi
       record.target = event.signal;
       record.outcome = event.status;
       assignReasonCode(record, event.reason ?? event.errorCategory);
+      break;
+    case "model.failover":
+      record.provider = event.fromProvider;
+      record.model = event.fromModel;
+      assignReasonCode(record, event.reason);
       break;
   }
 

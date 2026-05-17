@@ -1,14 +1,12 @@
-import { normalizeOptionalString } from "../shared/string-coerce.js";
+import { normalizeThinkLevel } from "../auto-reply/thinking.js";
+import { normalizeFastMode, normalizeOptionalString } from "../shared/string-coerce.js";
 import { isRecord } from "../utils.js";
 import type {
   ResolvedTalkConfig,
   TalkConfig,
   TalkConfigResponse,
   TalkProviderConfig,
-<<<<<<< HEAD
-=======
   TalkRealtimeConfig,
->>>>>>> upstream/main
 } from "./types.gateway.js";
 import type { OpenClawConfig } from "./types.openclaw.js";
 import { coerceSecretRef } from "./types.secrets.js";
@@ -89,8 +87,6 @@ function normalizeTalkProviders(value: unknown): Record<string, TalkProviderConf
   return Object.keys(providers).length > 0 ? providers : undefined;
 }
 
-<<<<<<< HEAD
-=======
 function normalizeTalkRealtimeConfig(value: unknown): TalkRealtimeConfig | undefined {
   if (!isRecord(value)) {
     return undefined;
@@ -114,6 +110,10 @@ function normalizeTalkRealtimeConfig(value: unknown): TalkRealtimeConfig | undef
   if (voice) {
     normalized.voice = voice;
   }
+  const instructions = normalizeOptionalString(source.instructions);
+  if (instructions) {
+    normalized.instructions = instructions;
+  }
   if (source.mode === "realtime" || source.mode === "stt-tts" || source.mode === "transcription") {
     normalized.mode = source.mode;
   }
@@ -135,7 +135,6 @@ function normalizeTalkRealtimeConfig(value: unknown): TalkRealtimeConfig | undef
   return Object.keys(normalized).length > 0 ? normalized : undefined;
 }
 
->>>>>>> upstream/main
 function activeProviderFromTalk(talk: TalkConfig): string | undefined {
   const provider = normalizeOptionalString(talk.provider);
   const providers = talk.providers;
@@ -163,26 +162,34 @@ export function normalizeTalkSection(value: TalkConfig | undefined): TalkConfig 
   if (typeof source.interruptOnSpeech === "boolean") {
     normalized.interruptOnSpeech = source.interruptOnSpeech;
   }
+  const consultThinkingLevel = normalizeThinkLevel(
+    normalizeOptionalString(source.consultThinkingLevel),
+  );
+  if (consultThinkingLevel) {
+    normalized.consultThinkingLevel = consultThinkingLevel;
+  }
+  const rawConsultFastMode = source.consultFastMode;
+  const consultFastMode =
+    typeof rawConsultFastMode === "boolean" || typeof rawConsultFastMode === "string"
+      ? normalizeFastMode(rawConsultFastMode)
+      : undefined;
+  if (consultFastMode !== undefined) {
+    normalized.consultFastMode = consultFastMode;
+  }
   const silenceTimeoutMs = normalizeSilenceTimeoutMs(source.silenceTimeoutMs);
   if (silenceTimeoutMs !== undefined) {
     normalized.silenceTimeoutMs = silenceTimeoutMs;
   }
 
   const providers = normalizeTalkProviders(source.providers);
-<<<<<<< HEAD
-=======
   const realtime = normalizeTalkRealtimeConfig(source.realtime);
->>>>>>> upstream/main
   const provider = normalizeOptionalString(source.provider);
   if (providers) {
     normalized.providers = providers;
   }
-<<<<<<< HEAD
-=======
   if (realtime) {
     normalized.realtime = realtime;
   }
->>>>>>> upstream/main
   if (provider) {
     normalized.provider = provider;
   }
@@ -237,27 +244,26 @@ export function buildTalkConfigResponse(value: unknown): TalkConfigResponse | un
   if (typeof normalized?.silenceTimeoutMs === "number") {
     payload.silenceTimeoutMs = normalized.silenceTimeoutMs;
   }
+  if (typeof normalized?.consultThinkingLevel === "string") {
+    payload.consultThinkingLevel = normalized.consultThinkingLevel;
+  }
+  if (typeof normalized?.consultFastMode === "boolean") {
+    payload.consultFastMode = normalized.consultFastMode;
+  }
   if (typeof normalized?.speechLocale === "string") {
     payload.speechLocale = normalized.speechLocale;
   }
   if (normalized?.providers && Object.keys(normalized.providers).length > 0) {
     payload.providers = normalized.providers;
   }
-<<<<<<< HEAD
-=======
   if (normalized?.realtime && Object.keys(normalized.realtime).length > 0) {
     payload.realtime = normalized.realtime;
   }
->>>>>>> upstream/main
 
   const resolved =
     resolveActiveTalkProviderConfig(normalized) ??
     (legacyCompat ? { provider: "elevenlabs", config: legacyCompat } : undefined);
-<<<<<<< HEAD
-  const activeProvider = normalizeOptionalString(normalized?.provider) ?? resolved?.provider;
-=======
   const activeProvider = resolved?.provider;
->>>>>>> upstream/main
   if (activeProvider) {
     payload.provider = activeProvider;
   }

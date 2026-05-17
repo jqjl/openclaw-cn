@@ -1,15 +1,12 @@
 import { messagingApi } from "@line/bot-sdk";
 import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
 import { logVerbose } from "openclaw/plugin-sdk/runtime-env";
 import { resolveLineAccount } from "./accounts.js";
 import { resolveLineChannelAccessToken } from "./channel-access-token.js";
 import { validateLineMediaUrl } from "./outbound-media.js";
-<<<<<<< HEAD
-=======
 import { createLineSendReceipt } from "./send-receipt.js";
->>>>>>> upstream/main
 import type { LineSendResult } from "./types.js";
 
 type Message = messagingApi.Message;
@@ -181,8 +178,6 @@ function recordLineOutboundActivity(accountId: string): void {
   });
 }
 
-<<<<<<< HEAD
-=======
 function resolveLineReceiptKind(messages: readonly Message[]) {
   const types = new Set(messages.map((message) => message.type));
   if (types.has("audio")) {
@@ -200,7 +195,6 @@ function resolveLineReceiptKind(messages: readonly Message[]) {
   return "unknown";
 }
 
->>>>>>> upstream/main
 async function pushLineMessages(
   to: string,
   messages: Message[],
@@ -238,15 +232,12 @@ async function pushLineMessages(
   return {
     messageId: "push",
     chatId,
-<<<<<<< HEAD
-=======
     receipt: createLineSendReceipt({
       messageId: "push",
       chatId,
       kind: resolveLineReceiptKind(messages),
       messageCount: messages.length,
     }),
->>>>>>> upstream/main
   };
 }
 
@@ -326,15 +317,12 @@ export async function sendMessageLine(
     return {
       messageId: "reply",
       chatId,
-<<<<<<< HEAD
-=======
       receipt: createLineSendReceipt({
         messageId: "reply",
         chatId,
         kind: resolveLineReceiptKind(messages),
         messageCount: messages.length,
       }),
->>>>>>> upstream/main
     };
   }
 

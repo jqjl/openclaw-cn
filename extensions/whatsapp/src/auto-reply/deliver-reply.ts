@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
   type MessageReceiptSourceResult,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
-import type { MarkdownTableMode } from "openclaw/plugin-sdk/config-types";
+import type { MarkdownTableMode } from "openclaw/plugin-sdk/config-contracts";
 import { chunkMarkdownTextWithMode, type ChunkMode } from "openclaw/plugin-sdk/reply-chunking";
 import type { ReplyPayload } from "openclaw/plugin-sdk/reply-chunking";
 import {
@@ -15,10 +12,7 @@ import {
 } from "openclaw/plugin-sdk/reply-payload";
 import { logVerbose, shouldLogVerbose } from "openclaw/plugin-sdk/runtime-env";
 import type { WhatsAppSendResult } from "../inbound/send-result.js";
-<<<<<<< HEAD
-=======
 import { listWhatsAppSendResultMessageIds } from "../inbound/send-result.js";
->>>>>>> upstream/main
 import { loadWebMedia } from "../media.js";
 import {
   type DeliverableWhatsAppOutboundPayload,
@@ -38,12 +32,6 @@ import { elide } from "./util.js";
 
 export type WhatsAppReplyDeliveryResult = {
   results: WhatsAppSendResult[];
-<<<<<<< HEAD
-  messageIds: string[];
-  providerAccepted: boolean;
-};
-
-=======
   receipt: MessageReceipt;
   providerAccepted: boolean;
 };
@@ -95,7 +83,6 @@ function createWhatsAppReplyDeliveryReceipt(
   });
 }
 
->>>>>>> upstream/main
 export async function deliverWebReply(params: {
   replyResult: ReplyPayload;
   normalizedReplyResult?: DeliverableWhatsAppOutboundPayload<ReplyPayload>;
@@ -121,17 +108,10 @@ export async function deliverWebReply(params: {
     }
   };
   const finishDelivery = (): WhatsAppReplyDeliveryResult => {
-<<<<<<< HEAD
-    const messageIds = [...new Set(sendResults.flatMap((result) => result.messageIds))];
-    return {
-      results: sendResults,
-      messageIds,
-=======
     const receipt = createWhatsAppReplyDeliveryReceipt(sendResults);
     return {
       results: sendResults,
       receipt,
->>>>>>> upstream/main
       providerAccepted: sendResults.some((result) => result.providerAccepted),
     };
   };

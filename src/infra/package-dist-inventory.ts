@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { isLocalBuildMetadataDistPath } from "../../scripts/lib/local-build-metadata-paths.mjs";
-<<<<<<< HEAD
-=======
 import { readJsonIfExists, writeJson } from "./json-files.js";
->>>>>>> upstream/main
 
 export { LOCAL_BUILD_METADATA_DIST_PATHS } from "../../scripts/lib/local-build-metadata-paths.mjs";
 
@@ -121,19 +118,7 @@ async function collectExternalizedBundledExtensionIds(
   packageRoot: string,
 ): Promise<ExternalizedBundledExtensionIds> {
   const packageJsonPath = path.join(packageRoot, "package.json");
-<<<<<<< HEAD
-  try {
-    const parsed = JSON.parse(await fs.readFile(packageJsonPath, "utf8")) as unknown;
-    return collectExcludedPackagedExtensionDirs(parsed);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return new Set();
-    }
-    throw error;
-  }
-=======
   return collectExcludedPackagedExtensionDirs(await readJsonIfExists<unknown>(packageJsonPath));
->>>>>>> upstream/main
 }
 
 function isPackagedDistPath(
@@ -329,17 +314,6 @@ export async function writePackageDistInventory(packageRoot: string): Promise<st
     (left, right) => left.localeCompare(right),
   );
   const inventoryPath = path.join(packageRoot, PACKAGE_DIST_INVENTORY_RELATIVE_PATH);
-<<<<<<< HEAD
-  await fs.mkdir(path.dirname(inventoryPath), { recursive: true });
-  await fs.writeFile(inventoryPath, `${JSON.stringify(inventory, null, 2)}\n`, "utf8");
-  return inventory;
-}
-
-async function readPackageDistInventory(packageRoot: string): Promise<string[]> {
-  const inventoryPath = path.join(packageRoot, PACKAGE_DIST_INVENTORY_RELATIVE_PATH);
-  const raw = await fs.readFile(inventoryPath, "utf8");
-  const parsed = JSON.parse(raw) as unknown;
-=======
   await writeJson(inventoryPath, inventory, { trailingNewline: true });
   return inventory;
 }
@@ -350,7 +324,6 @@ async function readPackageDistInventoryOptional(packageRoot: string): Promise<st
   if (parsed === null) {
     return null;
   }
->>>>>>> upstream/main
   if (!Array.isArray(parsed) || parsed.some((entry) => typeof entry !== "string")) {
     throw new Error(`Invalid package dist inventory at ${PACKAGE_DIST_INVENTORY_RELATIVE_PATH}`);
   }
@@ -362,18 +335,7 @@ async function readPackageDistInventoryOptional(packageRoot: string): Promise<st
 export async function readPackageDistInventoryIfPresent(
   packageRoot: string,
 ): Promise<string[] | null> {
-<<<<<<< HEAD
-  try {
-    return await readPackageDistInventory(packageRoot);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return null;
-    }
-    throw error;
-  }
-=======
   return await readPackageDistInventoryOptional(packageRoot);
->>>>>>> upstream/main
 }
 
 export async function collectPackageDistInventoryErrors(packageRoot: string): Promise<string[]> {

@@ -1,15 +1,9 @@
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
-<<<<<<< HEAD
-import { dispatchChannelMessageAction } from "../../channels/plugins/message-action-dispatch.js";
-import type {
-  ChannelId,
-=======
+import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import { dispatchChannelMessageAction } from "../../channels/plugins/message-action-dispatch.js";
 import type {
   ChannelId,
   ChannelMessageActionContext,
->>>>>>> upstream/main
   ChannelThreadingToolContext,
 } from "../../channels/plugins/types.public.js";
 import { appendAssistantMessageToSessionTranscript } from "../../config/sessions.js";
@@ -18,10 +12,7 @@ import type { OutboundMediaAccess, OutboundMediaReadFile } from "../../media/loa
 import { resolveAgentScopedOutboundMediaAccess } from "../../media/read-capability.js";
 import type { GatewayClientMode, GatewayClientName } from "../../utils/message-channel.js";
 import { throwIfAborted } from "./abort.js";
-<<<<<<< HEAD
-=======
 import { resolveOutboundChannelPlugin } from "./channel-resolution.js";
->>>>>>> upstream/main
 import type { OutboundSendDeps } from "./deliver.js";
 import type { MessagePollResult, MessageSendResult } from "./message.js";
 import { sendMessage, sendPoll } from "./message.js";
@@ -68,6 +59,56 @@ type PluginHandledResult = {
   payload: unknown;
   toolResult: AgentToolResult<unknown>;
 };
+
+type SendMessageParams = Parameters<typeof sendMessage>[0];
+
+async function sendCoreMessage(params: {
+  ctx: OutboundSendContext;
+  to: string;
+  message: string;
+  mediaUrl?: string;
+  mediaUrls?: string[];
+  asVoice?: boolean;
+  gifPlayback?: boolean;
+  forceDocument?: boolean;
+  bestEffort?: boolean;
+  replyToId?: string;
+  threadId?: string | number;
+  queuePolicy: NonNullable<SendMessageParams["queuePolicy"]>;
+  payloads?: SendMessageParams["payloads"];
+}): Promise<MessageSendResult> {
+  return await sendMessage({
+    cfg: params.ctx.cfg,
+    to: params.to,
+    content: params.message,
+    ...(params.payloads ? { payloads: params.payloads } : {}),
+    agentId: params.ctx.agentId,
+    requesterSessionKey: params.ctx.sessionKey,
+    requesterAccountId: params.ctx.requesterAccountId ?? params.ctx.accountId ?? undefined,
+    requesterSenderId: params.ctx.requesterSenderId,
+    requesterSenderName: params.ctx.requesterSenderName,
+    requesterSenderUsername: params.ctx.requesterSenderUsername,
+    requesterSenderE164: params.ctx.requesterSenderE164,
+    mediaUrl: params.mediaUrl || undefined,
+    mediaUrls: params.mediaUrls,
+    asVoice: params.asVoice,
+    channel: params.ctx.channel || undefined,
+    accountId: params.ctx.accountId ?? undefined,
+    replyToId: params.replyToId,
+    threadId: params.threadId,
+    gifPlayback: params.gifPlayback,
+    forceDocument: params.forceDocument,
+    dryRun: params.ctx.dryRun,
+    bestEffort: params.bestEffort ?? undefined,
+    queuePolicy: params.queuePolicy,
+    deps: params.ctx.deps,
+    gateway: params.ctx.gateway,
+    mirror: params.ctx.mirror,
+    abortSignal: params.ctx.abortSignal,
+    silent: params.ctx.silent,
+    mediaAccess: params.ctx.mediaAccess,
+  });
+}
 
 function collectActionMediaSources(params: Record<string, unknown>): string[] {
   const sources: string[] = [];
@@ -134,8 +175,6 @@ async function tryHandleWithPluginAction(params: {
   };
 }
 
-<<<<<<< HEAD
-=======
 function createChannelActionContext(params: {
   ctx: OutboundSendContext;
   action: "send" | "poll";
@@ -191,15 +230,11 @@ async function tryPreparePluginSendPayload(params: {
   );
 }
 
->>>>>>> upstream/main
 export async function executeSendAction(params: {
   ctx: OutboundSendContext;
   to: string;
   message: string;
-<<<<<<< HEAD
-=======
   payload?: ReplyPayload;
->>>>>>> upstream/main
   mediaUrl?: string;
   mediaUrls?: string[];
   asVoice?: boolean;
@@ -215,8 +250,6 @@ export async function executeSendAction(params: {
   sendResult?: MessageSendResult;
 }> {
   throwIfAborted(params.ctx.abortSignal);
-<<<<<<< HEAD
-=======
   const defaultPayload: ReplyPayload = params.payload ?? {
     text: params.message,
     mediaUrl: params.mediaUrl,
@@ -233,36 +266,10 @@ export async function executeSendAction(params: {
   });
   if (preparedPayload) {
     throwIfAborted(params.ctx.abortSignal);
-    const result: MessageSendResult = await sendMessage({
-      cfg: params.ctx.cfg,
-      to: params.to,
-      content: params.message,
-      payloads: [preparedPayload],
-      agentId: params.ctx.agentId,
-      requesterSessionKey: params.ctx.sessionKey,
-      requesterAccountId: params.ctx.requesterAccountId ?? params.ctx.accountId ?? undefined,
-      requesterSenderId: params.ctx.requesterSenderId,
-      requesterSenderName: params.ctx.requesterSenderName,
-      requesterSenderUsername: params.ctx.requesterSenderUsername,
-      requesterSenderE164: params.ctx.requesterSenderE164,
-      mediaUrl: params.mediaUrl || undefined,
-      mediaUrls: params.mediaUrls,
-      asVoice: params.asVoice,
-      channel: params.ctx.channel || undefined,
-      accountId: params.ctx.accountId ?? undefined,
-      replyToId: params.replyToId,
-      threadId: params.threadId,
-      gifPlayback: params.gifPlayback,
-      forceDocument: params.forceDocument,
-      dryRun: params.ctx.dryRun,
-      bestEffort: params.bestEffort ?? undefined,
+    const result = await sendCoreMessage({
+      ...params,
       queuePolicy,
-      deps: params.ctx.deps,
-      gateway: params.ctx.gateway,
-      mirror: params.ctx.mirror,
-      abortSignal: params.ctx.abortSignal,
-      silent: params.ctx.silent,
-      mediaAccess: params.ctx.mediaAccess,
+      payloads: [preparedPayload],
     });
 
     return {
@@ -272,7 +279,6 @@ export async function executeSendAction(params: {
     };
   }
 
->>>>>>> upstream/main
   const pluginHandled = await tryHandleWithPluginAction({
     ctx: params.ctx,
     action: "send",
@@ -300,41 +306,9 @@ export async function executeSendAction(params: {
   }
 
   throwIfAborted(params.ctx.abortSignal);
-  const result: MessageSendResult = await sendMessage({
-    cfg: params.ctx.cfg,
-    to: params.to,
-    content: params.message,
-    agentId: params.ctx.agentId,
-    requesterSessionKey: params.ctx.sessionKey,
-    requesterAccountId: params.ctx.requesterAccountId ?? params.ctx.accountId ?? undefined,
-    requesterSenderId: params.ctx.requesterSenderId,
-    requesterSenderName: params.ctx.requesterSenderName,
-    requesterSenderUsername: params.ctx.requesterSenderUsername,
-    requesterSenderE164: params.ctx.requesterSenderE164,
-    mediaUrl: params.mediaUrl || undefined,
-    mediaUrls: params.mediaUrls,
-    asVoice: params.asVoice,
-    channel: params.ctx.channel || undefined,
-    accountId: params.ctx.accountId ?? undefined,
-    replyToId: params.replyToId,
-    threadId: params.threadId,
-    gifPlayback: params.gifPlayback,
-    forceDocument: params.forceDocument,
-    dryRun: params.ctx.dryRun,
-    bestEffort: params.bestEffort ?? undefined,
-<<<<<<< HEAD
-=======
+  const result = await sendCoreMessage({
+    ...params,
     queuePolicy,
->>>>>>> upstream/main
-    deps: params.ctx.deps,
-    gateway: params.ctx.gateway,
-    mirror: params.ctx.mirror,
-    abortSignal: params.ctx.abortSignal,
-    silent: params.ctx.silent,
-<<<<<<< HEAD
-=======
-    mediaAccess: params.ctx.mediaAccess,
->>>>>>> upstream/main
   });
 
   return {

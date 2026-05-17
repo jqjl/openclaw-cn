@@ -70,19 +70,11 @@ openclaw plugins enable diagnostics-otel
 
 ## Signals exported
 
-<<<<<<< HEAD
-| Signal      | What goes in it                                                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Metrics** | Counters and histograms for token usage, cost, run duration, message flow, queue lanes, session state, exec, and memory pressure.          |
-| **Traces**  | Spans for model usage, model calls, harness lifecycle, tool execution, exec, webhook/message processing, context assembly, and tool loops. |
-| **Logs**    | Structured `logging.file` records exported over OTLP when `diagnostics.otel.logs` is enabled.                                              |
-=======
 | Signal      | What goes in it                                                                                                                                         |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Metrics** | Counters and histograms for token usage, cost, run duration, message flow, Talk events, queue lanes, session state/recovery, exec, and memory pressure. |
 | **Traces**  | Spans for model usage, model calls, harness lifecycle, tool execution, exec, webhook/message processing, context assembly, and tool loops.              |
 | **Logs**    | Structured `logging.file` records exported over OTLP when `diagnostics.otel.logs` is enabled.                                                           |
->>>>>>> upstream/main
 
 Toggle `traces`, `metrics`, and `logs` independently. All three default to on
 when `diagnostics.otel.enabled` is true.
@@ -137,12 +129,9 @@ Raw model/tool content is **not** exported by default. Spans carry bounded
 identifiers (channel, provider, model, error category, hash-only request ids)
 and never include prompt text, response text, tool inputs, tool outputs, or
 session keys.
-<<<<<<< HEAD
-=======
 Talk metrics export only bounded event metadata such as mode, transport,
 provider, and event type. They do not include transcripts, audio payloads,
 session ids, turn ids, call ids, room ids, or handoff tokens.
->>>>>>> upstream/main
 
 Outbound model requests may include a W3C `traceparent` header. That header is
 generated only from OpenClaw-owned diagnostic trace context for the active model
@@ -153,19 +142,11 @@ Set `diagnostics.otel.captureContent.*` to `true` only when your collector and
 retention policy are approved for prompt, response, tool, or system-prompt
 text. Each subkey is opt-in independently:
 
-<<<<<<< HEAD
-- `inputMessages` — user prompt content.
-- `outputMessages` — model response content.
-- `toolInputs` — tool argument payloads.
-- `toolOutputs` — tool result payloads.
-- `systemPrompt` — assembled system/developer prompt.
-=======
 - `inputMessages` - user prompt content.
 - `outputMessages` - model response content.
 - `toolInputs` - tool argument payloads.
 - `toolOutputs` - tool result payloads.
 - `systemPrompt` - assembled system/developer prompt.
->>>>>>> upstream/main
 
 When any subkey is enabled, model and tool spans get bounded, redacted
 `openclaw.content.*` attributes for that class only.
@@ -213,15 +194,12 @@ When any subkey is enabled, model and tool spans get bounded, redacted
 - `openclaw.message.delivery.started` (counter, attrs: `openclaw.channel`, `openclaw.delivery.kind`)
 - `openclaw.message.delivery.duration_ms` (histogram, attrs: `openclaw.channel`, `openclaw.delivery.kind`, `openclaw.outcome`, `openclaw.errorCategory`)
 
-<<<<<<< HEAD
-=======
 ### Talk
 
 - `openclaw.talk.event` (counter, attrs: `openclaw.talk.event_type`, `openclaw.talk.mode`, `openclaw.talk.transport`, `openclaw.talk.brain`, `openclaw.talk.provider`)
 - `openclaw.talk.event.duration_ms` (histogram, attrs: same as `openclaw.talk.event`; emitted when a Talk event reports duration)
 - `openclaw.talk.audio.bytes` (histogram, attrs: same as `openclaw.talk.event`; emitted for Talk audio frame events that report byte length)
 
->>>>>>> upstream/main
 ### Queues and sessions
 
 - `openclaw.queue.lane.enqueue` (counter, attrs: `openclaw.lane`)
@@ -231,12 +209,9 @@ When any subkey is enabled, model and tool spans get bounded, redacted
 - `openclaw.session.state` (counter, attrs: `openclaw.state`, `openclaw.reason`)
 - `openclaw.session.stuck` (counter, attrs: `openclaw.state`; emitted only for stale session bookkeeping with no active work)
 - `openclaw.session.stuck_age_ms` (histogram, attrs: `openclaw.state`; emitted only for stale session bookkeeping with no active work)
-<<<<<<< HEAD
-=======
 - `openclaw.session.recovery.requested` (counter, attrs: `openclaw.state`, `openclaw.action`, `openclaw.active_work_kind`, `openclaw.reason`)
 - `openclaw.session.recovery.completed` (counter, attrs: `openclaw.state`, `openclaw.action`, `openclaw.status`, `openclaw.active_work_kind`, `openclaw.reason`)
 - `openclaw.session.recovery.age_ms` (histogram, attrs: same as the matching recovery counter)
->>>>>>> upstream/main
 - `openclaw.run.attempt` (counter, attrs: `openclaw.attempt`)
 
 ### Session liveness telemetry
@@ -339,11 +314,7 @@ to them directly without OTLP export.
 
 **Model usage**
 
-<<<<<<< HEAD
-- `model.usage` — tokens, cost, duration, context, provider/model/channel,
-=======
 - `model.usage` - tokens, cost, duration, context, provider/model/channel,
->>>>>>> upstream/main
   session ids. `usage` is provider/turn accounting for cost and telemetry;
   `context.used` is the current prompt/context snapshot and can be lower than
   provider `usage.total` when cached input or tool-loop calls are involved.
@@ -363,11 +334,7 @@ to them directly without OTLP export.
 
 **Harness lifecycle**
 
-<<<<<<< HEAD
-- `harness.run.started` / `harness.run.completed` / `harness.run.error` —
-=======
 - `harness.run.started` / `harness.run.completed` / `harness.run.error` -
->>>>>>> upstream/main
   per-run lifecycle for the agent harness. Includes `harnessId`, optional
   `pluginId`, provider/model/channel, and run id. Completion adds
   `durationMs`, `outcome`, optional `resultClassification`, `yieldDetected`,
@@ -377,11 +344,7 @@ to them directly without OTLP export.
 
 **Exec**
 
-<<<<<<< HEAD
-- `exec.process.completed` — terminal outcome, duration, target, mode, exit
-=======
 - `exec.process.completed` - terminal outcome, duration, target, mode, exit
->>>>>>> upstream/main
   code, and failure kind. Command text and working directories are not
   included.
 
@@ -429,16 +392,8 @@ You can also leave `diagnostics-otel` out of `plugins.allow`, or run
 
 ## Related
 
-<<<<<<< HEAD
-- [Logging](/logging) — file logs, console output, CLI tailing, and the Control UI Logs tab
-- [Gateway logging internals](/gateway/logging) — WS log styles, subsystem prefixes, and console capture
-- [Diagnostics flags](/diagnostics/flags) — targeted debug-log flags
-- [Diagnostics export](/gateway/diagnostics) — operator support-bundle tool (separate from OTEL export)
-- [Configuration reference](/gateway/configuration-reference#diagnostics) — full `diagnostics.*` field reference
-=======
 - [Logging](/logging) - file logs, console output, CLI tailing, and the Control UI Logs tab
 - [Gateway logging internals](/gateway/logging) - WS log styles, subsystem prefixes, and console capture
 - [Diagnostics flags](/diagnostics/flags) - targeted debug-log flags
 - [Diagnostics export](/gateway/diagnostics) - operator support-bundle tool (separate from OTEL export)
 - [Configuration reference](/gateway/configuration-reference#diagnostics) - full `diagnostics.*` field reference
->>>>>>> upstream/main

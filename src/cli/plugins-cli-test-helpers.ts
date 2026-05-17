@@ -74,9 +74,6 @@ const uninstallPlugin: AsyncUnknownMock = vi.fn();
 export const updateNpmInstalledPlugins: AsyncUnknownMock = vi.fn();
 export const updateNpmInstalledHookPacks: AsyncUnknownMock = vi.fn();
 export const promptYesNo: AsyncUnknownMock = vi.fn();
-<<<<<<< HEAD
-export const installPluginFromNpmSpec: AsyncUnknownMock = vi.fn();
-=======
 export class PromptInputClosedError extends Error {
   constructor() {
     super("Prompt input closed before an answer was received.");
@@ -85,7 +82,6 @@ export class PromptInputClosedError extends Error {
 }
 export const installPluginFromNpmSpec: AsyncUnknownMock = vi.fn();
 export const installPluginFromNpmPackArchive: AsyncUnknownMock = vi.fn();
->>>>>>> upstream/main
 export const installPluginFromPath: AsyncUnknownMock = vi.fn();
 export const installPluginFromClawHub: AsyncUnknownMock = vi.fn();
 export const parseClawHubPluginSpec: Mock<ParseClawHubPluginSpecFn> = vi.fn();
@@ -169,6 +165,18 @@ vi.mock("../runtime.js", () => ({
 }));
 
 vi.mock("../config/config.js", () => ({
+  assertConfigWriteAllowedInCurrentMode: () => {
+    if (process.env.OPENCLAW_NIX_MODE === "1") {
+      throw new Error(
+        [
+          "Config is managed by Nix (`OPENCLAW_NIX_MODE=1`), so OpenClaw treats openclaw.json as immutable.",
+          "Do not run setup, onboarding, openclaw update, plugin install/update/uninstall/enable, doctor repair/token-generation, or config set against this file.",
+          "Agent-first Nix setup: https://github.com/openclaw/nix-openclaw#quick-start",
+          "OpenClaw Nix overview: https://docs.openclaw.ai/install/nix",
+        ].join("\n"),
+      );
+    }
+  },
   getRuntimeConfig: () => loadConfig(),
   loadConfig: () => loadConfig(),
   readConfigFileSnapshot: ((
@@ -196,6 +204,7 @@ vi.mock("../config/config.js", () => ({
 }));
 
 vi.mock("../config/paths.js", () => ({
+  resolveIsNixMode: () => false,
   resolveStateDir: () => resolveStateDir(),
 }));
 
@@ -466,10 +475,7 @@ vi.mock("../hooks/update.js", () => ({
 }));
 
 vi.mock("./prompt.js", () => ({
-<<<<<<< HEAD
-=======
   PromptInputClosedError,
->>>>>>> upstream/main
   promptYesNo: ((...args: Parameters<(typeof import("./prompt.js"))["promptYesNo"]>) =>
     invokeMock<
       Parameters<(typeof import("./prompt.js"))["promptYesNo"]>,
@@ -493,8 +499,6 @@ vi.mock("../plugins/install.js", () => ({
       installPluginFromNpmSpec,
       ...args,
     )) as (typeof import("../plugins/install.js"))["installPluginFromNpmSpec"],
-<<<<<<< HEAD
-=======
   installPluginFromNpmPackArchive: ((
     ...args: Parameters<(typeof import("../plugins/install.js"))["installPluginFromNpmPackArchive"]>
   ) =>
@@ -505,7 +509,6 @@ vi.mock("../plugins/install.js", () => ({
       installPluginFromNpmPackArchive,
       ...args,
     )) as (typeof import("../plugins/install.js"))["installPluginFromNpmPackArchive"],
->>>>>>> upstream/main
   installPluginFromPath: ((
     ...args: Parameters<(typeof import("../plugins/install.js"))["installPluginFromPath"]>
   ) =>
@@ -671,10 +674,7 @@ export function resetPluginsCliTestState() {
   installPluginFromGitSpec.mockReset();
   parseGitPluginSpec.mockReset();
   installPluginFromNpmSpec.mockReset();
-<<<<<<< HEAD
-=======
   installPluginFromNpmPackArchive.mockReset();
->>>>>>> upstream/main
   installPluginFromPath.mockReset();
   installPluginFromClawHub.mockReset();
   parseClawHubPluginSpec.mockReset();

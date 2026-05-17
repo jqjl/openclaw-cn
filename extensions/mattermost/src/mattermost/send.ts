@@ -1,19 +1,16 @@
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { resolveMarkdownTableMode } from "openclaw/plugin-sdk/markdown-table-runtime";
 import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
 import { isPrivateNetworkOptInEnabled } from "openclaw/plugin-sdk/ssrf-runtime";
 import {
-  convertMarkdownTables,
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "openclaw/plugin-sdk/string-coerce-runtime";
+import { convertMarkdownTables } from "openclaw/plugin-sdk/text-chunking";
 import { getMattermostRuntime } from "../runtime.js";
 import { resolveMattermostAccount } from "./accounts.js";
 import {
@@ -57,10 +54,7 @@ export type MattermostSendOpts = {
 export type MattermostSendResult = {
   messageId: string;
   channelId: string;
-<<<<<<< HEAD
-=======
   receipt: MessageReceipt;
->>>>>>> upstream/main
 };
 
 export type MattermostReplyButtons = Array<
@@ -79,8 +73,6 @@ const dmChannelCache = new Map<string, string>();
 
 const getCore = () => getMattermostRuntime();
 
-<<<<<<< HEAD
-=======
 function createMattermostSendReceipt(params: {
   messageId: string;
   channelId: string;
@@ -114,7 +106,6 @@ function resolveMattermostReceiptKind(params: {
   return "text";
 }
 
->>>>>>> upstream/main
 function recordMattermostOutboundActivity(accountId: string): void {
   try {
     getCore().channel.activity.record({
@@ -522,12 +513,6 @@ export async function sendMessageMattermost(
   });
 
   recordMattermostOutboundActivity(accountId);
-<<<<<<< HEAD
-
-  return {
-    messageId: post.id ?? "unknown",
-    channelId,
-=======
   const messageId = post.id ?? "unknown";
 
   return {
@@ -543,6 +528,5 @@ export async function sendMessageMattermost(
       }),
       replyToId: opts.replyToId,
     }),
->>>>>>> upstream/main
   };
 }

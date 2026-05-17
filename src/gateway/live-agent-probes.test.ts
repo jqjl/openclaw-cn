@@ -5,10 +5,7 @@ import {
   buildLiveCronProbeMessage,
   createLiveCronProbeSpec,
   isClaudeLikeLiveAgent,
-<<<<<<< HEAD
-=======
   shouldRunLiveImageProbe,
->>>>>>> upstream/main
 } from "./live-agent-probes.js";
 
 describe("live-agent-probes", () => {
@@ -22,18 +19,16 @@ describe("live-agent-probes", () => {
   });
 
   it("accepts only cat for the shared image probe reply", () => {
-    expect(() => assertLiveImageProbeReply("cat")).not.toThrow();
-    expect(() =>
+    expect(assertLiveImageProbeReply("cat")).toBeUndefined();
+    expect(
       assertLiveImageProbeReply(
         "model metadata for `gpt-5.5` not found. defaulting to fallback metadata; this can degrade performance and cause issues.cat",
       ),
-    ).not.toThrow();
+    ).toBeUndefined();
     expect(() => assertLiveImageProbeReply("horse")).toThrow("image probe expected 'cat'");
     expect(() => assertLiveImageProbeReply("caterpillar")).toThrow("image probe expected 'cat'");
   });
 
-<<<<<<< HEAD
-=======
   it("skips the shared image probe for text-only live agents unless forced", () => {
     expect(shouldRunLiveImageProbe({ agent: "claude" })).toBe(true);
     expect(shouldRunLiveImageProbe({ agent: "opencode" })).toBe(false);
@@ -41,7 +36,6 @@ describe("live-agent-probes", () => {
     expect(shouldRunLiveImageProbe({ agent: "claude", override: "0" })).toBe(false);
   });
 
->>>>>>> upstream/main
   it("builds a retryable cron prompt with provider-specific fallback wording", () => {
     const spec = createLiveCronProbeSpec({
       agentId: "codex",
@@ -71,19 +65,16 @@ describe("live-agent-probes", () => {
         exactReply: spec.name,
       }),
     ).toContain("previous OpenClaw cron MCP tool call was cancelled");
-    expect(JSON.parse(spec.argsJson)).toEqual(
-      expect.objectContaining({
-        job: expect.objectContaining({
-          sessionTarget: "session:agent:codex:acp:test",
-          agentId: "codex",
-          sessionKey: "agent:codex:acp:test",
-        }),
-      }),
-    );
+    const args = JSON.parse(spec.argsJson) as {
+      job?: { sessionTarget?: string; agentId?: string; sessionKey?: string };
+    };
+    expect(args.job?.sessionTarget).toBe("session:agent:codex:acp:test");
+    expect(args.job?.agentId).toBe("codex");
+    expect(args.job?.sessionKey).toBe("agent:codex:acp:test");
   });
 
   it("validates cron cli job shape for the shared live probe", () => {
-    expect(() =>
+    expect(
       assertCronJobMatches({
         job: {
           name: "live-mcp-abc",
@@ -96,6 +87,6 @@ describe("live-agent-probes", () => {
         expectedMessage: "probe-abc",
         expectedSessionKey: "agent:dev:test",
       }),
-    ).not.toThrow();
+    ).toBeUndefined();
   });
 });

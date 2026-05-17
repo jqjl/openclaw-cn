@@ -3,8 +3,6 @@ import readline from "node:readline/promises";
 import { isVerbose, isYes } from "../globals.js";
 import { normalizeLowercaseStringOrEmpty } from "../shared/string-coerce.js";
 
-<<<<<<< HEAD
-=======
 export class PromptInputClosedError extends Error {
   constructor() {
     super("Prompt input closed before an answer was received.");
@@ -35,7 +33,6 @@ function questionUntilClose(rl: ReadlineInterface, question: string): Promise<st
   });
 }
 
->>>>>>> upstream/main
 export async function promptYesNo(question: string, defaultYes = false): Promise<boolean> {
   // Simple Y/N prompt honoring global --yes and verbosity flags.
   if (isVerbose() && isYes()) {
@@ -46,16 +43,11 @@ export async function promptYesNo(question: string, defaultYes = false): Promise
   }
   const rl = readline.createInterface({ input, output });
   const suffix = defaultYes ? " [Y/n] " : " [y/N] ";
-<<<<<<< HEAD
-  const answer = normalizeLowercaseStringOrEmpty(await rl.question(`${question}${suffix}`));
-  rl.close();
-=======
   const answer = normalizeLowercaseStringOrEmpty(
     await questionUntilClose(rl, `${question}${suffix}`).finally(() => {
       rl.close();
     }),
   );
->>>>>>> upstream/main
   if (!answer) {
     return defaultYes;
   }

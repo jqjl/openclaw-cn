@@ -10,10 +10,7 @@ import type {
   SecretRefSource,
 } from "../config/types.secrets.js";
 import { formatErrorMessage } from "../infra/errors.js";
-<<<<<<< HEAD
-=======
 import { FsSafeError, readSecureFile } from "../infra/fs-safe.js";
->>>>>>> upstream/main
 import { inspectPathPermissions, safeStat } from "../security/audit-fs.js";
 import { isPathInside } from "../security/scan-paths.js";
 import { resolveUserPath } from "../utils.js";
@@ -287,38 +284,11 @@ async function readFileProviderPayload(params: {
 
   const filePath = resolveUserPath(params.providerConfig.path);
   const readPromise = (async () => {
-<<<<<<< HEAD
-    const secureFilePath = await assertSecurePath({
-      targetPath: filePath,
-      label: `secrets.providers.${params.providerName}.path`,
-      allowInsecurePath: params.providerConfig.allowInsecurePath,
-    });
-=======
->>>>>>> upstream/main
     const timeoutMs = normalizePositiveInt(
       params.providerConfig.timeoutMs,
       DEFAULT_FILE_TIMEOUT_MS,
     );
     const maxBytes = normalizePositiveInt(params.providerConfig.maxBytes, DEFAULT_FILE_MAX_BYTES);
-<<<<<<< HEAD
-    const abortController = new AbortController();
-    const timeoutErrorMessage = `File provider "${params.providerName}" timed out after ${timeoutMs}ms.`;
-    let timeoutHandle: NodeJS.Timeout | null = null;
-    const timeoutPromise = new Promise<never>((_resolve, reject) => {
-      timeoutHandle = setTimeout(() => {
-        abortController.abort();
-        reject(new Error(timeoutErrorMessage));
-      }, timeoutMs);
-    });
-    try {
-      const payload = await Promise.race([
-        fs.readFile(secureFilePath, { signal: abortController.signal }),
-        timeoutPromise,
-      ]);
-      if (payload.byteLength > maxBytes) {
-        throw new Error(`File provider "${params.providerName}" exceeded maxBytes (${maxBytes}).`);
-      }
-=======
     try {
       const { buffer: payload } = await readSecureFile({
         filePath,
@@ -326,7 +296,6 @@ async function readFileProviderPayload(params: {
         io: { maxBytes, timeoutMs },
         permissions: { allowInsecure: params.providerConfig.allowInsecurePath },
       });
->>>>>>> upstream/main
       const text = payload.toString("utf8").replace(/^\uFEFF/, "");
       if (params.providerConfig.mode === "singleValue") {
         return text.replace(/\r?\n$/, "");
@@ -337,23 +306,12 @@ async function readFileProviderPayload(params: {
       }
       return parsed;
     } catch (error) {
-<<<<<<< HEAD
-      if (error instanceof Error && error.name === "AbortError") {
-        throw new Error(timeoutErrorMessage, { cause: error });
-      }
-      throw error;
-    } finally {
-      if (timeoutHandle) {
-        clearTimeout(timeoutHandle);
-      }
-=======
       if (error instanceof FsSafeError && error.code === "timeout") {
         throw new Error(`File provider "${params.providerName}" timed out after ${timeoutMs}ms.`, {
           cause: error,
         });
       }
       throw error;
->>>>>>> upstream/main
     }
   })();
 

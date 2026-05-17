@@ -1,10 +1,10 @@
 import type { Dispatcher } from "undici";
 import { logWarn } from "../../logger.js";
-<<<<<<< HEAD
-import { captureHttpExchange } from "../../proxy-capture/runtime.js";
-=======
->>>>>>> upstream/main
 import { buildTimeoutAbortSignal } from "../../utils/fetch-timeout.js";
+import {
+  normalizeHeadersInitForFetch,
+  normalizeRequestInitHeadersForFetch,
+} from "../fetch-headers.js";
 import { hasProxyEnvConfigured, shouldUseEnvHttpProxyForUrl } from "./proxy-env.js";
 import { retainSafeHeadersForCrossOriginRedirect as retainSafeRedirectHeaders } from "./redirect-headers.js";
 import {
@@ -98,14 +98,11 @@ type GuardedFetchPresetOptions = Omit<
 >;
 
 const DEFAULT_MAX_REDIRECTS = 3;
-<<<<<<< HEAD
-=======
 const OPENCLAW_DEBUG_PROXY_ENABLED = "OPENCLAW_DEBUG_PROXY_ENABLED";
 
 function isTruthyEnvValue(value: string | undefined): boolean {
   return value === "1" || value === "true" || value === "yes" || value === "on";
 }
->>>>>>> upstream/main
 
 export function withStrictGuardedFetchMode(params: GuardedFetchPresetOptions): GuardedFetchOptions {
   return { ...params, mode: GUARDED_FETCH_MODE.STRICT };
@@ -243,8 +240,6 @@ export function retainSafeHeadersForCrossOriginRedirectHeaders(
   return retainSafeRedirectHeaders(headers);
 }
 
-<<<<<<< HEAD
-=======
 async function captureGuardedFetchExchange(params: {
   url: string;
   method: string;
@@ -275,7 +270,6 @@ async function captureGuardedFetchExchange(params: {
   });
 }
 
->>>>>>> upstream/main
 function retainSafeHeadersForCrossOriginRedirect(init?: RequestInit): RequestInit | undefined {
   if (!init?.headers) {
     return init;
@@ -287,7 +281,7 @@ function dropBodyHeaders(headers?: HeadersInit): HeadersInit | undefined {
   if (!headers) {
     return headers;
   }
-  const nextHeaders = new Headers(headers);
+  const nextHeaders = new Headers(normalizeHeadersInitForFetch(headers));
   nextHeaders.delete("content-encoding");
   nextHeaders.delete("content-language");
   nextHeaders.delete("content-length");
@@ -378,7 +372,9 @@ export async function fetchWithSsrFGuard(params: GuardedFetchOptions): Promise<G
 
   const visited = new Set<string>([params.url]);
   let currentUrl = params.url;
-  let currentInit = params.init ? { ...params.init } : undefined;
+  let currentInit = normalizeRequestInitHeadersForFetch(
+    params.init ? { ...params.init } : undefined,
+  );
   let redirectCount = 0;
 
   while (true) {
@@ -477,25 +473,6 @@ export async function fetchWithSsrFGuard(params: GuardedFetchOptions): Promise<G
         ? await fetchWithRuntimeDispatcher(parsedUrl.toString(), init)
         : await defaultFetch(parsedUrl.toString(), init);
 
-<<<<<<< HEAD
-      if (params.capture !== false) {
-        captureHttpExchange({
-          url: parsedUrl.toString(),
-          method: currentInit?.method ?? "GET",
-          requestHeaders: currentInit?.headers as Headers | Record<string, string> | undefined,
-          requestBody:
-            (currentInit as (RequestInit & { body?: BodyInit | null }) | undefined)?.body ?? null,
-          response,
-          transport: "http",
-          flowId: params.capture?.flowId,
-          meta: {
-            captureOrigin: "guarded-fetch",
-            ...(params.auditContext ? { auditContext: params.auditContext } : {}),
-            ...params.capture?.meta,
-          },
-        });
-      }
-=======
       await captureGuardedFetchExchange({
         url: parsedUrl.toString(),
         method: currentInit?.method ?? "GET",
@@ -507,7 +484,6 @@ export async function fetchWithSsrFGuard(params: GuardedFetchOptions): Promise<G
         capture: params.capture,
         auditContext: params.auditContext,
       });
->>>>>>> upstream/main
 
       if (isRedirectStatus(response.status)) {
         const location = response.headers.get("location");

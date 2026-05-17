@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-import { discoverOpenClawPlugins } from "./discovery.js";
-=======
 import type { PluginInstallRecord } from "../config/types.plugins.js";
 import { discoverOpenClawPlugins } from "./discovery.js";
+import { shouldRejectHardlinkedPluginFiles } from "./hardlink-policy.js";
 import { loadInstalledPluginIndexInstallRecordsSync } from "./installed-plugin-index-record-reader.js";
->>>>>>> upstream/main
 import {
   loadPluginManifest,
   type PluginPackageChannel,
@@ -27,13 +24,6 @@ export function listChannelCatalogEntries(
     origin?: PluginOrigin;
     workspaceDir?: string;
     env?: NodeJS.ProcessEnv;
-<<<<<<< HEAD
-  } = {},
-): PluginChannelCatalogEntry[] {
-  return discoverOpenClawPlugins({
-    workspaceDir: params.workspaceDir,
-    env: params.env,
-=======
     /**
      * Optional override.  When omitted and `origin !== "bundled"`, the persisted
      * plugin install ledger is loaded synchronously so that npm-installed
@@ -48,7 +38,6 @@ export function listChannelCatalogEntries(
     workspaceDir: params.workspaceDir,
     env: params.env,
     ...(installRecords && Object.keys(installRecords).length > 0 ? { installRecords } : {}),
->>>>>>> upstream/main
   }).candidates.flatMap((candidate) => {
     if (params.origin && candidate.origin !== params.origin) {
       return [];
@@ -57,7 +46,14 @@ export function listChannelCatalogEntries(
     if (!channel?.id) {
       return [];
     }
-    const manifest = loadPluginManifest(candidate.rootDir, candidate.origin !== "bundled");
+    const manifest = loadPluginManifest(
+      candidate.rootDir,
+      shouldRejectHardlinkedPluginFiles({
+        origin: candidate.origin,
+        rootDir: candidate.rootDir,
+        env: params.env,
+      }),
+    );
     if (!manifest.ok) {
       return [];
     }
@@ -76,8 +72,6 @@ export function listChannelCatalogEntries(
     ];
   });
 }
-<<<<<<< HEAD
-=======
 
 function resolveInstallRecords(params: {
   origin?: PluginOrigin;
@@ -96,4 +90,3 @@ function resolveInstallRecords(params: {
     return undefined;
   }
 }
->>>>>>> upstream/main

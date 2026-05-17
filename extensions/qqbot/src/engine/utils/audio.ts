@@ -11,10 +11,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-<<<<<<< HEAD
-=======
 import { readRegularFileSync } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 import { formatErrorMessage } from "./format.js";
 import { debugLog, debugError, debugWarn } from "./log.js";
 import { normalizeLowercaseStringOrEmpty as normalizeLowercase } from "./string-normalize.js";
@@ -85,13 +82,6 @@ export async function convertSilkToWav(
   inputPath: string,
   outputDir?: string,
 ): Promise<{ wavPath: string; duration: number } | null> {
-<<<<<<< HEAD
-  if (!fs.existsSync(inputPath)) {
-    return null;
-  }
-
-  const fileBuf = fs.readFileSync(inputPath);
-=======
   let fileBuf: Buffer;
   try {
     fileBuf = readRegularFileSync({ filePath: inputPath }).buffer;
@@ -99,7 +89,6 @@ export async function convertSilkToWav(
     return null;
   }
 
->>>>>>> upstream/main
   const strippedBuf = stripAmrHeader(fileBuf);
   const rawData = new Uint8Array(
     strippedBuf.buffer,
@@ -202,13 +191,6 @@ export async function audioFileToSilkBase64(
   filePath: string,
   directUploadFormats?: string[],
 ): Promise<string | null> {
-<<<<<<< HEAD
-  if (!fs.existsSync(filePath)) {
-    return null;
-  }
-
-  const buf = fs.readFileSync(filePath);
-=======
   let buf: Buffer;
   try {
     buf = readRegularFileSync({ filePath }).buffer;
@@ -216,7 +198,6 @@ export async function audioFileToSilkBase64(
     return null;
   }
 
->>>>>>> upstream/main
   if (buf.length === 0) {
     debugError(`[audio-convert] file is empty: ${filePath}`);
     return null;

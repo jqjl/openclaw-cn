@@ -1,26 +1,13 @@
-<<<<<<< HEAD
-import {
-  buildRealtimeVoiceAgentConsultChatMessage,
-  REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
-} from "../../../../src/realtime-voice/agent-consult-tool.js";
-import type { GatewayBrowserClient, GatewayEventFrame } from "../gateway.ts";
-import { generateUUID } from "../uuid.ts";
-
-export type RealtimeTalkStatus = "idle" | "connecting" | "listening" | "thinking" | "error";
-=======
 import { REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME } from "../../../../src/talk/agent-consult-tool.js";
 import type { TalkEvent } from "../../../../src/talk/talk-events.js";
 import type { GatewayBrowserClient, GatewayEventFrame } from "../gateway.ts";
 
 export type RealtimeTalkStatus = "idle" | "connecting" | "listening" | "thinking" | "error";
 export type RealtimeTalkEvent = TalkEvent;
->>>>>>> upstream/main
 
 export type RealtimeTalkCallbacks = {
   onStatus?: (status: RealtimeTalkStatus, detail?: string) => void;
   onTranscript?: (entry: { role: "user" | "assistant"; text: string; final: boolean }) => void;
-<<<<<<< HEAD
-=======
   onTalkEvent?: (event: RealtimeTalkEvent) => void;
 };
 
@@ -33,7 +20,6 @@ export type RealtimeTalkEventInput<TPayload = unknown> = {
   callId?: string;
   itemId?: string;
   parentId?: string;
->>>>>>> upstream/main
 };
 
 export type RealtimeTalkAudioContract = {
@@ -45,26 +31,20 @@ export type RealtimeTalkAudioContract = {
 
 export type RealtimeTalkWebRtcSdpSessionResult = {
   provider: string;
-<<<<<<< HEAD
-  transport?: "webrtc-sdp";
-=======
   transport: "webrtc";
->>>>>>> upstream/main
   clientSecret: string;
   offerUrl?: string;
   offerHeaders?: Record<string, string>;
   model?: string;
   voice?: string;
   expiresAt?: number;
+  consultThinkingLevel?: string;
+  consultFastMode?: boolean;
 };
 
 export type RealtimeTalkJsonPcmWebSocketSessionResult = {
   provider: string;
-<<<<<<< HEAD
-  transport: "json-pcm-websocket";
-=======
   transport: "provider-websocket";
->>>>>>> upstream/main
   protocol: string;
   clientSecret: string;
   websocketUrl: string;
@@ -73,6 +53,8 @@ export type RealtimeTalkJsonPcmWebSocketSessionResult = {
   model?: string;
   voice?: string;
   expiresAt?: number;
+  consultThinkingLevel?: string;
+  consultFastMode?: boolean;
 };
 
 export type RealtimeTalkGatewayRelaySessionResult = {
@@ -83,6 +65,8 @@ export type RealtimeTalkGatewayRelaySessionResult = {
   model?: string;
   voice?: string;
   expiresAt?: number;
+  consultThinkingLevel?: string;
+  consultFastMode?: boolean;
 };
 
 export type RealtimeTalkManagedRoomSessionResult = {
@@ -93,6 +77,8 @@ export type RealtimeTalkManagedRoomSessionResult = {
   model?: string;
   voice?: string;
   expiresAt?: number;
+  consultThinkingLevel?: string;
+  consultFastMode?: boolean;
 };
 
 export type RealtimeTalkSessionResult =
@@ -110,10 +96,10 @@ export type RealtimeTalkTransportContext = {
   client: GatewayBrowserClient;
   sessionKey: string;
   callbacks: RealtimeTalkCallbacks;
+  consultThinkingLevel?: string;
+  consultFastMode?: boolean;
 };
 
-<<<<<<< HEAD
-=======
 export function createRealtimeTalkEventEmitter(
   ctx: RealtimeTalkTransportContext,
   session: RealtimeTalkSessionResult,
@@ -194,7 +180,6 @@ function resolveRealtimeTalkEventSessionId(
   return `${ctx.sessionKey}:${session.provider}:${session.transport}`;
 }
 
->>>>>>> upstream/main
 type ChatPayload = {
   runId?: string;
   state?: string;
@@ -227,15 +212,6 @@ function waitForChatResult(params: {
   client: GatewayBrowserClient;
   runId: string;
   timeoutMs: number;
-<<<<<<< HEAD
-}): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const timer = window.setTimeout(() => {
-      unsubscribe();
-      reject(new Error("OpenClaw tool call timed out"));
-    }, params.timeoutMs);
-    const unsubscribe = params.client.addEventListener((evt: GatewayEventFrame) => {
-=======
   signal?: AbortSignal;
 }): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -254,7 +230,6 @@ function waitForChatResult(params: {
     params.signal?.addEventListener("abort", onAbort, { once: true });
     let unsubscribe: () => void = () => undefined;
     unsubscribe = params.client.addEventListener((evt: GatewayEventFrame) => {
->>>>>>> upstream/main
       if (evt.event !== "chat") {
         return;
       }
@@ -263,17 +238,6 @@ function waitForChatResult(params: {
         return;
       }
       if (payload.state === "final") {
-<<<<<<< HEAD
-        window.clearTimeout(timer);
-        unsubscribe();
-        resolve(extractTextFromMessage(payload.message) || "OpenClaw finished with no text.");
-      } else if (payload.state === "error") {
-        window.clearTimeout(timer);
-        unsubscribe();
-        reject(new Error(payload.errorMessage ?? "OpenClaw tool call failed"));
-      }
-    });
-=======
         cleanup();
         resolve(extractTextFromMessage(payload.message) || "OpenClaw finished with no text.");
       } else if (payload.state === "aborted") {
@@ -291,7 +255,6 @@ function waitForChatResult(params: {
       params.signal?.removeEventListener("abort", onAbort);
       unsubscribe();
     }
->>>>>>> upstream/main
   });
 }
 
@@ -300,38 +263,6 @@ export async function submitRealtimeTalkConsult(params: {
   args: unknown;
   submit: (callId: string, result: unknown) => void;
   callId: string;
-<<<<<<< HEAD
-}): Promise<void> {
-  const { ctx, callId, submit } = params;
-  ctx.callbacks.onStatus?.("thinking");
-  let question = "";
-  try {
-    const args =
-      typeof params.args === "string" ? JSON.parse(params.args || "{}") : (params.args ?? {});
-    question = buildRealtimeVoiceAgentConsultChatMessage(args);
-  } catch {}
-  if (!question) {
-    submit(callId, {
-      error: `${REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME} requires a question`,
-    });
-    ctx.callbacks.onStatus?.("listening");
-    return;
-  }
-  try {
-    const idempotencyKey = generateUUID();
-    const response = await ctx.client.request<{ runId?: string }>("chat.send", {
-      sessionKey: ctx.sessionKey,
-      message: question,
-      idempotencyKey,
-    });
-    const result = await waitForChatResult({
-      client: ctx.client,
-      runId: response.runId ?? idempotencyKey,
-      timeoutMs: 120_000,
-    });
-    submit(callId, { result });
-  } catch (error) {
-=======
   relaySessionId?: string;
   signal?: AbortSignal;
 }): Promise<void> {
@@ -381,17 +312,10 @@ export async function submitRealtimeTalkConsult(params: {
     if (aborted || params.signal?.aborted || isAbortError(error)) {
       return;
     }
->>>>>>> upstream/main
     submit(callId, {
       error: error instanceof Error ? error.message : String(error),
     });
   } finally {
-<<<<<<< HEAD
-    ctx.callbacks.onStatus?.("listening");
-  }
-}
-
-=======
     params.signal?.removeEventListener("abort", abortRun);
     if (!aborted && !params.signal?.aborted) {
       ctx.callbacks.onStatus?.("listening");
@@ -407,5 +331,4 @@ function isAbortError(error: unknown): boolean {
   );
 }
 
->>>>>>> upstream/main
 export { REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME };

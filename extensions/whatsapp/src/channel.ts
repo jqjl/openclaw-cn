@@ -14,11 +14,7 @@ import {
   describeWhatsAppMessageActions,
   resolveWhatsAppAgentReactionGuidance,
 } from "./channel-actions.js";
-<<<<<<< HEAD
-import { whatsappChannelOutbound } from "./channel-outbound.js";
-=======
 import { whatsappChannelOutbound, whatsappMessageAdapter } from "./channel-outbound.js";
->>>>>>> upstream/main
 import { whatsappCommandPolicy } from "./command-policy.js";
 import { formatWhatsAppConfigAllowFromEntries } from "./config-accessors.js";
 import {
@@ -131,10 +127,7 @@ export const whatsappPlugin: ChannelPlugin<ResolvedWhatsAppAccount> =
           hint: "<E.164|group JID|newsletter JID>",
         },
       },
-<<<<<<< HEAD
-=======
       message: whatsappMessageAdapter,
->>>>>>> upstream/main
       directory: {
         self: async ({ cfg, accountId }) => {
           const account = resolveWhatsAppAccount({ cfg, accountId });

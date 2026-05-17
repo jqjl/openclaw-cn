@@ -1,8 +1,5 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-<<<<<<< HEAD
-=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
->>>>>>> upstream/main
 import type { PluginRuntime, RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
 import {
   buildRealtimeVoiceAgentConsultWorkingResponse,
@@ -11,16 +8,12 @@ import {
   resolveRealtimeVoiceAgentConsultTools,
   resolveRealtimeVoiceAgentConsultToolsAllow,
   type RealtimeVoiceBridgeSession,
-<<<<<<< HEAD
-  type RealtimeVoiceTool,
-=======
   type RealtimeVoiceToolCallEvent,
   type RealtimeVoiceTool,
   type TalkEventInput,
->>>>>>> upstream/main
 } from "openclaw/plugin-sdk/realtime-voice";
 import { normalizeAgentId } from "openclaw/plugin-sdk/routing";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import type { GoogleMeetConfig, GoogleMeetToolPolicy } from "./config.js";
 
 export const GOOGLE_MEET_AGENT_CONSULT_TOOL_NAME = REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME;
@@ -84,8 +77,6 @@ export async function consultOpenClawAgentForGoogleMeet(params: {
     extraSystemPrompt: GOOGLE_MEET_CONSULT_SYSTEM_PROMPT,
   });
 }
-<<<<<<< HEAD
-=======
 
 export function handleGoogleMeetRealtimeConsultToolCall(params: {
   strategy: string;
@@ -165,4 +156,3 @@ export function handleGoogleMeetRealtimeConsultToolCall(params: {
       });
     });
 }
->>>>>>> upstream/main

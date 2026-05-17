@@ -7,11 +7,7 @@ read_when:
 title: "Standing orders"
 ---
 
-<<<<<<< HEAD
-Standing orders grant your agent **permanent operating authority** for defined programs. Instead of giving individual task instructions each time, you define programs with clear scope, triggers, and escalation rules — and the agent executes autonomously within those boundaries.
-=======
 Standing orders grant your agent **permanent operating authority** for defined programs. Instead of giving individual task instructions each time, you define programs with clear scope, triggers, and escalation rules - and the agent executes autonomously within those boundaries.
->>>>>>> upstream/main
 
 This is the difference between telling your assistant "send the weekly report" every Friday vs. granting standing authority: "You own the weekly report. Compile it every Friday, send it, and only escalate if something looks wrong."
 
@@ -37,26 +33,15 @@ Standing orders are defined in your [agent workspace](/concepts/agent-workspace)
 
 Each program specifies:
 
-<<<<<<< HEAD
-1. **Scope** — what the agent is authorized to do
-2. **Triggers** — when to execute (schedule, event, or condition)
-3. **Approval gates** — what requires human sign-off before acting
-4. **Escalation rules** — when to stop and ask for help
-=======
 1. **Scope** - what the agent is authorized to do
 2. **Triggers** - when to execute (schedule, event, or condition)
 3. **Approval gates** - what requires human sign-off before acting
 4. **Escalation rules** - when to stop and ask for help
->>>>>>> upstream/main
 
 The agent loads these instructions every session via the workspace bootstrap files (see [Agent Workspace](/concepts/agent-workspace) for the full list of auto-injected files) and executes against them, combined with [cron jobs](/automation/cron-jobs) for time-based enforcement.
 
 <Tip>
-<<<<<<< HEAD
-Put standing orders in `AGENTS.md` to guarantee they're loaded every session. The workspace bootstrap automatically injects `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, `BOOTSTRAP.md`, and `MEMORY.md` — but not arbitrary files in subdirectories.
-=======
 Put standing orders in `AGENTS.md` to guarantee they're loaded every session. The workspace bootstrap automatically injects `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, `BOOTSTRAP.md`, and `MEMORY.md` - but not arbitrary files in subdirectories.
->>>>>>> upstream/main
 </Tip>
 
 ## Anatomy of a standing order
@@ -81,11 +66,7 @@ Put standing orders in `AGENTS.md` to guarantee they're loaded every session. Th
 
 - Do not send reports to external parties
 - Do not modify source data
-<<<<<<< HEAD
-- Do not skip delivery if metrics look bad — report accurately
-=======
 - Do not skip delivery if metrics look bad - report accurately
->>>>>>> upstream/main
 ```
 
 ## Standing orders plus cron jobs
@@ -109,7 +90,7 @@ openclaw cron add \
   --tz America/New_York \
   --timeout-seconds 300 \
   --announce \
-  --channel bluebubbles \
+  --channel imessage \
   --to "+1XXXXXXXXXX" \
   --message "Execute daily inbox triage per standing orders. Check mail for new alerts. Parse, categorize, and persist each item. Report summary to owner. Escalate unknowns."
 ```
@@ -128,11 +109,7 @@ openclaw cron add \
 ### Weekly cycle
 
 - **Monday:** Review platform metrics and audience engagement
-<<<<<<< HEAD
-- **Tuesday–Thursday:** Draft social posts, create blog content
-=======
 - **Tuesday-Thursday:** Draft social posts, create blog content
->>>>>>> upstream/main
 - **Friday:** Compile weekly marketing brief → deliver to owner
 
 ### Content rules
@@ -199,15 +176,9 @@ openclaw cron add \
 
 Standing orders work best when combined with strict execution discipline. Every task in a standing order should follow this loop:
 
-<<<<<<< HEAD
-1. **Execute** — Do the actual work (don't just acknowledge the instruction)
-2. **Verify** — Confirm the result is correct (file exists, message delivered, data parsed)
-3. **Report** — Tell the owner what was done and what was verified
-=======
 1. **Execute** - Do the actual work (don't just acknowledge the instruction)
 2. **Verify** - Confirm the result is correct (file exists, message delivered, data parsed)
 3. **Report** - Tell the owner what was done and what was verified
->>>>>>> upstream/main
 
 ```markdown
 ### Execution rules
@@ -217,11 +188,7 @@ Standing orders work best when combined with strict execution discipline. Every 
 - "Done" without verification is not acceptable. Prove it.
 - If execution fails: retry once with adjusted approach.
 - If still fails: report failure with diagnosis. Never silently fail.
-<<<<<<< HEAD
-- Never retry indefinitely — 3 attempts max, then escalate.
-=======
 - Never retry indefinitely - 3 attempts max, then escalate.
->>>>>>> upstream/main
 ```
 
 This pattern prevents the most common agent failure mode: acknowledging a task without completing it.
@@ -261,36 +228,22 @@ Each program should have:
 
 - Start with narrow authority and expand as trust builds
 - Define explicit approval gates for high-risk actions
-<<<<<<< HEAD
-- Include "What NOT to do" sections — boundaries matter as much as permissions
-- Combine with cron jobs for reliable time-based execution
-- Review agent logs weekly to verify standing orders are being followed
-- Update standing orders as your needs evolve — they're living documents
-=======
 - Include "What NOT to do" sections - boundaries matter as much as permissions
 - Combine with cron jobs for reliable time-based execution
 - Review agent logs weekly to verify standing orders are being followed
 - Update standing orders as your needs evolve - they're living documents
->>>>>>> upstream/main
 
 ### Avoid
 
 - Grant broad authority on day one ("do whatever you think is best")
-<<<<<<< HEAD
-- Skip escalation rules — every program needs a "when to stop and ask" clause
-- Assume the agent will remember verbal instructions — put everything in the file
-- Mix concerns in a single program — separate programs for separate domains
-- Forget to enforce with cron jobs — standing orders without triggers become suggestions
-=======
 - Skip escalation rules - every program needs a "when to stop and ask" clause
 - Assume the agent will remember verbal instructions - put everything in the file
 - Mix concerns in a single program - separate programs for separate domains
 - Forget to enforce with cron jobs - standing orders without triggers become suggestions
->>>>>>> upstream/main
 
 ## Related
 
-- [Automation and tasks](/automation): all automation mechanisms at a glance.
+- [Automation](/automation): all automation mechanisms at a glance.
 - [Cron jobs](/automation/cron-jobs): schedule enforcement for standing orders.
 - [Hooks](/automation/hooks): event-driven scripts for agent lifecycle events.
 - [Webhooks](/automation/cron-jobs#webhooks): inbound HTTP event triggers.

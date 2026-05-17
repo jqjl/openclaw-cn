@@ -112,9 +112,6 @@ function assertOutput(logPath) {
   }
 }
 
-<<<<<<< HEAD
-const [command, arg] = process.argv.slice(2);
-=======
 function assertCorruptUpdate(updateJsonPath, pluginId) {
   const payload = readJson(updateJsonPath);
   if (payload.status !== "ok") {
@@ -242,7 +239,6 @@ function assertLegacyPostUpdatePluginFailure(updateJsonPath) {
 }
 
 const [command, arg, arg2] = process.argv.slice(2);
->>>>>>> upstream/main
 const commands = {
   "legacy-compat": () => console.log(legacyPackageAcceptanceCompat(arg || "") ? "1" : "0"),
   seed: seedInstallState,
@@ -250,12 +246,9 @@ const commands = {
   snapshot: () => process.stdout.write(JSON.stringify(pluginRecordSnapshot(), null, 2)),
   "assert-snapshot": () => assertSnapshot(arg),
   "assert-output": () => assertOutput(arg),
-<<<<<<< HEAD
-=======
   "assert-corrupt-update": () => assertCorruptUpdate(arg, arg2),
   "assert-corrupt-plugin-result": () => assertCorruptPluginResult(arg, arg2),
   "assert-legacy-post-update-plugin-failure": () => assertLegacyPostUpdatePluginFailure(arg),
->>>>>>> upstream/main
 };
 const run = commands[command];
 await (

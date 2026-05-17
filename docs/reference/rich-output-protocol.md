@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# Rich Output Protocol
-=======
 ---
 summary: "Rich output shortcode protocol for embeds, media, audio hints, and replies"
 read_when:
@@ -8,7 +5,6 @@ read_when:
   - Debugging `[embed ...]`, `MEDIA:`, reply, or audio presentation directives
 title: "Rich output protocol"
 ---
->>>>>>> upstream/main
 
 Assistant output can carry a small set of delivery/render directives:
 

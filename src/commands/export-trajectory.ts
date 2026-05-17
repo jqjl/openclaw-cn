@@ -1,8 +1,5 @@
-<<<<<<< HEAD
-import fsp from "node:fs/promises";
-=======
->>>>>>> upstream/main
 import path from "node:path";
+import { formatCliCommand } from "../cli/command-format.js";
 import {
   resolveDefaultSessionStorePath,
   resolveSessionFilePath,
@@ -11,10 +8,7 @@ import {
 import { loadSessionStore } from "../config/sessions/store.js";
 import type { SessionEntry } from "../config/sessions/types.js";
 import { formatErrorMessage } from "../infra/errors.js";
-<<<<<<< HEAD
-=======
 import { pathExists } from "../infra/fs-safe.js";
->>>>>>> upstream/main
 import { resolveAgentIdFromSessionKey } from "../routing/session-key.js";
 import { type RuntimeEnv, writeRuntimeJson } from "../runtime.js";
 import {
@@ -79,18 +73,6 @@ function resolveExportTrajectoryOptions(
   };
 }
 
-<<<<<<< HEAD
-async function fileExists(pathName: string): Promise<boolean> {
-  try {
-    await fsp.access(pathName);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-=======
->>>>>>> upstream/main
 export async function exportTrajectoryCommand(
   opts: ExportTrajectoryCommandOptions,
   runtime: RuntimeEnv,
@@ -105,7 +87,9 @@ export async function exportTrajectoryCommand(
   }
   const sessionKey = resolvedOpts.sessionKey?.trim();
   if (!sessionKey) {
-    runtime.error("--session-key is required");
+    runtime.error(
+      `--session-key is required. Run ${formatCliCommand("openclaw sessions")} to choose a session.`,
+    );
     runtime.exit(1);
     return;
   }
@@ -116,7 +100,9 @@ export async function exportTrajectoryCommand(
   const store = loadSessionStore(storePath, { skipCache: true });
   const entry = store[sessionKey] as SessionEntry | undefined;
   if (!entry?.sessionId) {
-    runtime.error(`Session not found: ${sessionKey}`);
+    runtime.error(
+      `Session not found: ${sessionKey}. Run ${formatCliCommand("openclaw sessions")} to see available sessions.`,
+    );
     runtime.exit(1);
     return;
   }
@@ -133,12 +119,10 @@ export async function exportTrajectoryCommand(
     runtime.exit(1);
     return;
   }
-<<<<<<< HEAD
-  if (!(await fileExists(sessionFile))) {
-=======
   if (!(await pathExists(sessionFile))) {
->>>>>>> upstream/main
-    runtime.error("Session file not found.");
+    runtime.error(
+      `Session file not found for ${sessionKey}. Run ${formatCliCommand("openclaw doctor")} to inspect session storage.`,
+    );
     runtime.exit(1);
     return;
   }

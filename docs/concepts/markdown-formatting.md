@@ -39,22 +39,14 @@ stay consistent across channels.
 Input Markdown:
 
 ```markdown
-<<<<<<< HEAD
-Hello **world** — see [docs](https://docs.openclaw.ai).
-=======
 Hello **world** - see [docs](https://docs.openclaw.ai).
->>>>>>> upstream/main
 ```
 
 IR (schematic):
 
 ```json
 {
-<<<<<<< HEAD
-  "text": "Hello world — see docs.",
-=======
   "text": "Hello world - see docs.",
->>>>>>> upstream/main
   "styles": [{ "start": 6, "end": 11, "style": "bold" }],
   "links": [{ "start": 19, "end": 23, "href": "https://docs.openclaw.ai" }]
 }
@@ -73,7 +65,7 @@ Markdown tables are not consistently supported across chat clients. Use
 `markdown.tables` to control conversion per channel (and per account).
 
 - `code`: render tables as code blocks (default for most channels).
-- `bullets`: convert each row into bullet points (default for Signal + WhatsApp).
+- `bullets`: convert each row into bullet points (default for Matrix, Signal, and WhatsApp).
 - `off`: disable table parsing and conversion; raw table text passes through.
 
 Config keys:
@@ -137,10 +129,6 @@ SPOILER style ranges. Other channels treat them as plain text.
 
 ## Related
 
-<<<<<<< HEAD
-- [Streaming and chunking](/concepts/streaming)
-- [System prompt](/concepts/system-prompt)
-=======
 <CardGroup cols={2}>
   <Card title="Streaming and chunking" href="/concepts/streaming" icon="bars-staggered">
     Outbound streaming behavior, chunk boundaries, and channel-specific delivery.
@@ -149,4 +137,3 @@ SPOILER style ranges. Other channels treat them as plain text.
     What the model sees before the conversation, including injected workspace files.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

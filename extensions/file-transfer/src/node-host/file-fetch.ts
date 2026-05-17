@@ -1,20 +1,15 @@
-import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
-<<<<<<< HEAD
-import fs from "node:fs/promises";
 import path from "node:path";
-=======
-import path from "node:path";
+import { detectMime } from "openclaw/plugin-sdk/media-mime";
 import {
   FsSafeError,
   resolveAbsolutePathForRead,
   root,
 } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
-import { EXTENSION_MIME } from "../shared/mime.js";
 
 export const FILE_FETCH_HARD_MAX_BYTES = 16 * 1024 * 1024;
 export const FILE_FETCH_DEFAULT_MAX_BYTES = 8 * 1024 * 1024;
+const TEXT_SNIFF_MAX_BYTES = 8192;
 
 type FileFetchParams = {
   path?: unknown;
@@ -52,25 +47,6 @@ type FileFetchErr = {
 
 type FileFetchResult = FileFetchOk | FileFetchErr;
 
-function detectMimeType(filePath: string): string {
-  if (process.platform !== "win32") {
-    try {
-      const result = spawnSync("file", ["-b", "--mime-type", filePath], {
-        encoding: "utf-8",
-        timeout: 2000,
-      });
-      const stdout = result.stdout?.trim();
-      if (result.status === 0 && stdout) {
-        return stdout;
-      }
-    } catch {
-      // fall through to extension fallback
-    }
-  }
-  const ext = path.extname(filePath).toLowerCase();
-  return EXTENSION_MIME[ext] ?? "application/octet-stream";
-}
-
 function clampMaxBytes(input: unknown): number {
   if (typeof input !== "number" || !Number.isFinite(input) || input <= 0) {
     return FILE_FETCH_DEFAULT_MAX_BYTES;
@@ -79,8 +55,6 @@ function clampMaxBytes(input: unknown): number {
 }
 
 function classifyFsError(err: unknown): FileFetchErrCode {
-<<<<<<< HEAD
-=======
   if (err instanceof FsSafeError) {
     if (err.code === "not-found") {
       return "NOT_FOUND";
@@ -95,7 +69,6 @@ function classifyFsError(err: unknown): FileFetchErrCode {
       return "IS_DIRECTORY";
     }
   }
->>>>>>> upstream/main
   const code = (err as { code?: string } | null)?.code;
   if (code === "ENOENT") {
     return "NOT_FOUND";
@@ -107,6 +80,39 @@ function classifyFsError(err: unknown): FileFetchErrCode {
     return "IS_DIRECTORY";
   }
   return "READ_ERROR";
+}
+
+function isLikelyPlainText(buffer: Buffer): boolean {
+  if (buffer.byteLength === 0) {
+    return true;
+  }
+  const sample = buffer.subarray(0, TEXT_SNIFF_MAX_BYTES);
+  if (sample.includes(0)) {
+    return false;
+  }
+  try {
+    new TextDecoder("utf-8", { fatal: true }).decode(sample);
+  } catch {
+    return false;
+  }
+  let controlBytes = 0;
+  for (const byte of sample) {
+    if (byte < 0x20 && byte !== 0x09 && byte !== 0x0a && byte !== 0x0d) {
+      controlBytes += 1;
+    }
+  }
+  return controlBytes / sample.byteLength < 0.01;
+}
+
+async function detectFetchedFileMime(params: {
+  buffer: Buffer;
+  filePath: string;
+}): Promise<string> {
+  const detected = await detectMime(params);
+  if (detected) {
+    return detected;
+  }
+  return isLikelyPlainText(params.buffer) ? "text/plain" : "application/octet-stream";
 }
 
 export async function handleFileFetch(params: FileFetchParams): Promise<FileFetchResult> {
@@ -127,9 +133,6 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
 
   let canonical: string;
   try {
-<<<<<<< HEAD
-    canonical = await fs.realpath(requestedPath);
-=======
     canonical = (
       await resolveAbsolutePathForRead(requestedPath, {
         symlinks: followSymlinks ? "follow" : "reject",
@@ -162,111 +165,16 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
   try {
     const parentRoot = await root(path.dirname(canonical));
     opened = await parentRoot.open(path.basename(canonical));
->>>>>>> upstream/main
   } catch (err) {
     const code = classifyFsError(err);
     return {
       ok: false,
       code,
-<<<<<<< HEAD
-      message: code === "NOT_FOUND" ? "file not found" : `realpath failed: ${String(err)}`,
-    };
-  }
-
-  // Refuse to follow symlinks anywhere in the path unless the operator
-  // has explicitly opted in. A symlink in user-controlled territory
-  // (e.g. ~/Downloads/evil → /etc) could redirect an allowed-looking
-  // request to a disallowed canonical target. The error includes the
-  // canonical path so the operator can either update their allowlist
-  // to the canonical form or set followSymlinks=true on this node.
-  if (!followSymlinks && canonical !== requestedPath) {
-    return {
-      ok: false,
-      code: "SYMLINK_REDIRECT",
-      message: `path traverses a symlink; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowReadPaths to the canonical path)`,
-=======
       message: code === "IS_DIRECTORY" ? "path is a directory" : `open failed: ${String(err)}`,
->>>>>>> upstream/main
       canonicalPath: canonical,
     };
   }
 
-<<<<<<< HEAD
-  let stats: Awaited<ReturnType<typeof fs.stat>>;
-  try {
-    stats = await fs.stat(canonical);
-  } catch (err) {
-    const code = classifyFsError(err);
-    return { ok: false, code, message: `stat failed: ${String(err)}`, canonicalPath: canonical };
-  }
-
-  if (stats.isDirectory()) {
-    return {
-      ok: false,
-      code: "IS_DIRECTORY",
-      message: "path is a directory",
-      canonicalPath: canonical,
-    };
-  }
-  if (!stats.isFile()) {
-    return {
-      ok: false,
-      code: "READ_ERROR",
-      message: "path is not a regular file",
-      canonicalPath: canonical,
-    };
-  }
-  if (stats.size > maxBytes) {
-    return {
-      ok: false,
-      code: "FILE_TOO_LARGE",
-      message: `file size ${stats.size} exceeds limit ${maxBytes}`,
-      canonicalPath: canonical,
-    };
-  }
-
-  if (preflightOnly) {
-    return {
-      ok: true,
-      path: canonical,
-      size: stats.size,
-      mimeType: "",
-      base64: "",
-      sha256: "",
-      preflightOnly: true,
-    };
-  }
-
-  let buffer: Buffer;
-  try {
-    buffer = await fs.readFile(canonical);
-  } catch (err) {
-    const code = classifyFsError(err);
-    return { ok: false, code, message: `read failed: ${String(err)}`, canonicalPath: canonical };
-  }
-
-  if (buffer.byteLength > maxBytes) {
-    return {
-      ok: false,
-      code: "FILE_TOO_LARGE",
-      message: `read ${buffer.byteLength} bytes exceeds limit ${maxBytes}`,
-      canonicalPath: canonical,
-    };
-  }
-
-  const sha256 = crypto.createHash("sha256").update(buffer).digest("hex");
-  const base64 = buffer.toString("base64");
-  const mimeType = detectMimeType(canonical);
-
-  return {
-    ok: true,
-    path: canonical,
-    size: buffer.byteLength,
-    mimeType,
-    base64,
-    sha256,
-  };
-=======
   try {
     const stats = opened.stat;
     if (stats.size > maxBytes) {
@@ -302,7 +210,7 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
 
     const sha256 = crypto.createHash("sha256").update(buffer).digest("hex");
     const base64 = buffer.toString("base64");
-    const mimeType = detectMimeType(opened.realPath);
+    const mimeType = await detectFetchedFileMime({ buffer, filePath: opened.realPath });
 
     return {
       ok: true,
@@ -323,5 +231,4 @@ export async function handleFileFetch(params: FileFetchParams): Promise<FileFetc
   } finally {
     await opened.handle.close().catch(() => undefined);
   }
->>>>>>> upstream/main
 }

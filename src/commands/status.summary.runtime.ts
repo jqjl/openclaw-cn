@@ -1,27 +1,18 @@
-<<<<<<< HEAD
+import { resolveModelAgentRuntimeMetadata } from "../agents/agent-runtime-metadata.js";
 import { resolveConfiguredProviderFallback } from "../agents/configured-provider-fallback.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
-=======
-import { resolveAgentRuntimeMetadata } from "../agents/agent-runtime-metadata.js";
-import { resolveConfiguredProviderFallback } from "../agents/configured-provider-fallback.js";
-import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
-import { selectAgentHarness } from "../agents/harness/selection.js";
->>>>>>> upstream/main
 import { parseModelRef, resolvePersistedSelectedModelRef } from "../agents/model-selection.js";
 import { normalizeProviderId } from "../agents/provider-id.js";
 import { resolveAgentModelPrimaryValue } from "../config/model-input.js";
 import type { SessionEntry } from "../config/sessions/types.js";
 import type { OpenClawConfig } from "../config/types.js";
-import { isCronSessionKey } from "../sessions/session-key-utils.js";
+import { classifySessionKind } from "../sessions/classify-session-kind.js";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
   normalizeOptionalLowercaseString,
 } from "../shared/string-coerce.js";
-<<<<<<< HEAD
-=======
 import { resolveAgentRuntimeLabel } from "../status/agent-runtime-label.js";
->>>>>>> upstream/main
 
 function resolveStatusModelRefFromRaw(params: {
   cfg: OpenClawConfig;
@@ -134,25 +125,6 @@ function resolveConfiguredProviderContextTokens(
   return undefined;
 }
 
-function classifySessionKey(key: string, entry?: SessionEntry) {
-  if (key === "global") {
-    return "global";
-  }
-  if (key === "unknown") {
-    return "unknown";
-  }
-  if (isCronSessionKey(key)) {
-    return "cron";
-  }
-  if (entry?.chatType === "group" || entry?.chatType === "channel") {
-    return "group";
-  }
-  if (key.includes(":group:") || key.includes(":channel:")) {
-    return "group";
-  }
-  return "direct";
-}
-
 function resolveSessionModelRef(
   cfg: OpenClawConfig,
   entry?:
@@ -178,8 +150,6 @@ function resolveSessionModelRef(
   );
 }
 
-<<<<<<< HEAD
-=======
 function resolveSessionRuntimeLabel(params: {
   cfg: OpenClawConfig;
   entry?: SessionEntry;
@@ -188,37 +158,17 @@ function resolveSessionRuntimeLabel(params: {
   agentId?: string;
   sessionKey: string;
 }): string {
-  const agentRuntime = resolveAgentRuntimeMetadata(params.cfg, params.agentId ?? "");
-  const explicitRuntime =
-    normalizeOptionalLowercaseString(params.entry?.agentRuntimeOverride) ??
-    normalizeOptionalLowercaseString(params.entry?.agentHarnessId) ??
-    (agentRuntime.source === "implicit"
-      ? undefined
-      : normalizeOptionalLowercaseString(agentRuntime.id));
-  if (explicitRuntime && explicitRuntime !== "auto" && explicitRuntime !== "default") {
-    return resolveAgentRuntimeLabel({
-      config: params.cfg,
-      sessionEntry: params.entry,
-      resolvedHarness: explicitRuntime,
-      fallbackProvider: params.provider,
-    });
-  }
-
-  let resolvedHarness: string | undefined;
-  try {
-    const selected = selectAgentHarness({
-      provider: params.provider,
-      modelId: params.model,
-      config: params.cfg,
-      agentId: params.agentId,
-      sessionKey: params.sessionKey,
-      agentHarnessId: params.entry?.agentHarnessId,
-    });
-    const id = normalizeOptionalLowercaseString(selected.id);
-    resolvedHarness = id && id !== "pi" ? id : undefined;
-  } catch {
-    resolvedHarness = undefined;
-  }
+  const runtime = resolveModelAgentRuntimeMetadata({
+    cfg: params.cfg,
+    agentId: params.agentId ?? "",
+    provider: params.provider,
+    model: params.model,
+    sessionKey: params.sessionKey,
+    acpRuntime: params.entry?.acp != null,
+    acpBackend: params.entry?.acp?.backend,
+  });
+  const id = normalizeOptionalLowercaseString(runtime.id);
+  const resolvedHarness = id && id !== "pi" && id !== "auto" ? id : undefined;
   return resolveAgentRuntimeLabel({
     config: params.cfg,
     sessionEntry: params.entry,
@@ -227,7 +177,6 @@ function resolveSessionRuntimeLabel(params: {
   });
 }
 
->>>>>>> upstream/main
 function resolveContextTokensForModel(params: {
   cfg?: OpenClawConfig;
   provider?: string;
@@ -255,11 +204,8 @@ function resolveContextTokensForModel(params: {
 
 export const statusSummaryRuntime = {
   resolveContextTokensForModel,
-  classifySessionKey,
+  classifySessionKey: classifySessionKind,
   resolveSessionModelRef,
-<<<<<<< HEAD
-=======
   resolveSessionRuntimeLabel,
->>>>>>> upstream/main
   resolveConfiguredStatusModelRef,
 };

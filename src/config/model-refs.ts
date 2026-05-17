@@ -1,3 +1,4 @@
+import { normalizeProviderId } from "../agents/provider-id.js";
 import { isRecord } from "../utils.js";
 
 export type ConfiguredModelRef = {
@@ -46,8 +47,6 @@ export function collectConfiguredModelRefs(
     for (const key of AGENT_MODEL_CONFIG_KEYS) {
       collectModelConfig(`${path}.${key}`, agent[key]);
     }
-<<<<<<< HEAD
-=======
     pushModelRef(
       `${path}.heartbeat.model`,
       isRecord(agent.heartbeat) ? agent.heartbeat.model : undefined,
@@ -63,7 +62,6 @@ export function collectConfiguredModelRefs(
         isRecord(agent.compaction.memoryFlush) ? agent.compaction.memoryFlush.model : undefined,
       );
     }
->>>>>>> upstream/main
     if (isRecord(agent.models)) {
       for (const modelRef of Object.keys(agent.models)) {
         pushModelRef(`${path}.models.${modelRef}`, modelRef);
@@ -91,8 +89,6 @@ export function collectConfiguredModelRefs(
       }
     }
   }
-<<<<<<< HEAD
-=======
   const hooks = isRecord(root.hooks) ? root.hooks : {};
   if (Array.isArray(hooks.mappings)) {
     for (const [index, mapping] of hooks.mappings.entries()) {
@@ -118,6 +114,21 @@ export function collectConfiguredModelRefs(
       ? root.channels.discord.voice.model
       : undefined,
   );
->>>>>>> upstream/main
   return refs;
+}
+
+export function collectConfiguredModelRefValues(
+  config: unknown,
+  options?: { includeChannelModelOverrides?: boolean },
+): string[] {
+  return collectConfiguredModelRefs(config, options).map((ref) => ref.value);
+}
+
+export function extractProviderFromModelRef(value: string): string | null {
+  const trimmed = value.trim();
+  const slash = trimmed.indexOf("/");
+  if (slash <= 0) {
+    return null;
+  }
+  return normalizeProviderId(trimmed.slice(0, slash));
 }

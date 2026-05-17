@@ -1,8 +1,4 @@
 import crypto from "node:crypto";
-<<<<<<< HEAD
-import fs from "node:fs/promises";
-=======
->>>>>>> upstream/main
 import {
   callGatewayTool,
   listNodes,
@@ -10,11 +6,7 @@ import {
   type AnyAgentTool,
   type NodeListNode,
 } from "openclaw/plugin-sdk/agent-harness-runtime";
-<<<<<<< HEAD
-import { resolveMediaBufferPath } from "openclaw/plugin-sdk/media-store";
-=======
 import { readMediaBuffer } from "openclaw/plugin-sdk/media-store";
->>>>>>> upstream/main
 import { appendFileTransferAudit } from "../shared/audit.js";
 import { throwFromNodePayload } from "../shared/errors.js";
 import {
@@ -29,34 +21,35 @@ import {
   FILE_WRITE_TOOL_DESCRIPTOR,
 } from "./descriptors.js";
 
+function normalizeBase64ForCompare(value: string): string {
+  return value.replace(/=+$/u, "").replace(/-/gu, "+").replace(/_/gu, "/");
+}
+
+function decodeStrictBase64(value: string): Buffer {
+  const buffer = Buffer.from(value, "base64");
+  if (normalizeBase64ForCompare(buffer.toString("base64")) !== normalizeBase64ForCompare(value)) {
+    throw new Error("contentBase64 is not valid base64");
+  }
+  return buffer;
+}
+
 async function readSourceBytes(input: {
   contentBase64?: string;
   sourceMediaId?: string;
 }): Promise<{ buffer: Buffer; contentBase64: string; source: "inline" | "media" }> {
   const sourceMediaId = input.sourceMediaId?.trim();
   if (sourceMediaId) {
-<<<<<<< HEAD
-    const mediaPath = await resolveMediaBufferPath(sourceMediaId, FILE_TRANSFER_SUBDIR);
-    const stat = await fs.stat(mediaPath);
-    if (stat.size > FILE_WRITE_HARD_MAX_BYTES) {
-      throw new Error(
-        `sourceMediaId too large: ${stat.size} bytes; maximum is ${FILE_WRITE_HARD_MAX_BYTES} bytes`,
-      );
-    }
-    const buffer = await fs.readFile(mediaPath);
-=======
     const { buffer } = await readMediaBuffer(
       sourceMediaId,
       FILE_TRANSFER_SUBDIR,
       FILE_WRITE_HARD_MAX_BYTES,
     );
->>>>>>> upstream/main
     return { buffer, contentBase64: buffer.toString("base64"), source: "media" };
   }
   if (input.contentBase64 === undefined) {
     throw new Error("contentBase64 or sourceMediaId required");
   }
-  const buffer = Buffer.from(input.contentBase64, "base64");
+  const buffer = decodeStrictBase64(input.contentBase64);
   return { buffer, contentBase64: input.contentBase64, source: "inline" };
 }
 

@@ -2,14 +2,11 @@ import { spawn } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import {
   FsSafeError,
   resolveAbsolutePathForRead,
   root as fsRoot,
 } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 
 const DIR_FETCH_HARD_MAX_BYTES = 16 * 1024 * 1024;
 const DIR_FETCH_DEFAULT_MAX_BYTES = 8 * 1024 * 1024;
@@ -58,8 +55,6 @@ function clampMaxBytes(input: unknown): number {
 }
 
 function classifyFsError(err: unknown): DirFetchErrCode {
-<<<<<<< HEAD
-=======
   if (err instanceof FsSafeError) {
     if (err.code === "not-found") {
       return "NOT_FOUND";
@@ -71,7 +66,6 @@ function classifyFsError(err: unknown): DirFetchErrCode {
       return "INVALID_PATH";
     }
   }
->>>>>>> upstream/main
   const code = (err as { code?: string } | null)?.code;
   if (code === "ENOENT") {
     return "NOT_FOUND";
@@ -167,32 +161,18 @@ async function listTarEntries(tarBuffer: Buffer): Promise<string[]> {
 
 async function listTreeEntries(root: string, maxEntries: number): Promise<string[] | "TOO_MANY"> {
   const results: string[] = [];
-<<<<<<< HEAD
-  async function visit(dir: string): Promise<boolean> {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    entries.sort((left, right) => left.name.localeCompare(right.name));
-    for (const entry of entries) {
-      const abs = path.join(dir, entry.name);
-      const rel = path.relative(root, abs).replace(/\\/gu, "/");
-=======
   const rootHandle = await fsRoot(root);
   async function visit(relativeDir: string): Promise<boolean> {
     const entries = await rootHandle.list(relativeDir, { withFileTypes: true });
     entries.sort((left, right) => left.name.localeCompare(right.name));
     for (const entry of entries) {
       const rel = path.posix.join(relativeDir === "." ? "" : relativeDir, entry.name);
->>>>>>> upstream/main
       results.push(rel);
       if (results.length > maxEntries) {
         return false;
       }
-<<<<<<< HEAD
-      if (entry.isDirectory()) {
-        const ok = await visit(abs);
-=======
       if (entry.isDirectory) {
         const ok = await visit(rel);
->>>>>>> upstream/main
         if (!ok) {
           return false;
         }
@@ -200,11 +180,7 @@ async function listTreeEntries(root: string, maxEntries: number): Promise<string
     }
     return true;
   }
-<<<<<<< HEAD
-  return (await visit(root)) ? results : "TOO_MANY";
-=======
   return (await visit(".")) ? results : "TOO_MANY";
->>>>>>> upstream/main
 }
 
 export async function handleDirFetch(params: DirFetchParams): Promise<DirFetchResult> {
@@ -226,24 +202,6 @@ export async function handleDirFetch(params: DirFetchParams): Promise<DirFetchRe
 
   let canonical: string;
   try {
-<<<<<<< HEAD
-    canonical = await fs.realpath(requestedPath);
-  } catch (err) {
-    const code = classifyFsError(err);
-    return {
-      ok: false,
-      code,
-      message: code === "NOT_FOUND" ? "directory not found" : `realpath failed: ${String(err)}`,
-    };
-  }
-
-  if (!followSymlinks && canonical !== requestedPath) {
-    return {
-      ok: false,
-      code: "SYMLINK_REDIRECT",
-      message: `path traverses a symlink; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowReadPaths to the canonical path)`,
-      canonicalPath: canonical,
-=======
     canonical = (
       await resolveAbsolutePathForRead(requestedPath, {
         symlinks: followSymlinks ? "follow" : "reject",
@@ -269,7 +227,6 @@ export async function handleDirFetch(params: DirFetchParams): Promise<DirFetchRe
             ? "path traverses a symlink; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowReadPaths to the canonical path)"
             : `realpath failed: ${String(err)}`,
       ...(canonicalPath ? { canonicalPath } : {}),
->>>>>>> upstream/main
     };
   }
 

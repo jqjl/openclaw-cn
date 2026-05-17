@@ -1,13 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
-import type { AgentMessage } from "@mariozechner/pi-agent-core";
-import type { ExtensionAPI, ExtensionContext, FileOperations } from "@mariozechner/pi-coding-agent";
+import type { AgentMessage } from "@earendil-works/pi-agent-core";
+import type {
+  ExtensionAPI,
+  ExtensionContext,
+  FileOperations,
+} from "@earendil-works/pi-coding-agent";
 import { extractSections } from "../../auto-reply/reply/post-compaction-context.js";
-<<<<<<< HEAD
-import { openBoundaryFile } from "../../infra/boundary-file-read.js";
-=======
 import { openRootFile } from "../../infra/boundary-file-read.js";
->>>>>>> upstream/main
 import { formatErrorMessage } from "../../infra/errors.js";
 import { isAbortError } from "../../infra/unhandled-rejections.js";
 import { createSubsystemLogger } from "../../logging/subsystem.js";
@@ -103,8 +103,6 @@ function prependPreviousSummaryForRedistill(params: {
   return [buildPreviousSummaryMessage(previousSummary), ...params.messages];
 }
 
-<<<<<<< HEAD
-=======
 type SessionBranchEntry = {
   type?: unknown;
   message?: unknown;
@@ -184,7 +182,6 @@ function containsRealConversation(messages: AgentMessage[]): boolean {
   );
 }
 
->>>>>>> upstream/main
 /**
  * Attempt provider-based summarization. Returns the summary string on success,
  * or `undefined` when the caller should fall back to built-in LLM summarization.
@@ -580,6 +577,22 @@ function capCompactionSummaryPreservingSuffix(
   return `${cappedBody}${suffix}`;
 }
 
+function resolveSummaryReserveTokens(
+  requestedReserveTokens: number,
+  model: NonNullable<Parameters<typeof summarizeInStages>[0]["model"]>,
+): number {
+  const requested = Math.max(1, Math.floor(requestedReserveTokens));
+  const modelMaxTokens = model.maxTokens;
+  if (
+    typeof modelMaxTokens !== "number" ||
+    !Number.isFinite(modelMaxTokens) ||
+    modelMaxTokens <= 0
+  ) {
+    return requested;
+  }
+  return Math.max(1, Math.min(requested, Math.floor(modelMaxTokens)));
+}
+
 function extractMessageText(message: AgentMessage): string {
   const content = (message as { content?: unknown }).content;
   if (typeof content === "string") {
@@ -821,11 +834,7 @@ async function readWorkspaceContextForSummary(): Promise<string> {
   const agentsPath = path.join(workspaceDir, "AGENTS.md");
 
   try {
-<<<<<<< HEAD
-    const opened = await openBoundaryFile({
-=======
     const opened = await openRootFile({
->>>>>>> upstream/main
       absolutePath: agentsPath,
       rootPath: workspaceDir,
       boundaryLabel: "workspace root",
@@ -868,18 +877,6 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
   api.on("session_before_compact", async (event, ctx) => {
     const { preparation, customInstructions: eventInstructions, signal } = event;
     const rawTurnPrefixMessages = preparation.turnPrefixMessages ?? [];
-<<<<<<< HEAD
-    const baseMessagesToSummarize = stripRuntimeContextCustomMessages(
-      preparation.messagesToSummarize,
-    );
-    const baseTurnPrefixMessages = stripRuntimeContextCustomMessages(rawTurnPrefixMessages);
-    const hasRealSummarizable = baseMessagesToSummarize.some((message, index, messages) =>
-      isRealConversationMessage(message, messages, index),
-    );
-    const hasRealTurnPrefix = baseTurnPrefixMessages.some((message, index, messages) =>
-      isRealConversationMessage(message, messages, index),
-    );
-=======
     let baseMessagesToSummarize = stripRuntimeContextCustomMessages(
       preparation.messagesToSummarize,
     );
@@ -900,7 +897,6 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
         hasRealTurnPrefix = false;
       }
     }
->>>>>>> upstream/main
     setCompactionSafeguardCancelReason(ctx.sessionManager, undefined);
     if (!hasRealSummarizable && !hasRealTurnPrefix) {
       // When there are no summarizable messages AND no real turn-prefix content,
@@ -1113,7 +1109,10 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
                   apiKey,
                   headers,
                   signal,
-                  reserveTokens: Math.max(1, Math.floor(preparation.settings.reserveTokens)),
+                  reserveTokens: resolveSummaryReserveTokens(
+                    preparation.settings.reserveTokens,
+                    model,
+                  ),
                   maxChunkTokens: droppedMaxChunkTokens,
                   contextWindow: contextWindowTokens,
                   customInstructions: structuredInstructions,
@@ -1158,7 +1157,7 @@ export default function compactionSafeguardExtension(api: ExtensionAPI): void {
         1,
         Math.floor(contextWindowTokens * adaptiveRatio) - SUMMARIZATION_OVERHEAD_TOKENS,
       );
-      const reserveTokens = Math.max(1, Math.floor(preparation.settings.reserveTokens));
+      const reserveTokens = resolveSummaryReserveTokens(preparation.settings.reserveTokens, model);
 
       // Feed dropped-messages summary as previousSummary so the main summarization
       // incorporates context from pruned messages instead of losing it entirely.

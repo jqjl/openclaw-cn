@@ -1,7 +1,5 @@
 import type { Command } from "commander";
 
-<<<<<<< HEAD
-=======
 const parentDefaultHelpCommands = new WeakSet<Command>();
 
 function outputParentHelpWithoutStartupBanner(parent: Command): void {
@@ -18,7 +16,6 @@ function outputParentHelpWithoutStartupBanner(parent: Command): void {
   }
 }
 
->>>>>>> upstream/main
 /**
  * Wire a parent command so that invoking it without a subcommand prints the
  * parent's own help and exits with status `0`.
@@ -34,13 +31,6 @@ function outputParentHelpWithoutStartupBanner(parent: Command): void {
  * callers keep that ownership explicit instead of probing private internals.
  */
 export function applyParentDefaultHelpAction(parent: Command): void {
-<<<<<<< HEAD
-  parent.action(() => {
-    parent.outputHelp();
-    process.exitCode = 0;
-  });
-}
-=======
   parentDefaultHelpCommands.add(parent);
   parent.action(() => {
     outputParentHelpWithoutStartupBanner(parent);
@@ -51,4 +41,3 @@ export function applyParentDefaultHelpAction(parent: Command): void {
 export function isParentDefaultHelpAction(parent: Command): boolean {
   return parentDefaultHelpCommands.has(parent);
 }
->>>>>>> upstream/main

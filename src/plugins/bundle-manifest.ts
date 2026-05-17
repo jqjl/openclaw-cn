@@ -1,12 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import JSON5 from "json5";
-<<<<<<< HEAD
-import { matchBoundaryFileOpenFailure, openBoundaryFileSync } from "../infra/boundary-file-read.js";
-=======
 import { matchRootFileOpenFailure } from "../infra/boundary-file-read.js";
 import { readRootStructuredFileSync } from "../infra/json-files.js";
->>>>>>> upstream/main
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
@@ -103,17 +99,6 @@ function loadBundleManifestFile(params: {
   allowMissing?: boolean;
 }): BundleManifestFileLoadResult {
   const manifestPath = path.join(params.rootDir, params.manifestRelativePath);
-<<<<<<< HEAD
-  const opened = openBoundaryFileSync({
-    absolutePath: manifestPath,
-    rootPath: params.rootDir,
-    ...(params.rootRealPath !== undefined ? { rootRealPath: params.rootRealPath } : {}),
-    boundaryLabel: "plugin root",
-    rejectHardlinks: params.rejectHardlinks,
-  });
-  if (!opened.ok) {
-    return matchBoundaryFileOpenFailure(opened, {
-=======
   const result = readRootStructuredFileSync<Record<string, unknown>>({
     rootDir: params.rootDir,
     ...(params.rootRealPath !== undefined ? { rootRealPath: params.rootRealPath } : {}),
@@ -125,7 +110,6 @@ function loadBundleManifestFile(params: {
   });
   if (!result.ok && result.reason === "open") {
     return matchRootFileOpenFailure(result.failure, {
->>>>>>> upstream/main
       path: () => {
         if (params.allowMissing) {
           return { ok: true, raw: {}, manifestPath };
@@ -139,23 +123,6 @@ function loadBundleManifestFile(params: {
       }),
     });
   }
-<<<<<<< HEAD
-  try {
-    const raw = JSON5.parse(fs.readFileSync(opened.fd, "utf-8")) as unknown;
-    if (!isRecord(raw)) {
-      return { ok: false, error: "plugin manifest must be an object", manifestPath };
-    }
-    return { ok: true, raw, manifestPath };
-  } catch (err) {
-    return {
-      ok: false,
-      error: `failed to parse plugin manifest: ${String(err)}`,
-      manifestPath,
-    };
-  } finally {
-    fs.closeSync(opened.fd);
-  }
-=======
   if (!result.ok) {
     return {
       ok: false,
@@ -167,7 +134,6 @@ function loadBundleManifestFile(params: {
     };
   }
   return { ok: true, raw: result.value, manifestPath };
->>>>>>> upstream/main
 }
 
 function resolveCodexSkillDirs(raw: Record<string, unknown>, rootDir: string): string[] {

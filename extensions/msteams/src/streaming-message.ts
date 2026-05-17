@@ -10,7 +10,7 @@
  */
 
 import { createDraftStreamLoop, type DraftStreamLoop } from "openclaw/plugin-sdk/channel-lifecycle";
-import { readStringValue } from "openclaw/plugin-sdk/text-runtime";
+import { readStringValue } from "openclaw/plugin-sdk/string-coerce-runtime";
 
 /** Default throttle interval between stream updates (ms).
  * Teams docs recommend buffering tokens for 1.5-2s; limit is 1 req/s. */
@@ -83,10 +83,7 @@ export class TeamsHttpStream {
   private finalized = false;
   private streamFailed = false;
   private lastStreamedText = "";
-<<<<<<< HEAD
-=======
   private finalMessageId: string | undefined = undefined;
->>>>>>> upstream/main
   private streamStartedAt: number | undefined = undefined;
   private loop: DraftStreamLoop;
 
@@ -185,15 +182,9 @@ export class TeamsHttpStream {
   /**
    * Finalize the stream — send the final message activity.
    */
-<<<<<<< HEAD
-  async finalize(): Promise<void> {
-    if (this.finalized) {
-      return;
-=======
   async finalize(): Promise<string | undefined> {
     if (this.finalized) {
       return this.finalMessageId;
->>>>>>> upstream/main
     }
     this.finalized = true;
     this.stopped = true;
@@ -205,11 +196,7 @@ export class TeamsHttpStream {
     // bar after its streaming timeout. Sending an empty final message fails
     // with 403.
     if (!this.accumulatedText.trim()) {
-<<<<<<< HEAD
-      return;
-=======
       return this.finalMessageId;
->>>>>>> upstream/main
     }
 
     // If streaming failed (>4000 chars or POST errors), close the stream
@@ -219,29 +206,18 @@ export class TeamsHttpStream {
     if (this.streamFailed) {
       if (this.streamId) {
         try {
-<<<<<<< HEAD
-          await this.sendActivity({
-=======
           const response = await this.sendActivity({
->>>>>>> upstream/main
             type: "message",
             text: this.lastStreamedText || "",
             channelData: { feedbackLoopEnabled: this.feedbackLoopEnabled },
             entities: [AI_GENERATED_ENTITY, buildStreamInfoEntity(this.streamId, "final")],
           });
-<<<<<<< HEAD
-=======
           this.finalMessageId = extractId(response);
->>>>>>> upstream/main
         } catch {
           // Best effort — stream will auto-close after Teams timeout
         }
       }
-<<<<<<< HEAD
-      return;
-=======
       return this.finalMessageId;
->>>>>>> upstream/main
     }
 
     // Send final message activity.
@@ -261,20 +237,13 @@ export class TeamsHttpStream {
         entities,
       };
 
-<<<<<<< HEAD
-      await this.sendActivity(finalActivity);
-=======
       const response = await this.sendActivity(finalActivity);
       this.finalMessageId = extractId(response);
->>>>>>> upstream/main
     } catch (err) {
       this.streamFailed = true;
       this.onError?.(err);
     }
-<<<<<<< HEAD
-=======
     return this.finalMessageId;
->>>>>>> upstream/main
   }
 
   /** Whether streaming successfully delivered content (at least one chunk sent, not failed). */
@@ -297,8 +266,6 @@ export class TeamsHttpStream {
     return this.finalized;
   }
 
-<<<<<<< HEAD
-=======
   /** Platform id returned by the final message activity, when available. */
   get messageId(): string | undefined {
     return this.finalMessageId;
@@ -309,7 +276,6 @@ export class TeamsHttpStream {
     return this.streamId;
   }
 
->>>>>>> upstream/main
   /** Whether streaming fell back (not used in this implementation). */
   get isFallback(): boolean {
     return false;

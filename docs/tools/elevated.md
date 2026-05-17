@@ -102,18 +102,6 @@ Allowlist entry formats:
 
 ## What elevated does not control
 
-<<<<<<< HEAD
-- **Tool policy**: if `exec` is denied by tool policy, elevated cannot override it
-- **Host selection policy**: elevated does not turn `auto` into a free cross-host override. It uses the configured/session exec target rules, choosing `node` only when the target is already `node`.
-- **Separate from `/exec`**: the `/exec` directive adjusts per-session exec defaults for authorized senders and does not require elevated mode
-
-## Related
-
-- [Exec tool](/tools/exec) — shell command execution
-- [Exec approvals](/tools/exec-approvals) — approval and allowlist system
-- [Sandboxing](/gateway/sandboxing) — sandbox configuration
-- [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated)
-=======
 - **Tool policy**: if `exec` is denied by tool policy, elevated cannot override it.
 - **Host selection policy**: elevated does not turn `auto` into a free cross-host override. It uses the configured/session exec target rules, choosing `node` only when the target is already `node`.
 - **Separate from `/exec`**: the `/exec` directive adjusts per-session exec defaults for authorized senders and does not require elevated mode.
@@ -138,4 +126,3 @@ Allowlist entry formats:
     How the three gates compose during a tool call.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

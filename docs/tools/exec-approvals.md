@@ -18,11 +18,7 @@ skips approvals).
 <Note>
 Effective policy is the **stricter** of `tools.exec.*` and approvals
 defaults; if an approvals field is omitted, the `tools.exec` value is
-<<<<<<< HEAD
-used. Host exec also uses local approvals state on that machine — a
-=======
 used. Host exec also uses local approvals state on that machine - a
->>>>>>> upstream/main
 host-local `ask: "always"` in `~/.openclaw/exec-approvals.json` keeps
 prompting even if session or config defaults request `ask: "on-miss"`.
 </Note>
@@ -60,7 +56,8 @@ Exec approvals are enforced locally on the execution host:
 
 - Gateway-authenticated callers are trusted operators for that Gateway.
 - Paired nodes extend that trusted operator capability onto the node host.
-- Exec approvals reduce accidental execution risk, but are **not** a per-user auth boundary.
+- Exec approvals reduce accidental execution risk, but are **not** a per-user auth boundary or filesystem read-only policy.
+- Once approved, a command can mutate files according to the selected host or sandbox filesystem permissions.
 - Approved node-host runs bind canonical execution context: canonical cwd, exact argv, env binding when present, and pinned executable path when applicable.
 - For shell scripts and direct interpreter/runtime file invocations, OpenClaw also tries to bind one concrete local file operand. If that bound file changes after approval but before execution, the run is denied instead of executing drifted content.
 - File binding is intentionally best-effort, **not** a complete semantic model of every interpreter/runtime loader path. If approval mode cannot identify exactly one concrete local file to bind, it refuses to mint an approval-backed run instead of pretending full coverage.
@@ -120,30 +117,18 @@ Example schema:
 ### `exec.security`
 
 <ParamField path="security" type='"deny" | "allowlist" | "full"'>
-<<<<<<< HEAD
-  - `deny` — block all host exec requests.
-  - `allowlist` — allow only allowlisted commands.
-  - `full` — allow everything (equivalent to elevated).
-=======
   - `deny` - block all host exec requests.
   - `allowlist` - allow only allowlisted commands.
   - `full` - allow everything (equivalent to elevated).
->>>>>>> upstream/main
 
 </ParamField>
 
 ### `exec.ask`
 
 <ParamField path="ask" type='"off" | "on-miss" | "always"'>
-<<<<<<< HEAD
-  - `off` — never prompt.
-  - `on-miss` — prompt only when the allowlist does not match.
-  - `always` — prompt on every command. `allow-always` durable trust does **not** suppress prompts when effective ask mode is `always`.
-=======
   - `off` - never prompt.
   - `on-miss` - prompt only when the allowlist does not match.
   - `always` - prompt on every command. `allow-always` durable trust does **not** suppress prompts when effective ask mode is `always`.
->>>>>>> upstream/main
 
 </ParamField>
 
@@ -152,15 +137,9 @@ Example schema:
 <ParamField path="askFallback" type='"deny" | "allowlist" | "full"'>
   Resolution when a prompt is required but no UI is reachable.
 
-<<<<<<< HEAD
-- `deny` — block.
-- `allowlist` — allow only if allowlist matches.
-- `full` — allow.
-=======
 - `deny` - block.
 - `allowlist` - allow only if allowlist matches.
 - `full` - allow.
->>>>>>> upstream/main
 
 </ParamField>
 
@@ -187,14 +166,24 @@ In strict mode these commands still need explicit approval, and
 `allow-always` does not persist new allowlist entries for them
 automatically.
 
+### `tools.exec.commandHighlighting`
+
+<ParamField path="commandHighlighting" type="boolean" default="false">
+  Controls only presentation in exec approval prompts. When enabled,
+  OpenClaw may attach parser-derived command spans so Web approval
+  prompts can highlight command tokens. Set it to `true` to enable
+  command text highlighting.
+</ParamField>
+
+This setting does **not** change `security`, `ask`, allowlist matching,
+strict inline-eval behavior, approval forwarding, or command execution.
+It can be set globally under `tools.exec.commandHighlighting` or per
+agent under `agents.list[].tools.exec.commandHighlighting`.
+
 ## YOLO mode (no-approval)
 
 If you want host exec to run without approval prompts, you must open
-<<<<<<< HEAD
-**both** policy layers — requested exec policy in OpenClaw config
-=======
 **both** policy layers - requested exec policy in OpenClaw config
->>>>>>> upstream/main
 (`tools.exec.*`) **and** host-local approvals policy in
 `~/.openclaw/exec-approvals.json`.
 
@@ -220,11 +209,7 @@ CLI-backed providers that expose their own noninteractive permission mode
 can follow this policy. Claude CLI adds
 `--permission-mode bypassPermissions` when OpenClaw's requested exec
 policy is YOLO. Override that backend behavior with explicit Claude args
-<<<<<<< HEAD
-under `agents.defaults.cliBackends.claude-cli.args` / `resumeArgs` —
-=======
 under `agents.defaults.cliBackends.claude-cli.args` / `resumeArgs` -
->>>>>>> upstream/main
 for example `--permission-mode default`, `acceptEdits`, or
 `bypassPermissions`.
 
@@ -329,16 +314,6 @@ Examples:
 - `~/.local/bin/*`
 - `/opt/homebrew/bin/rg`
 
-<<<<<<< HEAD
-Each allowlist entry tracks:
-
-| Field              | Meaning                          |
-| ------------------ | -------------------------------- |
-| `id`               | Stable UUID used for UI identity |
-| `lastUsedAt`       | Last-used timestamp              |
-| `lastUsedCommand`  | Last command that matched        |
-| `lastResolvedPath` | Last resolved binary path        |
-=======
 ### Restricting arguments with argPattern
 
 Add `argPattern` when an allowlist entry should match a binary and a
@@ -385,7 +360,6 @@ Each allowlist entry supports:
 | `lastUsedAt`       | Last-used timestamp                                           |
 | `lastUsedCommand`  | Last command that matched                                     |
 | `lastResolvedPath` | Last resolved binary path                                     |
->>>>>>> upstream/main
 
 ## Auto-allow skill CLIs
 
@@ -406,11 +380,7 @@ skill bin list. Disable this if you want strict manual allowlists.
 For safe bins (the stdin-only fast-path), interpreter binding details, and
 how to forward approval prompts to Slack/Discord/Telegram (or run them as
 native approval clients), see
-<<<<<<< HEAD
-[Exec approvals — advanced](/tools/exec-approvals-advanced).
-=======
 [Exec approvals - advanced](/tools/exec-approvals-advanced).
->>>>>>> upstream/main
 
 ## Control UI editing
 
@@ -424,11 +394,7 @@ Nodes must advertise `system.execApprovals.get/set` (macOS app or
 headless node host). If a node does not advertise exec approvals yet,
 edit its local `~/.openclaw/exec-approvals.json` directly.
 
-<<<<<<< HEAD
-CLI: `openclaw approvals` supports gateway or node editing — see
-=======
 CLI: `openclaw approvals` supports gateway or node editing - see
->>>>>>> upstream/main
 [Approvals CLI](/cli/approvals).
 
 ## Approval flow
@@ -484,11 +450,7 @@ run.
 ## Related
 
 <CardGroup cols={2}>
-<<<<<<< HEAD
-  <Card title="Exec approvals — advanced" href="/tools/exec-approvals-advanced" icon="gear">
-=======
   <Card title="Exec approvals - advanced" href="/tools/exec-approvals-advanced" icon="gear">
->>>>>>> upstream/main
     Safe bins, interpreter binding, and approval forwarding to chat.
   </Card>
   <Card title="Exec tool" href="/tools/exec" icon="terminal">

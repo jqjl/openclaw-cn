@@ -1,7 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-import { buildBeforeModelResolveAttachments, resolveHookModelSelection } from "./setup.js";
-=======
 import type { ModelDefinitionConfig } from "../../../config/types.models.js";
 import type { OpenClawConfig } from "../../../config/types.openclaw.js";
 import type { ProviderRuntimeModel } from "../../../plugins/provider-runtime-model.types.js";
@@ -10,7 +7,6 @@ import {
   resolveEffectiveRuntimeModel,
   resolveHookModelSelection,
 } from "./setup.js";
->>>>>>> upstream/main
 
 const hookContext = {
   sessionId: "session-1",
@@ -84,8 +80,6 @@ describe("resolveHookModelSelection", () => {
     );
   });
 });
-<<<<<<< HEAD
-=======
 
 function createRuntimeModel(): ProviderRuntimeModel {
   return {
@@ -173,4 +167,3 @@ describe("resolveEffectiveRuntimeModel", () => {
     expect(result.effectiveModel.contextWindow).toBe(272_000);
   });
 });
->>>>>>> upstream/main

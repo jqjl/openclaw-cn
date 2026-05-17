@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-import fs from "node:fs";
-import path from "node:path";
-import { decodeRecoveryKey } from "matrix-js-sdk/lib/crypto-api/recovery-key.js";
-=======
 import { decodeRecoveryKey } from "matrix-js-sdk/lib/crypto-api/recovery-key.js";
 import { loadJsonFile, saveJsonFile } from "openclaw/plugin-sdk/json-store";
->>>>>>> upstream/main
 import { formatMatrixErrorMessage, formatMatrixErrorReason } from "../errors.js";
 import { LogService } from "./logger.js";
 import type {
@@ -404,19 +398,9 @@ export class MatrixRecoveryKeyStore {
       return null;
     }
     try {
-<<<<<<< HEAD
-      if (!fs.existsSync(this.recoveryKeyPath)) {
-        return null;
-      }
-      const raw = fs.readFileSync(this.recoveryKeyPath, "utf8");
-      const parsed = JSON.parse(raw) as Partial<MatrixStoredRecoveryKey>;
-      if (
-        parsed.version !== 1 ||
-=======
       const parsed = loadJsonFile<Partial<MatrixStoredRecoveryKey>>(this.recoveryKeyPath);
       if (
         parsed?.version !== 1 ||
->>>>>>> upstream/main
         typeof parsed.createdAt !== "string" ||
         typeof parsed.privateKeyBase64 !== "string" || // pragma: allowlist secret
         !parsed.privateKeyBase64.trim()
@@ -461,13 +445,7 @@ export class MatrixRecoveryKeyStore {
             }
           : undefined,
       };
-<<<<<<< HEAD
-      fs.mkdirSync(path.dirname(this.recoveryKeyPath), { recursive: true });
-      fs.writeFileSync(this.recoveryKeyPath, JSON.stringify(payload, null, 2), "utf8");
-      fs.chmodSync(this.recoveryKeyPath, 0o600);
-=======
       saveJsonFile(this.recoveryKeyPath, payload);
->>>>>>> upstream/main
     } catch (err) {
       LogService.warn("MatrixClientLite", "Failed to persist recovery key:", err);
     }

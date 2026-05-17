@@ -2,9 +2,10 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "GetAccountResponse",
   "type": "object",
-  "required": ["requiresOpenaiAuth"],
+  "required": [
+    "requiresOpenaiAuth"
+  ],
   "properties": {
-<<<<<<< HEAD
     "account": {
       "anyOf": [
         {
@@ -18,35 +19,34 @@
     "requiresOpenaiAuth": {
       "type": "boolean"
     }
-=======
-    "account": { "anyOf": [{ "$ref": "#/definitions/Account" }, { "type": "null" }] },
-    "requiresOpenaiAuth": { "type": "boolean" }
->>>>>>> upstream/main
   },
   "definitions": {
     "Account": {
       "oneOf": [
         {
           "type": "object",
-          "required": ["type"],
+          "required": [
+            "type"
+          ],
           "properties": {
-<<<<<<< HEAD
             "type": {
               "type": "string",
-              "enum": ["apiKey"],
+              "enum": [
+                "apiKey"
+              ],
               "title": "ApiKeyAccountType"
             }
-=======
-            "type": { "type": "string", "enum": ["apiKey"], "title": "ApiKeyAccountType" }
->>>>>>> upstream/main
           },
           "title": "ApiKeyAccount"
         },
         {
           "type": "object",
-          "required": ["email", "planType", "type"],
+          "required": [
+            "email",
+            "planType",
+            "type"
+          ],
           "properties": {
-<<<<<<< HEAD
             "email": {
               "type": "string"
             },
@@ -55,24 +55,25 @@
             },
             "type": {
               "type": "string",
-              "enum": ["chatgpt"],
+              "enum": [
+                "chatgpt"
+              ],
               "title": "ChatgptAccountType"
             }
-=======
-            "email": { "type": "string" },
-            "planType": { "$ref": "#/definitions/PlanType" },
-            "type": { "type": "string", "enum": ["chatgpt"], "title": "ChatgptAccountType" }
->>>>>>> upstream/main
           },
           "title": "ChatgptAccount"
         },
         {
           "type": "object",
-          "required": ["type"],
+          "required": [
+            "type"
+          ],
           "properties": {
             "type": {
               "type": "string",
-              "enum": ["amazonBedrock"],
+              "enum": [
+                "amazonBedrock"
+              ],
               "title": "AmazonBedrockAccountType"
             }
           },

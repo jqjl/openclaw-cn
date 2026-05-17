@@ -6,10 +6,7 @@ import tls from "node:tls";
 import { promisify } from "node:util";
 import type { GatewayTlsConfig } from "../../config/types.gateway.js";
 import { CONFIG_DIR, ensureDir, resolveUserPath, shortenHomeInString } from "../../utils.js";
-<<<<<<< HEAD
-=======
 import { pathExists } from "../fs-safe.js";
->>>>>>> upstream/main
 import { resolveSystemBin } from "../resolve-system-bin.js";
 import { normalizeFingerprint } from "./fingerprint.js";
 
@@ -26,18 +23,6 @@ export type GatewayTlsRuntime = {
   error?: string;
 };
 
-<<<<<<< HEAD
-async function fileExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-=======
->>>>>>> upstream/main
 async function generateSelfSignedCert(params: {
   certPath: string;
   keyPath: string;
@@ -92,13 +77,8 @@ export async function loadGatewayTlsRuntime(
   const keyPath = resolveUserPath(cfg.keyPath ?? path.join(baseDir, "gateway-key.pem"));
   const caPath = cfg.caPath ? resolveUserPath(cfg.caPath) : undefined;
 
-<<<<<<< HEAD
-  const hasCert = await fileExists(certPath);
-  const hasKey = await fileExists(keyPath);
-=======
   const hasCert = await pathExists(certPath);
   const hasKey = await pathExists(keyPath);
->>>>>>> upstream/main
 
   if (!hasCert && !hasKey && autoGenerate) {
     try {
@@ -114,11 +94,7 @@ export async function loadGatewayTlsRuntime(
     }
   }
 
-<<<<<<< HEAD
-  if (!(await fileExists(certPath)) || !(await fileExists(keyPath))) {
-=======
   if (!(await pathExists(certPath)) || !(await pathExists(keyPath))) {
->>>>>>> upstream/main
     return {
       enabled: false,
       required: true,

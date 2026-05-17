@@ -1,6 +1,6 @@
 import { ChannelType } from "discord-api-types/v10";
 import { recordChannelActivity } from "openclaw/plugin-sdk/channel-activity-runtime";
-import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { MarkdownTableMode, OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import type { OutboundMediaAccess } from "openclaw/plugin-sdk/media-runtime";
 import { requireRuntimeConfig } from "openclaw/plugin-sdk/plugin-config-runtime";
 import type { ChunkMode } from "openclaw/plugin-sdk/reply-chunking";
@@ -24,10 +24,7 @@ import {
 import { parseAndResolveRecipient } from "./recipient-resolution.js";
 import { loadOutboundMediaFromUrl } from "./runtime-api.js";
 import { sendMessageDiscord } from "./send.outbound.js";
-<<<<<<< HEAD
-=======
 import { createDiscordSendResult } from "./send.receipt.js";
->>>>>>> upstream/main
 import {
   buildDiscordSendError,
   createDiscordClient,
@@ -325,19 +322,12 @@ export async function sendDiscordComponentMessage(
     direction: "outbound",
   });
 
-<<<<<<< HEAD
-  return {
-    messageId: result.id ?? "unknown",
-    channelId: result.channel_id ?? channelId,
-  };
-=======
   return createDiscordSendResult({
     result,
     fallbackChannelId: channelId,
     kind: "card",
     ...(opts.replyTo ? { replyToId: opts.replyTo } : {}),
   });
->>>>>>> upstream/main
 }
 
 export async function editDiscordComponentMessage(
@@ -387,12 +377,6 @@ export async function editDiscordComponentMessage(
     direction: "outbound",
   });
 
-<<<<<<< HEAD
-  return {
-    messageId: result.id ?? messageId,
-    channelId: result.channel_id ?? channelId,
-  };
-=======
   return createDiscordSendResult({
     result: {
       id: result.id ?? messageId,
@@ -402,5 +386,4 @@ export async function editDiscordComponentMessage(
     kind: "card",
     ...(opts.replyTo ? { replyToId: opts.replyTo } : {}),
   });
->>>>>>> upstream/main
 }

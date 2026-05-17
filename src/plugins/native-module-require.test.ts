@@ -77,8 +77,6 @@ describe("tryNativeRequireJavaScriptModule", () => {
     ).toEqual({ ok: false });
   });
 
-<<<<<<< HEAD
-=======
   it("declines missing dependency errors when the caller can use source transform fallback", () => {
     const dir = makeTempDir();
     const modulePath = path.join(dir, "plugin.cjs");
@@ -93,7 +91,6 @@ describe("tryNativeRequireJavaScriptModule", () => {
     ).toEqual({ ok: false });
   });
 
->>>>>>> upstream/main
   it("propagates real module evaluation errors instead of falling back", () => {
     const dir = makeTempDir();
     const modulePath = path.join(dir, "plugin.cjs");
@@ -107,8 +104,6 @@ describe("tryNativeRequireJavaScriptModule", () => {
       "plugin exploded during native load",
     );
   });
-<<<<<<< HEAD
-=======
 
   it("declines real module evaluation errors when the caller can use source transform fallback", () => {
     const dir = makeTempDir();
@@ -126,7 +121,6 @@ describe("tryNativeRequireJavaScriptModule", () => {
       }),
     ).toEqual({ ok: false });
   });
->>>>>>> upstream/main
 });
 
 describe("isJavaScriptModulePath", () => {

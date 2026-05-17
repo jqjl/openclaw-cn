@@ -3,10 +3,7 @@ summary: "Run OpenClaw with Ollama (cloud and local models)"
 read_when:
   - You want to run OpenClaw with cloud or local models via Ollama
   - You need Ollama setup and configuration guidance
-<<<<<<< HEAD
-=======
   - You want Ollama vision models for image understanding
->>>>>>> upstream/main
 title: "Ollama"
 ---
 
@@ -168,11 +165,8 @@ Choose your preferred setup method and mode.
 
     Use **Cloud only** during setup. OpenClaw prompts for `OLLAMA_API_KEY`, sets `baseUrl: "https://ollama.com"`, and seeds the hosted cloud model list. This path does **not** require a local Ollama server or `ollama signin`.
 
-<<<<<<< HEAD
-=======
     The cloud model list shown during `openclaw onboard` is populated live from `https://ollama.com/api/tags`, capped at 500 entries, so the picker reflects the current hosted catalog rather than a static seed. If `ollama.com` is unreachable or returns no models at setup time, OpenClaw falls back to the previous hardcoded suggestions so onboarding still completes.
 
->>>>>>> upstream/main
   </Tab>
 
   <Tab title="Local only">
@@ -278,8 +272,6 @@ The new model will be automatically discovered and available to use.
 If you set `models.providers.ollama` explicitly, or configure a custom remote provider such as `models.providers.ollama-cloud` with `api: "ollama"`, auto-discovery is skipped and you must define models manually. Loopback custom providers such as `http://127.0.0.2:11434` are still treated as local. See the explicit config section below.
 </Note>
 
-<<<<<<< HEAD
-=======
 ## Vision and image description
 
 The bundled Ollama plugin registers Ollama as an image-capable media-understanding provider. This lets OpenClaw route explicit image-description requests and configured image-model defaults through local or hosted Ollama vision models.
@@ -372,7 +364,6 @@ If you define `models.providers.ollama.models` manually, mark vision models with
 
 OpenClaw rejects image-description requests for models that are not marked image-capable. With implicit discovery, OpenClaw reads this from Ollama when `/api/show` reports a vision capability.
 
->>>>>>> upstream/main
 ## Configuration
 
 <Tabs>
@@ -972,11 +963,8 @@ For the full setup and behavior details, see [Ollama Web Search](/tools/ollama-s
   <Accordion title="Streaming configuration">
     OpenClaw's Ollama integration uses the **native Ollama API** (`/api/chat`) by default, which fully supports streaming and tool calling simultaneously. No special configuration is needed.
 
-<<<<<<< HEAD
-=======
     For native `/api/chat` requests, OpenClaw also forwards thinking control directly to Ollama: `/think off` and `openclaw agent --thinking off` send top-level `think: false` unless an explicit model `params.think`/`params.thinking` value is configured, while `/think low|medium|high` send the matching top-level `think` effort string. `/think max` maps to Ollama's highest native effort, `think: "high"`.
 
->>>>>>> upstream/main
     <Tip>
     If you need to use the OpenAI-compatible endpoint, see the "Legacy OpenAI-compatible mode" section above. Streaming and tool calling may not work simultaneously in that mode.
     </Tip>

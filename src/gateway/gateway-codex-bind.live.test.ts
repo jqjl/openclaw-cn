@@ -2,12 +2,9 @@ import { randomBytes, randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { isLiveTestEnabled } from "../agents/live-test-helpers.js";
-<<<<<<< HEAD
-=======
 import type { ChannelOutboundContext } from "../channels/plugins/types.public.js";
->>>>>>> upstream/main
 import { clearConfigCache, clearRuntimeConfigSnapshot } from "../config/config.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { isTruthyEnvValue } from "../infra/env.js";
@@ -35,9 +32,6 @@ const CODEX_BIND_TIMEOUT_MS = 10 * 60_000;
 const CODEX_BIND_REQUEST_TIMEOUT_MS = 180_000;
 const DEFAULT_CODEX_BIND_MODEL = "gpt-5.4";
 
-<<<<<<< HEAD
-function createSlackCurrentConversationBindingRegistry() {
-=======
 type CapturedOutboundReply = {
   accountId?: string;
   text: string;
@@ -46,7 +40,6 @@ type CapturedOutboundReply = {
 };
 
 function createSlackCurrentConversationBindingRegistry(outboundReplies: CapturedOutboundReply[]) {
->>>>>>> upstream/main
   return createTestRegistry([
     {
       pluginId: "slack",
@@ -69,8 +62,6 @@ function createSlackCurrentConversationBindingRegistry(outboundReplies: Captured
         conversationBindings: {
           supportsCurrentConversationBinding: true,
         },
-<<<<<<< HEAD
-=======
         outbound: {
           deliveryMode: "direct",
           sendText: async ({ accountId, text, threadId, to }: ChannelOutboundContext) => {
@@ -83,7 +74,6 @@ function createSlackCurrentConversationBindingRegistry(outboundReplies: Captured
             return { channel: "slack", messageId: `slack-${outboundReplies.length}` };
           },
         },
->>>>>>> upstream/main
         bindings: {
           compileConfiguredBinding: () => null,
           matchInboundConversation: () => null,
@@ -114,16 +104,20 @@ async function getFreeGatewayPort(): Promise<number> {
 }
 
 function extractAssistantTexts(messages: unknown[]): string[] {
-  return messages
-    .map((entry) => {
-      if (!entry || typeof entry !== "object") {
-        return undefined;
-      }
-      return (entry as { role?: unknown }).role === "assistant"
-        ? extractFirstTextBlock(entry)
-        : undefined;
-    })
-    .filter((value): value is string => typeof value === "string" && value.trim().length > 0);
+  const texts: string[] = [];
+  for (const entry of messages) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    if ((entry as { role?: unknown }).role !== "assistant") {
+      continue;
+    }
+    const text = extractFirstTextBlock(entry);
+    if (typeof text === "string" && text.trim().length > 0) {
+      texts.push(text);
+    }
+  }
+  return texts;
 }
 
 function formatAssistantTextPreview(texts: string[], maxChars = 800): string {
@@ -134,8 +128,6 @@ function formatAssistantTextPreview(texts: string[], maxChars = 800): string {
   return combined.length <= maxChars ? combined : combined.slice(-maxChars);
 }
 
-<<<<<<< HEAD
-=======
 async function waitForOutboundText(params: {
   replies: CapturedOutboundReply[];
   contains: string;
@@ -146,9 +138,12 @@ async function waitForOutboundText(params: {
   const startedAt = Date.now();
 
   while (Date.now() - startedAt < timeoutMs) {
-    const outboundTexts = params.replies
-      .map((reply) => reply.text)
-      .filter((value) => value.trim().length > 0);
+    const outboundTexts: string[] = [];
+    for (const reply of params.replies) {
+      if (reply.text.trim().length > 0) {
+        outboundTexts.push(reply.text);
+      }
+    }
     const minReplyCount = params.minReplyCount ?? 1;
     const matchedText = outboundTexts
       .slice(Math.max(0, minReplyCount - 1))
@@ -166,7 +161,6 @@ async function waitForOutboundText(params: {
   );
 }
 
->>>>>>> upstream/main
 function restoreEnvVar(name: string, value: string | undefined): void {
   if (value === undefined) {
     delete process.env[name];
@@ -194,10 +188,7 @@ async function sendChatAndWait(params: {
   originatingChannel: string;
   originatingTo: string;
   originatingAccountId: string;
-<<<<<<< HEAD
-=======
   deliver?: boolean;
->>>>>>> upstream/main
   attachments?: Array<{
     mimeType: string;
     fileName: string;
@@ -211,10 +202,7 @@ async function sendChatAndWait(params: {
     originatingChannel: params.originatingChannel,
     originatingTo: params.originatingTo,
     originatingAccountId: params.originatingAccountId,
-<<<<<<< HEAD
-=======
     deliver: params.deliver,
->>>>>>> upstream/main
     attachments: params.attachments,
   });
   if (started?.status !== "started" || typeof started.runId !== "string") {
@@ -362,10 +350,7 @@ async function writeGatewayConfig(params: {
         agentRuntime: { id: "codex" },
         model: { primary: `codex/${params.model}` },
         skipBootstrap: true,
-<<<<<<< HEAD
-=======
         heartbeat: { every: "0m" },
->>>>>>> upstream/main
         sandbox: { mode: "off" },
       },
     },
@@ -401,10 +386,7 @@ describeLive("gateway live (native Codex conversation binding)", () => {
       const conversationId = `user:${slackUserId}`;
       const bindModel =
         process.env.OPENCLAW_LIVE_CODEX_BIND_MODEL?.trim() || DEFAULT_CODEX_BIND_MODEL;
-<<<<<<< HEAD
-=======
       const outboundReplies: CapturedOutboundReply[] = [];
->>>>>>> upstream/main
 
       await fs.mkdir(workspace, { recursive: true });
       await fs.writeFile(
@@ -452,11 +434,7 @@ describeLive("gateway live (native Codex conversation binding)", () => {
         requestTimeoutMs: CODEX_BIND_REQUEST_TIMEOUT_MS,
         clientDisplayName: "vitest-codex-bind-live",
       });
-<<<<<<< HEAD
-      const channelRegistry = createSlackCurrentConversationBindingRegistry();
-=======
       const channelRegistry = createSlackCurrentConversationBindingRegistry(outboundReplies);
->>>>>>> upstream/main
       pinActivePluginChannelRegistry(channelRegistry);
 
       try {
@@ -475,30 +453,20 @@ describeLive("gateway live (native Codex conversation binding)", () => {
           originatingChannel: "slack",
           originatingTo: conversationId,
           originatingAccountId: accountId,
-<<<<<<< HEAD
-        });
-        const bindHistory = await waitForAssistantText({
-          client,
-          sessionKey,
-=======
           deliver: true,
         });
         const bindReply = await waitForOutboundText({
           replies: outboundReplies,
->>>>>>> upstream/main
           contains: "Bound this conversation to Codex thread",
           timeoutMs: CODEX_BIND_REQUEST_TIMEOUT_MS,
         });
+        expect(bindReply.matchedText).toContain("Bound this conversation to Codex thread");
         const boundSessionKey = resolveBoundSessionKey({
           channel: "slack",
           accountId,
           conversationId,
         });
-<<<<<<< HEAD
-        let commandAssistantCount = bindHistory.assistantTexts.length;
-=======
         let commandReplyCount = bindReply.outboundTexts.length;
->>>>>>> upstream/main
 
         const sendCodexCommand = async (message: string, contains: string, timeoutMs = 60_000) => {
           await sendChatAndWait({
@@ -509,17 +477,6 @@ describeLive("gateway live (native Codex conversation binding)", () => {
             originatingChannel: "slack",
             originatingTo: conversationId,
             originatingAccountId: accountId,
-<<<<<<< HEAD
-          });
-          const result = await waitForAssistantText({
-            client,
-            sessionKey,
-            contains,
-            minAssistantCount: commandAssistantCount + 1,
-            timeoutMs,
-          });
-          commandAssistantCount = result.assistantTexts.length;
-=======
             deliver: true,
           });
           const result = await waitForOutboundText({
@@ -529,7 +486,6 @@ describeLive("gateway live (native Codex conversation binding)", () => {
             timeoutMs,
           });
           commandReplyCount = result.outboundTexts.length;
->>>>>>> upstream/main
           return result;
         };
 
@@ -547,15 +503,9 @@ describeLive("gateway live (native Codex conversation binding)", () => {
         await sendCodexCommand("/codex stop", "No active Codex run to stop.");
 
         const bindingStatus = await sendCodexCommand("/codex binding", "- Fast: on");
-<<<<<<< HEAD
-        if (!bindingStatus.matchedAssistantText.includes("- Permissions: default")) {
-          throw new Error(
-            `binding status did not include default permissions: ${bindingStatus.matchedAssistantText}`,
-=======
         if (!bindingStatus.matchedText.includes("- Permissions: default")) {
           throw new Error(
             `binding status did not include default permissions: ${bindingStatus.matchedText}`,
->>>>>>> upstream/main
           );
         }
 
@@ -576,6 +526,7 @@ describeLive("gateway live (native Codex conversation binding)", () => {
           contains: textToken,
           timeoutMs: CODEX_BIND_REQUEST_TIMEOUT_MS,
         });
+        expect(textHistory.matchedAssistantText).toContain(textToken);
 
         await sendChatAndWait({
           client,
@@ -594,7 +545,7 @@ describeLive("gateway live (native Codex conversation binding)", () => {
             },
           ],
         });
-        await waitForAssistantText({
+        const imageHistory = await waitForAssistantText({
           client,
           sessionKey: boundSessionKey,
           contains: "cat",
@@ -602,6 +553,7 @@ describeLive("gateway live (native Codex conversation binding)", () => {
           minAssistantCount: textHistory.assistantTexts.length + 1,
           timeoutMs: CODEX_BIND_REQUEST_TIMEOUT_MS,
         });
+        expect(imageHistory.matchedAssistantText.toLowerCase()).toContain("cat");
 
         await sendCodexCommand("/codex detach", "Detached this conversation from Codex.");
         await sendCodexCommand("/codex binding", "No Codex conversation binding is attached.");

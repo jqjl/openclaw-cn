@@ -53,6 +53,10 @@
   },
   "redirects": [
     {
+      "source": "/channels/bluebubbles",
+      "destination": "/channels/imessage-from-bluebubbles"
+    },
+    {
       "source": "/install/migrating-matrix",
       "destination": "/channels/matrix-migration"
     },
@@ -102,11 +106,7 @@
     },
     {
       "source": "/tools/capability-cookbook",
-<<<<<<< HEAD
-      "destination": "/plugins/architecture"
-=======
       "destination": "/plugins/adding-capabilities"
->>>>>>> upstream/main
     },
     {
       "source": "/brave-search",
@@ -393,16 +393,16 @@
       "destination": "/channels/pairing"
     },
     {
-      "source": "/clawhub",
-      "destination": "/tools/clawhub"
+      "source": "/clawdhub",
+      "destination": "/clawhub"
     },
     {
-      "source": "/clawdhub",
-      "destination": "/tools/clawhub"
+      "source": "/tools/clawhub",
+      "destination": "/clawhub"
     },
     {
       "source": "/tools/clawdhub",
-      "destination": "/tools/clawhub"
+      "destination": "/clawhub"
     },
     {
       "source": "/configuration",
@@ -1050,7 +1050,7 @@
             "groups": [
               {
                 "group": "Overview",
-                "pages": ["channels/index"]
+                "pages": ["channels/index", "announcements/bluebubbles-imessage"]
               },
               {
                 "group": "Mainstream messaging",
@@ -1063,9 +1063,10 @@
                   "channels/msteams",
                   "channels/googlechat",
                   "channels/imessage",
-                  "channels/bluebubbles",
+                  "channels/imessage-from-bluebubbles",
                   "channels/matrix",
                   "channels/matrix-migration",
+                  "channels/matrix-presentation",
                   "channels/matrix-push-rules"
                 ]
               },
@@ -1167,10 +1168,7 @@
                 "group": "Messages and delivery",
                 "pages": [
                   "concepts/messages",
-<<<<<<< HEAD
-=======
                   "concepts/message-lifecycle-refactor",
->>>>>>> upstream/main
                   "concepts/streaming",
                   "concepts/progress-drafts",
                   "concepts/retry",
@@ -1181,7 +1179,7 @@
             ]
           },
           {
-            "tab": "Tools & Plugins",
+            "tab": "Capabilities",
             "groups": [
               {
                 "group": "Overview",
@@ -1193,10 +1191,12 @@
                   "tools/plugin",
                   "plugins/manage-plugins",
                   "plugins/community",
-                  "plugins/plugin-inventory",
-                  "plugins/reference",
-                  "plugins/bundles",
-                  "plugins/dependency-resolution",
+                  "plugins/bundles"
+                ]
+              },
+              {
+                "group": "Bundled plugin guides",
+                "pages": [
                   "plugins/codex-harness",
                   "plugins/codex-computer-use",
                   "plugins/google-meet",
@@ -1204,42 +1204,20 @@
                   "plugins/voice-call",
                   "plugins/memory-wiki",
                   "plugins/memory-lancedb",
-                  "plugins/message-presentation",
+                  "plugins/oc-path",
                   "plugins/skill-workshop",
-                  "plugins/zalouser",
-                  {
-                    "group": "Building plugins",
-                    "pages": [
-                      "plugins/building-plugins",
-                      "plugins/hooks",
-                      "plugins/sdk-channel-plugins",
-<<<<<<< HEAD
-                      "plugins/sdk-provider-plugins",
-=======
-                      "plugins/sdk-channel-message",
-                      "plugins/sdk-provider-plugins",
-                      "plugins/adding-capabilities",
->>>>>>> upstream/main
-                      "plugins/compatibility",
-                      "plugins/sdk-migration"
-                    ]
-                  },
-                  {
-                    "group": "Plugin SDK reference",
-                    "pages": [
-                      "plugins/sdk-overview",
-                      "plugins/sdk-subpaths",
-                      "plugins/sdk-entrypoints",
-                      "plugins/sdk-runtime",
-                      "plugins/sdk-channel-turn",
-                      "plugins/sdk-agent-harness",
-                      "plugins/sdk-setup",
-                      "plugins/sdk-testing",
-                      "plugins/manifest",
-                      "plugins/architecture",
-                      "plugins/architecture-internals"
-                    ]
-                  }
+                  "plugins/zalouser"
+                ]
+              },
+              {
+                "group": "Building plugins",
+                "pages": [
+                  "plugins/building-plugins",
+                  "plugins/sdk-channel-plugins",
+                  "plugins/sdk-provider-plugins",
+                  "plugins/cli-backend-plugins",
+                  "plugins/hooks",
+                  "plugins/adding-capabilities"
                 ]
               },
               {
@@ -1249,12 +1227,11 @@
                   "tools/creating-skills",
                   "tools/skills-config",
                   "tools/slash-commands",
-                  "tools/clawhub",
                   "prose"
                 ]
               },
               {
-                "group": "Automation and tasks",
+                "group": "Automation",
                 "pages": [
                   "automation/index",
                   "automation/cron-jobs",
@@ -1284,6 +1261,7 @@
                   "tools/reactions",
                   "tools/thinking",
                   "tools/tokenjuice",
+                  "tools/tool-search",
                   "tools/loop-detection",
                   "tools/trajectory",
                   "tools/tts",
@@ -1316,26 +1294,7 @@
                       "tools/searxng-search",
                       "tools/tavily"
                     ]
-<<<<<<< HEAD
-                  },
-                  "tools/btw",
-                  "tools/code-execution",
-                  "tools/diffs",
-                  "tools/elevated",
-                  "tools/exec",
-                  "tools/exec-approvals",
-                  "tools/image-generation",
-                  "tools/music-generation",
-                  "tools/llm-task",
-                  "tools/lobster",
-                  "tools/loop-detection",
-                  "tools/pdf",
-                  "tools/reactions",
-                  "tools/thinking",
-                  "tools/video-generation"
-=======
                   }
->>>>>>> upstream/main
                 ]
               },
               {
@@ -1347,6 +1306,35 @@
                   "tools/acp-agents",
                   "tools/acp-agents-setup",
                   "tools/multi-agent-sandbox-tools"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "ClawHub",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": ["clawhub/index", "clawhub/quickstart", "clawhub/how-it-works"]
+              },
+              {
+                "group": "Using ClawHub",
+                "pages": [
+                  "clawhub/cli",
+                  "clawhub/publishing",
+                  "clawhub/skill-format",
+                  "clawhub/soul-format",
+                  "clawhub/auth",
+                  "clawhub/telemetry",
+                  "clawhub/troubleshooting"
+                ]
+              },
+              {
+                "group": "API and trust",
+                "pages": [
+                  "clawhub/api",
+                  "clawhub/http-api",
+                  "clawhub/acceptable-usage"
                 ]
               }
             ]
@@ -1379,10 +1367,8 @@
                   "providers/deepgram",
                   "providers/deepinfra",
                   "providers/deepseek",
-<<<<<<< HEAD
-=======
+                  "providers/ds4",
                   "providers/elevenlabs",
->>>>>>> upstream/main
                   "providers/fal",
                   "providers/fireworks",
                   "providers/github-copilot",
@@ -1413,10 +1399,7 @@
                   "providers/sglang",
                   "providers/stepfun",
                   "providers/synthetic",
-<<<<<<< HEAD
-=======
                   "providers/tencent",
->>>>>>> upstream/main
                   "providers/together",
                   "providers/venice",
                   "providers/vercel-ai-gateway",
@@ -1537,10 +1520,7 @@
                     "group": "Security and sandboxing",
                     "pages": [
                       "gateway/security/index",
-<<<<<<< HEAD
-=======
                       "gateway/security/secure-file-operations",
->>>>>>> upstream/main
                       "gateway/security/audit-checks",
                       "gateway/operator-scopes",
                       "gateway/sandboxing",
@@ -1557,22 +1537,13 @@
                       "gateway/openresponses-http-api",
                       "gateway/tools-invoke-http-api",
                       "gateway/cli-backends",
-                      "gateway/local-models"
+                      "gateway/local-models",
+                      "gateway/local-model-services"
                     ]
                   },
                   {
                     "group": "Networking and discovery",
-<<<<<<< HEAD
-                    "pages": [
-                      "network",
-                      "gateway/network-model",
-                      "gateway/pairing",
-                      "gateway/discovery",
-                      "gateway/bonjour"
-                    ]
-=======
                     "pages": ["network", "gateway/pairing", "gateway/discovery", "gateway/bonjour"]
->>>>>>> upstream/main
                   }
                 ]
               },
@@ -1656,12 +1627,8 @@
                       "cli/message",
                       "cli/models",
                       "cli/sessions",
-<<<<<<< HEAD
-                      "cli/system"
-=======
                       "cli/system",
                       "cli/tasks"
->>>>>>> upstream/main
                     ]
                   },
                   {
@@ -1693,7 +1660,7 @@
                   },
                   {
                     "group": "Plugins and skills",
-                    "pages": ["cli/plugins", "cli/skills"]
+                    "pages": ["cli/plugins", "cli/path", "cli/skills"]
                   },
                   {
                     "group": "Interfaces",
@@ -1721,6 +1688,49 @@
                   "concepts/openclaw-sdk",
                   "reference/openclaw-sdk-api-design",
                   "reference/device-models"
+                ]
+              },
+              {
+                "group": "Codex harness",
+                "pages": [
+                  "plugins/codex-harness-reference",
+                  "plugins/codex-harness-runtime",
+                  "plugins/codex-native-plugins"
+                ]
+              },
+              {
+                "group": "Plugin reference",
+                "pages": [
+                  "plugins/plugin-inventory",
+                  "plugins/reference",
+                  "plugins/dependency-resolution",
+                  "plugins/install-overrides"
+                ]
+              },
+              {
+                "group": "Plugin SDK reference",
+                "pages": [
+                  "plugins/sdk-overview",
+                  "plugins/sdk-subpaths",
+                  "plugins/sdk-entrypoints",
+                  "plugins/sdk-runtime",
+                  "plugins/sdk-agent-harness",
+                  "plugins/sdk-setup",
+                  "plugins/sdk-testing",
+                  "plugins/manifest"
+                ]
+              },
+              {
+                "group": "Plugin maintainer reference",
+                "pages": [
+                  "plugins/architecture",
+                  "plugins/architecture-internals",
+                  "plugins/sdk-migration",
+                  "plugins/compatibility",
+                  "plugins/sdk-channel-message",
+                  "plugins/sdk-channel-turn",
+                  "plugins/sdk-channel-ingress",
+                  "plugins/message-presentation"
                 ]
               },
               {

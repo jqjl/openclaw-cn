@@ -77,6 +77,9 @@ programmatic delivery.
   preserve isolation; direct chats collapse to `main`).
 - Thinking and verbose flags persist into the session store.
 - Output: plain text by default, or `--json` for structured payload + metadata.
+- With `--json --deliver`, the JSON includes delivery status for sent,
+  suppressed, partial, and failed sends. See
+  [JSON delivery status](/cli/agent#json-delivery-status).
 
 ## Examples
 
@@ -93,11 +96,6 @@ openclaw agent --agent ops --message "Alert" --deliver --reply-channel telegram 
 
 ## Related
 
-<<<<<<< HEAD
-- [Agent CLI reference](/cli/agent)
-- [Sub-agents](/tools/subagents) — background sub-agent spawning
-- [Sessions](/concepts/session) — how session keys work
-=======
 <CardGroup cols={2}>
   <Card title="Agent CLI reference" href="/cli/agent" icon="terminal">
     Full `openclaw agent` flag and option reference.
@@ -112,4 +110,3 @@ openclaw agent --agent ops --message "Alert" --deliver --reply-channel telegram 
     Native command catalog used inside agent sessions.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

@@ -161,11 +161,7 @@ Configure your tunnel's ingress rules to only route the webhook path:
    - Spaces use session key `agent:<agentId>:googlechat:group:<spaceId>`.
 4. DM access is pairing by default. Unknown senders receive a pairing code; approve with:
    - `openclaw pairing approve googlechat <code>`
-<<<<<<< HEAD
-5. Group spaces require @-mention by default. Use `botUser` if mention detection needs the app’s user name.
-=======
 5. Group spaces require @-mention by default. Use `botUser` if mention detection needs the app's user name.
->>>>>>> upstream/main
 
 ## Targets
 
@@ -189,6 +185,7 @@ Use these identifiers for delivery and allowlists:
       audience: "https://gateway.example.com/googlechat",
       webhookPath: "/googlechat",
       botUser: "users/1234567890", // optional; helps mention detection
+      allowBots: false,
       dm: {
         policy: "pairing",
         allowFrom: ["users/1234567890"],
@@ -214,16 +211,13 @@ Notes:
 
 - Service account credentials can also be passed inline with `serviceAccount` (JSON string).
 - `serviceAccountRef` is also supported (env/file SecretRef), including per-account refs under `channels.googlechat.accounts.<id>.serviceAccountRef`.
-<<<<<<< HEAD
-- Default webhook path is `/googlechat` if `webhookPath` isn’t set.
-=======
 - Default webhook path is `/googlechat` if `webhookPath` isn't set.
->>>>>>> upstream/main
 - `dangerouslyAllowNameMatching` re-enables mutable email principal matching for allowlists (break-glass compatibility mode).
 - Reactions are available via the `reactions` tool and `channels action` when `actions.reactions` is enabled.
 - Message actions expose `send` for text and `upload-file` for explicit attachment sends. `upload-file` accepts `media` / `filePath` / `path` plus optional `message`, `filename`, and thread targeting.
 - `typingIndicator` supports `none`, `message` (default), and `reaction` (reaction requires user OAuth).
 - Attachments are downloaded through the Chat API and stored in the media pipeline (size capped by `mediaMaxMb`).
+- Bot-authored Google Chat messages are ignored by default. If you intentionally set `allowBots: true`, accepted bot-authored messages use shared [bot loop protection](/channels/bot-loop-protection). Configure `channels.defaults.botLoopProtection`, then override with `channels.googlechat.botLoopProtection` or `channels.googlechat.groups.<space>.botLoopProtection` when one space needs a different budget.
 
 Secrets reference details: [Secrets Management](/gateway/secrets).
 

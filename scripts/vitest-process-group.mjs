@@ -34,8 +34,6 @@ export function forwardSignalToVitestProcessGroup(params) {
   }
 }
 
-<<<<<<< HEAD
-=======
 function ensureProcessListenerCapacity(processObject, eventName, additionalListeners = 1) {
   if (
     typeof processObject.getMaxListeners !== "function" ||
@@ -56,7 +54,6 @@ function ensureProcessListenerCapacity(processObject, eventName, additionalListe
   }
 }
 
->>>>>>> upstream/main
 export function installVitestProcessGroupCleanup(params) {
   const processObject = params.processObject ?? process;
   const platform = params.platform ?? process.platform;
@@ -85,20 +82,14 @@ export function installVitestProcessGroupCleanup(params) {
       forward(signal);
     };
     signalHandlers.set(signal, handler);
-<<<<<<< HEAD
-=======
     ensureProcessListenerCapacity(processObject, signal);
->>>>>>> upstream/main
     processObject.on(signal, handler);
   }
 
   const exitHandler = () => {
     forward(cleanupSignal);
   };
-<<<<<<< HEAD
-=======
   ensureProcessListenerCapacity(processObject, "exit");
->>>>>>> upstream/main
   processObject.on("exit", exitHandler);
 
   return () => {

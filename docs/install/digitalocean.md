@@ -6,16 +6,12 @@ read_when:
 title: "DigitalOcean"
 ---
 
-<<<<<<< HEAD
-Run a persistent OpenClaw Gateway on a DigitalOcean Droplet.
-=======
 Run a persistent OpenClaw Gateway on a DigitalOcean Droplet (~$6/month for the 1 GB Basic plan).
 
 DigitalOcean is the simplest paid VPS path. If you prefer cheaper or free options:
 
 - [Hetzner](/install/hetzner) — €3.79/mo, more cores/RAM per dollar.
 - [Oracle Cloud](/install/oracle) — Always Free ARM (up to 4 OCPU, 24 GB RAM), but signup can be finicky and ARM-only.
->>>>>>> upstream/main
 
 ## Prerequisites
 
@@ -54,8 +50,17 @@ DigitalOcean is the simplest paid VPS path. If you prefer cheaper or free option
 
     # Install OpenClaw
     curl -fsSL https://openclaw.ai/install.sh | bash
+
+    # Create the non-root user that will own OpenClaw state and services.
+    adduser openclaw
+    usermod -aG sudo openclaw
+    loginctl enable-linger openclaw
+
+    su - openclaw
     openclaw --version
     ```
+
+    Use the root shell only for system bootstrap. Run OpenClaw commands as the non-root `openclaw` user so state lives under `/home/openclaw/.openclaw/` and the Gateway installs as that user's systemd service.
 
   </Step>
 
@@ -101,19 +106,16 @@ DigitalOcean is the simplest paid VPS path. If you prefer cheaper or free option
     **Option B: Tailscale Serve**
 
     ```bash
-    curl -fsSL https://tailscale.com/install.sh | sh
-    tailscale up
+    curl -fsSL https://tailscale.com/install.sh | sudo sh
+    sudo tailscale up
     openclaw config set gateway.tailscale.mode serve
     openclaw gateway restart
     ```
 
     Then open `https://<magicdns>/` from any device on your tailnet.
 
-<<<<<<< HEAD
-=======
     Tailscale Serve authenticates Control UI and WebSocket traffic via tailnet identity headers, which assumes the gateway host itself is trusted. HTTP API endpoints follow the gateway's normal auth mode (token/password) regardless. To require explicit shared-secret credentials over Serve, set `gateway.auth.allowTailscale: false` and use `gateway.auth.mode: "token"` or `"password"`.
 
->>>>>>> upstream/main
     **Option C: Tailnet bind (no Serve)**
 
     ```bash
@@ -126,8 +128,6 @@ DigitalOcean is the simplest paid VPS path. If you prefer cheaper or free option
   </Step>
 </Steps>
 
-<<<<<<< HEAD
-=======
 ## Persistence and backups
 
 OpenClaw state lives under:
@@ -152,7 +152,6 @@ The $6 Droplet only has 1 GB RAM. To keep things smooth:
 - Set `agents.defaults.model.primary` to a smaller model if you hit OOMs on large prompts.
 - Monitor with `free -h` and `htop`.
 
->>>>>>> upstream/main
 ## Troubleshooting
 
 **Gateway will not start** -- Run `openclaw doctor --non-interactive` and check logs with `journalctl --user -u openclaw-gateway.service -n 50`.

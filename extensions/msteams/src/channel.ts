@@ -6,10 +6,7 @@ import type {
   ChannelMessageToolDiscovery,
 } from "openclaw/plugin-sdk/channel-contract";
 import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-<<<<<<< HEAD
-=======
 import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
 import {
   createAllowlistProviderGroupPolicyWarningCollector,
@@ -24,18 +21,14 @@ import { normalizeMessagePresentation } from "openclaw/plugin-sdk/interactive-ru
 import { createLazyRuntimeNamedExport } from "openclaw/plugin-sdk/lazy-runtime";
 import { createRuntimeOutboundDelegates } from "openclaw/plugin-sdk/outbound-runtime";
 import { createComputedAccountStatusAdapter } from "openclaw/plugin-sdk/status-helpers";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import { Type } from "typebox";
-<<<<<<< HEAD
-import type { ChannelMessageActionName, ChannelPlugin, OpenClawConfig } from "../runtime-api.js";
-=======
 import type {
   ChannelMessageActionName,
   ChannelOutboundAdapter,
   ChannelPlugin,
   OpenClawConfig,
 } from "../runtime-api.js";
->>>>>>> upstream/main
 import {
   buildProbeChannelStatusSummary,
   chunkTextForOutbound,
@@ -415,8 +408,6 @@ function describeMSTeamsMessageTool({
   };
 }
 
-<<<<<<< HEAD
-=======
 const msteamsChannelOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   chunker: chunkTextForOutbound,
@@ -458,7 +449,6 @@ const msteamsMessageAdapter = createChannelMessageAdapterFromOutbound({
   },
 });
 
->>>>>>> upstream/main
 export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount, ProbeMSTeamsResult> =
   createChatChannelPlugin({
     base: {
@@ -515,10 +505,7 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount, ProbeMSTeamsRe
           hint: "<conversationId|user:ID|conversation:ID>",
         },
       },
-<<<<<<< HEAD
-=======
       message: msteamsMessageAdapter,
->>>>>>> upstream/main
       directory: createChannelDirectoryAdapter({
         self: async ({ cfg }) => {
           const creds = resolveMSTeamsCredentials(cfg.channels?.msteams);
@@ -1181,21 +1168,5 @@ export const msteamsPlugin: ChannelPlugin<ResolvedMSTeamsAccount, ProbeMSTeamsRe
         };
       },
     },
-<<<<<<< HEAD
-    outbound: {
-      deliveryMode: "direct",
-      chunker: chunkTextForOutbound,
-      chunkerMode: "markdown",
-      textChunkLimit: 4000,
-      pollMaxOptions: 12,
-      ...createRuntimeOutboundDelegates({
-        getRuntime: loadMSTeamsChannelRuntime,
-        sendText: { resolve: (runtime) => runtime.msteamsOutbound.sendText },
-        sendMedia: { resolve: (runtime) => runtime.msteamsOutbound.sendMedia },
-        sendPoll: { resolve: (runtime) => runtime.msteamsOutbound.sendPoll },
-      }),
-    },
-=======
     outbound: msteamsChannelOutbound,
->>>>>>> upstream/main
   });

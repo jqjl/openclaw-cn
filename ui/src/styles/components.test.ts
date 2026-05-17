@@ -1,30 +1,10 @@
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
+import { readStyleSheet } from "../../../test/helpers/ui-style-fixtures.js";
 
-<<<<<<< HEAD
-function readComponentsCss(): string {
-  const cssPath = [
-    resolve(process.cwd(), "ui/src/styles/components.css"),
-    resolve(process.cwd(), "..", "ui/src/styles/components.css"),
-  ].find((candidate) => existsSync(candidate));
-=======
-function readStyleSheet(path: string): string {
-  const cssPath = [resolve(process.cwd(), path), resolve(process.cwd(), "..", path)].find(
-    (candidate) => existsSync(candidate),
-  );
->>>>>>> upstream/main
-  expect(cssPath).toBeTruthy();
-  return readFileSync(cssPath!, "utf8");
-}
-
-<<<<<<< HEAD
-=======
 function readComponentsCss(): string {
   return readStyleSheet("ui/src/styles/components.css");
 }
 
->>>>>>> upstream/main
 describe("agent fallback chip styles", () => {
   it("styles the chip remove control inside the agent model input", () => {
     const css = readComponentsCss();
@@ -36,6 +16,14 @@ describe("agent fallback chip styles", () => {
     expect(css).toContain("outline: 2px solid var(--accent);");
     expect(css).toContain("outline-offset: 2px;");
     expect(css).toContain(".agent-chip-input .chip-remove:disabled");
+  });
+
+  it("keeps touch-primary field controls large enough to avoid iOS focus zoom", () => {
+    const css = readComponentsCss();
+
+    expect(css).toMatch(
+      /@media \(hover: none\) and \(pointer: coarse\) \{[\s\S]*\.field input,[\s\S]*\.field textarea,[\s\S]*\.field select \{[\s\S]*font-size: 16px;/,
+    );
   });
 });
 
@@ -49,8 +37,6 @@ describe("sessions filter styles", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("sessions table responsive styles", () => {
   it("keeps the compaction disclosure and details usable on narrow screens", () => {
     const componentsCss = readComponentsCss();
@@ -58,27 +44,33 @@ describe("sessions table responsive styles", () => {
 
     expect(componentsCss).toContain(".session-compaction-cell {");
     expect(componentsCss).toContain(".session-compaction-trigger {");
+    expect(componentsCss).toContain(".session-status-badge {");
+    expect(componentsCss).toContain(".sessions-table tbody tr.session-data-row > td {");
+    expect(componentsCss).toContain(".session-runtime-cell .mono {");
+    expect(componentsCss).toContain("text-overflow: ellipsis;");
     expect(componentsCss).toContain(".session-details-panel {");
     expect(componentsCss).not.toContain(".session-checkpoint-toggle {");
-    expect(mobileCss).toContain(".data-table.sessions-table {\n    min-width: 540px;");
+    expect(mobileCss).toContain(".data-table.sessions-table {\n    min-width: 560px;");
     expect(mobileCss).toContain(
-      ".sessions-table th:nth-child(10),\n  .sessions-table td:nth-child(10),\n  .sessions-table th:nth-child(11),\n  .sessions-table td:nth-child(11)",
+      ".sessions-table th:nth-child(12),\n  .sessions-table td:nth-child(12),\n  .sessions-table th:nth-child(13),\n  .sessions-table td:nth-child(13)",
     );
     expect(mobileCss).toContain(
-      ".sessions-table th:nth-child(4),\n  .sessions-table td:nth-child(4),\n  .sessions-table th:nth-child(9),\n  .sessions-table td:nth-child(9)",
+      ".sessions-table th:nth-child(4),\n  .sessions-table td:nth-child(4),\n  .sessions-table th:nth-child(11),\n  .sessions-table td:nth-child(11)",
     );
     expect(mobileCss).toContain(
-      ".sessions-table th:nth-child(3),\n  .sessions-table td:nth-child(3),\n  .sessions-table th:nth-child(8),\n  .sessions-table td:nth-child(8)",
+      ".sessions-table th:nth-child(3),\n  .sessions-table td:nth-child(3),\n  .sessions-table th:nth-child(10),\n  .sessions-table td:nth-child(10)",
     );
     expect(mobileCss).toContain(
-      ".sessions-table th:nth-child(5),\n  .sessions-table td:nth-child(5)",
+      ".sessions-table th:nth-child(6),\n  .sessions-table td:nth-child(6),\n  .sessions-table th:nth-child(7),\n  .sessions-table td:nth-child(7)",
     );
     expect(mobileCss).toContain(".data-table.sessions-table .data-table-key-col {");
-    expect(mobileCss).not.toContain(".sessions-table th:nth-child(7),");
+    expect(mobileCss).toContain(".sessions-table .session-status-col {");
+    expect(mobileCss).not.toContain(
+      ".sessions-table th:nth-child(5),\n  .sessions-table td:nth-child(5)",
+    );
   });
 });
 
->>>>>>> upstream/main
 describe("overview access grid styles", () => {
   it("keeps access fields and native controls within the card", () => {
     const css = readComponentsCss();

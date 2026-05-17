@@ -102,23 +102,7 @@ export function readGeneratedBundledChannelConfigs(repoRoot) {
     return new Map();
   }
   const source = fs.readFileSync(metadataPath, "utf8");
-<<<<<<< HEAD
-  const match = source.match(
-    /export const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA = ([\s\S]*?) as const;/u,
-  );
-  if (!match?.[1]) {
-    return new Map();
-  }
-
-  let entries;
-  try {
-    entries = JSON5.parse(match[1]);
-  } catch {
-    return new Map();
-  }
-=======
   const entries = readGeneratedBundledChannelConfigEntries(source);
->>>>>>> upstream/main
   if (!Array.isArray(entries)) {
     return new Map();
   }
@@ -149,8 +133,6 @@ export function readGeneratedBundledChannelConfigs(repoRoot) {
   return byPlugin;
 }
 
-<<<<<<< HEAD
-=======
 function readGeneratedBundledChannelConfigEntries(source) {
   const legacyMatch = source.match(
     /export const GENERATED_BUNDLED_CHANNEL_CONFIG_METADATA = ([\s\S]*?) as const;/u,
@@ -180,7 +162,6 @@ function readGeneratedBundledChannelConfigEntries(source) {
   }
 }
 
->>>>>>> upstream/main
 export function mergeGeneratedChannelConfigs(manifest, generatedChannelConfigs) {
   if (!generatedChannelConfigs || Object.keys(generatedChannelConfigs).length === 0) {
     return manifest;

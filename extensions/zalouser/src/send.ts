@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import { createZalouserSendReceipt } from "./send-receipt.js";
->>>>>>> upstream/main
 import { parseZalouserTextStyles } from "./text-styles.js";
 import type { ZaloEventMessage, ZaloSendOptions, ZaloSendResult } from "./types.js";
 import {
@@ -63,9 +60,6 @@ export async function sendMessageZalouser(
     lastResult = result;
   }
 
-<<<<<<< HEAD
-  return lastResult ?? { ok: false, error: "No message content provided" };
-=======
   return (
     lastResult ?? {
       ok: false,
@@ -73,7 +67,6 @@ export async function sendMessageZalouser(
       receipt: createZalouserSendReceipt({ threadId, kind: "text" }),
     }
   );
->>>>>>> upstream/main
 }
 
 export async function sendImageZalouser(
@@ -124,10 +117,7 @@ export async function sendReactionZalouser(params: {
   return {
     ok: result.ok,
     error: result.error,
-<<<<<<< HEAD
-=======
     receipt: createZalouserSendReceipt({ threadId: params.threadId, kind: "unknown" }),
->>>>>>> upstream/main
   };
 }
 

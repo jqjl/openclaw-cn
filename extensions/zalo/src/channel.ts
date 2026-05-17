@@ -13,10 +13,7 @@ import {
   createChatChannelPlugin,
   type ChannelPlugin,
 } from "openclaw/plugin-sdk/channel-core";
-<<<<<<< HEAD
-=======
 import { defineChannelMessageAdapter } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import {
   buildOpenGroupPolicyRestrictSendersWarning,
   buildOpenGroupPolicyWarning,
@@ -27,7 +24,7 @@ import {
   createRawChannelSendResultAdapter,
 } from "openclaw/plugin-sdk/channel-send-result";
 import { buildTokenChannelStatusSummary } from "openclaw/plugin-sdk/channel-status";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { createStaticReplyToModeResolver } from "openclaw/plugin-sdk/conversation-runtime";
 import { createChannelDirectoryAdapter } from "openclaw/plugin-sdk/directory-runtime";
 import { listResolvedDirectoryUserEntriesFromAllowFrom } from "openclaw/plugin-sdk/directory-runtime";
@@ -105,8 +102,6 @@ const zaloRawSendResultAdapter = createRawChannelSendResultAdapter({
     }),
 });
 
-<<<<<<< HEAD
-=======
 export const zaloMessageAdapter = defineChannelMessageAdapter({
   id: "zalo",
   durableFinal: {
@@ -139,7 +134,6 @@ export const zaloMessageAdapter = defineChannelMessageAdapter({
   },
 });
 
->>>>>>> upstream/main
 const zaloConfigAdapter = createScopedChannelConfigAdapter<ResolvedZaloAccount>({
   sectionKey: "zalo",
   listAccountIds: listZaloAccountIds,
@@ -278,10 +272,7 @@ export const zaloPlugin: ChannelPlugin<ResolvedZaloAccount, ZaloProbeResult> =
         startAccount: async (ctx) =>
           await (await loadZaloChannelRuntime()).startZaloGatewayAccount(ctx),
       },
-<<<<<<< HEAD
-=======
       message: zaloMessageAdapter,
->>>>>>> upstream/main
     },
     security: {
       resolveDmPolicy: resolveZaloDmPolicy,

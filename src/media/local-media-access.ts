@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { assertNoWindowsNetworkPath } from "../infra/local-file-access.js";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../infra/path-guards.js";
->>>>>>> upstream/main
 import { getDefaultMediaLocalRoots } from "./local-roots.js";
 import { resolveInboundMediaReference } from "./media-reference.js";
 
@@ -63,11 +60,7 @@ export async function assertLocalMediaAllowed(
     if (workspaceRoot) {
       const stateDir = path.dirname(workspaceRoot);
       const rel = path.relative(stateDir, resolved);
-<<<<<<< HEAD
-      if (rel && !rel.startsWith("..") && !path.isAbsolute(rel)) {
-=======
       if (rel && isPathInside(stateDir, resolved)) {
->>>>>>> upstream/main
         const firstSegment = rel.split(path.sep)[0] ?? "";
         if (firstSegment.startsWith("workspace-")) {
           throw new LocalMediaAccessError(
@@ -92,11 +85,7 @@ export async function assertLocalMediaAllowed(
         `Invalid localRoots entry (refuses filesystem root): ${root}. Pass a narrower directory.`,
       );
     }
-<<<<<<< HEAD
-    if (resolved === resolvedRoot || resolved.startsWith(resolvedRoot + path.sep)) {
-=======
     if (isPathInside(resolvedRoot, resolved)) {
->>>>>>> upstream/main
       return;
     }
   }

@@ -1,11 +1,8 @@
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/string-coerce-runtime";
 import {
   resolveChannelMediaMaxBytes,
-<<<<<<< HEAD
-=======
   type MSTeamsConfig,
   type MSTeamsReplyStyle,
->>>>>>> upstream/main
   type OpenClawConfig,
   type PluginRuntime,
 } from "../runtime-api.js";
@@ -18,10 +15,7 @@ import type {
 import { formatUnknownError } from "./errors.js";
 import { resolveGraphChatId } from "./graph-upload.js";
 import type { MSTeamsAdapter } from "./messenger.js";
-<<<<<<< HEAD
-=======
 import { resolveMSTeamsReplyPolicy, resolveMSTeamsRouteConfig } from "./policy.js";
->>>>>>> upstream/main
 import { getMSTeamsRuntime } from "./runtime.js";
 import { createMSTeamsAdapter, createMSTeamsTokenProvider, loadMSTeamsSdkWithAuth } from "./sdk.js";
 import { resolveMSTeamsCredentials } from "./token.js";
@@ -36,11 +30,8 @@ export type MSTeamsProactiveContext = {
   log: ReturnType<PluginRuntime["logging"]["getChildLogger"]>;
   /** The type of conversation: personal (1:1), groupChat, or channel */
   conversationType: MSTeamsConversationType;
-<<<<<<< HEAD
-=======
   /** Reply style resolved for proactive text/media sends. */
   replyStyle: MSTeamsReplyStyle;
->>>>>>> upstream/main
   /** Token provider for Graph API / OneDrive operations */
   tokenProvider: MSTeamsAccessTokenProvider;
   /** SharePoint site ID for file uploads in group chats/channels */
@@ -56,8 +47,6 @@ export type MSTeamsProactiveContext = {
   graphChatId?: string | null;
 };
 
-<<<<<<< HEAD
-=======
 export function resolveMSTeamsProactiveReplyStyle(params: {
   cfg?: MSTeamsConfig;
   conversationId: string;
@@ -84,7 +73,6 @@ export function resolveMSTeamsProactiveReplyStyle(params: {
   return replyStyle;
 }
 
->>>>>>> upstream/main
 /**
  * Parse the target value into a conversation reference lookup key.
  * Supported formats:
@@ -210,15 +198,12 @@ export async function resolveMSTeamsSendContext(params: {
     // groupChat, or unknown defaults to groupChat behavior
     conversationType = "groupChat";
   }
-<<<<<<< HEAD
-=======
   const replyStyle = resolveMSTeamsProactiveReplyStyle({
     cfg: msteamsCfg,
     conversationId,
     ref,
     conversationType,
   });
->>>>>>> upstream/main
 
   // Get SharePoint site ID from config (required for file uploads in group chats/channels)
   const sharePointSiteId = msteamsCfg.sharePointSiteId;
@@ -275,10 +260,7 @@ export async function resolveMSTeamsSendContext(params: {
     adapter: adapter as unknown as MSTeamsAdapter,
     log,
     conversationType,
-<<<<<<< HEAD
-=======
     replyStyle,
->>>>>>> upstream/main
     tokenProvider,
     sharePointSiteId,
     mediaMaxBytes,

@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
-import { formatErrorMessage } from "../errors.js";
-=======
 import type {
   ChannelMessageSendCommitContext,
   ChannelMessageUnknownSendReconciliationResult,
@@ -14,7 +10,6 @@ import {
   isOutboundDeliveryResultArray,
   runOutboundDeliveryCommitHooks,
 } from "./delivery-commit-hooks.js";
->>>>>>> upstream/main
 import {
   ackDelivery,
   failDelivery,
@@ -36,14 +31,10 @@ export type DeliverFn = (
   params: {
     cfg: OpenClawConfig;
   } & QueuedDeliveryPayload & {
-<<<<<<< HEAD
-      skipQueue?: boolean;
-=======
       deliveryQueueId?: string;
       deliveryQueueStateDir?: string;
       skipQueue?: boolean;
       deferCommitHooks?: boolean;
->>>>>>> upstream/main
     },
 ) => Promise<unknown>;
 
@@ -131,29 +122,19 @@ export async function withActiveDeliveryClaim<T>(
   }
 }
 
-<<<<<<< HEAD
-function buildRecoveryDeliverParams(entry: QueuedDelivery, cfg: OpenClawConfig) {
-=======
 function buildRecoveryDeliverParams(entry: QueuedDelivery, cfg: OpenClawConfig, stateDir?: string) {
->>>>>>> upstream/main
   return {
     cfg,
     channel: entry.channel,
     to: entry.to,
     accountId: entry.accountId,
     payloads: entry.payloads,
-<<<<<<< HEAD
-=======
     renderedBatchPlan: entry.renderedBatchPlan,
->>>>>>> upstream/main
     threadId: entry.threadId,
     replyToId: entry.replyToId,
     replyToMode: entry.replyToMode,
     formatting: entry.formatting,
-<<<<<<< HEAD
-=======
     identity: entry.identity,
->>>>>>> upstream/main
     bestEffort: entry.bestEffort,
     gifPlayback: entry.gifPlayback,
     forceDocument: entry.forceDocument,
@@ -161,12 +142,6 @@ function buildRecoveryDeliverParams(entry: QueuedDelivery, cfg: OpenClawConfig, 
     mirror: entry.mirror,
     session: entry.session,
     gatewayClientScopes: entry.gatewayClientScopes,
-<<<<<<< HEAD
-    skipQueue: true, // Prevent re-enqueueing during recovery.
-  } satisfies Parameters<DeliverFn>[0];
-}
-
-=======
     deliveryQueueId: entry.id,
     deliveryQueueStateDir: stateDir,
     skipQueue: true, // Prevent re-enqueueing during recovery.
@@ -321,7 +296,6 @@ async function runReconciledSentCommitHooks(params: {
   }
 }
 
->>>>>>> upstream/main
 async function moveEntryToFailedWithLogging(
   entryId: string,
   log: RecoveryLogger,
@@ -387,20 +361,12 @@ async function drainQueuedEntry(opts: {
   entry: QueuedDelivery;
   cfg: OpenClawConfig;
   deliver: DeliverFn;
-<<<<<<< HEAD
-=======
   log: RecoveryLogger;
->>>>>>> upstream/main
   stateDir?: string;
   onRecovered?: (entry: QueuedDelivery) => void;
   onFailed?: (entry: QueuedDelivery, errMsg: string) => void;
 }): Promise<"recovered" | "failed" | "moved-to-failed" | "already-gone"> {
   const { entry } = opts;
-<<<<<<< HEAD
-  try {
-    await opts.deliver(buildRecoveryDeliverParams(entry, opts.cfg));
-    await ackDelivery(entry.id, opts.stateDir);
-=======
   if (
     entry.recoveryState === "send_attempt_started" ||
     entry.recoveryState === "unknown_after_send"
@@ -479,7 +445,6 @@ async function drainQueuedEntry(opts: {
     if (isOutboundDeliveryResultArray(result)) {
       await runOutboundDeliveryCommitHooks(result);
     }
->>>>>>> upstream/main
     opts.onRecovered?.(entry);
     return "recovered";
   } catch (err) {
@@ -590,10 +555,7 @@ export async function drainPendingDeliveries(opts: {
           entry: currentEntry,
           cfg: opts.cfg,
           deliver,
-<<<<<<< HEAD
-=======
           log: opts.log,
->>>>>>> upstream/main
           stateDir: opts.stateDir,
           onFailed: (failedEntry, errMsg) => {
             if (isPermanentDeliveryError(errMsg)) {
@@ -685,10 +647,7 @@ export async function recoverPendingDeliveries(opts: {
         entry: currentEntry,
         cfg: opts.cfg,
         deliver: opts.deliver,
-<<<<<<< HEAD
-=======
         log: opts.log,
->>>>>>> upstream/main
         stateDir: opts.stateDir,
         onRecovered: (recoveredEntry) => {
           summary.recovered += 1;

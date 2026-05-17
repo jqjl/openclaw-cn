@@ -1,9 +1,6 @@
 export const PROOF_OVERRIDE_LABEL = "proof: override";
-<<<<<<< HEAD
-=======
 export const PROOF_SUPPLIED_LABEL = "proof: supplied";
 export const PROOF_SUFFICIENT_LABEL = "proof: sufficient";
->>>>>>> upstream/main
 export const NEEDS_REAL_BEHAVIOR_PROOF_LABEL = "triage: needs-real-behavior-proof";
 export const MOCK_ONLY_PROOF_LABEL = "triage: mock-only-proof";
 
@@ -80,13 +77,10 @@ function escapeRegex(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-<<<<<<< HEAD
-=======
 function normalizeLineEndings(text = "") {
   return text.replace(/\r\n?/g, "\n");
 }
 
->>>>>>> upstream/main
 function labelNames(labels) {
   return new Set(
     (labels ?? [])
@@ -118,23 +112,16 @@ export function hasProofOverride(labels) {
 }
 
 export function extractRealBehaviorProofSection(body = "") {
-<<<<<<< HEAD
-  const headingRegex = /^#{2,6}\s+real behavior proof\b[^\n]*$/gim;
-  const match = headingRegex.exec(body);
-=======
+  // Normalize CRLF → LF so regexes and section slicing see GitHub web-editor PR
+  // bodies the same way as locally-authored Markdown.
   const normalizedBody = normalizeLineEndings(body);
   const headingRegex = /^#{2,6}\s+real behavior proof\b[^\n]*$/gim;
   const match = headingRegex.exec(normalizedBody);
->>>>>>> upstream/main
   if (!match) {
     return "";
   }
   const sectionStart = match.index + match[0].length;
-<<<<<<< HEAD
-  const rest = body.slice(sectionStart);
-=======
   const rest = normalizedBody.slice(sectionStart);
->>>>>>> upstream/main
   const nextHeading = rest.match(/\n#{1,6}\s+\S/);
   return (nextHeading ? rest.slice(0, nextHeading.index) : rest).trim();
 }
@@ -151,11 +138,7 @@ function isAnyProofFieldLine(line) {
 }
 
 function extractFieldValue(section, field) {
-<<<<<<< HEAD
-  const lines = section.split("\n");
-=======
   const lines = normalizeLineEndings(section).split("\n");
->>>>>>> upstream/main
   for (let index = 0; index < lines.length; index += 1) {
     const matchingName = field.names.find((name) => fieldLineRegex(name).test(lines[index]));
     if (!matchingName) {
@@ -177,11 +160,7 @@ function extractFieldValue(section, field) {
 }
 
 function stripProofFieldLabels(section) {
-<<<<<<< HEAD
-  return section
-=======
   return normalizeLineEndings(section)
->>>>>>> upstream/main
     .split("\n")
     .map((line) => {
       if (!isAnyProofFieldLine(line)) {
@@ -304,12 +283,9 @@ export function evaluateRealBehaviorProof({ pullRequest, labels } = {}) {
 }
 
 export function labelsForRealBehaviorProof(evaluation) {
-<<<<<<< HEAD
-=======
   if (evaluation.status === "passed") {
     return [PROOF_SUPPLIED_LABEL];
   }
->>>>>>> upstream/main
   if (evaluation.status === "mock_only") {
     return [MOCK_ONLY_PROOF_LABEL];
   }

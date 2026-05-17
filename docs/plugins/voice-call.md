@@ -229,11 +229,8 @@ Current runtime behaviour:
 - Bundled realtime voice providers: Google Gemini Live (`google`) and OpenAI (`openai`), registered by their provider plugins.
 - Provider-owned raw config lives under `realtime.providers.<providerId>`.
 - Voice Call exposes the shared `openclaw_agent_consult` realtime tool by default. The realtime model can call it when the caller asks for deeper reasoning, current information, or normal OpenClaw tools.
-<<<<<<< HEAD
-=======
 - `realtime.consultPolicy` optionally adds guidance for when the realtime model should call `openclaw_agent_consult`.
 - `realtime.agentContext.enabled` is default-off. When enabled, Voice Call injects a bounded agent identity, system prompt override, and selected workspace-file capsule into the realtime provider instructions at session setup.
->>>>>>> upstream/main
 - `realtime.fastContext.enabled` is default-off. When enabled, Voice Call first searches indexed memory/session context for the consult question and returns those snippets to the realtime model within `realtime.fastContext.timeoutMs` before falling back to the full consult agent only if `realtime.fastContext.fallbackToConsult` is true.
 - If `realtime.provider` points at an unregistered provider, or no realtime voice provider is registered at all, Voice Call logs a warning and skips realtime media instead of failing the whole plugin.
 - Consult session keys reuse the stored call session when available, then fall back to the configured `sessionScope` (`per-phone` by default, or `per-call` for isolated calls).
@@ -248,8 +245,6 @@ Current runtime behaviour:
 | `owner`          | Expose the consult tool and let the regular agent use the normal agent tool policy.                                                      |
 | `none`           | Do not expose the consult tool. Custom `realtime.tools` are still passed through to the realtime provider.                               |
 
-<<<<<<< HEAD
-=======
 `realtime.consultPolicy` controls only the realtime model instructions:
 
 | Policy        | Guidance                                                                                        |
@@ -295,7 +290,6 @@ for tool work, current information, memory lookups, or workspace state.
 }
 ```
 
->>>>>>> upstream/main
 ### Realtime provider examples
 
 <Tabs>
@@ -321,11 +315,10 @@ for tool work, current information, memory lookups, or workspace state.
                 provider: "google",
                 instructions: "Speak briefly. Call openclaw_agent_consult before using deeper tools.",
                 toolPolicy: "safe-read-only",
-<<<<<<< HEAD
-=======
                 consultPolicy: "substantive",
+                consultThinkingLevel: "low",
+                consultFastMode: true,
                 agentContext: { enabled: true },
->>>>>>> upstream/main
                 providers: {
                   google: {
                     apiKey: "${GEMINI_API_KEY}",
@@ -377,15 +370,8 @@ options.
 
 Current runtime behavior:
 
-<<<<<<< HEAD
-- `streaming.provider` is optional. If unset, Voice Call uses the first
-  registered realtime transcription provider.
-- Today the bundled provider is OpenAI, registered by the bundled `openai`
-  plugin.
-=======
 - `streaming.provider` is optional. If unset, Voice Call uses the first registered realtime transcription provider.
 - Bundled realtime transcription providers: Deepgram (`deepgram`), ElevenLabs (`elevenlabs`), Mistral (`mistral`), OpenAI (`openai`), and xAI (`xai`), registered by their provider plugins.
->>>>>>> upstream/main
 - Provider-owned raw config lives under `streaming.providers.<providerId>`.
 - After Twilio sends an accepted stream `start` message, Voice Call registers the stream immediately, queues inbound media through the transcription provider while the provider connects, and starts the initial greeting only after realtime transcription is ready.
 - If `streaming.provider` points at an unregistered provider, or none is registered, Voice Call logs a warning and skips media streaming instead of failing the whole plugin.
@@ -398,26 +384,6 @@ Current runtime behavior:
     `OPENAI_API_KEY`; model `gpt-4o-transcribe`; `silenceDurationMs: 800`;
     `vadThreshold: 0.5`.
 
-<<<<<<< HEAD
-Example:
-
-```json5
-{
-  plugins: {
-    entries: {
-      "voice-call": {
-        config: {
-          streaming: {
-            enabled: true,
-            provider: "openai",
-            streamPath: "/voice/stream",
-            providers: {
-              openai: {
-                apiKey: "sk-...", // optional if OPENAI_API_KEY is set
-                model: "gpt-4o-transcribe",
-                silenceDurationMs: 800,
-                vadThreshold: 0.5,
-=======
     ```json5
     {
       plugins: {
@@ -436,7 +402,6 @@ Example:
                     vadThreshold: 0.5,
                   },
                 },
->>>>>>> upstream/main
               },
             },
           },
@@ -445,88 +410,6 @@ Example:
     }
     ```
 
-<<<<<<< HEAD
-Legacy keys are still auto-migrated by `openclaw doctor --fix`:
-
-- `streaming.sttProvider` → `streaming.provider`
-- `streaming.openaiApiKey` → `streaming.providers.openai.apiKey`
-- `streaming.sttModel` → `streaming.providers.openai.model`
-- `streaming.silenceDurationMs` → `streaming.providers.openai.silenceDurationMs`
-- `streaming.vadThreshold` → `streaming.providers.openai.vadThreshold`
-
-## Stale call reaper
-
-Use `staleCallReaperSeconds` to end calls that never receive a terminal webhook
-(for example, notify-mode calls that never complete). The default is `0`
-(disabled).
-
-Recommended ranges:
-
-- **Production:** `120`–`300` seconds for notify-style flows.
-- Keep this value **higher than `maxDurationSeconds`** so normal calls can
-  finish. A good starting point is `maxDurationSeconds + 30–60` seconds.
-
-Example:
-
-```json5
-{
-  plugins: {
-    entries: {
-      "voice-call": {
-        config: {
-          maxDurationSeconds: 300,
-          staleCallReaperSeconds: 360,
-        },
-      },
-    },
-  },
-}
-```
-
-## Webhook Security
-
-When a proxy or tunnel sits in front of the Gateway, the plugin reconstructs the
-public URL for signature verification. These options control which forwarded
-headers are trusted.
-
-`webhookSecurity.allowedHosts` allowlists hosts from forwarding headers.
-
-`webhookSecurity.trustForwardingHeaders` trusts forwarded headers without an allowlist.
-
-`webhookSecurity.trustedProxyIPs` only trusts forwarded headers when the request
-remote IP matches the list.
-
-Webhook replay protection is enabled for Twilio and Plivo. Replayed valid webhook
-requests are acknowledged but skipped for side effects.
-
-Twilio conversation turns include a per-turn token in `<Gather>` callbacks, so
-stale/replayed speech callbacks cannot satisfy a newer pending transcript turn.
-
-Unauthenticated webhook requests are rejected before body reads when the
-provider's required signature headers are missing.
-
-The voice-call webhook uses the shared pre-auth body profile (64 KB / 5 seconds)
-plus a per-IP in-flight cap before signature verification.
-
-Example with a stable public host:
-
-```json5
-{
-  plugins: {
-    entries: {
-      "voice-call": {
-        config: {
-          publicUrl: "https://voice.example.com/voice/webhook",
-          webhookSecurity: {
-            allowedHosts: ["voice.example.com"],
-          },
-        },
-      },
-    },
-  },
-}
-```
-=======
   </Tab>
   <Tab title="xAI">
     Defaults: API key `streaming.providers.xai.apiKey` or `XAI_API_KEY`;
@@ -560,7 +443,6 @@ Example with a stable public host:
 
   </Tab>
 </Tabs>
->>>>>>> upstream/main
 
 ## TTS for calls
 
@@ -1022,18 +904,11 @@ If Voice Call is green but the Meet participant never joins, check the Meet
 dial-in number, PIN, and `--dtmf-sequence`. The phone call can be healthy while
 the meeting rejects or ignores an incorrect DTMF sequence.
 
-<<<<<<< HEAD
-Google Meet passes the Meet DTMF sequence and intro text to `voicecall.start`.
-For Twilio calls, Voice Call serves the DTMF TwiML first, redirects back to the
-webhook, then opens the realtime media stream so the saved intro is generated
-after the phone participant has joined the meeting.
-=======
 Google Meet starts the Twilio phone leg through `voicecall.start` with a
 pre-connect DTMF sequence. PIN-derived sequences include the Google Meet plugin's
 `voiceCall.dtmfDelayMs` as leading Twilio wait digits. The default is 12 seconds
 because Meet dial-in prompts can arrive late. Voice Call then redirects back to
 realtime handling before the intro greeting is requested.
->>>>>>> upstream/main
 
 Use `openclaw logs --follow` for the live phase trace. A healthy Twilio Meet
 join logs this order:
@@ -1042,11 +917,7 @@ join logs this order:
 - Voice Call stores pre-connect DTMF TwiML.
 - Twilio initial TwiML is consumed and served before realtime handling.
 - Voice Call serves realtime TwiML for the Twilio call.
-<<<<<<< HEAD
-- The realtime bridge starts with the initial greeting queued.
-=======
 - Google Meet requests intro speech with `voicecall.speak` after the post-DTMF delay.
->>>>>>> upstream/main
 
 `openclaw voicecall tail` still shows persisted call records; it is useful for
 call state and transcripts, but not every webhook/realtime transition appears

@@ -34,8 +34,6 @@ describe("run-oxlint", () => {
     expect(shardedLintRunner).toContain('OPENCLAW_OXLINT_SKIP_PREPARE: "1"');
   });
 
-<<<<<<< HEAD
-=======
   it("lets dev update preflight run oxlint shards serially", () => {
     const shardedLintRunner = readFileSync("scripts/run-oxlint-shards.mjs", "utf8");
 
@@ -43,7 +41,6 @@ describe("run-oxlint", () => {
     expect(shardedLintRunner).toContain("runShardsSerial");
   });
 
->>>>>>> upstream/main
   it("filters tracked targets missing from sparse checkouts", () => {
     const result = filterSparseMissingOxlintTargets(
       ["--tsconfig", "config/tsconfig/oxlint.core.json", "src", "ui", "packages", "--threads=1"],
@@ -90,8 +87,9 @@ describe("run-oxlint", () => {
       isTrackedPath: () => false,
     });
 
-    expect(result).toMatchObject({
+    expect(result).toEqual({
       args: ["src", "typo"],
+      hadExplicitTargets: true,
       remainingExplicitTargets: 2,
       skippedTargets: [],
       skippedConfigs: [],

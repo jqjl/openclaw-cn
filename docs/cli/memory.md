@@ -2,7 +2,7 @@
 summary: "CLI reference for `openclaw memory` (status/index/search/promote/promote-explain/rem-harness)"
 read_when:
   - You want to index or search semantic memory
-  - You’re debugging memory availability or indexing
+  - You're debugging memory availability or indexing
   - You want to promote recalled short-term memory into `MEMORY.md`
 title: "Memory"
 ---
@@ -56,11 +56,8 @@ openclaw memory index --agent main --verbose
 - `--fix`: repair stale recall locks and normalize promotion metadata.
 - `--json`: print JSON output.
 
-<<<<<<< HEAD
-=======
 If `memory status` shows `Dreaming status: blocked`, the managed dreaming cron is enabled but the heartbeat that drives it is not firing for the default agent. See [Dreaming never runs](/concepts/dreaming#dreaming-never-runs-status-shows-blocked) for the two common causes.
 
->>>>>>> upstream/main
 `memory index`:
 
 - `--force`: force a full reindex.

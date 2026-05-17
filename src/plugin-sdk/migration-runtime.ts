@@ -3,10 +3,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { pathExists } from "../infra/fs-safe.js";
->>>>>>> upstream/main
 import type {
   MigrationApplyResult,
   MigrationItem,
@@ -71,16 +68,7 @@ export function withCachedMigrationConfigRuntime(
 }
 
 async function exists(filePath: string): Promise<boolean> {
-<<<<<<< HEAD
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-=======
   return await pathExists(filePath);
->>>>>>> upstream/main
 }
 
 async function backupExistingMigrationTarget(

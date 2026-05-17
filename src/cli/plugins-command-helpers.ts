@@ -228,8 +228,6 @@ export function parseNpmPrefixSpec(raw: string): string | null {
   }
   return trimmed.slice("npm:".length).trim();
 }
-<<<<<<< HEAD
-=======
 
 export function parseNpmPackPrefixPath(raw: string): string | null {
   const trimmed = raw.trim();
@@ -238,4 +236,3 @@ export function parseNpmPackPrefixPath(raw: string): string | null {
   }
   return trimmed.slice("npm-pack:".length).trim();
 }
->>>>>>> upstream/main

@@ -1,16 +1,10 @@
-import { NodeRegistry } from "./node-registry.js";
+import { NodeRegistry, type SerializedEventPayload } from "./node-registry.js";
 import {
   createSessionEventSubscriberRegistry,
   createSessionMessageSubscriberRegistry,
 } from "./server-chat-state.js";
-import { safeParseJson } from "./server-json.js";
-<<<<<<< HEAD
-import { hasConnectedMobileNode } from "./server-mobile-nodes.js";
-import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
-=======
 import { createNodeSubscriptionManager } from "./server-node-subscriptions.js";
 import { hasConnectedTalkNode } from "./server-talk-nodes.js";
->>>>>>> upstream/main
 
 export function createGatewayNodeSessionRuntime(params: {
   broadcast: (event: string, payload: unknown, opts?: { dropIfSlow?: boolean }) => void;
@@ -20,9 +14,12 @@ export function createGatewayNodeSessionRuntime(params: {
   const nodeSubscriptions = createNodeSubscriptionManager();
   const sessionEventSubscribers = createSessionEventSubscriberRegistry();
   const sessionMessageSubscribers = createSessionMessageSubscriberRegistry();
-  const nodeSendEvent = (opts: { nodeId: string; event: string; payloadJSON?: string | null }) => {
-    const payload = safeParseJson(opts.payloadJSON ?? null);
-    nodeRegistry.sendEvent(opts.nodeId, opts.event, payload);
+  const nodeSendEvent = (opts: {
+    nodeId: string;
+    event: string;
+    payloadJSON?: SerializedEventPayload | null;
+  }) => {
+    nodeRegistry.sendEventRaw(opts.nodeId, opts.event, opts.payloadJSON ?? null);
   };
   const nodeSendToSession = (sessionKey: string, event: string, payload: unknown) =>
     nodeSubscriptions.sendToSession(sessionKey, event, payload, nodeSendEvent);
@@ -31,11 +28,7 @@ export function createGatewayNodeSessionRuntime(params: {
   const broadcastVoiceWakeChanged = (triggers: string[]) => {
     params.broadcast("voicewake.changed", { triggers }, { dropIfSlow: true });
   };
-<<<<<<< HEAD
-  const hasMobileNodeConnected = () => hasConnectedMobileNode(nodeRegistry);
-=======
   const hasTalkNodeConnected = () => hasConnectedTalkNode(nodeRegistry);
->>>>>>> upstream/main
 
   return {
     nodeRegistry,
@@ -48,10 +41,6 @@ export function createGatewayNodeSessionRuntime(params: {
     nodeUnsubscribe: nodeSubscriptions.unsubscribe,
     nodeUnsubscribeAll: nodeSubscriptions.unsubscribeAll,
     broadcastVoiceWakeChanged,
-<<<<<<< HEAD
-    hasMobileNodeConnected,
-=======
     hasTalkNodeConnected,
->>>>>>> upstream/main
   };
 }

@@ -1,10 +1,6 @@
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
-import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
-=======
 import { openRootFileSync } from "../infra/boundary-file-read.js";
->>>>>>> upstream/main
 import { createSubsystemLogger } from "../logging/subsystem.js";
 import {
   withBundledPluginEnablementCompat,
@@ -281,11 +277,7 @@ export function loadBundledCapabilityRuntimeRegistry(params: {
       workspaceDir: candidate.workspaceDir,
     });
 
-<<<<<<< HEAD
-    const opened = openBoundaryFileSync({
-=======
     const opened = openRootFileSync({
->>>>>>> upstream/main
       absolutePath: record.source,
       rootPath: record.source === candidate.source ? candidate.rootDir : repoRoot,
       boundaryLabel: record.source === candidate.source ? "plugin root" : "repo root",

@@ -48,11 +48,7 @@ TUI, REST, or SSE clients.
 All transcript hygiene is centralized in the embedded runner:
 
 - Policy selection: `src/agents/transcript-policy.ts`
-<<<<<<< HEAD
-- Sanitization/repair application: `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
-=======
 - Sanitization/repair application: `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/replay-history.ts`
->>>>>>> upstream/main
 
 The policy uses `provider`, `modelApi`, and `modelId` to decide what to apply.
 
@@ -91,11 +87,7 @@ persisted tool calls (for example, after a rate limit failure).
 Implementation:
 
 - `sanitizeToolCallInputs` in `src/agents/session-transcript-repair.ts`
-<<<<<<< HEAD
-- Applied in `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
-=======
 - Applied in `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/replay-history.ts`
->>>>>>> upstream/main
 
 ---
 
@@ -132,12 +124,15 @@ inter-session user turns that only have provenance metadata.
 - Missing OpenAI Responses-family tool outputs are synthesized as `aborted` to match Codex replay normalization.
 - No thought signature stripping.
 
-**OpenAI-compatible Gemma 4**
+**OpenAI-compatible Chat Completions**
 
-- Historical assistant thinking/reasoning blocks are stripped before replay so local
-  OpenAI-compatible Gemma 4 servers do not receive prior-turn reasoning content.
+- Historical assistant thinking/reasoning blocks are stripped before replay so
+  local and proxy-style OpenAI-compatible servers do not receive prior-turn
+  reasoning fields such as `reasoning` or `reasoning_content`.
 - Current same-turn tool-call continuations keep the assistant reasoning block
   attached to the tool call until the tool result has been replayed.
+- Provider-owned exceptions can opt out when their wire protocol requires
+  replayed reasoning metadata.
 
 **Google (Generative AI / Gemini CLI / Antigravity)**
 

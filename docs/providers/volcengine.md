@@ -187,11 +187,7 @@ interactive shell are not automatically inherited. See the daemon note above.
   <Card title="Model selection" href="/concepts/model-providers" icon="layers">
     Choosing providers, model refs, and failover behavior.
   </Card>
-<<<<<<< HEAD
-  <Card title="Configuration" href="/configuration" icon="gear">
-=======
   <Card title="Configuration" href="/gateway/configuration" icon="gear">
->>>>>>> upstream/main
     Full config reference for agents, models, and providers.
   </Card>
   <Card title="Troubleshooting" href="/help/troubleshooting" icon="wrench">

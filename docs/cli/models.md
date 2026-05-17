@@ -13,10 +13,7 @@ Model discovery, scanning, and configuration (default model, fallbacks, auth pro
 Related:
 
 - Providers + models: [Models](/providers/models)
-<<<<<<< HEAD
-=======
 - Model selection concepts + `/models` slash command: [Models concept](/concepts/models)
->>>>>>> upstream/main
 - Provider auth setup: [Getting started](/start/getting-started)
 
 ## Common commands
@@ -39,20 +36,19 @@ In `--json` output, `auth.providers` is the env/config/store-aware provider
 overview, while `auth.oauth` is auth-store profile health only.
 Add `--probe` to run live auth probes against each configured provider profile.
 Probes are real requests (may consume tokens and trigger rate limits).
-<<<<<<< HEAD
-Use `--agent <id>` to inspect a configured agent’s model/auth state. When omitted,
-=======
 Use `--agent <id>` to inspect a configured agent's model/auth state. When omitted,
->>>>>>> upstream/main
 the command uses `OPENCLAW_AGENT_DIR`/`PI_CODING_AGENT_DIR` if set, otherwise the
 configured default agent.
 Probe rows can come from auth profiles, env credentials, or `models.json`.
+For Codex OAuth troubleshooting, `openclaw models status`,
+`openclaw models auth list --provider openai-codex`, and
+`openclaw config get agents.defaults.model --json` are the quickest way to
+confirm whether an agent has a usable `openai-codex` auth profile for
+`openai/*` through the native Codex runtime. See [OpenAI provider setup](/providers/openai#check-and-recover-codex-oauth-routing).
 
 Notes:
 
 - `models set <model-or-alias>` accepts `provider/model` or an alias.
-<<<<<<< HEAD
-=======
 - `models list` is read-only: it reads config, auth profiles, existing catalog
   state, and provider-owned catalog rows, but it does not rewrite
   `models.json`.
@@ -82,7 +78,6 @@ Notes:
 - `models list --provider <id>` filters by provider id, such as `moonshot` or
   `openai-codex`. It does not accept display labels from interactive provider
   pickers, such as `Moonshot AI`.
->>>>>>> upstream/main
 - Model refs are parsed by splitting on the **first** `/`. If the model ID includes `/` (OpenRouter-style), include the provider prefix (example: `openrouter/moonshotai/kimi-k2`).
 - If you omit the provider, OpenClaw resolves the input as an alias first, then
   as a unique configured-provider match for that exact model id, and only then
@@ -186,22 +181,24 @@ provider you choose.
 printing token, API-key, or OAuth secret material. Use `--provider <id>` to
 filter to one provider, such as `openai-codex`, and `--json` for scripting.
 
-<<<<<<< HEAD
-`models auth login` runs a provider plugin’s auth flow (OAuth/API key). Use
-=======
 `models auth login` runs a provider plugin's auth flow (OAuth/API key). Use
->>>>>>> upstream/main
 `openclaw plugins list` to see which providers are installed.
 Use `openclaw models auth --agent <id> <subcommand>` to write auth results to a
 specific configured agent store. The parent `--agent` flag is honored by
 `add`, `list`, `login`, `setup-token`, `paste-token`, and
 `login-github-copilot`.
 
+For OpenAI models, `--provider openai` defaults to ChatGPT/Codex account login.
+Use `--method api-key` only when you want to add an OpenAI API-key profile,
+usually as a backup for Codex subscription limits. The legacy
+`--provider openai-codex` spelling still works for existing scripts.
+
 Examples:
 
 ```bash
-openclaw models auth login --provider openai-codex --set-default
-openclaw models auth list --provider openai-codex
+openclaw models auth login --provider openai --set-default
+openclaw models auth login --provider openai --method api-key
+openclaw models auth list --provider openai
 ```
 
 Notes:

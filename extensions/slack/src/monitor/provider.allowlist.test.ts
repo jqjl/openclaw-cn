@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { describe, expect, it } from "vitest";
-import { formatSlackChannelResolved, formatSlackUserResolved } from "./provider-support.js";
-
-=======
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   flush,
@@ -21,7 +16,14 @@ beforeEach(() => {
   resetSlackTestState();
 });
 
->>>>>>> upstream/main
+function resolveAllowlistCallAt(index: number): { entries?: unknown } {
+  const call = slackTestState.resolveSlackUserAllowlistMock.mock.calls[index];
+  if (!call) {
+    throw new Error(`expected allowlist resolver call ${index}`);
+  }
+  return call[0] as { entries?: unknown };
+}
+
 describe("slack allowlist log formatting", () => {
   it("prints channel names alongside ids", () => {
     expect(
@@ -45,8 +47,6 @@ describe("slack allowlist log formatting", () => {
     ).toBe("U090HHQ029J→steipete (id:U090HHQ029J)");
   });
 });
-<<<<<<< HEAD
-=======
 
 describe("slack startup user allowlist resolution", () => {
   it("skips user entry resolution when name matching is not enabled", async () => {
@@ -130,17 +130,12 @@ describe("slack startup user allowlist resolution", () => {
       await flush();
 
       expect(slackTestState.resolveSlackUserAllowlistMock).toHaveBeenCalledTimes(2);
-      expect(slackTestState.resolveSlackUserAllowlistMock).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ entries: ["@global-user"] }),
-      );
-      expect(slackTestState.resolveSlackUserAllowlistMock).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({ entries: ["@channel-user"] }),
-      );
+      const globalAllowlist = resolveAllowlistCallAt(0);
+      const channelAllowlist = resolveAllowlistCallAt(1);
+      expect(globalAllowlist?.entries).toEqual(["@global-user"]);
+      expect(channelAllowlist?.entries).toEqual(["@channel-user"]);
     } finally {
       await stopSlackMonitor(monitor);
     }
   });
 });
->>>>>>> upstream/main

@@ -2,24 +2,11 @@
 summary: "Deepgram transcription for inbound voice notes"
 read_when:
   - You want Deepgram speech-to-text for audio attachments
-<<<<<<< HEAD
-=======
   - You want Deepgram streaming transcription for Voice Call
->>>>>>> upstream/main
   - You need a quick Deepgram config example
 title: "Deepgram"
 ---
 
-<<<<<<< HEAD
-# Deepgram (Audio Transcription)
-
-Deepgram is a speech-to-text API. In OpenClaw it is used for **inbound audio/voice note
-transcription** via `tools.media.audio`.
-
-When enabled, OpenClaw uploads the audio file to Deepgram and injects the transcript
-into the reply pipeline (`{{Transcript}}` + `[Audio]` block). This is **not streaming**;
-it uses the pre-recorded transcription endpoint.
-=======
 Deepgram is a speech-to-text API. In OpenClaw it is used for inbound
 audio/voice-note transcription through `tools.media.audio` and for Voice Call
 streaming STT through `plugins.entries.voice-call.config.streaming`.
@@ -29,7 +16,6 @@ and injects the transcript into the reply pipeline (`{{Transcript}}` +
 `[Audio]` block). For Voice Call streaming, OpenClaw forwards live G.711
 u-law frames over Deepgram's WebSocket `listen` endpoint and emits partial or
 final transcripts as Deepgram returns them.
->>>>>>> upstream/main
 
 | Detail        | Value                                                      |
 | ------------- | ---------------------------------------------------------- |
@@ -117,8 +103,6 @@ final transcripts as Deepgram returns them.
   </Tab>
 </Tabs>
 
-<<<<<<< HEAD
-=======
 ## Voice Call streaming STT
 
 The bundled `deepgram` plugin also registers a realtime transcription provider
@@ -165,7 +149,6 @@ streaming provider defaults to `encoding: "mulaw"` and `sampleRate: 8000`, so
 Twilio media frames can be forwarded directly.
 </Note>
 
->>>>>>> upstream/main
 ## Notes
 
 <AccordionGroup>
@@ -183,21 +166,6 @@ Twilio media frames can be forwarded directly.
   </Accordion>
 </AccordionGroup>
 
-<<<<<<< HEAD
-<Note>
-Deepgram transcription is **pre-recorded only** (not real-time streaming). OpenClaw
-uploads the complete audio file and waits for the full transcript before injecting
-it into the conversation.
-</Note>
-
-## Related
-
-<CardGroup cols={2}>
-  <Card title="Media tools" href="/tools/media" icon="photo-film">
-    Audio, image, and video processing pipeline overview.
-  </Card>
-  <Card title="Configuration" href="/configuration" icon="gear">
-=======
 ## Related
 
 <CardGroup cols={2}>
@@ -205,7 +173,6 @@ it into the conversation.
     Audio, image, and video processing pipeline overview.
   </Card>
   <Card title="Configuration" href="/gateway/configuration" icon="gear">
->>>>>>> upstream/main
     Full config reference including media tool settings.
   </Card>
   <Card title="Troubleshooting" href="/help/troubleshooting" icon="wrench">

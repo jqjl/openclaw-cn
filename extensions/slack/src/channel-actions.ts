@@ -1,4 +1,4 @@
-import type { AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import type { ChannelMessageActionAdapter } from "openclaw/plugin-sdk/channel-contract";
 import type { SlackActionContext } from "./action-runtime.js";
 import { handleSlackMessageAction } from "./message-action-dispatch.js";
@@ -41,10 +41,7 @@ export function createSlackActions(
   return {
     describeMessageTool: describeSlackMessageTool,
     extractToolSend: ({ args }) => extractSlackToolSend(args),
-<<<<<<< HEAD
-=======
     prepareSendPayload: ({ ctx, payload }) => (ctx.action === "send" ? payload : null),
->>>>>>> upstream/main
     handleAction: async (ctx) => {
       return await handleSlackMessageAction({
         providerId,

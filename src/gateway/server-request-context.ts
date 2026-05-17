@@ -28,11 +28,7 @@ type GatewayRequestContextParams = {
   nodeSubscribe: GatewayRequestContext["nodeSubscribe"];
   nodeUnsubscribe: GatewayRequestContext["nodeUnsubscribe"];
   nodeUnsubscribeAll: GatewayRequestContext["nodeUnsubscribeAll"];
-<<<<<<< HEAD
-  hasConnectedMobileNode: GatewayRequestContext["hasConnectedMobileNode"];
-=======
   hasConnectedTalkNode: GatewayRequestContext["hasConnectedTalkNode"];
->>>>>>> upstream/main
   clients: Set<GatewayRequestContextClient>;
   enforceSharedGatewayAuthGenerationForConfigWrite: (nextConfig: OpenClawConfig) => void;
   nodeRegistry: GatewayRequestContext["nodeRegistry"];
@@ -42,6 +38,9 @@ type GatewayRequestContextParams = {
   chatRunBuffers: GatewayRequestContext["chatRunBuffers"];
   chatDeltaSentAt: GatewayRequestContext["chatDeltaSentAt"];
   chatDeltaLastBroadcastLen: GatewayRequestContext["chatDeltaLastBroadcastLen"];
+  chatDeltaLastBroadcastText: GatewayRequestContext["chatDeltaLastBroadcastText"];
+  agentDeltaSentAt: GatewayRequestContext["agentDeltaSentAt"];
+  bufferedAgentEvents: GatewayRequestContext["bufferedAgentEvents"];
   addChatRun: GatewayRequestContext["addChatRun"];
   removeChatRun: GatewayRequestContext["removeChatRun"];
   subscribeSessionEvents: GatewayRequestContext["subscribeSessionEvents"];
@@ -96,11 +95,7 @@ export function createGatewayRequestContext(
     nodeSubscribe: params.nodeSubscribe,
     nodeUnsubscribe: params.nodeUnsubscribe,
     nodeUnsubscribeAll: params.nodeUnsubscribeAll,
-<<<<<<< HEAD
-    hasConnectedMobileNode: params.hasConnectedMobileNode,
-=======
     hasConnectedTalkNode: params.hasConnectedTalkNode,
->>>>>>> upstream/main
     hasExecApprovalClients: (excludeConnId?: string) => {
       for (const gatewayClient of params.clients) {
         if (excludeConnId && gatewayClient.connId === excludeConnId) {
@@ -142,6 +137,9 @@ export function createGatewayRequestContext(
     chatRunBuffers: params.chatRunBuffers,
     chatDeltaSentAt: params.chatDeltaSentAt,
     chatDeltaLastBroadcastLen: params.chatDeltaLastBroadcastLen,
+    chatDeltaLastBroadcastText: params.chatDeltaLastBroadcastText,
+    agentDeltaSentAt: params.agentDeltaSentAt,
+    bufferedAgentEvents: params.bufferedAgentEvents,
     addChatRun: params.addChatRun,
     removeChatRun: params.removeChatRun,
     subscribeSessionEvents: params.subscribeSessionEvents,

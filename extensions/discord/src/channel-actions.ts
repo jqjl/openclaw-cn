@@ -4,15 +4,12 @@ import type {
   ChannelMessageActionName,
   ChannelMessageToolDiscovery,
 } from "openclaw/plugin-sdk/channel-contract";
-import type { DiscordActionConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import type { DiscordActionConfig, OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import { extractToolSend } from "openclaw/plugin-sdk/tool-send";
 import { inspectDiscordAccount } from "./account-inspect.js";
 import { createDiscordActionGate, listDiscordAccountIds } from "./accounts.js";
-<<<<<<< HEAD
-=======
 import { readDiscordComponentSpec } from "./components.js";
->>>>>>> upstream/main
 
 let discordChannelActionsRuntimePromise:
   | Promise<typeof import("./channel-actions.runtime.js")>
@@ -179,8 +176,6 @@ export const discordMessageActions: ChannelMessageActionAdapter = {
     }
     return null;
   },
-<<<<<<< HEAD
-=======
   prepareSendPayload: ({ ctx, payload }) => {
     if (ctx.action !== "send") {
       return null;
@@ -222,7 +217,6 @@ export const discordMessageActions: ChannelMessageActionAdapter = {
       },
     };
   },
->>>>>>> upstream/main
   handleAction: async ({
     action,
     params,

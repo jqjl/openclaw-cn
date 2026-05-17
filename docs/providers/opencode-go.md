@@ -18,13 +18,6 @@ provider id `opencode-go` so upstream per-model routing stays correct.
 
 ## Built-in catalog
 
-<<<<<<< HEAD
-| Model ref                  | Name         |
-| -------------------------- | ------------ |
-| `opencode-go/kimi-k2.5`    | Kimi K2.5    |
-| `opencode-go/glm-5`        | GLM 5        |
-| `opencode-go/minimax-m2.5` | MiniMax M2.5 |
-=======
 OpenClaw sources most Go catalog rows from the bundled pi model registry and
 supplements current upstream rows while the registry catches up. Run
 `openclaw models list --provider opencode-go` for the current model list.
@@ -45,7 +38,6 @@ The provider includes:
 | `opencode-go/minimax-m2.7`      | MiniMax M2.7          |
 | `opencode-go/qwen3.5-plus`      | Qwen3.5 Plus          |
 | `opencode-go/qwen3.6-plus`      | Qwen3.6 Plus          |
->>>>>>> upstream/main
 
 ## Getting started
 

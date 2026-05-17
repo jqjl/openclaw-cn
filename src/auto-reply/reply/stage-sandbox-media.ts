@@ -7,19 +7,12 @@ import { ensureSandboxWorkspaceForSession } from "../../agents/sandbox.js";
 import { slugifySessionKey } from "../../agents/sandbox/shared.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
 import { logVerbose } from "../../globals.js";
-<<<<<<< HEAD
-import { copyFileWithinRoot, SafeOpenError } from "../../infra/fs-safe.js";
-=======
 import { root as fsRoot, FsSafeError } from "../../infra/fs-safe.js";
->>>>>>> upstream/main
 import { normalizeScpRemoteHost, normalizeScpRemotePath } from "../../infra/scp-host.js";
 import { resolvePreferredOpenClawTmpDir } from "../../infra/tmp-openclaw-dir.js";
 import { resolveChannelRemoteInboundAttachmentRoots } from "../../media/channel-inbound-roots.js";
 import { isInboundPathAllowed } from "../../media/inbound-path-policy.js";
-<<<<<<< HEAD
-=======
 import { resolveInboundMediaReference } from "../../media/media-reference.js";
->>>>>>> upstream/main
 import { getMediaDir, MEDIA_MAX_BYTES } from "../../media/store.js";
 import { normalizeOptionalString } from "../../shared/string-coerce.js";
 import { CONFIG_DIR } from "../../utils.js";
@@ -107,25 +100,16 @@ export async function stageSandboxMedia(params: {
           maxBytes: STAGED_MEDIA_MAX_BYTES,
         });
       } else {
-<<<<<<< HEAD
-        await stageLocalFileIntoRoot({
-          sourcePath: source,
-=======
         const copySource = await fs.realpath(source).catch(() => source);
         await stageLocalFileIntoRoot({
           sourcePath: copySource,
->>>>>>> upstream/main
           rootDir: effectiveWorkspaceDir,
           relativeDestPath: relativeDest,
           maxBytes: STAGED_MEDIA_MAX_BYTES,
         });
       }
     } catch (err) {
-<<<<<<< HEAD
-      if (err instanceof SafeOpenError && err.code === "too-large") {
-=======
       if (err instanceof FsSafeError && err.code === "too-large") {
->>>>>>> upstream/main
         logVerbose(
           `Blocking inbound media staging above ${STAGED_MEDIA_MAX_BYTES} bytes: ${source}`,
         );
@@ -157,15 +141,8 @@ async function stageLocalFileIntoRoot(params: {
   relativeDestPath: string;
   maxBytes?: number;
 }): Promise<void> {
-<<<<<<< HEAD
-  await copyFileWithinRoot({
-    sourcePath: params.sourcePath,
-    rootDir: params.rootDir,
-    relativePath: params.relativeDestPath,
-=======
   const root = await fsRoot(params.rootDir);
   await root.copyIn(params.relativeDestPath, params.sourcePath, {
->>>>>>> upstream/main
     maxBytes: params.maxBytes,
   });
 }
@@ -238,13 +215,6 @@ async function isAllowedSourcePath(params: {
     }
     return true;
   }
-<<<<<<< HEAD
-  const mediaDir = getMediaDir();
-  if (
-    !isInboundPathAllowed({
-      filePath: params.source,
-      roots: [mediaDir],
-=======
   const inboundReference = await resolveInboundMediaReference(params.source).catch(() => null);
   if (inboundReference) {
     return true;
@@ -255,25 +225,17 @@ async function isAllowedSourcePath(params: {
     !isInboundPathAllowed({
       filePath: params.source,
       roots: [mediaDir, canonicalMediaDir],
->>>>>>> upstream/main
     })
   ) {
     logVerbose(`Blocking attempt to stage media from outside media directory: ${params.source}`);
     return false;
   }
   try {
-<<<<<<< HEAD
-    await assertSandboxPath({
-      filePath: params.source,
-      cwd: mediaDir,
-      root: mediaDir,
-=======
     const canonicalSource = await fs.realpath(params.source).catch(() => params.source);
     await assertSandboxPath({
       filePath: canonicalSource,
       cwd: canonicalMediaDir,
       root: canonicalMediaDir,
->>>>>>> upstream/main
     });
     return true;
   } catch {
@@ -357,7 +319,7 @@ async function scpFile(remoteHost: string, remotePath: string, localPath: string
   }
   return new Promise((resolve, reject) => {
     const child = spawn(
-      "/usr/bin/scp",
+      "scp",
       [
         "-o",
         "BatchMode=yes",

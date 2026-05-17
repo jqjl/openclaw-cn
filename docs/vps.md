@@ -127,8 +127,6 @@ If you deliberately installed a system unit instead, edit
 
 How `Restart=` policies help automated recovery:
 [systemd can automate service recovery](https://www.redhat.com/en/blog/systemd-automate-recovery).
-<<<<<<< HEAD
-=======
 
 For Linux OOM behavior, child process victim selection, and `exit 137`
 diagnostics, see [Linux memory pressure and OOM kills](/platforms/linux#memory-pressure-and-oom-kills).
@@ -139,4 +137,3 @@ diagnostics, see [Linux memory pressure and OOM kills](/platforms/linux#memory-p
 - [DigitalOcean](/install/digitalocean)
 - [Fly.io](/install/fly)
 - [Hetzner](/install/hetzner)
->>>>>>> upstream/main

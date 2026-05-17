@@ -1,8 +1,5 @@
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../infra/path-guards.js";
->>>>>>> upstream/main
 import { shortenHomeInString } from "../utils.js";
 import type { PluginRecord } from "./registry.js";
 import type { PluginSourceRoots } from "./roots.js";
@@ -10,28 +7,13 @@ export { resolvePluginSourceRoots } from "./roots.js";
 export type { PluginSourceRoots } from "./roots.js";
 
 function tryRelative(root: string, filePath: string): string | null {
-<<<<<<< HEAD
-=======
   if (!isPathInside(root, filePath)) {
     return null;
   }
->>>>>>> upstream/main
   const rel = path.relative(root, filePath);
   if (!rel || rel === ".") {
     return null;
   }
-<<<<<<< HEAD
-  if (rel === "..") {
-    return null;
-  }
-  if (rel.startsWith(`..${path.sep}`) || rel.startsWith("../") || rel.startsWith("..\\")) {
-    return null;
-  }
-  if (path.isAbsolute(rel)) {
-    return null;
-  }
-=======
->>>>>>> upstream/main
   // Normalize to forward slashes for display (path.relative uses backslashes on Windows)
   return rel.replaceAll("\\", "/");
 }

@@ -1,11 +1,8 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { root as fsRoot } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import type { PluginLogger } from "../api.js";
 import type { DiffArtifactContext, DiffArtifactMeta, DiffOutputFormat } from "./types.js";
 
@@ -40,10 +37,7 @@ type StandaloneFileMeta = {
 };
 
 type ArtifactMetaFileName = "meta.json" | "file-meta.json";
-<<<<<<< HEAD
-=======
 type ArtifactRoot = Awaited<ReturnType<typeof fsRoot>>;
->>>>>>> upstream/main
 
 export class DiffArtifactStore {
   private readonly rootDir: string;
@@ -84,14 +78,9 @@ export class DiffArtifactStore {
       ...(params.context ? { context: params.context } : {}),
     };
 
-<<<<<<< HEAD
-    await fs.mkdir(artifactDir, { recursive: true });
-    await fs.writeFile(htmlPath, params.html, "utf8");
-=======
     const root = await this.artifactRoot();
     await root.mkdir(id);
     await root.write(path.posix.join(id, "viewer.html"), params.html);
->>>>>>> upstream/main
     await this.writeMeta(meta);
     this.scheduleCleanup();
     return meta;
@@ -118,11 +107,7 @@ export class DiffArtifactStore {
       throw new Error(`Diff artifact not found: ${id}`);
     }
     const htmlPath = this.normalizeStoredPath(meta.htmlPath, "htmlPath");
-<<<<<<< HEAD
-    return await fs.readFile(htmlPath, "utf8");
-=======
     return await (await this.artifactRoot()).readText(this.relativeStoredPath(htmlPath));
->>>>>>> upstream/main
   }
 
   async updateFilePath(id: string, filePath: string): Promise<DiffArtifactMeta> {
@@ -169,11 +154,7 @@ export class DiffArtifactStore {
       ...(params.context ? { context: params.context } : {}),
     };
 
-<<<<<<< HEAD
-    await fs.mkdir(artifactDir, { recursive: true });
-=======
     await (await this.artifactRoot()).mkdir(id);
->>>>>>> upstream/main
     await this.writeStandaloneMeta(meta);
     this.scheduleCleanup();
     return {
@@ -193,22 +174,13 @@ export class DiffArtifactStore {
   }
 
   async cleanupExpired(): Promise<void> {
-<<<<<<< HEAD
-    await this.ensureRoot();
-    const entries = await fs.readdir(this.rootDir, { withFileTypes: true }).catch(() => []);
-=======
     const root = await this.artifactRoot();
     const entries = await root.list("", { withFileTypes: true }).catch(() => []);
->>>>>>> upstream/main
     const now = Date.now();
 
     await Promise.all(
       entries
-<<<<<<< HEAD
-        .filter((entry) => entry.isDirectory())
-=======
         .filter((entry) => entry.isDirectory)
->>>>>>> upstream/main
         .map(async (entry) => {
           const id = entry.name;
           const meta = await this.readMeta(id);
@@ -227,16 +199,7 @@ export class DiffArtifactStore {
             return;
           }
 
-<<<<<<< HEAD
-          const artifactPath = this.artifactDir(id);
-          const stat = await fs.stat(artifactPath).catch(() => null);
-          if (!stat) {
-            return;
-          }
-          if (now - stat.mtimeMs > SWEEP_FALLBACK_AGE_MS) {
-=======
           if (now - entry.mtimeMs > SWEEP_FALLBACK_AGE_MS) {
->>>>>>> upstream/main
             await this.deleteArtifact(id);
           }
         }),
@@ -247,14 +210,11 @@ export class DiffArtifactStore {
     await fs.mkdir(this.rootDir, { recursive: true });
   }
 
-<<<<<<< HEAD
-=======
   private async artifactRoot(): Promise<ArtifactRoot> {
     await this.ensureRoot();
     return await fsRoot(this.rootDir);
   }
 
->>>>>>> upstream/main
   private maybeCleanupExpired(): void {
     const now = Date.now();
     if (this.cleanupInFlight || now < this.nextCleanupAt) {
@@ -326,23 +286,12 @@ export class DiffArtifactStore {
     }
   }
 
-<<<<<<< HEAD
-  private metaFilePath(id: string, fileName: ArtifactMetaFileName): string {
-    return path.join(this.artifactDir(id), fileName);
-  }
-
-=======
->>>>>>> upstream/main
   private async writeJsonMeta(
     id: string,
     fileName: ArtifactMetaFileName,
     data: unknown,
   ): Promise<void> {
-<<<<<<< HEAD
-    await fs.writeFile(this.metaFilePath(id, fileName), JSON.stringify(data, null, 2), "utf8");
-=======
     await (await this.artifactRoot()).writeJson(path.posix.join(id, fileName), data, { space: 2 });
->>>>>>> upstream/main
   }
 
   private async readJsonMeta(
@@ -351,11 +300,7 @@ export class DiffArtifactStore {
     context: string,
   ): Promise<unknown> {
     try {
-<<<<<<< HEAD
-      const raw = await fs.readFile(this.metaFilePath(id, fileName), "utf8");
-=======
       const raw = await (await this.artifactRoot()).readText(path.posix.join(id, fileName));
->>>>>>> upstream/main
       return JSON.parse(raw) as unknown;
     } catch (error) {
       if (isFileNotFound(error)) {
@@ -384,14 +329,11 @@ export class DiffArtifactStore {
     return candidate;
   }
 
-<<<<<<< HEAD
-=======
   private relativeStoredPath(storedPath: string): string {
     const relativePath = path.relative(this.rootDir, this.normalizeStoredPath(storedPath, "path"));
     return relativePath.split(path.sep).join(path.posix.sep);
   }
 
->>>>>>> upstream/main
   private assertWithinRoot(candidate: string, label = "path"): void {
     const relative = path.relative(this.rootDir, candidate);
     if (
@@ -424,12 +366,8 @@ function isExpired(meta: { expiresAt: string }): boolean {
 }
 
 function isFileNotFound(error: unknown): boolean {
-<<<<<<< HEAD
-  return error instanceof Error && "code" in error && error.code === "ENOENT";
-=======
   const code = error instanceof Error && "code" in error ? error.code : undefined;
   return code === "ENOENT" || code === "not-found";
->>>>>>> upstream/main
 }
 
 function normalizeArtifactContext(value: unknown): DiffArtifactContext | undefined {

@@ -20,10 +20,7 @@ import {
   getResolvedLoggerSettings,
   isFileLogLevelEnabled,
   resetLogger,
-<<<<<<< HEAD
-=======
   setLoggerConfigLoaderForTests,
->>>>>>> upstream/main
   setLoggerOverride,
   toPinoLikeLogger,
 } from "./logging/logger.js";
@@ -54,10 +51,7 @@ export {
   getResolvedLoggerSettings,
   isFileLogLevelEnabled,
   resetLogger,
-<<<<<<< HEAD
-=======
   setLoggerConfigLoaderForTests,
->>>>>>> upstream/main
   setLoggerOverride,
   toPinoLikeLogger,
   createSubsystemLogger,

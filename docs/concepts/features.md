@@ -8,24 +8,6 @@ title: "Features"
 ## Highlights
 
 <Columns>
-<<<<<<< HEAD
-  <Card title="Channels" icon="message-square">
-    Discord, iMessage, Signal, Slack, Telegram, WhatsApp, WebChat, and more with a single Gateway.
-  </Card>
-  <Card title="Plugins" icon="plug">
-    Bundled plugins add Matrix, Nextcloud Talk, Nostr, Twitch, Zalo, and more without separate installs in normal current releases.
-  </Card>
-  <Card title="Routing" icon="route">
-    Multi-agent routing with isolated sessions.
-  </Card>
-  <Card title="Media" icon="image">
-    Images, audio, video, documents, and image/video generation.
-  </Card>
-  <Card title="Apps and UI" icon="monitor">
-    Web Control UI and macOS companion app.
-  </Card>
-  <Card title="Mobile nodes" icon="smartphone">
-=======
   <Card title="Channels" icon="message-square" href="/channels">
     Discord, iMessage, Signal, Slack, Telegram, WhatsApp, WebChat, and more with a single Gateway.
   </Card>
@@ -42,7 +24,6 @@ title: "Features"
     Web Control UI and macOS companion app.
   </Card>
   <Card title="Mobile nodes" icon="smartphone" href="/nodes">
->>>>>>> upstream/main
     iOS and Android nodes with pairing, voice/chat, and rich device commands.
   </Card>
 </Columns>
@@ -51,8 +32,8 @@ title: "Features"
 
 **Channels:**
 
-- Built-in channels include Discord, Google Chat, iMessage (legacy), IRC, Signal, Slack, Telegram, WebChat, and WhatsApp
-- Bundled plugin channels include BlueBubbles for iMessage, Feishu, LINE, Matrix, Mattermost, Microsoft Teams, Nextcloud Talk, Nostr, QQ Bot, Synology Chat, Tlon, Twitch, Zalo, and Zalo Personal
+- Built-in channels include Discord, Google Chat, iMessage, IRC, Signal, Slack, Telegram, WebChat, and WhatsApp
+- Bundled plugin channels include Feishu, LINE, Matrix, Mattermost, Microsoft Teams, Nextcloud Talk, Nostr, QQ Bot, Synology Chat, Tlon, Twitch, Zalo, and Zalo Personal
 - Optional separately installed channel plugins include Voice Call and third-party packages such as WeChat
 - Third-party channel plugins can extend the Gateway further, such as WeChat
 - Group chat support with mention-based activation
@@ -94,10 +75,6 @@ title: "Features"
 
 ## Related
 
-<<<<<<< HEAD
-- [Experimental features](/concepts/experimental-features)
-- [Agent runtime](/concepts/agent)
-=======
 <CardGroup cols={2}>
   <Card title="Experimental features" href="/concepts/experimental-features" icon="flask">
     Opt-in features that have not yet shipped to the default surface.
@@ -112,4 +89,3 @@ title: "Features"
     Bundled and third-party plugins that extend OpenClaw.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

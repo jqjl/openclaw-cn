@@ -12,11 +12,7 @@ import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
-<<<<<<< HEAD
-import { resolveOpenClawAgentDir } from "../src/agents/agent-paths.js";
-=======
 import { resolveDefaultAgentDir } from "../src/agents/agent-scope.js";
->>>>>>> upstream/main
 import { ensureAuthProfileStore, type AuthProfileCredential } from "../src/agents/auth-profiles.js";
 import { normalizeProviderId } from "../src/agents/model-selection.js";
 import { validateAnthropicSetupToken } from "../src/commands/auth-token.js";
@@ -189,11 +185,7 @@ function resolveSetupTokenSource(): TokenSource {
     };
   }
 
-<<<<<<< HEAD
-  const agentDir = resolveOpenClawAgentDir();
-=======
   const agentDir = resolveDefaultAgentDir({});
->>>>>>> upstream/main
   const store = ensureAuthProfileStore(agentDir, {
     allowKeychainPrompt: false,
   });

@@ -5,10 +5,7 @@ import path from "node:path";
 import { applyMergePatch } from "../../config/merge-patch.js";
 import type { CliBackendConfig } from "../../config/types.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
-<<<<<<< HEAD
-=======
 import { tryReadJson } from "../../infra/json-files.js";
->>>>>>> upstream/main
 import { extractMcpServerMap, type BundleMcpConfig } from "../../plugins/bundle-mcp.js";
 import type { CliBundleMcpMode } from "../../plugins/types.js";
 import { loadMergedBundleMcpConfig, toCliBundleMcpServerConfig } from "../bundle-mcp-config.js";
@@ -30,16 +27,7 @@ function resolveBundleMcpMode(mode: CliBundleMcpMode | undefined): CliBundleMcpM
 }
 
 async function readExternalMcpConfig(configPath: string): Promise<BundleMcpConfig> {
-<<<<<<< HEAD
-  try {
-    const raw = JSON.parse(await fs.readFile(configPath, "utf-8")) as unknown;
-    return { mcpServers: extractMcpServerMap(raw) };
-  } catch {
-    return { mcpServers: {} };
-  }
-=======
   return { mcpServers: extractMcpServerMap(await tryReadJson<unknown>(configPath)) };
->>>>>>> upstream/main
 }
 
 function sortJsonValue(value: unknown): unknown {

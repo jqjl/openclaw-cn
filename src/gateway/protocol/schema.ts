@@ -6,10 +6,7 @@ export * from "./schema/commands.js";
 export * from "./schema/config.js";
 export * from "./schema/cron.js";
 export * from "./schema/error-codes.js";
-<<<<<<< HEAD
-=======
 export * from "./schema/environments.js";
->>>>>>> upstream/main
 export * from "./schema/exec-approvals.js";
 export * from "./schema/devices.js";
 export * from "./schema/frames.js";
@@ -20,6 +17,7 @@ export * from "./schema/push.js";
 export * from "./schema/secrets.js";
 export * from "./schema/sessions.js";
 export * from "./schema/snapshot.js";
+export * from "./schema/tasks.js";
 export * from "./schema/types.js";
 export * from "./schema/plugin-approvals.js";
 export * from "./schema/plugins.js";

@@ -1,12 +1,8 @@
-import type { StreamFn } from "@mariozechner/pi-agent-core";
-import type { Api, Context, Model } from "@mariozechner/pi-ai";
-<<<<<<< HEAD
-import { describe, expect, it } from "vitest";
-=======
-import { streamSimpleOpenAIResponses } from "@mariozechner/pi-ai/openai-responses";
+import type { StreamFn } from "@earendil-works/pi-agent-core";
+import type { Api, Context, Model } from "@earendil-works/pi-ai";
+import { streamSimpleOpenAIResponses } from "@earendil-works/pi-ai/openai-responses";
 import { describe, expect, it } from "vitest";
 import { applyXaiRuntimeModelCompat } from "./runtime-model-compat.js";
->>>>>>> upstream/main
 import {
   createXaiFastModeWrapper,
   createXaiToolPayloadCompatibilityWrapper,
@@ -64,6 +60,7 @@ function runXaiToolPayloadWrapper(params: {
       id:
         params.modelId ??
         (api === "openai-completions" ? "grok-4-1-fast-reasoning" : "grok-4-fast"),
+      reasoning: params.modelId ? !params.modelId.includes("non-reasoning") : true,
       ...(params.input ? { input: params.input } : {}),
     } as Model<XaiStreamApi>,
     { messages: [] } as Context,
@@ -71,8 +68,6 @@ function runXaiToolPayloadWrapper(params: {
   );
 }
 
-<<<<<<< HEAD
-=======
 async function captureXaiResponsesPayloadWithThinking(): Promise<Record<string, unknown>> {
   const model = applyXaiRuntimeModelCompat({
     api: "openai-responses",
@@ -111,7 +106,6 @@ async function captureXaiResponsesPayloadWithThinking(): Promise<Record<string, 
   return await payloadPromise;
 }
 
->>>>>>> upstream/main
 describe("xai stream wrappers", () => {
   it("rewrites supported Grok models to fast variants when fast mode is enabled", () => {
     expect(captureWrappedModelId({ modelId: "grok-3", fastMode: true })).toBe("grok-3-fast");
@@ -165,7 +159,11 @@ describe("xai stream wrappers", () => {
         },
       ],
     };
-    runXaiToolPayloadWrapper({ payload, api: "openai-completions" });
+    runXaiToolPayloadWrapper({
+      payload,
+      api: "openai-completions",
+      modelId: "grok-4-fast-non-reasoning",
+    });
 
     expect(payload).not.toHaveProperty("reasoning");
     expect(payload).not.toHaveProperty("reasoningEffort");
@@ -173,29 +171,39 @@ describe("xai stream wrappers", () => {
     expect(payload.tools[0]?.function).not.toHaveProperty("strict");
   });
 
-  it("strips unsupported reasoning controls from xai payloads", () => {
+  it("strips unsupported reasoning controls from non-reasoning xai payloads", () => {
     const payload: Record<string, unknown> = {
       reasoning: { effort: "high" },
       reasoningEffort: "high",
       reasoning_effort: "high",
     };
-    runXaiToolPayloadWrapper({ payload });
+    runXaiToolPayloadWrapper({ payload, modelId: "grok-4-fast-non-reasoning" });
 
     expect(payload).not.toHaveProperty("reasoning");
     expect(payload).not.toHaveProperty("reasoningEffort");
     expect(payload).not.toHaveProperty("reasoning_effort");
   });
 
-<<<<<<< HEAD
-=======
-  it("marks native xAI Responses thinking efforts unsupported before pi-ai builds payloads", async () => {
-    const payload = await captureXaiResponsesPayloadWithThinking();
+  it("passes reasoning controls through for reasoning-capable xai payloads", () => {
+    const payload: Record<string, unknown> = {
+      reasoning: { effort: "high" },
+      reasoningEffort: "high",
+      reasoning_effort: "high",
+    };
+    runXaiToolPayloadWrapper({ payload, modelId: "grok-4.3" });
 
-    expect(payload).not.toHaveProperty("reasoning");
-    expect(payload).not.toHaveProperty("include");
+    expect(payload.reasoning).toEqual({ effort: "high" });
+    expect(payload.reasoningEffort).toBe("high");
+    expect(payload.reasoning_effort).toBe("high");
   });
 
->>>>>>> upstream/main
+  it("keeps native xAI Responses thinking efforts before pi-ai dispatches payloads", async () => {
+    const payload = await captureXaiResponsesPayloadWithThinking();
+
+    expect(payload.reasoning).toEqual({ effort: "low", summary: "auto" });
+    expect(payload.include).toEqual(["reasoning.encrypted_content"]);
+  });
+
   it("moves image-bearing tool results out of function_call_output payloads", () => {
     const payload: Record<string, unknown> = {
       input: [

@@ -1,12 +1,9 @@
 import {
-<<<<<<< HEAD
-=======
   createMessageReceiveContext,
   type MessageAckPolicy,
   type MessageReceiveContext,
 } from "openclaw/plugin-sdk/channel-message";
 import {
->>>>>>> upstream/main
   buildTelegramUpdateKey,
   createTelegramUpdateDedupe,
   resolveTelegramUpdateId,
@@ -17,10 +14,7 @@ type PersistUpdateId = (updateId: number) => void | Promise<void>;
 
 type TelegramUpdateTrackerOptions = {
   initialUpdateId?: number | null;
-<<<<<<< HEAD
-=======
   ackPolicy?: MessageAckPolicy;
->>>>>>> upstream/main
   onAcceptedUpdateId?: PersistUpdateId;
   onPersistError?: (error: unknown) => void;
   onSkip?: (key: string) => void;
@@ -29,10 +23,7 @@ type TelegramUpdateTrackerOptions = {
 type AcceptedTelegramUpdate = {
   key?: string;
   updateId?: number;
-<<<<<<< HEAD
-=======
   receiveContext?: MessageReceiveContext<TelegramUpdateKeyContext>;
->>>>>>> upstream/main
 };
 
 type BeginUpdateResult =
@@ -65,10 +56,7 @@ function sortedIds(ids: Set<number>): number[] {
 export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOptions = {}) {
   const initialUpdateId =
     typeof options.initialUpdateId === "number" ? options.initialUpdateId : null;
-<<<<<<< HEAD
-=======
   const ackPolicy = options.ackPolicy ?? "after_receive_record";
->>>>>>> upstream/main
   const recentUpdates = createTelegramUpdateDedupe();
   const pendingUpdateKeys = new Set<string>();
   const activeHandledUpdateKeys = new Map<string, boolean>();
@@ -134,9 +122,6 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
       return;
     }
     highestAcceptedUpdateId = updateId;
-<<<<<<< HEAD
-    requestPersistAcceptedUpdateId(updateId);
-=======
   };
 
   function resolveSafeCompletedUpdateId() {
@@ -175,7 +160,6 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
     void receiveContext.ack().catch((err) => {
       options.onPersistError?.(err);
     });
->>>>>>> upstream/main
   };
 
   const beginUpdate = (ctx: TelegramUpdateKeyContext): BeginUpdateResult => {
@@ -199,11 +183,6 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
       pendingUpdateKeys.add(updateKey);
       activeHandledUpdateKeys.set(updateKey, false);
     }
-<<<<<<< HEAD
-    if (typeof updateId === "number") {
-      pendingUpdateIds.add(updateId);
-      acceptUpdateId(updateId);
-=======
     let receiveContext: MessageReceiveContext<TelegramUpdateKeyContext> | undefined;
     if (typeof updateId === "number") {
       pendingUpdateIds.add(updateId);
@@ -216,17 +195,13 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
         onAck: () => persistUpdateIdAfterAck(updateId),
       });
       ackUpdateAfterStage(receiveContext, "receive_record");
->>>>>>> upstream/main
     }
     return {
       accepted: true,
       update: {
         ...(updateKey ? { key: updateKey } : {}),
         ...(typeof updateId === "number" ? { updateId } : {}),
-<<<<<<< HEAD
-=======
         ...(receiveContext ? { receiveContext } : {}),
->>>>>>> upstream/main
       },
     };
   };
@@ -246,10 +221,6 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
         if (highestCompletedUpdateId === null || update.updateId > highestCompletedUpdateId) {
           highestCompletedUpdateId = update.updateId;
         }
-<<<<<<< HEAD
-      } else {
-        failedUpdateIds.add(update.updateId);
-=======
         ackUpdateAfterStage(update.receiveContext, "agent_dispatch");
       } else {
         failedUpdateIds.add(update.updateId);
@@ -258,7 +229,6 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
           .catch((err) => {
             options.onPersistError?.(err);
           });
->>>>>>> upstream/main
       }
     }
   };
@@ -288,27 +258,6 @@ export function createTelegramUpdateTracker(options: TelegramUpdateTrackerOption
     return skipped;
   };
 
-<<<<<<< HEAD
-  const resolveSafeCompletedUpdateId = () => {
-    if (highestCompletedUpdateId === null) {
-      return null;
-    }
-    let safeCompletedUpdateId = highestCompletedUpdateId;
-    for (const updateId of pendingUpdateIds) {
-      if (updateId <= safeCompletedUpdateId) {
-        safeCompletedUpdateId = updateId - 1;
-      }
-    }
-    for (const updateId of failedUpdateIds) {
-      if (updateId <= safeCompletedUpdateId) {
-        safeCompletedUpdateId = updateId - 1;
-      }
-    }
-    return safeCompletedUpdateId;
-  };
-
-=======
->>>>>>> upstream/main
   const getState = (): TelegramUpdateTrackerState => ({
     highestAcceptedUpdateId,
     highestPersistedAcceptedUpdateId,

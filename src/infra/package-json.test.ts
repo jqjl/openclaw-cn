@@ -2,11 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { withTempDir } from "../test-helpers/temp-dir.js";
-<<<<<<< HEAD
-import { readPackageName, readPackageVersion } from "./package-json.js";
-=======
 import { readPackageManagerSpec, readPackageName, readPackageVersion } from "./package-json.js";
->>>>>>> upstream/main
 
 async function expectPackageMeta(params: {
   root: string;
@@ -22,15 +18,11 @@ describe("package-json helpers", () => {
     await withTempDir({ prefix: "openclaw-package-json-" }, async (root) => {
       await fs.writeFile(
         path.join(root, "package.json"),
-<<<<<<< HEAD
-        JSON.stringify({ version: " 1.2.3 ", name: "  @openclaw/demo  " }),
-=======
         JSON.stringify({
           version: " 1.2.3 ",
           name: "  @openclaw/demo  ",
           packageManager: " pnpm@10.8.1 ",
         }),
->>>>>>> upstream/main
         "utf8",
       );
 
@@ -39,10 +31,7 @@ describe("package-json helpers", () => {
         expectedVersion: "1.2.3",
         expectedName: "@openclaw/demo",
       });
-<<<<<<< HEAD
-=======
       await expect(readPackageManagerSpec(root)).resolves.toBe("pnpm@10.8.1");
->>>>>>> upstream/main
     });
   });
 

@@ -7,20 +7,12 @@ read_when:
 title: "Presence"
 ---
 
-<<<<<<< HEAD
-OpenClaw “presence” is a lightweight, best‑effort view of:
-=======
 OpenClaw "presence" is a lightweight, best-effort view of:
->>>>>>> upstream/main
 
 - the **Gateway** itself, and
 - **clients connected to the Gateway** (mac app, WebChat, CLI, etc.)
 
-<<<<<<< HEAD
-Presence is used primarily to render the macOS app’s **Instances** tab and to
-=======
 Presence is used primarily to render the macOS app's **Instances** tab and to
->>>>>>> upstream/main
 provide quick operator visibility.
 
 ## Presence fields (what shows up)
@@ -28,21 +20,12 @@ provide quick operator visibility.
 Presence entries are structured objects with fields like:
 
 - `instanceId` (optional but strongly recommended): stable client identity (usually `connect.client.instanceId`)
-<<<<<<< HEAD
-- `host`: human‑friendly host name
-- `ip`: best‑effort IP address
-- `version`: client version string
-- `deviceFamily` / `modelIdentifier`: hardware hints
-- `mode`: `ui`, `webchat`, `cli`, `backend`, `probe`, `test`, `node`, ...
-- `lastInputSeconds`: “seconds since last user input” (if known)
-=======
 - `host`: human-friendly host name
 - `ip`: best-effort IP address
 - `version`: client version string
 - `deviceFamily` / `modelIdentifier`: hardware hints
 - `mode`: `ui`, `webchat`, `cli`, `backend`, `probe`, `test`, `node`, ...
 - `lastInputSeconds`: "seconds since last user input" (if known)
->>>>>>> upstream/main
 - `reason`: `self`, `connect`, `node-connected`, `periodic`, ...
 - `ts`: last update timestamp (ms since epoch)
 
@@ -52,11 +35,7 @@ Presence entries are produced by multiple sources and **merged**.
 
 ### 1) Gateway self entry
 
-<<<<<<< HEAD
-The Gateway always seeds a “self” entry at startup so UIs show the gateway host
-=======
 The Gateway always seeds a "self" entry at startup so UIs show the gateway host
->>>>>>> upstream/main
 even before any clients connect.
 
 ### 2) WebSocket connect
@@ -66,11 +45,7 @@ Gateway upserts a presence entry for that connection.
 
 #### Why one-off CLI commands do not show up
 
-<<<<<<< HEAD
-The CLI often connects for short, one‑off commands. To avoid spamming the
-=======
 The CLI often connects for short, one-off commands. To avoid spamming the
->>>>>>> upstream/main
 Instances list, `client.mode === "cli"` is **not** turned into a presence entry.
 
 ### 3) `system-event` beacons
@@ -85,19 +60,11 @@ upserts a presence entry for that node (same flow as other WS clients).
 
 ## Merge + dedupe rules (why `instanceId` matters)
 
-<<<<<<< HEAD
-Presence entries are stored in a single in‑memory map:
-
-- Entries are keyed by a **presence key**.
-- The best key is a stable `instanceId` (from `connect.client.instanceId`) that survives restarts.
-- Keys are case‑insensitive.
-=======
 Presence entries are stored in a single in-memory map:
 
 - Entries are keyed by a **presence key**.
 - The best key is a stable `instanceId` (from `connect.client.instanceId`) that survives restarts.
 - Keys are case-insensitive.
->>>>>>> upstream/main
 
 If a client reconnects without a stable `instanceId`, it may show up as a
 **duplicate** row.
@@ -114,11 +81,7 @@ This keeps the list fresh and avoids unbounded memory growth.
 ## Remote/tunnel caveat (loopback IPs)
 
 When a client connects over an SSH tunnel / local port forward, the Gateway may
-<<<<<<< HEAD
-see the remote address as `127.0.0.1`. To avoid overwriting a good client‑reported
-=======
 see the remote address as `127.0.0.1`. To avoid overwriting a good client-reported
->>>>>>> upstream/main
 IP, loopback remote addresses are ignored.
 
 ## Consumers
@@ -134,14 +97,6 @@ indicator (Active/Idle/Stale) based on the age of the last update.
 - If you see duplicates:
   - confirm clients send a stable `client.instanceId` in the handshake
   - confirm periodic beacons use the same `instanceId`
-<<<<<<< HEAD
-  - check whether the connection‑derived entry is missing `instanceId` (duplicates are expected)
-
-## Related
-
-- [Typing indicators](/concepts/typing-indicators)
-- [Streaming and chunking](/concepts/streaming)
-=======
   - check whether the connection-derived entry is missing `instanceId` (duplicates are expected)
 
 ## Related
@@ -160,4 +115,3 @@ indicator (Active/Idle/Stale) based on the age of the last update.
     The wire protocol for `connect`, `system-event`, and `system-presence`.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

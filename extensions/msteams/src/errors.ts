@@ -149,9 +149,6 @@ function extractRetryAfterMs(err: unknown): number | null {
   return null;
 }
 
-<<<<<<< HEAD
-type MSTeamsSendErrorKind = "auth" | "throttled" | "transient" | "permanent" | "unknown";
-=======
 type MSTeamsSendErrorKind =
   | "auth"
   | "throttled"
@@ -159,7 +156,6 @@ type MSTeamsSendErrorKind =
   | "permanent"
   | "network"
   | "unknown";
->>>>>>> upstream/main
 
 type MSTeamsSendErrorClassification = {
   kind: MSTeamsSendErrorKind;
@@ -214,8 +210,6 @@ export function classifyMSTeamsSendError(err: unknown): MSTeamsSendErrorClassifi
     return { kind: "permanent", statusCode, errorCode };
   }
 
-<<<<<<< HEAD
-=======
   // Transport-level errors (no HTTP status code) — check for well-known
   // network error codes that indicate egress is blocked (#77674).
   if (statusCode == null) {
@@ -231,7 +225,6 @@ export function classifyMSTeamsSendError(err: unknown): MSTeamsSendErrorClassifi
     }
   }
 
->>>>>>> upstream/main
   return {
     kind: "unknown",
     statusCode: statusCode ?? undefined,
@@ -270,11 +263,8 @@ export function formatMSTeamsSendErrorHint(
   if (classification.kind === "transient") {
     return "transient Teams/Bot Framework error; retry may succeed";
   }
-<<<<<<< HEAD
-=======
   if (classification.kind === "network") {
     return "transport-level failure sending reply to Teams Bot Connector (smba.trafficmanager.net) — check egress firewall rules allow outbound HTTPS to smba.trafficmanager.net";
   }
->>>>>>> upstream/main
   return undefined;
 }

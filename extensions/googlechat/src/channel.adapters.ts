@@ -1,13 +1,10 @@
 import { adaptScopedAccountAccessor } from "openclaw/plugin-sdk/channel-config-helpers";
 import {
-<<<<<<< HEAD
-=======
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
 import {
->>>>>>> upstream/main
   composeAccountWarningCollectors,
   createAllowlistProviderOpenWarningCollector,
 } from "openclaw/plugin-sdk/channel-policy";
@@ -22,11 +19,11 @@ import { sanitizeForPlainText } from "openclaw/plugin-sdk/outbound-runtime";
 import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
-} from "openclaw/plugin-sdk/text-runtime";
+} from "openclaw/plugin-sdk/string-coerce-runtime";
 import {
   type ResolvedGoogleChatAccount,
   chunkTextForOutbound,
-  fetchRemoteMedia,
+  readRemoteMediaBuffer,
   isGoogleChatUserTarget,
   loadOutboundMediaFromUrl,
   missingTargetError,
@@ -44,8 +41,6 @@ const loadGoogleChatChannelRuntime = createLazyRuntimeNamedExport(
   "googleChatChannelRuntime",
 );
 
-<<<<<<< HEAD
-=======
 function createGoogleChatSendReceipt(params: {
   messageId?: string;
   chatId: string;
@@ -68,7 +63,6 @@ function createGoogleChatSendReceipt(params: {
   });
 }
 
->>>>>>> upstream/main
 export const formatAllowFromEntry = (entry: string) =>
   normalizeLowercaseStringOrEmpty(
     entry
@@ -233,17 +227,11 @@ export const googlechatOutboundAdapter = {
         text,
         thread,
       });
-<<<<<<< HEAD
-      return {
-        messageId: result?.messageName ?? "",
-        chatId: space,
-=======
       const messageId = result?.messageName ?? "";
       return {
         messageId,
         chatId: space,
         receipt: createGoogleChatSendReceipt({ messageId, chatId: space, kind: "text" }),
->>>>>>> upstream/main
       };
     },
     sendMedia: async ({
@@ -292,7 +280,7 @@ export const googlechatOutboundAdapter = {
       });
       const effectiveMaxBytes = maxBytes ?? (account.config.mediaMaxMb ?? 20) * 1024 * 1024;
       const loaded = /^https?:\/\//i.test(mediaUrl)
-        ? await fetchRemoteMedia({
+        ? await readRemoteMediaBuffer({
             url: mediaUrl,
             maxBytes: effectiveMaxBytes,
           })
@@ -325,23 +313,15 @@ export const googlechatOutboundAdapter = {
             ]
           : undefined,
       });
-<<<<<<< HEAD
-      return {
-        messageId: result?.messageName ?? "",
-        chatId: space,
-=======
       const messageId = result?.messageName ?? "";
       return {
         messageId,
         chatId: space,
         receipt: createGoogleChatSendReceipt({ messageId, chatId: space, kind: "media" }),
->>>>>>> upstream/main
       };
     },
   },
 };
-<<<<<<< HEAD
-=======
 
 export const googlechatMessageAdapter = defineChannelMessageAdapter({
   id: "googlechat",
@@ -358,4 +338,3 @@ export const googlechatMessageAdapter = defineChannelMessageAdapter({
     media: googlechatOutboundAdapter.attachedResults.sendMedia,
   },
 });
->>>>>>> upstream/main

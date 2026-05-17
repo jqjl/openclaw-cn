@@ -90,7 +90,7 @@ Recommended data provenance fields for every collected item:
 
 Have the workflow reject or mark stale items before summarization. The LLM step should receive only structured JSON and should be asked to preserve `sourceUrl`, `retrievedAt`, and `asOf` in its output. Use [LLM Task](/tools/llm-task) when you need a schema-validated model step inside the workflow.
 
-For reusable team or community workflows, package the CLI, `.lobster` files, and any setup notes as a skill or plugin and publish it through [ClawHub](/tools/clawhub). Keep workflow-specific guardrails in that package unless the plugin API is missing a needed generic capability.
+For reusable team or community workflows, package the CLI, `.lobster` files, and any setup notes as a skill or plugin and publish it through [ClawHub](/clawhub). Keep workflow-specific guardrails in that package unless the plugin API is missing a needed generic capability.
 
 ## Sync modes
 
@@ -150,10 +150,6 @@ Flows coordinate tasks, not replace them. A single flow may drive multiple backg
 ## Related
 
 - [Background Tasks](/automation/tasks) — the detached work ledger that flows coordinate
-<<<<<<< HEAD
-- [CLI: tasks](/cli/index#tasks) — CLI command reference for `openclaw tasks flow`
-=======
 - [CLI: tasks](/cli/tasks) — CLI command reference for `openclaw tasks flow`
->>>>>>> upstream/main
 - [Automation Overview](/automation) — all automation mechanisms at a glance
 - [Cron Jobs](/automation/cron-jobs) — scheduled jobs that may feed into flows

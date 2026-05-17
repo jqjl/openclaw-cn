@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-import path from "node:path";
-import { resolveNodeStartupTlsEnvironment } from "./bootstrap/node-startup-env.js";
-import { shouldSkipRespawnForArgv } from "./cli/respawn-policy.js";
-import { isTruthyEnvValue } from "./infra/env.js";
-=======
 import { spawn, type ChildProcess } from "node:child_process";
 import path from "node:path";
 import { resolveNodeStartupTlsEnvironment } from "./bootstrap/node-startup-env.js";
@@ -13,16 +7,12 @@ import {
 } from "./cli/respawn-policy.js";
 import { isTruthyEnvValue } from "./infra/env.js";
 import { attachChildProcessBridge } from "./process/child-process-bridge.js";
->>>>>>> upstream/main
 
 export const EXPERIMENTAL_WARNING_FLAG = "--disable-warning=ExperimentalWarning";
 export const OPENCLAW_NODE_OPTIONS_READY = "OPENCLAW_NODE_OPTIONS_READY";
 export const OPENCLAW_NODE_EXTRA_CA_CERTS_READY = "OPENCLAW_NODE_EXTRA_CA_CERTS_READY";
-<<<<<<< HEAD
-=======
 const CLI_RESPAWN_SIGNAL_EXIT_GRACE_MS = 1_000;
 const CLI_RESPAWN_SIGNAL_FORCE_KILL_GRACE_MS = 1_000;
->>>>>>> upstream/main
 
 type CliRespawnPlan = {
   command: string;
@@ -30,8 +20,6 @@ type CliRespawnPlan = {
   env: NodeJS.ProcessEnv;
 };
 
-<<<<<<< HEAD
-=======
 type CliRespawnRuntime = {
   spawn: typeof spawn;
   attachChildProcessBridge: typeof attachChildProcessBridge;
@@ -39,7 +27,6 @@ type CliRespawnRuntime = {
   writeError: (message: string, error?: unknown) => void;
 };
 
->>>>>>> upstream/main
 function pathModuleForPlatform(platform: NodeJS.Platform): typeof path.posix {
   return platform === "win32" ? path.win32 : path.posix;
 }
@@ -87,14 +74,10 @@ export function buildCliRespawnPlan(
   const execPath = params.execPath ?? process.execPath;
   const platform = params.platform ?? process.platform;
 
-<<<<<<< HEAD
-  if (shouldSkipRespawnForArgv(argv) || isTruthyEnvValue(env.OPENCLAW_NO_RESPAWN)) {
-=======
   if (
     shouldSkipStartupEnvironmentRespawnForArgv(argv) ||
     isTruthyEnvValue(env.OPENCLAW_NO_RESPAWN)
   ) {
->>>>>>> upstream/main
     return null;
   }
 
@@ -124,10 +107,7 @@ export function buildCliRespawnPlan(
   }
 
   if (
-<<<<<<< HEAD
-=======
     !shouldSkipRespawnForArgv(argv) &&
->>>>>>> upstream/main
     !isTruthyEnvValue(env[OPENCLAW_NODE_OPTIONS_READY]) &&
     !hasExperimentalWarningSuppressed({ env, execArgv })
   ) {
@@ -146,8 +126,6 @@ export function buildCliRespawnPlan(
     env: childEnv,
   };
 }
-<<<<<<< HEAD
-=======
 
 export function runCliRespawnPlan(
   plan: CliRespawnPlan,
@@ -227,4 +205,3 @@ export function runCliRespawnPlan(
 
   return child;
 }
->>>>>>> upstream/main

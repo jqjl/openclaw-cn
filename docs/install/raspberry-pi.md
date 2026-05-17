@@ -7,9 +7,6 @@ read_when:
 title: "Raspberry Pi"
 ---
 
-<<<<<<< HEAD
-Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is just the gateway (models run in the cloud via API), even a modest Pi handles the workload well.
-=======
 Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is just the gateway (models run in the cloud via API), even a modest Pi handles the workload well — typical hardware cost is **$35–80 one-time**, no monthly fees.
 
 ## Hardware compatibility
@@ -25,7 +22,6 @@ Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is 
 
 **Minimum:** 1 GB RAM, 1 core, 500 MB free disk, 64-bit OS.
 **Recommended:** 2 GB+ RAM, 16 GB+ SD card (or USB SSD), Ethernet.
->>>>>>> upstream/main
 
 ## Prerequisites
 
@@ -156,8 +152,6 @@ echo 'gpu_mem=16' | sudo tee -a /boot/config.txt
 sudo systemctl disable bluetooth
 ```
 
-<<<<<<< HEAD
-=======
 **systemd drop-in for stable restarts** -- If this Pi is mostly running OpenClaw, add a service drop-in:
 
 ```bash
@@ -213,7 +207,6 @@ openclaw backup create
 
 If you keep these on an SSD, both performance and longevity improve over the SD card.
 
->>>>>>> upstream/main
 ## Troubleshooting
 
 **Out of memory** -- Verify swap is active with `free -h`. Disable unused services (`sudo systemctl disable cups bluetooth avahi-daemon`). Use API-based models only.

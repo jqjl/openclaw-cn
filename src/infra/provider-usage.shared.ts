@@ -3,10 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { normalizeProviderId } from "../agents/provider-id.js";
 import { resolveRequiredHomeDir } from "./home-dir.js";
-<<<<<<< HEAD
-=======
 import { tryReadJsonSync } from "./json-files.js";
->>>>>>> upstream/main
 import type { UsageProviderId } from "./provider-usage.types.js";
 
 export const DEFAULT_TIMEOUT_MS = 5000;
@@ -88,18 +85,9 @@ export function resolveLegacyPiAgentAccessToken(
     if (!fs.existsSync(authPath)) {
       return undefined;
     }
-<<<<<<< HEAD
-    const parsed = JSON.parse(fs.readFileSync(authPath, "utf8")) as Record<
-      string,
-      { access?: string }
-    >;
-    for (const providerId of providerIds) {
-      const token = parsed[providerId]?.access;
-=======
     const parsed = tryReadJsonSync<Record<string, { access?: string }>>(authPath);
     for (const providerId of providerIds) {
       const token = parsed?.[providerId]?.access;
->>>>>>> upstream/main
       if (typeof token === "string" && token.trim()) {
         return token;
       }

@@ -105,10 +105,7 @@ export function startMatrixQaOpenClawCli(params: {
   const stderr: Buffer[] = [];
   let closed = false;
   let closeResult: MatrixQaCliRunResult | undefined;
-<<<<<<< HEAD
-=======
   let timedOut = false;
->>>>>>> upstream/main
   let settleWait:
     | {
         reject: (error: Error) => void;
@@ -142,26 +139,6 @@ export function startMatrixQaOpenClawCli(params: {
   };
 
   const timeout = setTimeout(() => {
-<<<<<<< HEAD
-    const result = buildMatrixQaCliResult({
-      args: params.args,
-      exitCode: 1,
-      output: readOutput(),
-    });
-    child.kill("SIGTERM");
-    finish(
-      result,
-      new Error(
-        [
-          `${formatMatrixQaCliCommand(params.args)} timed out after ${params.timeoutMs}ms`,
-          result.stderr.trim() ? `stderr:\n${redactMatrixQaCliOutput(result.stderr.trim())}` : null,
-          result.stdout.trim() ? `stdout:\n${redactMatrixQaCliOutput(result.stdout.trim())}` : null,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      ),
-    );
-=======
     timedOut = true;
     child.kill("SIGTERM");
     setTimeout(() => {
@@ -187,7 +164,6 @@ export function startMatrixQaOpenClawCli(params: {
         ),
       );
     }, 25);
->>>>>>> upstream/main
   }, params.timeoutMs);
 
   child.stdout.on("data", (chunk) => stdout.push(Buffer.from(chunk)));
@@ -208,12 +184,9 @@ export function startMatrixQaOpenClawCli(params: {
   });
   child.on("close", (exitCode) => {
     clearTimeout(timeout);
-<<<<<<< HEAD
-=======
     if (timedOut) {
       return;
     }
->>>>>>> upstream/main
     const result = buildMatrixQaCliResult({
       args: params.args,
       exitCode: exitCode ?? 1,

@@ -18,8 +18,6 @@ export function materializePluginAutoEnableCandidates(params: {
 }): PluginAutoEnableResult {
   const env = params.env ?? process.env;
   const config = params.config ?? {};
-<<<<<<< HEAD
-=======
   const entries = config.plugins?.entries;
   const hasRestrictiveAllowlistWithEntries =
     Array.isArray(config.plugins?.allow) &&
@@ -29,7 +27,6 @@ export function materializePluginAutoEnableCandidates(params: {
   if (params.candidates.length === 0 && !hasRestrictiveAllowlistWithEntries) {
     return { config, changes: [], autoEnabledReasons: {} };
   }
->>>>>>> upstream/main
   const manifestRegistry = resolvePluginAutoEnableManifestRegistry({
     config,
     env,

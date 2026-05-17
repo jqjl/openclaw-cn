@@ -18,18 +18,11 @@ have made the reply feel natural has already passed.
 Active memory gives the system one bounded chance to surface relevant memory
 before the main reply is generated.
 
-<<<<<<< HEAD
-## Paste This Into Your Agent
-
-Paste this into your agent if you want it to enable Active Memory with a
-self-contained, safe-default setup:
-=======
 ## Quick start
 
 Paste this into `openclaw.json` for a safe-default setup — plugin on, scoped to
 the `main` agent, direct-message sessions only, inherits the session model
 when available:
->>>>>>> upstream/main
 
 ```json5
 {
@@ -55,16 +48,7 @@ when available:
 }
 ```
 
-<<<<<<< HEAD
-This turns the plugin on for the `main` agent, keeps it limited to direct-message
-style sessions by default, lets it inherit the current session model first, and
-uses the configured fallback model only if no explicit or inherited model is
-available.
-
-After that, restart the gateway:
-=======
 Then restart the gateway:
->>>>>>> upstream/main
 
 ```bash
 openclaw gateway
@@ -77,56 +61,6 @@ To inspect it live in a conversation:
 /trace on
 ```
 
-<<<<<<< HEAD
-## Turn active memory on
-
-The safest setup is:
-
-1. enable the plugin
-2. target one conversational agent
-3. keep logging on only while tuning
-
-Start with this in `openclaw.json`:
-
-```json5
-{
-  plugins: {
-    entries: {
-      "active-memory": {
-        enabled: true,
-        config: {
-          agents: ["main"],
-          allowedChatTypes: ["direct"],
-          modelFallback: "google/gemini-3-flash",
-          queryMode: "recent",
-          promptStyle: "balanced",
-          timeoutMs: 15000,
-          maxSummaryChars: 220,
-          persistTranscripts: false,
-          logging: true,
-        },
-      },
-    },
-  },
-}
-```
-
-Then restart the gateway:
-
-```bash
-openclaw gateway
-```
-
-What this means:
-
-- `plugins.entries.active-memory.enabled: true` turns the plugin on
-- `config.agents: ["main"]` opts only the `main` agent into active memory
-- `config.allowedChatTypes: ["direct"]` keeps active memory on for direct-message style sessions only by default
-- if `config.model` is unset, active memory inherits the current session model first
-- `config.modelFallback` optionally provides your own fallback provider/model for recall
-- `config.promptStyle: "balanced"` uses the default general-purpose prompt style for `recent` mode
-- active memory still runs only on eligible interactive persistent chat sessions
-=======
 What the key fields do:
 
 - `plugins.entries.active-memory.enabled: true` turns the plugin on
@@ -136,7 +70,6 @@ What the key fields do:
 - `config.modelFallback` is used only when no explicit or inherited model resolves
 - `config.promptStyle: "balanced"` is the default for `recent` mode
 - Active memory still runs only for eligible interactive persistent chat sessions
->>>>>>> upstream/main
 
 ## Speed recommendations
 
@@ -145,76 +78,6 @@ the same model you already use for normal replies. That is the safest default
 because it follows your existing provider, auth, and model preferences.
 
 If you want Active Memory to feel faster, use a dedicated inference model
-<<<<<<< HEAD
-instead of borrowing the main chat model.
-
-Example fast-provider setup:
-
-```json5
-models: {
-  providers: {
-    cerebras: {
-      baseUrl: "https://api.cerebras.ai/v1",
-      apiKey: "${CEREBRAS_API_KEY}",
-      api: "openai-completions",
-      models: [{ id: "gpt-oss-120b", name: "GPT OSS 120B (Cerebras)" }],
-    },
-  },
-},
-plugins: {
-  entries: {
-    "active-memory": {
-      enabled: true,
-      config: {
-        model: "cerebras/gpt-oss-120b",
-      },
-    },
-  },
-}
-```
-
-Fast-model options worth considering:
-
-- `cerebras/gpt-oss-120b` for a fast dedicated recall model with a narrow tool surface
-- your normal session model, by leaving `config.model` unset
-- a low-latency fallback model such as `google/gemini-3-flash` when you want a separate recall model without changing your primary chat model
-
-Why Cerebras is a strong speed-oriented option for Active Memory:
-
-- the Active Memory tool surface is narrow: it only calls `memory_search` and `memory_get`
-- recall quality matters, but latency matters more than for the main answer path
-- a dedicated fast provider avoids tying memory recall latency to your primary chat provider
-
-If you do not want a separate speed-optimized model, leave `config.model` unset
-and let Active Memory inherit the current session model.
-
-### Cerebras setup
-
-Add a provider entry like this:
-
-```json5
-models: {
-  providers: {
-    cerebras: {
-      baseUrl: "https://api.cerebras.ai/v1",
-      apiKey: "${CEREBRAS_API_KEY}",
-      api: "openai-completions",
-      models: [{ id: "gpt-oss-120b", name: "GPT OSS 120B (Cerebras)" }],
-    },
-  },
-}
-```
-
-Then point Active Memory at it:
-
-```json5
-plugins: {
-  entries: {
-    "active-memory": {
-      enabled: true,
-      config: {
-        model: "cerebras/gpt-oss-120b",
-=======
 instead of borrowing the main chat model. Recall quality matters, but latency
 matters more than for the main answer path, and Active Memory's tool surface
 is narrow (it only calls available memory recall tools).
@@ -246,21 +109,14 @@ Add a Cerebras provider and point Active Memory at it:
       "active-memory": {
         enabled: true,
         config: { model: "cerebras/gpt-oss-120b" },
->>>>>>> upstream/main
       },
     },
   },
 }
 ```
 
-<<<<<<< HEAD
-Caveat:
-
-- make sure the Cerebras API key actually has model access for the model you choose, because `/v1/models` visibility alone does not guarantee `chat/completions` access
-=======
 Make sure the Cerebras API key actually has `chat/completions` access for the
 chosen model — `/v1/models` visibility alone does not guarantee it.
->>>>>>> upstream/main
 
 ## How to see it
 
@@ -471,24 +327,25 @@ The runtime shape is:
 flowchart LR
   U["User Message"] --> Q["Build Memory Query"]
   Q --> R["Active Memory Blocking Memory Sub-Agent"]
-  R -->|NONE or empty| M["Main Reply"]
+  R -->|NONE / no relevant memory| M["Main Reply"]
   R -->|relevant summary| I["Append Hidden active_memory_plugin System Context"]
   I --> M["Main Reply"]
 ```
 
-The blocking memory sub-agent can use only the available memory recall tools:
+The blocking memory sub-agent can use only the configured memory recall tools.
+By default that is:
 
-- `memory_recall`
 - `memory_search`
 - `memory_get`
+
+When `plugins.slots.memory` is `memory-lancedb`, the default is `memory_recall`
+instead. Set `config.toolsAllow` when another memory provider exposes a
+different recall tool contract.
 
 If the connection is weak, it should return `NONE`.
 
 ## Query modes
 
-<<<<<<< HEAD
-`config.queryMode` controls how much conversation the blocking memory sub-agent sees.
-=======
 `config.queryMode` controls how much conversation the blocking memory sub-agent
 sees. Pick the smallest mode that still answers follow-up questions well;
 timeout budgets should grow with context size (`message` < `recent` < `full`).
@@ -553,7 +410,6 @@ timeout budgets should grow with context size (`message` < `recent` < `full`).
 
   </Tab>
 </Tabs>
->>>>>>> upstream/main
 
 ## Prompt styles
 
@@ -610,6 +466,110 @@ skips recall for that turn.
 `config.modelFallbackPolicy` is retained only as a deprecated compatibility
 field for older configs. It no longer changes runtime behavior.
 
+## Memory tools
+
+By default Active Memory lets the blocking recall sub-agent call
+`memory_search` and `memory_get`. That matches the built-in `memory-core`
+contract. When `plugins.slots.memory` selects `memory-lancedb` and
+`config.toolsAllow` is unset, Active Memory keeps the existing LanceDB behavior
+and uses `memory_recall` instead.
+
+If you use another memory plugin, set `config.toolsAllow` to the exact tool
+names that plugin registers. Active Memory lists those tools in the recall
+prompt and passes the same list to the embedded sub-agent. If none of the
+configured tools are available, or the memory sub-agent fails, Active Memory
+skips recall for that turn and the main reply continues without memory context.
+`toolsAllow` only accepts concrete memory tool names. Wildcards, `group:*`
+entries, and core agent tools such as `read`, `exec`, `message`, and
+`web_search` are ignored before the hidden memory sub-agent starts.
+
+Default-behavior note: Active Memory no longer includes `memory_recall` in the
+memory-core default allowlist. Existing `memory-lancedb` setups keep working
+when `plugins.slots.memory` is set to `memory-lancedb`. Explicit `toolsAllow`
+always overrides the automatic default.
+
+### Built-in memory-core
+
+The default setup does not need an explicit `toolsAllow`:
+
+```json5
+{
+  plugins: {
+    entries: {
+      "active-memory": {
+        enabled: true,
+        config: {
+          agents: ["main"],
+          // Default: ["memory_search", "memory_get"]
+        },
+      },
+    },
+  },
+}
+```
+
+### LanceDB memory
+
+The bundled `memory-lancedb` plugin exposes `memory_recall`. Selecting the
+memory slot is enough for Active Memory to use that recall tool:
+
+```json5
+{
+  plugins: {
+    slots: {
+      memory: "memory-lancedb",
+    },
+    entries: {
+      "memory-lancedb": {
+        enabled: true,
+        config: {
+          embedding: {
+            provider: "openai",
+            model: "text-embedding-3-small",
+          },
+        },
+      },
+      "active-memory": {
+        enabled: true,
+        config: {
+          agents: ["main"],
+          promptAppend: "Use memory_recall for long-term user preferences, past decisions, and previously discussed topics. If recall finds nothing useful, return NONE.",
+        },
+      },
+    },
+  },
+}
+```
+
+### Lossless Claw
+
+Lossless Claw is a context-engine plugin with its own recall tools. Install and
+configure it as a context engine first; see [Context engine](/concepts/context-engine).
+Then let Active Memory use the Lossless Claw recall tools:
+
+```json5
+{
+  plugins: {
+    entries: {
+      "lossless-claw": {
+        enabled: true,
+      },
+      "active-memory": {
+        enabled: true,
+        config: {
+          agents: ["main"],
+          toolsAllow: ["lcm_grep", "lcm_describe", "lcm_expand_query"],
+          promptAppend: "Use lcm_grep first for compacted conversation recall. Use lcm_describe to inspect a specific summary. Use lcm_expand_query only when the latest user message needs exact details that may have been compacted away. Return NONE if the retrieved context is not clearly useful.",
+        },
+      },
+    },
+  },
+}
+```
+
+Do not include `lcm_expand` in `toolsAllow` for the main Active Memory sub-agent.
+Lossless Claw uses that as a lower-level delegated expansion tool.
+
 ## Advanced escape hatches
 
 These options are intentionally not part of the recommended setup.
@@ -636,6 +596,9 @@ Memory prompt and before the conversation context:
 promptAppend: "Prefer stable long-term preferences over one-off events."
 ```
 
+Use `promptAppend` with custom `toolsAllow` when a non-core memory plugin needs
+provider-specific tool order or query-shaping instructions.
+
 `config.promptOverride` replaces the default Active Memory prompt. OpenClaw
 still appends the conversation context afterward:
 
@@ -647,78 +610,6 @@ Prompt customization is not recommended unless you are deliberately testing a
 different recall contract. The default prompt is tuned to return either `NONE`
 or compact user-fact context for the main model.
 
-<<<<<<< HEAD
-### `message`
-
-Only the latest user message is sent.
-
-```text
-Latest user message only
-```
-
-Use this when:
-
-- you want the fastest behavior
-- you want the strongest bias toward stable preference recall
-- follow-up turns do not need conversational context
-
-Recommended timeout:
-
-- start around `3000` to `5000` ms
-
-### `recent`
-
-The latest user message plus a small recent conversational tail is sent.
-
-```text
-Recent conversation tail:
-user: ...
-assistant: ...
-user: ...
-
-Latest user message:
-...
-```
-
-Use this when:
-
-- you want a better balance of speed and conversational grounding
-- follow-up questions often depend on the last few turns
-
-Recommended timeout:
-
-- start around `15000` ms
-
-### `full`
-
-The full conversation is sent to the blocking memory sub-agent.
-
-```text
-Full conversation context:
-user: ...
-assistant: ...
-user: ...
-...
-```
-
-Use this when:
-
-- the strongest recall quality matters more than latency
-- the conversation contains important setup far back in the thread
-
-Recommended timeout:
-
-- increase it substantially compared with `message` or `recent`
-- start around `15000` ms or higher depending on thread size
-
-In general, timeout should increase with context size:
-
-```text
-message < recent < full
-```
-
-=======
->>>>>>> upstream/main
 ## Transcript persistence
 
 Active memory blocking memory sub-agent runs create a real `session.jsonl`
@@ -778,25 +669,26 @@ plugins.entries.active-memory
 
 The most important fields are:
 
-| Key                          | Type                                                                                                 | Meaning                                                                                                                                                                          |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `enabled`                    | `boolean`                                                                                            | Enables the plugin itself                                                                                                                                                        |
-| `config.agents`              | `string[]`                                                                                           | Agent ids that may use active memory                                                                                                                                             |
-| `config.model`               | `string`                                                                                             | Optional blocking memory sub-agent model ref; when unset, active memory uses the current session model                                                                           |
-| `config.allowedChatTypes`    | `("direct" \| "group" \| "channel")[]`                                                               | Session types that may run Active Memory; defaults to direct-message style sessions                                                                                              |
-| `config.allowedChatIds`      | `string[]`                                                                                           | Optional per-conversation allowlist applied after `allowedChatTypes`; non-empty lists fail closed                                                                                |
-| `config.deniedChatIds`       | `string[]`                                                                                           | Optional per-conversation denylist that overrides allowed session types and allowed ids                                                                                          |
-| `config.queryMode`           | `"message" \| "recent" \| "full"`                                                                    | Controls how much conversation the blocking memory sub-agent sees                                                                                                                |
-| `config.promptStyle`         | `"balanced" \| "strict" \| "contextual" \| "recall-heavy" \| "precision-heavy" \| "preference-only"` | Controls how eager or strict the blocking memory sub-agent is when deciding whether to return memory                                                                             |
-| `config.thinking`            | `"off" \| "minimal" \| "low" \| "medium" \| "high" \| "xhigh" \| "adaptive" \| "max"`                | Advanced thinking override for the blocking memory sub-agent; default `off` for speed                                                                                            |
-| `config.promptOverride`      | `string`                                                                                             | Advanced full prompt replacement; not recommended for normal use                                                                                                                 |
-| `config.promptAppend`        | `string`                                                                                             | Advanced extra instructions appended to the default or overridden prompt                                                                                                         |
-| `config.timeoutMs`           | `number`                                                                                             | Hard timeout for the blocking memory sub-agent, capped at 120000 ms                                                                                                              |
-| `config.setupGraceTimeoutMs` | `number`                                                                                             | Advanced extra setup budget before the recall timeout expires; defaults to 0 and is capped at 30000 ms. See [Cold-start grace](#cold-start-grace) for v2026.4.x upgrade guidance |
-| `config.maxSummaryChars`     | `number`                                                                                             | Maximum total characters allowed in the active-memory summary                                                                                                                    |
-| `config.logging`             | `boolean`                                                                                            | Emits active memory logs while tuning                                                                                                                                            |
-| `config.persistTranscripts`  | `boolean`                                                                                            | Keeps blocking memory sub-agent transcripts on disk instead of deleting temp files                                                                                               |
-| `config.transcriptDir`       | `string`                                                                                             | Relative blocking memory sub-agent transcript directory under the agent sessions folder                                                                                          |
+| Key                          | Type                                                                                                 | Meaning                                                                                                                                                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `enabled`                    | `boolean`                                                                                            | Enables the plugin itself                                                                                                                                                                                                                                |
+| `config.agents`              | `string[]`                                                                                           | Agent ids that may use active memory                                                                                                                                                                                                                     |
+| `config.model`               | `string`                                                                                             | Optional blocking memory sub-agent model ref; when unset, active memory uses the current session model                                                                                                                                                   |
+| `config.allowedChatTypes`    | `("direct" \| "group" \| "channel")[]`                                                               | Session types that may run Active Memory; defaults to direct-message style sessions                                                                                                                                                                      |
+| `config.allowedChatIds`      | `string[]`                                                                                           | Optional per-conversation allowlist applied after `allowedChatTypes`; non-empty lists fail closed                                                                                                                                                        |
+| `config.deniedChatIds`       | `string[]`                                                                                           | Optional per-conversation denylist that overrides allowed session types and allowed ids                                                                                                                                                                  |
+| `config.queryMode`           | `"message" \| "recent" \| "full"`                                                                    | Controls how much conversation the blocking memory sub-agent sees                                                                                                                                                                                        |
+| `config.promptStyle`         | `"balanced" \| "strict" \| "contextual" \| "recall-heavy" \| "precision-heavy" \| "preference-only"` | Controls how eager or strict the blocking memory sub-agent is when deciding whether to return memory                                                                                                                                                     |
+| `config.toolsAllow`          | `string[]`                                                                                           | Concrete memory tool names the blocking memory sub-agent may call; defaults to `["memory_search", "memory_get"]`, or `["memory_recall"]` when `plugins.slots.memory` is `memory-lancedb`; wildcards, `group:*` entries, and core agent tools are ignored |
+| `config.thinking`            | `"off" \| "minimal" \| "low" \| "medium" \| "high" \| "xhigh" \| "adaptive" \| "max"`                | Advanced thinking override for the blocking memory sub-agent; default `off` for speed                                                                                                                                                                    |
+| `config.promptOverride`      | `string`                                                                                             | Advanced full prompt replacement; not recommended for normal use                                                                                                                                                                                         |
+| `config.promptAppend`        | `string`                                                                                             | Advanced extra instructions appended to the default or overridden prompt                                                                                                                                                                                 |
+| `config.timeoutMs`           | `number`                                                                                             | Hard timeout for the blocking memory sub-agent, capped at 120000 ms                                                                                                                                                                                      |
+| `config.setupGraceTimeoutMs` | `number`                                                                                             | Advanced extra setup budget before the recall timeout expires; defaults to 0 and is capped at 30000 ms. See [Cold-start grace](#cold-start-grace) for v2026.4.x upgrade guidance                                                                         |
+| `config.maxSummaryChars`     | `number`                                                                                             | Maximum total characters allowed in the active-memory summary                                                                                                                                                                                            |
+| `config.logging`             | `boolean`                                                                                            | Emits active memory logs while tuning                                                                                                                                                                                                                    |
+| `config.persistTranscripts`  | `boolean`                                                                                            | Keeps blocking memory sub-agent transcripts on disk instead of deleting temp files                                                                                                                                                                       |
+| `config.transcriptDir`       | `string`                                                                                             | Relative blocking memory sub-agent transcript directory under the agent sessions folder                                                                                                                                                                  |
 
 Useful tuning fields:
 
@@ -910,187 +802,11 @@ If active memory is too slow:
 
 ## Common issues
 
-<<<<<<< HEAD
-### Embedding provider changed unexpectedly
-
-Active Memory uses the normal `memory_search` pipeline under
-`agents.defaults.memorySearch`. That means embedding-provider setup is only a
-requirement when your `memorySearch` setup requires embeddings for the behavior
-you want.
-
-In practice:
-
-- explicit provider setup is **required** if you want a provider that is not
-  auto-detected, such as `ollama`
-- explicit provider setup is **required** if auto-detection does not resolve
-  any usable embedding provider for your environment
-- explicit provider setup is **highly recommended** if you want deterministic
-  provider selection instead of "first available wins"
-- explicit provider setup is usually **not required** if auto-detection already
-  resolves the provider you want and that provider is stable in your deployment
-
-If `memorySearch.provider` is unset, OpenClaw auto-detects the first available
-embedding provider.
-
-That can be confusing in real deployments:
-
-- a newly available API key can change which provider memory search uses
-- one command or diagnostics surface may make the selected provider look
-  different from the path you are actually hitting during live memory sync or
-  search bootstrap
-- hosted providers can fail with quota or rate-limit errors that only show up
-  once Active Memory starts issuing recall searches before each reply
-
-Active Memory can still run without embeddings when `memory_search` can operate
-in degraded lexical-only mode, which typically happens when no embedding
-provider can be resolved.
-
-Do not assume the same fallback on provider runtime failures such as quota
-exhaustion, rate limits, network/provider errors, or missing local/remote
-models after a provider has already been selected.
-
-In practice:
-
-- if no embedding provider can be resolved, `memory_search` may degrade to
-  lexical-only retrieval
-- if an embedding provider is resolved and then fails at runtime, OpenClaw does
-  not currently guarantee a lexical fallback for that request
-- if you need deterministic provider selection, pin
-  `agents.defaults.memorySearch.provider`
-- if you need provider failover on runtime errors, configure
-  `agents.defaults.memorySearch.fallback` explicitly
-
-If you depend on embedding-backed recall, multimodal indexing, or a specific
-local/remote provider, pin the provider explicitly instead of relying on
-auto-detection.
-
-Common pinning examples:
-
-OpenAI:
-
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "openai",
-        model: "text-embedding-3-small",
-      },
-    },
-  },
-}
-```
-
-Gemini:
-
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "gemini",
-        model: "gemini-embedding-001",
-      },
-    },
-  },
-}
-```
-
-Ollama:
-
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "ollama",
-        model: "nomic-embed-text",
-      },
-    },
-  },
-}
-```
-
-If you expect provider failover on runtime errors such as quota exhaustion,
-pinning a provider alone is not enough. Configure an explicit fallback too:
-
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "openai",
-        fallback: "gemini",
-      },
-    },
-  },
-}
-```
-
-### Debugging provider issues
-
-If Active Memory is slow, empty, or appears to switch providers unexpectedly:
-
-- watch the gateway logs while reproducing the problem; look for lines such as
-  `active-memory: ... start|done`, `memory sync failed (search-bootstrap)`, or
-  provider-specific embedding errors
-- turn on `/trace on` to surface the plugin-owned Active Memory debug summary in
-  the session
-- turn on `/verbose on` if you also want the normal `🧩 Active Memory: ...`
-  status line after each reply
-- run `openclaw memory status --deep` to inspect the current memory-search
-  backend and index health
-- check `agents.defaults.memorySearch.provider` and related auth/config to make
-  sure the provider you expect is actually the one that can resolve at runtime
-- if you use `ollama`, verify the configured embedding model is installed, for
-  example `ollama list`
-
-Example debugging loop:
-
-```text
-1. Start the gateway and watch its logs
-2. In the chat session, run /trace on
-3. Send one message that should trigger Active Memory
-4. Compare the chat-visible debug line with the gateway log lines
-5. If provider choice is ambiguous, pin agents.defaults.memorySearch.provider explicitly
-```
-
-Example:
-
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "ollama",
-        model: "nomic-embed-text",
-      },
-    },
-  },
-}
-```
-
-Or, if you want Gemini embeddings:
-
-```json5
-{
-  agents: {
-    defaults: {
-      memorySearch: {
-        provider: "gemini",
-      },
-    },
-  },
-}
-```
-
-After changing the provider, restart the gateway and run a fresh test with
-`/trace on` so the Active Memory debug line reflects the new embedding path.
-=======
 Active Memory rides on the configured memory plugin's recall pipeline, so most
 recall surprises are embedding-provider problems, not Active Memory bugs. The
-default `memory-core` path uses `memory_search`; `memory-lancedb` uses
-`memory_recall`.
+default `memory-core` path uses `memory_search` and `memory_get`; the
+`memory-lancedb` slot uses `memory_recall`. If you use another memory plugin,
+confirm `config.toolsAllow` names the tools that plugin actually registers.
 
 <AccordionGroup>
   <Accordion title="Embedding provider switched or stopped working">
@@ -1107,7 +823,6 @@ default `memory-core` path uses `memory_search`; `memory-lancedb` uses
 
   </Accordion>
 
->>>>>>> upstream/main
   <Accordion title="Recall feels slow, empty, or inconsistent">
     - Turn on `/trace on` to surface the plugin-owned Active Memory debug
       summary in the session.

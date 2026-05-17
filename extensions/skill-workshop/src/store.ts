@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { createHash, randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
-=======
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { privateFileStore } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 import type { SkillProposal, SkillWorkshopStatus } from "./types.js";
 
 type StoreFile = {
@@ -48,26 +42,6 @@ async function withLock<T>(key: string, task: () => Promise<T>): Promise<T> {
   }
 }
 
-<<<<<<< HEAD
-async function readJson(filePath: string): Promise<StoreFile> {
-  try {
-    const raw = await fs.readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw) as StoreFile;
-    return {
-      version: 1,
-      proposals: Array.isArray(parsed.proposals) ? parsed.proposals : [],
-      review:
-        parsed.review && typeof parsed.review === "object"
-          ? normalizeReviewState(parsed.review as Partial<SkillWorkshopReviewState>)
-          : undefined,
-    };
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      return { version: 1, proposals: [] };
-    }
-    throw error;
-  }
-=======
 async function readJson(rootDir: string, relativePath: string): Promise<StoreFile> {
   const parsed = await privateFileStore(rootDir).readJsonIfExists<StoreFile>(relativePath);
   if (!parsed) {
@@ -81,7 +55,6 @@ async function readJson(rootDir: string, relativePath: string): Promise<StoreFil
         ? normalizeReviewState(parsed.review as Partial<SkillWorkshopReviewState>)
         : undefined,
   };
->>>>>>> upstream/main
 }
 
 function normalizeReviewState(
@@ -102,28 +75,6 @@ function normalizeReviewState(
   };
 }
 
-<<<<<<< HEAD
-async function atomicWriteJson(filePath: string, data: StoreFile): Promise<void> {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  const tempPath = `${filePath}.tmp-${process.pid}-${Date.now().toString(36)}-${randomUUID()}`;
-  await fs.writeFile(tempPath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
-  await fs.rename(tempPath, filePath);
-}
-
-export class SkillWorkshopStore {
-  readonly filePath: string;
-
-  constructor(params: { stateDir: string; workspaceDir: string }) {
-    this.filePath = path.join(
-      params.stateDir,
-      "skill-workshop",
-      `${workspaceKey(params.workspaceDir)}.json`,
-    );
-  }
-
-  async list(status?: SkillWorkshopStatus): Promise<SkillProposal[]> {
-    const file = await readJson(this.filePath);
-=======
 async function atomicWriteJson(
   rootDir: string,
   relativePath: string,
@@ -147,7 +98,6 @@ export class SkillWorkshopStore {
 
   async list(status?: SkillWorkshopStatus): Promise<SkillProposal[]> {
     const file = await readJson(this.stateDir, this.relativePath);
->>>>>>> upstream/main
     const proposals = status
       ? file.proposals.filter((proposal) => proposal.status === status)
       : file.proposals;
@@ -160,11 +110,7 @@ export class SkillWorkshopStore {
 
   async add(proposal: SkillProposal, maxPending: number): Promise<SkillProposal> {
     return await withLock(this.filePath, async () => {
-<<<<<<< HEAD
-      const file = await readJson(this.filePath);
-=======
       const file = await readJson(this.stateDir, this.relativePath);
->>>>>>> upstream/main
       const duplicate = file.proposals.find(
         (item) =>
           (item.status === "pending" || item.status === "quarantined") &&
@@ -186,80 +132,52 @@ export class SkillWorkshopStore {
             ).length <= maxPending
         );
       });
-<<<<<<< HEAD
-      await atomicWriteJson(this.filePath, { ...file, version: 1, proposals: nextProposals });
-=======
       await atomicWriteJson(this.stateDir, this.relativePath, {
         ...file,
         version: 1,
         proposals: nextProposals,
       });
->>>>>>> upstream/main
       return proposal;
     });
   }
 
   async updateStatus(id: string, status: SkillWorkshopStatus): Promise<SkillProposal> {
     return await withLock(this.filePath, async () => {
-<<<<<<< HEAD
-      const file = await readJson(this.filePath);
-=======
       const file = await readJson(this.stateDir, this.relativePath);
->>>>>>> upstream/main
       const index = file.proposals.findIndex((proposal) => proposal.id === id);
       if (index < 0) {
         throw new Error(`proposal not found: ${id}`);
       }
       const updated = { ...file.proposals[index], status, updatedAt: Date.now() };
       file.proposals[index] = updated;
-<<<<<<< HEAD
-      await atomicWriteJson(this.filePath, file);
-=======
       await atomicWriteJson(this.stateDir, this.relativePath, file);
->>>>>>> upstream/main
       return updated;
     });
   }
 
   async recordReviewTurn(toolCalls: number): Promise<SkillWorkshopReviewState> {
     return await withLock(this.filePath, async () => {
-<<<<<<< HEAD
-      const file = await readJson(this.filePath);
-=======
       const file = await readJson(this.stateDir, this.relativePath);
->>>>>>> upstream/main
       const current = normalizeReviewState(file.review);
       const next = {
         ...current,
         turnsSinceReview: current.turnsSinceReview + 1,
         toolCallsSinceReview: current.toolCallsSinceReview + Math.max(0, Math.trunc(toolCalls)),
       };
-<<<<<<< HEAD
-      await atomicWriteJson(this.filePath, { ...file, review: next });
-=======
       await atomicWriteJson(this.stateDir, this.relativePath, { ...file, review: next });
->>>>>>> upstream/main
       return next;
     });
   }
 
   async markReviewed(): Promise<SkillWorkshopReviewState> {
     return await withLock(this.filePath, async () => {
-<<<<<<< HEAD
-      const file = await readJson(this.filePath);
-=======
       const file = await readJson(this.stateDir, this.relativePath);
->>>>>>> upstream/main
       const next = {
         turnsSinceReview: 0,
         toolCallsSinceReview: 0,
         lastReviewAt: Date.now(),
       };
-<<<<<<< HEAD
-      await atomicWriteJson(this.filePath, { ...file, review: next });
-=======
       await atomicWriteJson(this.stateDir, this.relativePath, { ...file, review: next });
->>>>>>> upstream/main
       return next;
     });
   }

@@ -12,21 +12,13 @@ key or account is required.
 
 <Warning>
   DuckDuckGo is an **experimental, unofficial** integration that pulls results
-<<<<<<< HEAD
-  from DuckDuckGo's non-JavaScript search pages — not an official API. Expect
-=======
   from DuckDuckGo's non-JavaScript search pages - not an official API. Expect
->>>>>>> upstream/main
   occasional breakage from bot-challenge pages or HTML changes.
 </Warning>
 
 ## Setup
 
-<<<<<<< HEAD
-No API key needed — just set DuckDuckGo as your provider:
-=======
 No API key needed - just set DuckDuckGo as your provider:
->>>>>>> upstream/main
 
 <Steps>
   <Step title="Configure">
@@ -77,11 +69,7 @@ Search query.
 </ParamField>
 
 <ParamField path="count" type="number" default="5">
-<<<<<<< HEAD
-Results to return (1–10).
-=======
 Results to return (1-10).
->>>>>>> upstream/main
 </ParamField>
 
 <ParamField path="region" type="string">
@@ -92,25 +80,11 @@ DuckDuckGo region code (e.g. `us-en`, `uk-en`, `de-de`).
 SafeSearch level.
 </ParamField>
 
-<<<<<<< HEAD
-Region and SafeSearch can also be set in plugin config (see above) — tool
-=======
 Region and SafeSearch can also be set in plugin config (see above) - tool
->>>>>>> upstream/main
 parameters override config values per-query.
 
 ## Notes
 
-<<<<<<< HEAD
-- **No API key** — works out of the box, zero configuration
-- **Experimental** — gathers results from DuckDuckGo's non-JavaScript HTML
-  search pages, not an official API or SDK
-- **Bot-challenge risk** — DuckDuckGo may serve CAPTCHAs or block requests
-  under heavy or automated use
-- **HTML parsing** — results depend on page structure, which can change without
-  notice
-- **Auto-detection order** — DuckDuckGo is the first key-free fallback
-=======
 - **No API key** - works out of the box, zero configuration
 - **Experimental** - gathers results from DuckDuckGo's non-JavaScript HTML
   search pages, not an official API or SDK
@@ -119,7 +93,6 @@ parameters override config values per-query.
 - **HTML parsing** - results depend on page structure, which can change without
   notice
 - **Auto-detection order** - DuckDuckGo is the first key-free fallback
->>>>>>> upstream/main
   (order 100) in auto-detection. API-backed providers with configured keys run
   first, then Ollama Web Search (order 110), then SearXNG (order 200)
 - **SafeSearch defaults to moderate** when not configured

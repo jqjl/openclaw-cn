@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
-summary: "Redirect to /tools/message"
-=======
 summary: "Redirect to /cli/message"
->>>>>>> upstream/main
 title: "Polls"
 ---
 

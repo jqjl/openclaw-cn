@@ -1,12 +1,9 @@
 import type { webhook } from "@line/bot-sdk";
 import type { NextFunction, Request, Response } from "express";
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiveContext,
   type MessageReceiveContext,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { danger, logVerbose, type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
 import { parseLineWebhookBody, validateLineSignature } from "./webhook-utils.js";
 
@@ -41,10 +38,7 @@ export function createLineWebhookMiddleware(
   const { channelSecret, onEvents, runtime } = options;
 
   return async (req: Request, res: Response, _next: NextFunction): Promise<void> => {
-<<<<<<< HEAD
-=======
     let receiveContext: MessageReceiveContext<webhook.CallbackRequest> | undefined;
->>>>>>> upstream/main
     try {
       const signature = req.headers["x-line-signature"];
 
@@ -77,8 +71,6 @@ export function createLineWebhookMiddleware(
         return;
       }
 
-<<<<<<< HEAD
-=======
       receiveContext = createMessageReceiveContext({
         id: `${Date.now()}:line:webhook`,
         channel: "line",
@@ -89,23 +81,17 @@ export function createLineWebhookMiddleware(
         },
       });
 
->>>>>>> upstream/main
       if (body.events && body.events.length > 0) {
         logVerbose(`line: received ${body.events.length} webhook events`);
         await onEvents(body);
       }
 
-<<<<<<< HEAD
-      res.status(200).json({ status: "ok" });
-    } catch (err) {
-=======
       const ackStage = body.events?.length ? "agent_dispatch" : "receive_record";
       if (receiveContext.shouldAckAfter(ackStage)) {
         await receiveContext.ack();
       }
     } catch (err) {
       await receiveContext?.nack(err);
->>>>>>> upstream/main
       runtime?.error?.(danger(`line webhook error: ${String(err)}`));
       if (!res.headersSent) {
         res.status(500).json({ error: "Internal server error" });

@@ -6,20 +6,11 @@ read_when:
   - Enabling or auditing default skills
 ---
 
-<<<<<<< HEAD
-# AGENTS.md - OpenClaw Personal Assistant (default)
-
-=======
->>>>>>> upstream/main
 ## First run (recommended)
 
 OpenClaw uses a dedicated workspace directory for the agent. Default: `~/.openclaw/workspace` (configurable via `agents.defaults.workspace`).
 
-<<<<<<< HEAD
-1. Create the workspace (if it doesn’t already exist):
-=======
 1. Create the workspace (if it doesn't already exist):
->>>>>>> upstream/main
 
 ```bash
 mkdir -p ~/.openclaw/workspace
@@ -49,15 +40,9 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 
 ## Safety defaults
 
-<<<<<<< HEAD
-- Don’t dump directories or secrets into chat.
-- Don’t run destructive commands unless explicitly asked.
-- Don’t send partial/streaming replies to external messaging surfaces (only final replies).
-=======
 - Don't dump directories or secrets into chat.
 - Don't run destructive commands unless explicitly asked.
 - Don't send partial/streaming replies to external messaging surfaces (only final replies).
->>>>>>> upstream/main
 
 ## Session start (required)
 
@@ -73,13 +58,8 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 
 ## Shared spaces (recommended)
 
-<<<<<<< HEAD
-- You’re not the user’s voice; be careful in group chats or public channels.
-- Don’t share private data, contact info, or internal notes.
-=======
 - You're not the user's voice; be careful in group chats or public channels.
 - Don't share private data, contact info, or internal notes.
->>>>>>> upstream/main
 
 ## Memory system (recommended)
 
@@ -90,24 +70,14 @@ cp docs/reference/AGENTS.default.md ~/.openclaw/workspace/AGENTS.md
 - Capture: decisions, preferences, constraints, open loops.
 - Avoid secrets unless explicitly requested.
 
-<<<<<<< HEAD
-## Tools & skills
-
-- Tools live in skills; follow each skill’s `SKILL.md` when you need it.
-=======
 ## Tools and skills
 
 - Tools live in skills; follow each skill's `SKILL.md` when you need it.
->>>>>>> upstream/main
 - Keep environment-specific notes in `TOOLS.md` (Notes for Skills).
 
 ## Backup tip (recommended)
 
-<<<<<<< HEAD
-If you treat this workspace as Clawd’s “memory”, make it a git repo (ideally private) so `AGENTS.md` and your memory files are backed up.
-=======
 If you treat this workspace as Clawd's "memory", make it a git repo (ideally private) so `AGENTS.md` and your memory files are backed up.
->>>>>>> upstream/main
 
 ```bash
 cd ~/.openclaw/workspace
@@ -125,25 +95,6 @@ git commit -m "Add Clawd workspace"
 
 ## Core skills (enable in Settings → Skills)
 
-<<<<<<< HEAD
-- **mcporter** — Tool server runtime/CLI for managing external skill backends.
-- **Peekaboo** — Fast macOS screenshots with optional AI vision analysis.
-- **camsnap** — Capture frames, clips, or motion alerts from RTSP/ONVIF security cams.
-- **oracle** — OpenAI-ready agent CLI with session replay and browser control.
-- **eightctl** — Control your sleep, from the terminal.
-- **imsg** — Send, read, stream iMessage & SMS.
-- **wacli** — WhatsApp CLI: sync, search, send.
-- **discord** — Discord actions: react, stickers, polls. Use `user:<id>` or `channel:<id>` targets (bare numeric ids are ambiguous).
-- **gog** — Google Suite CLI: Gmail, Calendar, Drive, Contacts.
-- **spotify-player** — Terminal Spotify client to search/queue/control playback.
-- **sag** — ElevenLabs speech with mac-style say UX; streams to speakers by default.
-- **Sonos CLI** — Control Sonos speakers (discover/status/playback/volume/grouping) from scripts.
-- **blucli** — Play, group, and automate BluOS players from scripts.
-- **OpenHue CLI** — Philips Hue lighting control for scenes and automations.
-- **OpenAI Whisper** — Local speech-to-text for quick dictation and voicemail transcripts.
-- **Gemini CLI** — Google Gemini models from the terminal for fast Q&A.
-- **agent-tools** — Utility toolkit for automations and helper scripts.
-=======
 - **mcporter** - Tool server runtime/CLI for managing external skill backends.
 - **Peekaboo** - Fast macOS screenshots with optional AI vision analysis.
 - **camsnap** - Capture frames, clips, or motion alerts from RTSP/ONVIF security cams.
@@ -161,18 +112,13 @@ git commit -m "Add Clawd workspace"
 - **OpenAI Whisper** - Local speech-to-text for quick dictation and voicemail transcripts.
 - **Gemini CLI** - Google Gemini models from the terminal for fast Q&A.
 - **agent-tools** - Utility toolkit for automations and helper scripts.
->>>>>>> upstream/main
 
 ## Usage notes
 
 - Prefer the `openclaw` CLI for scripting; mac app handles permissions.
 - Run installs from the Skills tab; it hides the button if a binary is already present.
 - Keep heartbeats enabled so the assistant can schedule reminders, monitor inboxes, and trigger camera captures.
-<<<<<<< HEAD
-- Canvas UI runs full-screen with native overlays. Avoid placing critical controls in the top-left/top-right/bottom edges; add explicit gutters in the layout and don’t rely on safe-area insets.
-=======
 - Canvas UI runs full-screen with native overlays. Avoid placing critical controls in the top-left/top-right/bottom edges; add explicit gutters in the layout and don't rely on safe-area insets.
->>>>>>> upstream/main
 - For browser-driven verification, use `openclaw browser` (tabs/status/screenshot) with the OpenClaw-managed Chrome profile.
 - For DOM inspection, use `openclaw browser eval|query|dom|snapshot` (and `--json`/`--out` when you need machine output).
 - For interactions, use `openclaw browser click|type|hover|drag|select|upload|press|wait|navigate|back|evaluate|run` (click/type require snapshot refs; use `evaluate` for CSS selectors).

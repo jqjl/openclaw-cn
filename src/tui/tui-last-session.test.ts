@@ -4,10 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
   buildTuiLastSessionScopeKey,
-<<<<<<< HEAD
-=======
   isHeartbeatLikeTuiSession,
->>>>>>> upstream/main
   readTuiLastSessionKey,
   resolveRememberedTuiSessionKey,
   resolveTuiLastSessionStatePath,
@@ -75,8 +72,6 @@ describe("tui last session state", () => {
       }),
     ).toBeNull();
   });
-<<<<<<< HEAD
-=======
 
   it("does not persist or restore heartbeat sessions", async () => {
     const stateDir = await makeTempStateDir();
@@ -120,5 +115,4 @@ describe("tui last session state", () => {
       }),
     ).toBeNull();
   });
->>>>>>> upstream/main
 });

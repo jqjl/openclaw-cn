@@ -1,16 +1,7 @@
-<<<<<<< HEAD
-import fs from "node:fs";
-import path from "node:path";
-import { applyMergePatch } from "../config/merge-patch.js";
-import type { OpenClawConfig } from "../config/types.openclaw.js";
-import { matchBoundaryFileOpenFailure, openBoundaryFileSync } from "../infra/boundary-file-read.js";
-import { isRecord } from "../utils.js";
-=======
 import { applyMergePatch } from "../config/merge-patch.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
 import { matchRootFileOpenFailure, type RootFileOpenFailure } from "../infra/boundary-file-read.js";
 import { readRootJsonObjectSync } from "../infra/json-files.js";
->>>>>>> upstream/main
 import { normalizePluginsConfig, resolveEffectivePluginActivationState } from "./config-state.js";
 import type { PluginBundleFormat } from "./manifest-types.js";
 import { loadPluginManifestRegistryForPluginRegistry } from "./plugin-registry.js";
@@ -29,41 +20,6 @@ export type BundleServerRuntimeSupport = {
 export function readBundleJsonObject(params: {
   rootDir: string;
   relativePath: string;
-<<<<<<< HEAD
-  onOpenFailure?: (
-    failure: Extract<ReturnType<typeof openBoundaryFileSync>, { ok: false }>,
-  ) => ReadBundleJsonResult;
-}): ReadBundleJsonResult {
-  const absolutePath = path.join(params.rootDir, params.relativePath);
-  const opened = openBoundaryFileSync({
-    absolutePath,
-    rootPath: params.rootDir,
-    boundaryLabel: "plugin root",
-    rejectHardlinks: true,
-  });
-  if (!opened.ok) {
-    return params.onOpenFailure?.(opened) ?? { ok: true, raw: {} };
-  }
-  try {
-    const raw = JSON.parse(fs.readFileSync(opened.fd, "utf-8")) as unknown;
-    if (!isRecord(raw)) {
-      return { ok: false, error: `${params.relativePath} must contain a JSON object` };
-    }
-    return { ok: true, raw };
-  } catch (error) {
-    return { ok: false, error: `failed to parse ${params.relativePath}: ${String(error)}` };
-  } finally {
-    fs.closeSync(opened.fd);
-  }
-}
-
-export function resolveBundleJsonOpenFailure(params: {
-  failure: Extract<ReturnType<typeof openBoundaryFileSync>, { ok: false }>;
-  relativePath: string;
-  allowMissing?: boolean;
-}): ReadBundleJsonResult {
-  return matchBoundaryFileOpenFailure(params.failure, {
-=======
   onOpenFailure?: (failure: RootFileOpenFailure) => ReadBundleJsonResult;
 }): ReadBundleJsonResult {
   const result = readRootJsonObjectSync({
@@ -87,7 +43,6 @@ export function resolveBundleJsonOpenFailure(params: {
   allowMissing?: boolean;
 }): ReadBundleJsonResult {
   return matchRootFileOpenFailure(params.failure, {
->>>>>>> upstream/main
     path: () => {
       if (params.allowMissing) {
         return { ok: true, raw: {} };

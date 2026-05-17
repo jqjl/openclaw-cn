@@ -1,14 +1,11 @@
 import { buildDmGroupAccountAllowlistAdapter } from "openclaw/plugin-sdk/allowlist-config-edit";
 import { createChatChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
   type ChannelMessageSendResult,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { buildPassiveProbedChannelStatusSummary } from "openclaw/plugin-sdk/extension-shared";
 import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
 import { sanitizeForPlainText } from "openclaw/plugin-sdk/outbound-runtime";
@@ -18,6 +15,7 @@ import {
   createDefaultChannelRuntimeState,
 } from "openclaw/plugin-sdk/status-helpers";
 import { resolveIMessageAccount, type ResolvedIMessageAccount } from "./accounts.js";
+import { imessageMessageActions } from "./actions.js";
 import {
   chunkTextForOutbound,
   collectStatusIssuesFromLastError,
@@ -36,10 +34,7 @@ import {
   resolveIMessageGroupRequireMention,
   resolveIMessageGroupToolPolicy,
 } from "./group-policy.js";
-<<<<<<< HEAD
-=======
 import { sanitizeOutboundText } from "./monitor/sanitize-outbound.js";
->>>>>>> upstream/main
 import type { IMessageProbe } from "./probe.js";
 import { imessageSetupAdapter } from "./setup-core.js";
 import {
@@ -57,8 +52,6 @@ import {
 
 const loadIMessageChannelRuntime = createLazyRuntimeModule(() => import("./channel.runtime.js"));
 
-<<<<<<< HEAD
-=======
 type IMessageMessageContextExtras = {
   deps?: { [channelId: string]: unknown };
 };
@@ -123,7 +116,6 @@ const imessageMessageAdapter = defineChannelMessageAdapter({
   },
 });
 
->>>>>>> upstream/main
 function buildIMessageBaseSessionKey(params: {
   cfg: Parameters<typeof resolveIMessageAccount>[0]["cfg"];
   agentId: string;
@@ -308,10 +300,8 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount, IMessageProb
           }
         },
       },
-<<<<<<< HEAD
-=======
       message: imessageMessageAdapter,
->>>>>>> upstream/main
+      actions: imessageMessageActions,
     },
     pairing: {
       text: {
@@ -328,9 +318,6 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount, IMessageProb
         chunker: chunkTextForOutbound,
         chunkerMode: "text",
         textChunkLimit: 4000,
-<<<<<<< HEAD
-        sanitizeText: ({ text }) => sanitizeForPlainText(text),
-=======
         sanitizeText: ({ text }) => sanitizeForPlainText(sanitizeOutboundText(text)),
         deliveryCapabilities: {
           durableFinal: {
@@ -340,7 +327,6 @@ export const imessagePlugin: ChannelPlugin<ResolvedIMessageAccount, IMessageProb
             messageSendingHooks: true,
           },
         },
->>>>>>> upstream/main
       },
       attachedResults: {
         channel: "imessage",

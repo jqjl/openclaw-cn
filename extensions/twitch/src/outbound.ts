@@ -5,15 +5,12 @@
  * Supports text and media (URL) sending with markdown stripping and chunking.
  */
 
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
   type ChannelMessageSendResult,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { resolveTwitchAccountContext } from "./config.js";
 import { sendMessageTwitchInternal } from "./send.js";
 import type {
@@ -34,8 +31,6 @@ export const twitchOutbound: ChannelOutboundAdapter = {
   /** Direct delivery mode - messages are sent immediately */
   deliveryMode: "direct",
 
-<<<<<<< HEAD
-=======
   deliveryCapabilities: {
     durableFinal: {
       text: true,
@@ -44,7 +39,6 @@ export const twitchOutbound: ChannelOutboundAdapter = {
     },
   },
 
->>>>>>> upstream/main
   /** Twitch chat message limit is 500 characters */
   textChunkLimit: 500,
 
@@ -163,10 +157,7 @@ export const twitchOutbound: ChannelOutboundAdapter = {
     return {
       channel: "twitch",
       messageId: result.messageId,
-<<<<<<< HEAD
-=======
       receipt: result.receipt,
->>>>>>> upstream/main
       timestamp: Date.now(),
     };
   },
@@ -208,8 +199,6 @@ export const twitchOutbound: ChannelOutboundAdapter = {
     });
   },
 };
-<<<<<<< HEAD
-=======
 
 function toTwitchMessageSendResult(
   result: OutboundDeliveryResult,
@@ -251,4 +240,3 @@ export const twitchMessageAdapter = defineChannelMessageAdapter({
     },
   },
 });
->>>>>>> upstream/main

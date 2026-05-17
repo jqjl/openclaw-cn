@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { createSlackWebClient, createSlackWriteClient } from "@openclaw/slack/api.js";
 import type { WebClient } from "@slack/web-api";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import { z } from "zod";
 import { startQaGatewayChild } from "../../gateway-child.js";
@@ -33,9 +33,6 @@ type SlackQaRuntimeEnv = {
   sutAppToken: string;
 };
 
-<<<<<<< HEAD
-type SlackQaScenarioId = "slack-canary" | "slack-mention-gating";
-=======
 type SlackQaScenarioId =
   | "slack-allowlist-block"
   | "slack-canary"
@@ -44,14 +41,11 @@ type SlackQaScenarioId =
   | "slack-thread-follow-up"
   | "slack-thread-isolation"
   | "slack-top-level-reply-shape";
->>>>>>> upstream/main
 
 type SlackQaScenarioRun = {
   expectReply: boolean;
   input: string;
   matchText: string;
-<<<<<<< HEAD
-=======
   verify?: (message: SlackMessage, context: { requestThreadTs: string; sentTs: string }) => void;
   beforeRun?: (context: Omit<SlackQaScenarioContext, "sentTs">) => Promise<SlackQaBeforeRunResult>;
   afterReply?: (message: SlackMessage, context: SlackQaScenarioContext) => Promise<string | void>;
@@ -79,15 +73,11 @@ type SlackQaScenarioContext = {
   sutIdentity: SlackAuthIdentity;
   sutReadClient: WebClient;
   waitForReady: () => Promise<void>;
->>>>>>> upstream/main
 };
 
 type SlackQaScenarioDefinition = LiveTransportScenarioDefinition<SlackQaScenarioId> & {
   buildRun: (sutUserId: string) => SlackQaScenarioRun;
-<<<<<<< HEAD
-=======
   configOverrides?: SlackQaConfigOverrides;
->>>>>>> upstream/main
 };
 
 type SlackAuthIdentity = {
@@ -172,10 +162,7 @@ type SlackCredentialHeartbeat = ReturnType<typeof startQaCredentialLeaseHeartbea
 
 const SLACK_QA_CAPTURE_CONTENT_ENV = "OPENCLAW_QA_SLACK_CAPTURE_CONTENT";
 const QA_REDACT_PUBLIC_METADATA_ENV = "OPENCLAW_QA_REDACT_PUBLIC_METADATA";
-<<<<<<< HEAD
-=======
 const SLACK_QA_WEB_API_TIMEOUT_MS = 45_000;
->>>>>>> upstream/main
 const SLACK_QA_ENV_KEYS = [
   "OPENCLAW_QA_SLACK_CHANNEL_ID",
   "OPENCLAW_QA_SLACK_DRIVER_BOT_TOKEN",
@@ -216,14 +203,11 @@ const slackHistorySchema = z.object({
   messages: z.array(slackHistoryMessageSchema).optional(),
 });
 
-<<<<<<< HEAD
-=======
 const slackRepliesSchema = z.object({
   ok: z.boolean().optional(),
   messages: z.array(slackHistoryMessageSchema).optional(),
 });
 
->>>>>>> upstream/main
 const SLACK_QA_SCENARIOS: SlackQaScenarioDefinition[] = [
   {
     id: "slack-canary",
@@ -253,8 +237,6 @@ const SLACK_QA_SCENARIOS: SlackQaScenarioDefinition[] = [
       };
     },
   },
-<<<<<<< HEAD
-=======
   {
     id: "slack-allowlist-block",
     standardId: "allowlist-block",
@@ -394,7 +376,6 @@ const SLACK_QA_SCENARIOS: SlackQaScenarioDefinition[] = [
       };
     },
   },
->>>>>>> upstream/main
 ];
 
 const SLACK_QA_STANDARD_SCENARIO_IDS = collectLiveTransportStandardScenarioCoverage({
@@ -478,10 +459,7 @@ function buildSlackQaConfig(
   params: {
     channelId: string;
     driverBotUserId: string;
-<<<<<<< HEAD
-=======
     overrides?: SlackQaConfigOverrides;
->>>>>>> upstream/main
     sutAccountId: string;
     sutAppToken: string;
     sutBotToken: string;
@@ -518,20 +496,13 @@ function buildSlackQaConfig(
             appToken: params.sutAppToken,
             groupPolicy: "allowlist",
             allowBots: true,
-<<<<<<< HEAD
-=======
             replyToMode: params.overrides?.replyToMode ?? "off",
->>>>>>> upstream/main
             channels: {
               [params.channelId]: {
                 enabled: true,
                 requireMention: true,
                 allowBots: true,
-<<<<<<< HEAD
-                users: [params.driverBotUserId],
-=======
                 users: params.overrides?.users ?? [params.driverBotUserId],
->>>>>>> upstream/main
               },
             },
           },
@@ -542,11 +513,7 @@ function buildSlackQaConfig(
 }
 
 async function getSlackIdentity(token: string): Promise<SlackAuthIdentity> {
-<<<<<<< HEAD
-  const client = createSlackWebClient(token, { timeout: 15_000 });
-=======
   const client = createSlackWebClient(token, { timeout: SLACK_QA_WEB_API_TIMEOUT_MS });
->>>>>>> upstream/main
   const auth = slackAuthTestSchema.parse(await client.auth.test());
   if (!auth.user_id) {
     throw new Error("Slack auth.test did not return user_id.");
@@ -562,20 +529,14 @@ async function sendSlackChannelMessage(params: {
   channelId: string;
   client: WebClient;
   text: string;
-<<<<<<< HEAD
-=======
   threadTs?: string;
->>>>>>> upstream/main
 }) {
   const sendSlackMessage = params.client.chat.postMessage.bind(params.client.chat);
   const sent = slackPostMessageSchema.parse(
     await sendSlackMessage({
       channel: params.channelId,
       text: params.text,
-<<<<<<< HEAD
-=======
       thread_ts: params.threadTs,
->>>>>>> upstream/main
       unfurl_links: false,
       unfurl_media: false,
     }),
@@ -602,8 +563,6 @@ async function listSlackMessages(params: {
   return history.messages ?? [];
 }
 
-<<<<<<< HEAD
-=======
 async function listSlackThreadMessages(params: {
   channelId: string;
   client: WebClient;
@@ -620,7 +579,6 @@ async function listSlackThreadMessages(params: {
   return replies.messages ?? [];
 }
 
->>>>>>> upstream/main
 function isSutSlackMessage(message: SlackMessage, sutIdentity: SlackAuthIdentity) {
   return (
     (message.user !== undefined && message.user === sutIdentity.userId) ||
@@ -636,24 +594,12 @@ async function waitForSlackScenarioReply(params: {
   observationScenarioId: string;
   observationScenarioTitle: string;
   sentTs: string;
-<<<<<<< HEAD
-=======
   threadTs?: string;
->>>>>>> upstream/main
   sutIdentity: SlackAuthIdentity;
   timeoutMs: number;
 }) {
   const startedAt = Date.now();
-<<<<<<< HEAD
-  while (Date.now() - startedAt < params.timeoutMs) {
-    const messages = await listSlackMessages({
-      channelId: params.channelId,
-      client: params.client,
-      oldestTs: params.sentTs,
-    });
-=======
   const inspectMessages = (messages: SlackMessage[]) => {
->>>>>>> upstream/main
     for (const message of messages) {
       const text = message.text ?? "";
       if (
@@ -682,8 +628,6 @@ async function waitForSlackScenarioReply(params: {
         };
       }
     }
-<<<<<<< HEAD
-=======
     return undefined;
   };
 
@@ -714,7 +658,6 @@ async function waitForSlackScenarioReply(params: {
         { cause: error },
       );
     }
->>>>>>> upstream/main
     await new Promise((resolve) => setTimeout(resolve, 1_000));
   }
   throw new Error(`timed out after ${params.timeoutMs}ms waiting for Slack message`);
@@ -948,97 +891,6 @@ export async function runSlackQaLive(params: {
     }
 
     const driverClient = createSlackWriteClient(activeRuntimeEnv.driverBotToken, {
-<<<<<<< HEAD
-      timeout: 15_000,
-    });
-    const sutReadClient = createSlackWebClient(activeRuntimeEnv.sutBotToken, { timeout: 15_000 });
-    const gatewayHarness = await startQaLiveLaneGateway({
-      repoRoot,
-      transport: {
-        requiredPluginIds: [],
-        createGatewayConfig: () => ({}),
-      },
-      transportBaseUrl: "http://127.0.0.1:0",
-      providerMode,
-      primaryModel,
-      alternateModel,
-      fastMode: params.fastMode,
-      controlUiEnabled: false,
-      mutateConfig: (cfg) =>
-        buildSlackQaConfig(cfg, {
-          channelId: activeRuntimeEnv.channelId,
-          driverBotUserId: driverIdentity.userId,
-          sutAccountId,
-          sutAppToken: activeRuntimeEnv.sutAppToken,
-          sutBotToken: activeRuntimeEnv.sutBotToken,
-        }),
-    });
-    try {
-      await waitForSlackChannelRunning(gatewayHarness.gateway, sutAccountId);
-      assertLeaseHealthy();
-      for (const scenario of scenarios) {
-        assertLeaseHealthy();
-        const scenarioRun = scenario.buildRun(sutIdentity.userId);
-        const requestStartedAt = new Date();
-        try {
-          const sent = await sendSlackChannelMessage({
-            channelId: activeRuntimeEnv.channelId,
-            client: driverClient,
-            text: scenarioRun.input,
-          });
-          if (scenarioRun.expectReply) {
-            const reply = await waitForSlackScenarioReply({
-              channelId: activeRuntimeEnv.channelId,
-              client: sutReadClient,
-              matchText: scenarioRun.matchText,
-              observedMessages,
-              observationScenarioId: scenario.id,
-              observationScenarioTitle: scenario.title,
-              sentTs: sent.ts,
-              sutIdentity,
-              timeoutMs: scenario.timeoutMs,
-            });
-            const responseObservedAt = new Date(reply.observedAt);
-            const rttMs = responseObservedAt.getTime() - requestStartedAt.getTime();
-            scenarioResults.push({
-              id: scenario.id,
-              title: scenario.title,
-              status: "pass",
-              details: `reply matched in ${rttMs}ms`,
-              rttMs,
-              requestStartedAt: requestStartedAt.toISOString(),
-              responseObservedAt: responseObservedAt.toISOString(),
-            });
-          } else {
-            await waitForSlackNoReply({
-              channelId: activeRuntimeEnv.channelId,
-              client: sutReadClient,
-              matchText: scenarioRun.matchText,
-              observedMessages,
-              observationScenarioId: scenario.id,
-              observationScenarioTitle: scenario.title,
-              sentTs: sent.ts,
-              sutIdentity,
-              timeoutMs: scenario.timeoutMs,
-            });
-            scenarioResults.push({
-              id: scenario.id,
-              title: scenario.title,
-              status: "pass",
-              details: "no reply",
-            });
-          }
-        } catch (error) {
-          const result = {
-            id: scenario.id,
-            title: scenario.title,
-            status: "fail" as const,
-            details: formatErrorMessage(error),
-          };
-          scenarioResults.push(result);
-          preservedGatewayDebugArtifacts = true;
-          await gatewayHarness.gateway
-=======
       timeout: SLACK_QA_WEB_API_TIMEOUT_MS,
     });
     const sutReadClient = createSlackWebClient(activeRuntimeEnv.sutBotToken, {
@@ -1163,21 +1015,10 @@ export async function runSlackQaLive(params: {
         preservedGatewayDebugArtifacts = true;
         if (gatewayHarness) {
           await gatewayHarness
->>>>>>> upstream/main
             .stop({ keepTemp: true, preserveToDir: gatewayDebugDirPath })
             .catch((stopError) => {
               appendLiveLaneIssue(cleanupIssues, "gateway debug preservation failed", stopError);
             });
-<<<<<<< HEAD
-          break;
-        }
-      }
-    } finally {
-      if (!preservedGatewayDebugArtifacts) {
-        await gatewayHarness.stop().catch((error) => {
-          appendLiveLaneIssue(cleanupIssues, "gateway stop failed", error);
-        });
-=======
         }
         break;
       } finally {
@@ -1186,7 +1027,6 @@ export async function runSlackQaLive(params: {
             appendLiveLaneIssue(cleanupIssues, "gateway stop failed", error);
           });
         }
->>>>>>> upstream/main
       }
     }
   } catch (error) {

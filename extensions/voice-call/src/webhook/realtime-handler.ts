@@ -1,16 +1,10 @@
 import { randomUUID } from "node:crypto";
 import http from "node:http";
 import type { Duplex } from "node:stream";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
 import {
   buildRealtimeVoiceAgentConsultWorkingResponse,
-<<<<<<< HEAD
-  createRealtimeVoiceBridgeSession,
-  REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
-  type RealtimeVoiceBridgeSession,
-  type RealtimeVoiceProviderConfig,
-  type RealtimeVoiceProviderPlugin,
-=======
   createTalkSessionController,
   createRealtimeVoiceBridgeSession,
   REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME,
@@ -21,7 +15,6 @@ import {
   type TalkEvent,
   type TalkEventInput,
   type TalkSessionController,
->>>>>>> upstream/main
 } from "openclaw/plugin-sdk/realtime-voice";
 import WebSocket, { WebSocketServer } from "ws";
 import type { VoiceCallRealtimeConfig } from "../config.js";
@@ -29,10 +22,12 @@ import type { CallManager } from "../manager.js";
 import type { VoiceCallProvider } from "../providers/base.js";
 import type { CallRecord, NormalizedEvent } from "../types.js";
 import type { WebhookResponsePayload } from "../webhook.types.js";
+import { RealtimeAudioPacer, RealtimeMulawSpeechStartDetector } from "./realtime-audio-pacer.js";
 import {
-  RealtimeMulawSpeechStartDetector,
-  RealtimeTwilioAudioPacer,
-} from "./realtime-audio-pacer.js";
+  type StreamFrameAdapter,
+  TelnyxStreamFrameAdapter,
+  TwilioStreamFrameAdapter,
+} from "./stream-frame-adapter.js";
 
 export type ToolHandlerContext = {
   partialUserTranscript?: string;
@@ -47,8 +42,6 @@ const STREAM_TOKEN_TTL_MS = 30_000;
 const DEFAULT_HOST = "localhost:8443";
 const MAX_REALTIME_MESSAGE_BYTES = 256 * 1024;
 const MAX_REALTIME_WS_BUFFERED_BYTES = 1024 * 1024;
-<<<<<<< HEAD
-=======
 const FORCED_CONSULT_FALLBACK_DELAY_MS = 200;
 const FORCED_CONSULT_NATIVE_DEDUPE_MS = 2_000;
 const FORCED_CONSULT_RESULT_MAX_CHARS = 1800;
@@ -57,7 +50,6 @@ const CONSULT_TRANSCRIPT_SETTLE_MAX_MS = 1_000;
 const MAX_PARTIAL_USER_TRANSCRIPT_CHARS = 1_200;
 const RECENT_FINAL_USER_TRANSCRIPT_TTL_MS = 2_000;
 const BARGE_IN_REQUIRED_LOUD_CHUNKS = 2;
->>>>>>> upstream/main
 
 function normalizePath(pathname: string): string {
   const trimmed = pathname.trim();
@@ -86,8 +78,6 @@ function buildGreetingInstructions(
     : `${intro} "${trimmedGreeting}"`;
 }
 
-<<<<<<< HEAD
-=======
 function readSpeakableToolResultText(result: unknown): string | undefined {
   if (typeof result === "string") {
     return result.trim() || undefined;
@@ -229,12 +219,26 @@ function buildForcedConsultSpeechPrompt(result: string): string {
   ].join("\n");
 }
 
->>>>>>> upstream/main
 type PendingStreamToken = {
   expiry: number;
   from?: string;
   to?: string;
   direction?: "inbound" | "outbound";
+  providerName?: "twilio" | "telnyx";
+  callId?: string;
+};
+
+export type StreamSessionRequest = {
+  providerName?: "twilio" | "telnyx";
+  callId?: string;
+  from?: string;
+  to?: string;
+  direction?: "inbound" | "outbound";
+};
+
+export type StreamSession = {
+  token: string;
+  streamUrl: string;
 };
 
 type CallRegistration = {
@@ -249,8 +253,6 @@ type RealtimeSpeakResult = {
   error?: string;
 };
 
-<<<<<<< HEAD
-=======
 type ForcedConsultState = {
   promise: Promise<unknown>;
   sendSpeechPrompt: boolean;
@@ -295,14 +297,10 @@ function appendRecentTalkEventMetadata(
   call.metadata = metadata;
 }
 
->>>>>>> upstream/main
 export class RealtimeCallHandler {
   private readonly toolHandlers = new Map<string, ToolHandlerFn>();
   private readonly pendingStreamTokens = new Map<string, PendingStreamToken>();
   private readonly activeBridgesByCallId = new Map<string, ActiveRealtimeVoiceBridge>();
-<<<<<<< HEAD
-  private readonly partialUserTranscriptsByCallId = new Map<string, string>();
-=======
   private readonly activeTelephonyClosersByCallId = new Map<
     string,
     (reason: TelephonyCloseReason) => void
@@ -319,7 +317,6 @@ export class RealtimeCallHandler {
   private readonly forcedConsultsByCallId = new Map<string, ForcedConsultState>();
   private readonly lastProviderConsultAtByCallId = new Map<string, number>();
   private readonly nativeConsultsInFlightByCallId = new Map<string, NativeConsultState>();
->>>>>>> upstream/main
   private publicOrigin: string | null = null;
   private publicPathPrefix = "";
 
@@ -330,6 +327,7 @@ export class RealtimeCallHandler {
     private readonly realtimeProvider: RealtimeVoiceProviderPlugin,
     private readonly providerConfig: RealtimeVoiceProviderConfig,
     private readonly servePath: string,
+    private readonly coreConfig?: OpenClawConfig,
   ) {}
 
   setPublicUrl(url: string): void {
@@ -351,25 +349,32 @@ export class RealtimeCallHandler {
   }
 
   buildTwiMLPayload(req: http.IncomingMessage, params?: URLSearchParams): WebhookResponsePayload {
-    const host = this.publicOrigin || req.headers.host || DEFAULT_HOST;
     const rawDirection = params?.get("Direction");
-    const token = this.issueStreamToken({
-      from: params?.get("From") ?? undefined,
-      to: params?.get("To") ?? undefined,
-      direction: rawDirection?.startsWith("outbound") ? "outbound" : "inbound",
-    });
-    const wsUrl = `wss://${host}${this.getStreamPathPattern()}/${token}`;
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+    const previousOrigin = this.publicOrigin;
+    if (!previousOrigin) {
+      this.publicOrigin = req.headers.host ?? DEFAULT_HOST;
+    }
+    try {
+      const { streamUrl } = this.issueStreamSession({
+        providerName: "twilio",
+        from: params?.get("From") ?? undefined,
+        to: params?.get("To") ?? undefined,
+        direction: rawDirection?.startsWith("outbound") ? "outbound" : "inbound",
+      });
+      const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Connect>
-    <Stream url="${wsUrl}" />
+    <Stream url="${streamUrl}" />
   </Connect>
 </Response>`;
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "text/xml" },
-      body: twiml,
-    };
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "text/xml" },
+        body: twiml,
+      };
+    } finally {
+      this.publicOrigin = previousOrigin;
+    }
   }
 
   handleWebSocketUpgrade(request: http.IncomingMessage, socket: Duplex, head: Buffer): void {
@@ -382,6 +387,10 @@ export class RealtimeCallHandler {
       return;
     }
 
+    const providerName = callerMeta.providerName ?? "twilio";
+    const adapter: StreamFrameAdapter =
+      providerName === "telnyx" ? new TelnyxStreamFrameAdapter() : new TwilioStreamFrameAdapter();
+
     const wss = new WebSocketServer({
       noServer: true,
       // Reject oversized realtime frames before JSON parsing or bridge setup runs.
@@ -390,31 +399,30 @@ export class RealtimeCallHandler {
     wss.handleUpgrade(request, socket, head, (ws) => {
       let bridge: ActiveRealtimeVoiceBridge | null = null;
       let initialized = false;
-<<<<<<< HEAD
-=======
       let activeCallSid = "unknown";
       let stopReceived = false;
       let lastMediaTimestamp: number | undefined;
       let lastMediaGapWarnAt = 0;
->>>>>>> upstream/main
 
       ws.on("message", (data: Buffer) => {
         try {
-          const msg = JSON.parse(data.toString()) as Record<string, unknown>;
-          if (!initialized && msg.event === "start") {
+          const frame = adapter.parseInbound(data.toString());
+          if (frame.kind === "ignored") {
+            return;
+          }
+          if (frame.kind === "start") {
+            if (initialized) {
+              return;
+            }
             initialized = true;
-            const startData =
-              typeof msg.start === "object" && msg.start !== null
-                ? (msg.start as Record<string, unknown>)
-                : undefined;
-            const streamSid =
-              typeof startData?.streamSid === "string" ? startData.streamSid : "unknown";
-            const callSid = typeof startData?.callSid === "string" ? startData.callSid : "unknown";
-<<<<<<< HEAD
-=======
-            activeCallSid = callSid;
->>>>>>> upstream/main
-            const nextBridge = this.handleCall(streamSid, callSid, ws, callerMeta);
+            activeCallSid = frame.providerCallId;
+            const nextBridge = this.handleCall(
+              frame.streamId,
+              frame.providerCallId,
+              ws,
+              callerMeta,
+              adapter,
+            );
             if (!nextBridge) {
               return;
             }
@@ -424,67 +432,47 @@ export class RealtimeCallHandler {
           if (!bridge) {
             return;
           }
-          const mediaData =
-            typeof msg.media === "object" && msg.media !== null
-              ? (msg.media as Record<string, unknown>)
-              : undefined;
-          if (msg.event === "media" && typeof mediaData?.payload === "string") {
-            const audio = Buffer.from(mediaData.payload, "base64");
+          if (frame.kind === "media") {
+            const audio = Buffer.from(frame.payloadBase64, "base64");
             bridge.sendAudio(audio);
-<<<<<<< HEAD
-            if (typeof mediaData.timestamp === "number") {
-              bridge.setMediaTimestamp(mediaData.timestamp);
-            } else if (typeof mediaData.timestamp === "string") {
-              bridge.setMediaTimestamp(Number.parseInt(mediaData.timestamp, 10));
-=======
-            const mediaTimestamp =
-              typeof mediaData.timestamp === "number"
-                ? mediaData.timestamp
-                : typeof mediaData.timestamp === "string"
-                  ? Number.parseInt(mediaData.timestamp, 10)
-                  : Number.NaN;
-            if (Number.isFinite(mediaTimestamp)) {
+            if (frame.timestampMs !== undefined) {
               if (lastMediaTimestamp !== undefined) {
-                const gapMs = mediaTimestamp - lastMediaTimestamp;
+                const gapMs = frame.timestampMs - lastMediaTimestamp;
                 const now = Date.now();
                 if ((gapMs > 120 || gapMs < 0) && now - lastMediaGapWarnAt > 5_000) {
                   lastMediaGapWarnAt = now;
                   console.warn(
-                    `[voice-call] realtime media timestamp gap providerCallId=${activeCallSid} gapMs=${gapMs} timestamp=${mediaTimestamp}`,
+                    `[voice-call] realtime media timestamp gap providerCallId=${activeCallSid} gapMs=${gapMs} timestamp=${frame.timestampMs}`,
                   );
                 }
               }
-              lastMediaTimestamp = mediaTimestamp;
-              bridge.setMediaTimestamp(mediaTimestamp);
->>>>>>> upstream/main
+              lastMediaTimestamp = frame.timestampMs;
+              bridge.setMediaTimestamp(frame.timestampMs);
             }
             return;
           }
-          if (msg.event === "mark") {
+          if (frame.kind === "mark") {
             bridge.acknowledgeMark();
             return;
           }
-          if (msg.event === "stop") {
-<<<<<<< HEAD
-            bridge.close();
-=======
+          if (frame.kind === "error") {
+            console.error(
+              `[voice-call] realtime WS error frame providerCallId=${activeCallSid} code=${frame.code ?? "?"} title=${frame.title ?? ""} detail=${frame.detail ?? ""}`,
+            );
+            return;
+          }
+          if (frame.kind === "stop") {
             stopReceived = true;
             this.closeTelephonyBridge(activeCallSid, bridge, "completed");
->>>>>>> upstream/main
           }
         } catch (error) {
           console.error("[voice-call] realtime WS parse failed:", error);
         }
       });
 
-<<<<<<< HEAD
-      ws.on("close", () => {
-        bridge?.close();
-=======
       ws.on("close", (code) => {
         const reason = stopReceived || code === 1000 || code === 1005 ? "completed" : "error";
         this.closeTelephonyBridge(activeCallSid, bridge, reason);
->>>>>>> upstream/main
       });
 
       ws.on("error", (error) => {
@@ -508,6 +496,19 @@ export class RealtimeCallHandler {
     } catch (error) {
       return { success: false, error: formatErrorMessage(error) };
     }
+  }
+
+  issueStreamSession(request: StreamSessionRequest = {}): StreamSession {
+    const token = this.issueStreamToken({
+      providerName: request.providerName ?? "twilio",
+      callId: request.callId,
+      from: request.from,
+      to: request.to,
+      direction: request.direction,
+    });
+    const host = this.publicOrigin || DEFAULT_HOST;
+    const streamUrl = `wss://${host}${this.getStreamPathPattern()}/${token}`;
+    return { token, streamUrl };
   }
 
   private issueStreamToken(meta: Omit<PendingStreamToken, "expiry"> = {}): string {
@@ -534,6 +535,8 @@ export class RealtimeCallHandler {
       from: entry.from,
       to: entry.to,
       direction: entry.direction,
+      providerName: entry.providerName,
+      callId: entry.callId,
     };
   }
 
@@ -542,6 +545,7 @@ export class RealtimeCallHandler {
     callSid: string,
     ws: WebSocket,
     callerMeta: Omit<PendingStreamToken, "expiry">,
+    adapter: StreamFrameAdapter,
   ): ActiveRealtimeVoiceBridge | null {
     const registration = this.registerCallInManager(callSid, callerMeta);
     if (!registration) {
@@ -550,8 +554,6 @@ export class RealtimeCallHandler {
     }
 
     const { callId, initialGreetingInstructions } = registration;
-<<<<<<< HEAD
-=======
     const callRecord = this.manager.getCallByProviderCallId(callSid);
     const talk: TalkSessionController = createTalkSessionController(
       {
@@ -598,7 +600,6 @@ export class RealtimeCallHandler {
       type: "session.started",
       payload: { callId, providerCallId: callSid, streamSid },
     });
->>>>>>> upstream/main
     console.log(
       `[voice-call] Realtime bridge starting for call ${callId} (providerCallId=${callSid}, initialGreeting=${initialGreetingInstructions ? "queued" : "absent"})`,
     );
@@ -611,57 +612,49 @@ export class RealtimeCallHandler {
       this.endCallInManager(callSid, callId, reason);
     };
 
-    const sendJson = (message: unknown): boolean => {
+    const sendString = (message: string): boolean => {
       if (ws.readyState !== WebSocket.OPEN) {
         return false;
       }
       if (ws.bufferedAmount > MAX_REALTIME_WS_BUFFERED_BYTES) {
-<<<<<<< HEAD
-=======
         console.warn(
           `[voice-call] realtime outbound websocket backpressure before send callId=${callId} providerCallId=${callSid} bufferedBytes=${ws.bufferedAmount}`,
         );
->>>>>>> upstream/main
         ws.close(1013, "Backpressure: send buffer exceeded");
         return false;
       }
-      ws.send(JSON.stringify(message));
+      ws.send(message);
       if (ws.bufferedAmount > MAX_REALTIME_WS_BUFFERED_BYTES) {
-<<<<<<< HEAD
-=======
         console.warn(
           `[voice-call] realtime outbound websocket backpressure after send callId=${callId} providerCallId=${callSid} bufferedBytes=${ws.bufferedAmount}`,
         );
->>>>>>> upstream/main
         ws.close(1013, "Backpressure: send buffer exceeded");
         return false;
       }
       return true;
     };
-    const audioPacer = new RealtimeTwilioAudioPacer({
-      streamSid,
-      sendJson,
+    const audioPacer = new RealtimeAudioPacer({
+      send: sendString,
+      serializer: {
+        media: (payload) => adapter.serializeMedia(payload),
+        clear: () => adapter.serializeClear(),
+        mark: (name) => adapter.serializeMark(name),
+      },
       onBackpressure: () => {
-<<<<<<< HEAD
-=======
         console.warn(
           `[voice-call] realtime paced audio backpressure callId=${callId} providerCallId=${callSid}`,
         );
->>>>>>> upstream/main
         if (ws.readyState === WebSocket.OPEN) {
           ws.close(1013, "Backpressure: paced audio queue exceeded");
         }
       },
     });
-<<<<<<< HEAD
-    const speechDetector = new RealtimeMulawSpeechStartDetector();
-=======
     const speechDetector = new RealtimeMulawSpeechStartDetector({
       requiredLoudChunks: BARGE_IN_REQUIRED_LOUD_CHUNKS,
     });
->>>>>>> upstream/main
     const session = createRealtimeVoiceBridgeSession({
       provider: this.realtimeProvider,
+      cfg: this.coreConfig,
       providerConfig: this.providerConfig,
       instructions: this.config.instructions,
       tools: this.config.tools,
@@ -670,12 +663,6 @@ export class RealtimeCallHandler {
       audioSink: {
         isOpen: () => ws.readyState === WebSocket.OPEN,
         sendAudio: (muLaw) => {
-<<<<<<< HEAD
-          audioPacer.sendAudio(muLaw);
-        },
-        clearAudio: () => {
-          audioPacer.clearAudio();
-=======
           const turnId = ensureTalkTurn();
           rememberTalkEvent(
             talk.startOutputAudio({
@@ -696,18 +683,12 @@ export class RealtimeCallHandler {
             `[voice-call] realtime outbound audio clear requested callId=${callId} providerCallId=${callSid} queuedBytes=${clearedBytes}`,
           );
           finishOutputAudio("clear");
->>>>>>> upstream/main
         },
         sendMark: (markName) => {
           audioPacer.sendMark(markName);
         },
       },
       onTranscript: (role, text, isFinal) => {
-<<<<<<< HEAD
-        if (!isFinal) {
-          if (role === "user" && text.trim()) {
-            this.partialUserTranscriptsByCallId.set(callId, text);
-=======
         const turnId = ensureTalkTurn();
         const eventType =
           role === "assistant"
@@ -738,33 +719,22 @@ export class RealtimeCallHandler {
             console.log(
               `[voice-call] realtime input transcript callId=${callId} providerCallId=${callSid} final=false chars=${text.trim().length} aggregateChars=${transcript.length}`,
             );
->>>>>>> upstream/main
           }
           return;
         }
         if (role === "user") {
-<<<<<<< HEAD
-          this.partialUserTranscriptsByCallId.delete(callId);
-=======
           const transcript = this.recordPartialUserTranscript(callId, text);
           this.clearPartialUserTranscript(callId);
           this.setRecentFinalUserTranscript(callId, transcript);
           console.log(
             `[voice-call] realtime input transcript callId=${callId} providerCallId=${callSid} final=true chars=${text.trim().length} aggregateChars=${transcript.length}`,
           );
->>>>>>> upstream/main
           const event: NormalizedEvent = {
             id: `realtime-speech-${callSid}-${Date.now()}`,
             type: "call.speech",
             callId,
             providerCallId: callSid,
             timestamp: Date.now(),
-<<<<<<< HEAD
-            transcript: text,
-            isFinal: true,
-          };
-          this.manager.processEvent(event);
-=======
             transcript,
             isFinal: true,
           };
@@ -781,7 +751,6 @@ export class RealtimeCallHandler {
               );
             },
           });
->>>>>>> upstream/main
           return;
         }
         this.manager.processEvent({
@@ -794,8 +763,6 @@ export class RealtimeCallHandler {
         });
       },
       onToolCall: (toolEvent, session) => {
-<<<<<<< HEAD
-=======
         const turnId = ensureTalkTurn();
         emitTalkEvent({
           type: "tool.call",
@@ -807,19 +774,12 @@ export class RealtimeCallHandler {
         console.log(
           `[voice-call] realtime tool call received callId=${callId} providerCallId=${callSid} tool=${toolEvent.name}`,
         );
->>>>>>> upstream/main
         void this.executeToolCall(
           session,
           callId,
           toolEvent.callId || toolEvent.itemId,
           toolEvent.name,
           toolEvent.args,
-<<<<<<< HEAD
-        );
-      },
-      onError: (error) => {
-        console.error("[voice-call] realtime voice error:", error.message);
-=======
           turnId,
           emitTalkEvent,
         );
@@ -868,16 +828,10 @@ export class RealtimeCallHandler {
           payload: { message: error.message },
           final: true,
         });
->>>>>>> upstream/main
       },
       onClose: (reason) => {
         this.activeBridgesByCallId.delete(callId);
         this.activeBridgesByCallId.delete(callSid);
-<<<<<<< HEAD
-        this.partialUserTranscriptsByCallId.delete(callId);
-        if (reason !== "error") {
-          emitCallEnd("completed");
-=======
         this.activeTelephonyClosersByCallId.delete(callId);
         this.activeTelephonyClosersByCallId.delete(callSid);
         this.clearUserTranscriptState(callId);
@@ -888,7 +842,6 @@ export class RealtimeCallHandler {
           final: true,
         });
         if (reason !== "error") {
->>>>>>> upstream/main
           return;
         }
         emitCallEnd("error");
@@ -906,15 +859,6 @@ export class RealtimeCallHandler {
           });
       },
     });
-<<<<<<< HEAD
-    this.activeBridgesByCallId.set(callId, session);
-    this.activeBridgesByCallId.set(callSid, session);
-    const sendAudioToSession = session.sendAudio.bind(session);
-    session.sendAudio = (audio) => {
-      if (speechDetector.accept(audio)) {
-        audioPacer.clearAudio();
-      }
-=======
     const closeTelephony = (reason: TelephonyCloseReason) => {
       emitCallEnd(reason);
       session.close();
@@ -945,21 +889,16 @@ export class RealtimeCallHandler {
         turnId: ensureTalkTurn(),
         payload: { byteLength: audio.length },
       });
->>>>>>> upstream/main
       sendAudioToSession(audio);
     };
     const closeSession = session.close.bind(session);
     session.close = () => {
       this.activeBridgesByCallId.delete(callId);
       this.activeBridgesByCallId.delete(callSid);
-<<<<<<< HEAD
-      this.partialUserTranscriptsByCallId.delete(callId);
-=======
       this.activeTelephonyClosersByCallId.delete(callId);
       this.activeTelephonyClosersByCallId.delete(callSid);
       this.clearUserTranscriptState(callId);
       this.clearForcedConsultState(callId);
->>>>>>> upstream/main
       audioPacer.close();
       closeSession();
     };
@@ -974,8 +913,6 @@ export class RealtimeCallHandler {
     return session;
   }
 
-<<<<<<< HEAD
-=======
   private recordPartialUserTranscript(callId: string, text: string): string {
     const current = this.partialUserTranscriptsByCallId.get(callId);
     const next = limitPartialUserTranscript(appendTranscriptText(current, text));
@@ -1197,7 +1134,6 @@ export class RealtimeCallHandler {
     }
   }
 
->>>>>>> upstream/main
   private registerCallInManager(
     callSid: string,
     callerMeta: Omit<PendingStreamToken, "expiry"> = {},
@@ -1211,14 +1147,7 @@ export class RealtimeCallHandler {
       ...(callerMeta.to ? { to: callerMeta.to } : {}),
     };
 
-    this.manager.processEvent({
-      id: `realtime-initiated-${callSid}`,
-      callId: callSid,
-      type: "call.initiated",
-      ...baseFields,
-    });
-
-    const callRecord = this.manager.getCallByProviderCallId(callSid);
+    const callRecord = this.resolveRealtimeCall(callSid, callerMeta, baseFields);
     if (!callRecord) {
       return null;
     }
@@ -1233,7 +1162,7 @@ export class RealtimeCallHandler {
 
     this.manager.processEvent({
       id: `realtime-answered-${callSid}`,
-      callId: callSid,
+      callId: callRecord.callId,
       type: "call.answered",
       ...baseFields,
     });
@@ -1245,6 +1174,32 @@ export class RealtimeCallHandler {
         initialGreeting,
       ),
     };
+  }
+
+  private resolveRealtimeCall(
+    callSid: string,
+    callerMeta: Omit<PendingStreamToken, "expiry">,
+    baseFields: {
+      providerCallId: string;
+      timestamp: number;
+      direction: "inbound" | "outbound";
+      from?: string;
+      to?: string;
+    },
+  ): CallRecord | null {
+    if (callerMeta.callId) {
+      const call = this.manager.getCall(callerMeta.callId);
+      return call?.providerCallId === callSid ? call : null;
+    }
+
+    this.manager.processEvent({
+      id: `realtime-initiated-${callSid}`,
+      callId: callSid,
+      type: "call.initiated",
+      ...baseFields,
+    });
+
+    return this.manager.getCallByProviderCallId(callSid) ?? null;
   }
 
   private extractInitialGreeting(call: CallRecord): string | undefined {
@@ -1270,30 +1225,6 @@ export class RealtimeCallHandler {
     bridgeCallId: string,
     name: string,
     args: unknown,
-<<<<<<< HEAD
-  ): Promise<void> {
-    const handler = this.toolHandlers.get(name);
-    if (
-      handler &&
-      name === REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME &&
-      bridge.bridge.supportsToolResultContinuation &&
-      !this.config.fastContext.enabled
-    ) {
-      bridge.submitToolResult(
-        bridgeCallId,
-        buildRealtimeVoiceAgentConsultWorkingResponse("caller"),
-        { willContinue: true },
-      );
-    }
-    const result = !handler
-      ? { error: `Tool "${name}" not available` }
-      : await handler(args, callId, {
-          partialUserTranscript: this.partialUserTranscriptsByCallId.get(callId),
-        }).catch((error: unknown) => ({
-          error: formatErrorMessage(error),
-        }));
-    bridge.submitToolResult(bridgeCallId, result);
-=======
     turnId: string,
     emitTalkEvent?: (input: TalkEventInput) => TalkEvent,
   ): Promise<void> {
@@ -1447,6 +1378,5 @@ export class RealtimeCallHandler {
     if (name === REALTIME_VOICE_AGENT_CONSULT_TOOL_NAME && status === "ok") {
       this.consumePartialUserTranscript(callId, context.partialUserTranscript);
     }
->>>>>>> upstream/main
   }
 }

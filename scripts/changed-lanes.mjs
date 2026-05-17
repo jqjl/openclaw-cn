@@ -31,10 +31,6 @@ export const RELEASE_METADATA_PATHS = new Set([
   "docs/.generated/config-baseline.sha256",
   "docs/install/updating.md",
   "package.json",
-<<<<<<< HEAD
-  "src/config/schema.base.generated.ts",
-=======
->>>>>>> upstream/main
 ]);
 
 /** @typedef {"core" | "coreTests" | "extensions" | "extensionTests" | "apps" | "docs" | "tooling" | "liveDockerTooling" | "releaseMetadata" | "all"} ChangedLane */

@@ -7,11 +7,7 @@ title: "Gateway architecture"
 
 ## Overview
 
-<<<<<<< HEAD
-- A single long‑lived **Gateway** owns all messaging surfaces (WhatsApp via
-=======
 - A single long-lived **Gateway** owns all messaging surfaces (WhatsApp via
->>>>>>> upstream/main
   Baileys, Telegram via grammY, Slack, Discord, Signal, iMessage, WebChat).
 - Control-plane clients (macOS app, CLI, web UI, automations) connect to the
   Gateway over **WebSocket** on the configured bind host (default
@@ -29,11 +25,7 @@ title: "Gateway architecture"
 ### Gateway (daemon)
 
 - Maintains provider connections.
-<<<<<<< HEAD
-- Exposes a typed WS API (requests, responses, server‑push events).
-=======
 - Exposes a typed WS API (requests, responses, server-push events).
->>>>>>> upstream/main
 - Validates inbound frames against JSON Schema.
 - Emits events like `agent`, `chat`, `presence`, `health`, `heartbeat`, `cron`.
 
@@ -46,11 +38,7 @@ title: "Gateway architecture"
 ### Nodes (macOS / iOS / Android / headless)
 
 - Connect to the **same WS server** with `role: node`.
-<<<<<<< HEAD
-- Provide a device identity in `connect`; pairing is **device‑based** (role `node`) and
-=======
 - Provide a device identity in `connect`; pairing is **device-based** (role `node`) and
->>>>>>> upstream/main
   approval lives in the device pairing store.
 - Expose commands like `canvas.*`, `camera.*`, `screen.record`, `location.get`.
 
@@ -102,13 +90,8 @@ sequenceDiagram
   instead of `connect.params.auth.*`.
 - Private-ingress `gateway.auth.mode: "none"` disables shared-secret auth
   entirely; keep that mode off public/untrusted ingress.
-<<<<<<< HEAD
-- Idempotency keys are required for side‑effecting methods (`send`, `agent`) to
-  safely retry; the server keeps a short‑lived dedupe cache.
-=======
 - Idempotency keys are required for side-effecting methods (`send`, `agent`) to
   safely retry; the server keeps a short-lived dedupe cache.
->>>>>>> upstream/main
 - Nodes must include `role: "node"` plus caps/commands/permissions in `connect`.
 
 ## Pairing + local trust
@@ -126,11 +109,7 @@ sequenceDiagram
 - Signature payload `v3` also binds `platform` + `deviceFamily`; the gateway
   pins paired metadata on reconnect and requires repair pairing for metadata
   changes.
-<<<<<<< HEAD
-- **Non‑local** connects still require explicit approval.
-=======
 - **Non-local** connects still require explicit approval.
->>>>>>> upstream/main
 - Gateway auth (`gateway.auth.*`) still applies to **all** connections, local or
   remote.
 
@@ -159,20 +138,12 @@ Details: [Gateway protocol](/gateway/protocol), [Pairing](/channels/pairing),
 
 - Start: `openclaw gateway` (foreground, logs to stdout).
 - Health: `health` over WS (also included in `hello-ok`).
-<<<<<<< HEAD
-- Supervision: launchd/systemd for auto‑restart.
-=======
 - Supervision: launchd/systemd for auto-restart.
->>>>>>> upstream/main
 
 ## Invariants
 
 - Exactly one Gateway controls a single Baileys session per host.
-<<<<<<< HEAD
-- Handshake is mandatory; any non‑JSON or non‑connect first frame is a hard close.
-=======
 - Handshake is mandatory; any non-JSON or non-connect first frame is a hard close.
->>>>>>> upstream/main
 - Events are not replayed; clients must refresh on gaps.
 
 ## Related

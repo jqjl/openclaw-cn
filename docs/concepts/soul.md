@@ -101,13 +101,6 @@ surfaces, make sure the tone still fits the room.
 
 Sharp is good. Annoying is not.
 
-<<<<<<< HEAD
-## Related docs
-
-- [Agent workspace](/concepts/agent-workspace)
-- [System prompt](/concepts/system-prompt)
-- [SOUL.md template](/reference/templates/SOUL)
-=======
 ## Related
 
 <CardGroup cols={2}>
@@ -121,4 +114,3 @@ Sharp is good. Annoying is not.
     Starter template for a personality file.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

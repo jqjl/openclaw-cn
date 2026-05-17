@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import fs from "node:fs";
-=======
->>>>>>> upstream/main
 import path from "node:path";
 import { formatCliCommand } from "../cli/command-format.js";
 import { resolveStateDir } from "../config/paths.js";
@@ -15,11 +11,7 @@ import {
   type DevicePairingPendingRequest,
   type PairedDevice,
 } from "../infra/device-pairing.js";
-<<<<<<< HEAD
-import { JsonFileReadError } from "../infra/json-files.js";
-=======
 import { JsonFileReadError, tryReadJsonSync } from "../infra/json-files.js";
->>>>>>> upstream/main
 import type { DeviceAuthStore } from "../shared/device-auth.js";
 import { normalizeDeviceAuthScopes } from "../shared/device-auth.js";
 import { roleScopesAllow } from "../shared/operator-scope-compat.js";
@@ -398,18 +390,7 @@ function collectPairedRecordIssues(snapshot: DoctorPairingSnapshot): string[] {
 }
 
 function readJsonFile(filePath: string): unknown {
-<<<<<<< HEAD
-  try {
-    if (!fs.existsSync(filePath)) {
-      return null;
-    }
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch {
-    return null;
-  }
-=======
   return tryReadJsonSync(filePath);
->>>>>>> upstream/main
 }
 
 function readLocalIdentity(env: NodeJS.ProcessEnv = process.env): StoredDeviceIdentity | null {

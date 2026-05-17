@@ -12,17 +12,12 @@ OpenClaw can convert outbound replies into audio across **14 speech providers**
 and deliver native voice messages on Feishu, Matrix, Telegram, and WhatsApp,
 audio attachments everywhere else, and PCM/Ulaw streams for telephony and Talk.
 
-<<<<<<< HEAD
-OpenClaw can convert outbound replies into audio using ElevenLabs, Google Gemini, Microsoft, MiniMax, or OpenAI.
-It works anywhere OpenClaw can send audio.
-=======
 TTS is the speech-output half of Talk's `stt-tts` mode. Provider-native
 `realtime` Talk sessions synthesize speech inside the realtime provider instead
 of calling this TTS path, while `transcription` sessions do not synthesize an
 assistant voice response.
 
 ## Quick start
->>>>>>> upstream/main
 
 <Steps>
   <Step title="Pick a provider">
@@ -37,13 +32,6 @@ assistant voice response.
   <Step title="Enable in config">
     Set `messages.tts.auto: "always"` and `messages.tts.provider`:
 
-<<<<<<< HEAD
-- **ElevenLabs** (primary or fallback provider)
-- **Google Gemini** (primary or fallback provider; uses Gemini API TTS)
-- **Microsoft** (primary or fallback provider; current bundled implementation uses `node-edge-tts`)
-- **MiniMax** (primary or fallback provider; uses the T2A v2 API)
-- **OpenAI** (primary or fallback provider; also used for summaries)
-=======
     ```json5
     {
       messages: {
@@ -54,7 +42,6 @@ assistant voice response.
       },
     }
     ```
->>>>>>> upstream/main
 
   </Step>
   <Step title="Try it in chat">
@@ -73,63 +60,24 @@ speech.
 
 ## Supported providers
 
-| Provider          | Auth                                                                                                             | Notes                                                                   |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| **Azure Speech**  | `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` (also `AZURE_SPEECH_API_KEY`, `SPEECH_KEY`, `SPEECH_REGION`)          | Native Ogg/Opus voice-note output and telephony.                        |
-| **DeepInfra**     | `DEEPINFRA_API_KEY`                                                                                              | OpenAI-compatible TTS. Defaults to `hexgrad/Kokoro-82M`.                |
-| **ElevenLabs**    | `ELEVENLABS_API_KEY` or `XI_API_KEY`                                                                             | Voice cloning, multilingual, deterministic via `seed`.                  |
-| **Google Gemini** | `GEMINI_API_KEY` or `GOOGLE_API_KEY`                                                                             | Gemini API TTS; persona-aware via `promptTemplate: "audio-profile-v1"`. |
-| **Gradium**       | `GRADIUM_API_KEY`                                                                                                | Voice-note and telephony output.                                        |
-| **Inworld**       | `INWORLD_API_KEY`                                                                                                | Streaming TTS API. Native Opus voice-note and PCM telephony.            |
-| **Local CLI**     | none                                                                                                             | Runs a configured local TTS command.                                    |
-| **Microsoft**     | none                                                                                                             | Public Edge neural TTS via `node-edge-tts`. Best-effort, no SLA.        |
-| **MiniMax**       | `MINIMAX_API_KEY` (or Token Plan: `MINIMAX_OAUTH_TOKEN`, `MINIMAX_CODE_PLAN_KEY`, `MINIMAX_CODING_API_KEY`)      | T2A v2 API. Defaults to `speech-2.8-hd`.                                |
-| **OpenAI**        | `OPENAI_API_KEY`                                                                                                 | Also used for auto-summary; supports persona `instructions`.            |
-| **OpenRouter**    | `OPENROUTER_API_KEY` (can reuse `models.providers.openrouter.apiKey`)                                            | Default model `hexgrad/kokoro-82m`.                                     |
-| **Volcengine**    | `VOLCENGINE_TTS_API_KEY` or `BYTEPLUS_SEED_SPEECH_API_KEY` (legacy AppID/token: `VOLCENGINE_TTS_APPID`/`_TOKEN`) | BytePlus Seed Speech HTTP API.                                          |
-| **Vydra**         | `VYDRA_API_KEY`                                                                                                  | Shared image, video, and speech provider.                               |
-| **xAI**           | `XAI_API_KEY`                                                                                                    | xAI batch TTS. Native Opus voice-note is **not** supported.             |
-| **Xiaomi MiMo**   | `XIAOMI_API_KEY`                                                                                                 | MiMo TTS through Xiaomi chat completions.                               |
+| Provider          | Auth                                                                                                             | Notes                                                                                       |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Azure Speech**  | `AZURE_SPEECH_KEY` + `AZURE_SPEECH_REGION` (also `AZURE_SPEECH_API_KEY`, `SPEECH_KEY`, `SPEECH_REGION`)          | Native Ogg/Opus voice-note output and telephony.                                            |
+| **DeepInfra**     | `DEEPINFRA_API_KEY`                                                                                              | OpenAI-compatible TTS. Defaults to `hexgrad/Kokoro-82M`.                                    |
+| **ElevenLabs**    | `ELEVENLABS_API_KEY` or `XI_API_KEY`                                                                             | Voice cloning, multilingual, deterministic via `seed`; streamed for Discord voice playback. |
+| **Google Gemini** | `GEMINI_API_KEY` or `GOOGLE_API_KEY`                                                                             | Gemini API batch TTS; persona-aware via `promptTemplate: "audio-profile-v1"`.               |
+| **Gradium**       | `GRADIUM_API_KEY`                                                                                                | Voice-note and telephony output.                                                            |
+| **Inworld**       | `INWORLD_API_KEY`                                                                                                | Streaming TTS API. Native Opus voice-note and PCM telephony.                                |
+| **Local CLI**     | none                                                                                                             | Runs a configured local TTS command.                                                        |
+| **Microsoft**     | none                                                                                                             | Public Edge neural TTS via `node-edge-tts`. Best-effort, no SLA.                            |
+| **MiniMax**       | `MINIMAX_API_KEY` (or Token Plan: `MINIMAX_OAUTH_TOKEN`, `MINIMAX_CODE_PLAN_KEY`, `MINIMAX_CODING_API_KEY`)      | T2A v2 API. Defaults to `speech-2.8-hd`.                                                    |
+| **OpenAI**        | `OPENAI_API_KEY`                                                                                                 | Also used for auto-summary; supports persona `instructions`.                                |
+| **OpenRouter**    | `OPENROUTER_API_KEY` (can reuse `models.providers.openrouter.apiKey`)                                            | Default model `hexgrad/kokoro-82m`.                                                         |
+| **Volcengine**    | `VOLCENGINE_TTS_API_KEY` or `BYTEPLUS_SEED_SPEECH_API_KEY` (legacy AppID/token: `VOLCENGINE_TTS_APPID`/`_TOKEN`) | BytePlus Seed Speech HTTP API.                                                              |
+| **Vydra**         | `VYDRA_API_KEY`                                                                                                  | Shared image, video, and speech provider.                                                   |
+| **xAI**           | `XAI_API_KEY`                                                                                                    | xAI batch TTS. Native Opus voice-note is **not** supported.                                 |
+| **Xiaomi MiMo**   | `XIAOMI_API_KEY`                                                                                                 | MiMo TTS through Xiaomi chat completions.                                                   |
 
-<<<<<<< HEAD
-If you want OpenAI, ElevenLabs, Google Gemini, or MiniMax:
-
-- `ELEVENLABS_API_KEY` (or `XI_API_KEY`)
-- `GEMINI_API_KEY` (or `GOOGLE_API_KEY`)
-- `MINIMAX_API_KEY`
-- `OPENAI_API_KEY`
-
-## Configuration
-
-If multiple providers are configured, the selected provider is used first and the others are fallback options.
-Auto-summary uses the configured `summaryModel` (or `agents.defaults.model.primary`),
-so that provider must also be authenticated if you enable summaries.
-
-## Service links
-
-- [OpenAI Text-to-Speech guide](https://platform.openai.com/docs/guides/text-to-speech)
-- [OpenAI Audio API reference](https://platform.openai.com/docs/api-reference/audio)
-- [ElevenLabs Text to Speech](https://elevenlabs.io/docs/api-reference/text-to-speech)
-- [ElevenLabs Authentication](https://elevenlabs.io/docs/api-reference/authentication)
-- [MiniMax T2A v2 API](https://platform.minimaxi.com/document/T2A%20V2)
-- [node-edge-tts](https://github.com/SchneeHertz/node-edge-tts)
-- [Microsoft Speech output formats](https://learn.microsoft.com/azure/ai-services/speech-service/rest-text-to-speech#audio-outputs)
-
-## Is it enabled by default?
-
-No. Auto‑TTS is **off** by default. Enable it in config with
-`messages.tts.auto` or locally with `/tts on`.
-
-When `messages.tts.provider` is unset, OpenClaw picks the first configured
-speech provider in registry auto-select order.
-
-## Config
-
-TTS config lives under `messages.tts` in `openclaw.json`.
-Full schema is in [Gateway configuration](/gateway/configuration).
-
-### Minimal config (enable + provider)
-=======
 If multiple providers are configured, the selected one is used first and the
 others are fallback options. Auto-summary uses `summaryModel` (or
 `agents.defaults.model.primary`), so that provider must also be authenticated
@@ -147,7 +95,6 @@ config; new configs should always use `microsoft`.
 
 TTS config lives under `messages.tts` in `~/.openclaw/openclaw.json`. Pick a
 preset and adapt the provider block:
->>>>>>> upstream/main
 
 <Tabs>
   <Tab title="Azure Speech">
@@ -343,17 +290,6 @@ preset and adapt the provider block:
   },
 }
 ```
-<<<<<<< HEAD
-
-Google Gemini TTS uses the Gemini API key path. A Google Cloud Console API key
-restricted to the Gemini API is valid here, and it is the same style of key used
-by the bundled Google image-generation provider. Resolution order is
-`messages.tts.providers.google.apiKey` -> `models.providers.google.apiKey` ->
-`GEMINI_API_KEY` -> `GOOGLE_API_KEY`.
-
-### Disable Microsoft speech
-
-=======
   </Tab>
   <Tab title="OpenRouter">
 ```json5
@@ -415,7 +351,6 @@ by the bundled Google image-generation provider. Resolution order is
 ```
   </Tab>
   <Tab title="Xiaomi MiMo">
->>>>>>> upstream/main
 ```json5
 {
   messages: {
@@ -600,59 +535,7 @@ The active persona is selected deterministically:
 2. `messages.tts.persona`, if set.
 3. No persona.
 
-<<<<<<< HEAD
-- `auto`: auto‑TTS mode (`off`, `always`, `inbound`, `tagged`).
-  - `inbound` only sends audio after an inbound voice message.
-  - `tagged` only sends audio when the reply includes `[[tts:key=value]]` directives or a `[[tts:text]]...[[/tts:text]]` block.
-- `enabled`: legacy toggle (doctor migrates this to `auto`).
-- `mode`: `"final"` (default) or `"all"` (includes tool/block replies).
-- `provider`: speech provider id such as `"elevenlabs"`, `"google"`, `"microsoft"`, `"minimax"`, or `"openai"` (fallback is automatic).
-- If `provider` is **unset**, OpenClaw uses the first configured speech provider in registry auto-select order.
-- Legacy `provider: "edge"` still works and is normalized to `microsoft`.
-- `summaryModel`: optional cheap model for auto-summary; defaults to `agents.defaults.model.primary`.
-  - Accepts `provider/model` or a configured model alias.
-- `modelOverrides`: allow the model to emit TTS directives (on by default).
-  - `allowProvider` defaults to `false` (provider switching is opt-in).
-- `providers.<id>`: provider-owned settings keyed by speech provider id.
-- Legacy direct provider blocks (`messages.tts.openai`, `messages.tts.elevenlabs`, `messages.tts.microsoft`, `messages.tts.edge`) are auto-migrated to `messages.tts.providers.<id>` on load.
-- `maxTextLength`: hard cap for TTS input (chars). `/tts audio` fails if exceeded.
-- `timeoutMs`: request timeout (ms).
-- `prefsPath`: override the local prefs JSON path (provider/limit/summary).
-- `apiKey` values fall back to env vars (`ELEVENLABS_API_KEY`/`XI_API_KEY`, `GEMINI_API_KEY`/`GOOGLE_API_KEY`, `MINIMAX_API_KEY`, `OPENAI_API_KEY`).
-- `providers.elevenlabs.baseUrl`: override ElevenLabs API base URL.
-- `providers.openai.baseUrl`: override the OpenAI TTS endpoint.
-  - Resolution order: `messages.tts.providers.openai.baseUrl` -> `OPENAI_TTS_BASE_URL` -> `https://api.openai.com/v1`
-  - Non-default values are treated as OpenAI-compatible TTS endpoints, so custom model and voice names are accepted.
-- `providers.elevenlabs.voiceSettings`:
-  - `stability`, `similarityBoost`, `style`: `0..1`
-  - `useSpeakerBoost`: `true|false`
-  - `speed`: `0.5..2.0` (1.0 = normal)
-- `providers.elevenlabs.applyTextNormalization`: `auto|on|off`
-- `providers.elevenlabs.languageCode`: 2-letter ISO 639-1 (e.g. `en`, `de`)
-- `providers.elevenlabs.seed`: integer `0..4294967295` (best-effort determinism)
-- `providers.minimax.baseUrl`: override MiniMax API base URL (default `https://api.minimax.io`, env: `MINIMAX_API_HOST`).
-- `providers.minimax.model`: TTS model (default `speech-2.8-hd`, env: `MINIMAX_TTS_MODEL`).
-- `providers.minimax.voiceId`: voice identifier (default `English_expressive_narrator`, env: `MINIMAX_TTS_VOICE_ID`).
-- `providers.minimax.speed`: playback speed `0.5..2.0` (default 1.0).
-- `providers.minimax.vol`: volume `(0, 10]` (default 1.0; must be greater than 0).
-- `providers.minimax.pitch`: pitch shift `-12..12` (default 0).
-- `providers.google.model`: Gemini TTS model (default `gemini-3.1-flash-tts-preview`).
-- `providers.google.voiceName`: Gemini prebuilt voice name (default `Kore`; `voice` is also accepted).
-- `providers.google.baseUrl`: override the Gemini API base URL. Only `https://generativelanguage.googleapis.com` is accepted.
-  - If `messages.tts.providers.google.apiKey` is omitted, TTS can reuse `models.providers.google.apiKey` before env fallback.
-- `providers.microsoft.enabled`: allow Microsoft speech usage (default `true`; no API key).
-- `providers.microsoft.voice`: Microsoft neural voice name (e.g. `en-US-MichelleNeural`).
-- `providers.microsoft.lang`: language code (e.g. `en-US`).
-- `providers.microsoft.outputFormat`: Microsoft output format (e.g. `audio-24khz-48kbitrate-mono-mp3`).
-  - See Microsoft Speech output formats for valid values; not all formats are supported by the bundled Edge-backed transport.
-- `providers.microsoft.rate` / `providers.microsoft.pitch` / `providers.microsoft.volume`: percent strings (e.g. `+10%`, `-5%`).
-- `providers.microsoft.saveSubtitles`: write JSON subtitles alongside the audio file.
-- `providers.microsoft.proxy`: proxy URL for Microsoft speech requests.
-- `providers.microsoft.timeoutMs`: request timeout override (ms).
-- `edge.*`: legacy alias for the same Microsoft settings.
-=======
 Provider selection runs explicit-first:
->>>>>>> upstream/main
 
 1. Direct overrides (CLI, gateway, Talk, allowed TTS directives).
 2. `/tts provider <id>` local preference.
@@ -708,14 +591,11 @@ attempted provider:
 The whole TTS request only fails when **every** attempted provider is skipped
 or fails.
 
-<<<<<<< HEAD
-=======
 Talk session provider selection is session-scoped. A Talk client should choose
 provider ids, model ids, voice ids, and locales from `talk.catalog` and pass
 them through the Talk session or handoff request. Opening a voice session should
 not mutate `messages.tts` or global Talk provider defaults.
 
->>>>>>> upstream/main
 ## Model-driven directives
 
 By default, the assistant **can** emit `[[tts:...]]` directives to override
@@ -734,11 +614,6 @@ When `messages.tts.auto` is `"tagged"`, **directives are required** to trigger
 audio. Streaming block delivery strips directives from visible text before the
 channel sees them, even when split across adjacent blocks.
 
-<<<<<<< HEAD
-- `provider` (registered speech provider id, for example `openai`, `elevenlabs`, `google`, `minimax`, or `microsoft`; requires `allowProvider: true`)
-- `voice` (OpenAI voice), `voiceName` / `voice_name` / `google_voice` (Google voice), or `voiceId` (ElevenLabs / MiniMax)
-- `model` (OpenAI TTS model, ElevenLabs model id, or MiniMax model) or `google_model` (Google TTS model)
-=======
 `provider=...` is ignored unless `modelOverrides.allowProvider: true`. When a
 reply declares `provider=...`, the other keys in that directive are parsed
 only by that provider; unsupported keys are stripped and reported as TTS
@@ -749,7 +624,6 @@ directive warnings.
 - `provider` (registered provider id; requires `allowProvider: true`)
 - `voice` / `voiceName` / `voice_name` / `google_voice` / `voiceId`
 - `model` / `google_model`
->>>>>>> upstream/main
 - `stability`, `similarityBoost`, `style`, `speed`, `useSpeakerBoost`
 - `vol` / `volume` (MiniMax volume, 0–10)
 - `pitch` (MiniMax integer pitch, −12 to 12; fractional values are truncated)
@@ -835,14 +709,8 @@ delivery.
   `audio/ogg; codecs=opus`. If conversion fails, Feishu receives the original
   file as an attachment; WhatsApp send fails rather than posting an incompatible
   PTT payload.
-- **BlueBubbles**: keeps provider synthesis on the normal audio-file path; MP3
-  and CAF outputs are marked for iMessage voice memo delivery.
 - **Other channels**: MP3 (`mp3_44100_128` from ElevenLabs, `mp3` from OpenAI).
   - 44.1kHz / 128kbps is the default balance for speech clarity.
-<<<<<<< HEAD
-- **MiniMax**: MP3 (`speech-2.8-hd` model, 32kHz sample rate). Voice-note format not natively supported; use OpenAI or ElevenLabs for guaranteed Opus voice messages.
-- **Google Gemini**: Gemini API TTS returns raw 24kHz PCM. OpenClaw wraps it as WAV for audio attachments and returns PCM directly for Talk/telephony. Native Opus voice-note format is not supported by this path.
-=======
 - **MiniMax**: MP3 (`speech-2.8-hd` model, 32kHz sample rate) for normal audio attachments. For channel-advertised voice-note targets, OpenClaw transcodes the MiniMax MP3 to 48kHz Opus with `ffmpeg` before delivery when the channel advertises transcoding.
 - **Xiaomi MiMo**: MP3 by default, or WAV when configured. For channel-advertised voice-note targets, OpenClaw transcodes Xiaomi output to 48kHz Opus with `ffmpeg` before delivery when the channel advertises transcoding.
 - **Local CLI**: uses the configured `outputFormat`. Voice-note targets are
@@ -852,7 +720,6 @@ delivery.
 - **Gradium**: WAV for audio attachments, Opus for voice-note targets, and `ulaw_8000` at 8 kHz for telephony.
 - **Inworld**: MP3 for normal audio attachments, native `OGG_OPUS` for voice-note targets, and raw `PCM` at 22050 Hz for Talk/telephony.
 - **xAI**: MP3 by default; `responseFormat` may be `mp3`, `wav`, `pcm`, `mulaw`, or `alaw`. OpenClaw uses xAI's batch REST TTS endpoint and returns a complete audio attachment; xAI's streaming TTS WebSocket is not used by this provider path. Native Opus voice-note format is not supported by this path.
->>>>>>> upstream/main
 - **Microsoft**: uses `microsoft.outputFormat` (default `audio-24khz-48kbitrate-mono-mp3`).
   - The bundled transport accepts an `outputFormat`, but not all formats are available from the service.
   - Output format values follow Microsoft Speech output formats (including Ogg/WebM Opus).

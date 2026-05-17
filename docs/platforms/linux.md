@@ -3,12 +3,8 @@ summary: "Linux support + companion app status"
 read_when:
   - Looking for Linux companion app status
   - Planning platform coverage or contributions
-<<<<<<< HEAD
-title: "Linux App"
-=======
   - Debugging Linux OOM kills or exit 137 on a VPS or container
 title: "Linux app"
->>>>>>> upstream/main
 ---
 
 The Gateway is fully supported on Linux. **Node is the recommended runtime**.
@@ -18,7 +14,7 @@ Native Linux companion apps are planned. Contributions are welcome if you want t
 
 ## Beginner quick path (VPS)
 
-1. Install Node 24 (recommended; Node 22 LTS, currently `22.14+`, still works for compatibility)
+1. Install Node 24 (recommended; Node 22 LTS, currently `22.16+`, still works for compatibility)
 2. `npm i -g openclaw@latest`
 3. `openclaw onboard --install-daemon`
 4. From your laptop: `ssh -N -L 18789:127.0.0.1:18789 <user>@<host>`
@@ -101,8 +97,6 @@ Enable it:
 ```
 systemctl --user enable --now openclaw-gateway[-<profile>].service
 ```
-<<<<<<< HEAD
-=======
 
 ## Memory pressure and OOM kills
 
@@ -145,4 +139,3 @@ resource controls such as systemd `MemoryMax=` or container-level memory limits.
 - [Install overview](/install)
 - [Linux server](/vps)
 - [Raspberry Pi](/platforms/raspberry-pi)
->>>>>>> upstream/main

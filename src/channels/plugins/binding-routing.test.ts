@@ -85,9 +85,12 @@ describe("runtime conversation binding route", () => {
     expect(touch).toHaveBeenCalledWith("binding-1", undefined);
     expect(result.boundSessionKey).toBe("agent:review:acp:session-1");
     expect(result.boundAgentId).toBe("review");
-    expect(result.route).toMatchObject({
+    expect(result.route).toEqual({
       agentId: "review",
+      accountId: "default",
+      channel: "demo",
       sessionKey: "agent:review:acp:session-1",
+      mainSessionKey: "agent:main:main",
       lastRoutePolicy: "session",
       matchedBy: "binding.channel",
     });
@@ -118,8 +121,6 @@ describe("runtime conversation binding route", () => {
     expect(result.boundSessionKey).toBeUndefined();
     expect(result.route).toBe(route);
   });
-<<<<<<< HEAD
-=======
 
   it("ignores runtime bindings that target isolated cron run sessions", () => {
     const route = createRoute();
@@ -142,7 +143,6 @@ describe("runtime conversation binding route", () => {
     expect(result.boundSessionKey).toBeUndefined();
     expect(result.route).toBe(route);
   });
->>>>>>> upstream/main
 });
 
 describe("ensureConfiguredBindingRouteReady", () => {

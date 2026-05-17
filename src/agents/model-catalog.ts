@@ -13,13 +13,10 @@ import {
   normalizeLowercaseStringOrEmpty,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
-<<<<<<< HEAD
-import { resolveOpenClawAgentDir } from "./agent-paths.js";
-=======
 import { resolveDefaultAgentDir } from "./agent-scope.js";
->>>>>>> upstream/main
 import { modelSupportsInput as modelCatalogEntrySupportsInput } from "./model-catalog-lookup.js";
 import type { ModelCatalogEntry, ModelInputType } from "./model-catalog.types.js";
+import { normalizeConfiguredProviderCatalogModelId } from "./model-ref-shared.js";
 import { buildConfiguredModelCatalog } from "./model-selection-shared.js";
 import { ensureOpenClawModelsJson } from "./models-config.js";
 import { normalizeProviderId } from "./provider-id.js";
@@ -39,10 +36,7 @@ type DiscoveredModel = {
   name?: string;
   provider: string;
   contextWindow?: number;
-<<<<<<< HEAD
-=======
   contextTokens?: number;
->>>>>>> upstream/main
   reasoning?: boolean;
   input?: ModelInputType[];
   compat?: ModelCatalogEntry["compat"];
@@ -169,12 +163,9 @@ export function loadManifestModelCatalog(params: {
     if (contextWindow) {
       entry.contextWindow = contextWindow;
     }
-<<<<<<< HEAD
-=======
     if (row.contextTokens) {
       entry.contextTokens = row.contextTokens;
     }
->>>>>>> upstream/main
     if (typeof row.reasoning === "boolean") {
       entry.reasoning = row.reasoning;
     }
@@ -203,20 +194,18 @@ function normalizePersistedModelCatalogEntry(
   entry: Record<string, unknown>,
   defaults?: {
     contextWindow?: number;
-<<<<<<< HEAD
-=======
     contextTokens?: number;
->>>>>>> upstream/main
   },
 ): ModelCatalogEntry | undefined {
-  const id = normalizeOptionalString(entry.id) ?? "";
-  if (!id) {
+  const rawId = normalizeOptionalString(entry.id) ?? "";
+  if (!rawId) {
     return undefined;
   }
   const provider = normalizeProviderId(providerRaw);
   if (!provider) {
     return undefined;
   }
+  const id = normalizeConfiguredProviderCatalogModelId(provider, rawId);
   const name = normalizeOptionalString(entry.name ?? id) || id;
   const contextWindow =
     typeof entry?.contextWindow === "number" && entry.contextWindow > 0
@@ -224,15 +213,12 @@ function normalizePersistedModelCatalogEntry(
       : defaults?.contextWindow !== undefined
         ? defaults.contextWindow
         : PI_CUSTOM_MODEL_DEFAULT_CONTEXT_WINDOW;
-<<<<<<< HEAD
-=======
   const contextTokens =
     typeof entry?.contextTokens === "number" && entry.contextTokens > 0
       ? entry.contextTokens
       : defaults?.contextTokens !== undefined
         ? defaults.contextTokens
         : undefined;
->>>>>>> upstream/main
   const reasoning = typeof entry?.reasoning === "boolean" ? entry.reasoning : false;
   const parsedInput = Array.isArray(entry?.input)
     ? entry.input.filter((value): value is ModelInputType =>
@@ -244,9 +230,6 @@ function normalizePersistedModelCatalogEntry(
     entry?.compat && typeof entry.compat === "object"
       ? (entry.compat as ModelCatalogEntry["compat"])
       : undefined;
-<<<<<<< HEAD
-  return { id, name, provider, contextWindow, reasoning, input, compat };
-=======
   return {
     id,
     name,
@@ -257,18 +240,13 @@ function normalizePersistedModelCatalogEntry(
     input,
     compat,
   };
->>>>>>> upstream/main
 }
 
 async function loadReadOnlyPersistedModelCatalog(params?: {
   config?: OpenClawConfig;
 }): Promise<ModelCatalogEntry[]> {
   const cfg = params?.config ?? getRuntimeConfig();
-<<<<<<< HEAD
-  const agentDir = resolveOpenClawAgentDir();
-=======
   const agentDir = resolveDefaultAgentDir(cfg);
->>>>>>> upstream/main
   const raw = await readFile(join(agentDir, "models.json"), "utf8");
   const parsed = JSON.parse(raw) as Record<string, unknown>;
   const models: ModelCatalogEntry[] = [];
@@ -286,11 +264,6 @@ async function loadReadOnlyPersistedModelCatalog(params?: {
       typeof providerConfig?.contextWindow === "number" && providerConfig.contextWindow > 0
         ? providerConfig.contextWindow
         : undefined;
-<<<<<<< HEAD
-    for (const entry of providerConfig.models as Record<string, unknown>[]) {
-      const normalized = normalizePersistedModelCatalogEntry(providerRaw, entry, {
-        contextWindow: providerContextWindow,
-=======
     const providerContextTokens =
       typeof providerConfig?.contextTokens === "number" && providerConfig.contextTokens > 0
         ? providerConfig.contextTokens
@@ -299,7 +272,6 @@ async function loadReadOnlyPersistedModelCatalog(params?: {
       const normalized = normalizePersistedModelCatalogEntry(providerRaw, entry, {
         contextWindow: providerContextWindow,
         contextTokens: providerContextTokens,
->>>>>>> upstream/main
       });
       if (normalized && !shouldSuppressBuiltInModel(normalized)) {
         models.push(normalized);
@@ -388,11 +360,7 @@ export async function loadModelCatalog(params?: {
       // will keep failing until restart).
       const piSdk = await importPiSdk();
       logStage("pi-sdk-imported");
-<<<<<<< HEAD
-      const agentDir = resolveOpenClawAgentDir();
-=======
       const agentDir = resolveDefaultAgentDir(cfg);
->>>>>>> upstream/main
       const { buildShouldSuppressBuiltInModel } = await loadModelSuppression();
       logStage("catalog-deps-ready");
       const authStorage = piSdk.discoverAuthStorage(
@@ -413,14 +381,15 @@ export async function loadModelCatalog(params?: {
       logStage("suppress-resolver-ready");
 
       for (const entry of entries) {
-        const id = normalizeOptionalString(entry?.id) ?? "";
-        if (!id) {
+        const rawId = normalizeOptionalString(entry?.id) ?? "";
+        if (!rawId) {
           continue;
         }
         const provider = normalizeOptionalString(entry?.provider) ?? "";
         if (!provider) {
           continue;
         }
+        const id = normalizeConfiguredProviderCatalogModelId(provider, rawId);
         if (shouldSuppressBuiltInModel({ provider, id })) {
           continue;
         }
@@ -429,12 +398,6 @@ export async function loadModelCatalog(params?: {
           typeof entry?.contextWindow === "number" && entry.contextWindow > 0
             ? entry.contextWindow
             : undefined;
-<<<<<<< HEAD
-        const reasoning = typeof entry?.reasoning === "boolean" ? entry.reasoning : undefined;
-        const input = Array.isArray(entry?.input) ? entry.input : undefined;
-        const compat = entry?.compat && typeof entry.compat === "object" ? entry.compat : undefined;
-        models.push({ id, name, provider, contextWindow, reasoning, input, compat });
-=======
         const contextTokens =
           typeof entry?.contextTokens === "number" && entry.contextTokens > 0
             ? entry.contextTokens
@@ -452,7 +415,6 @@ export async function loadModelCatalog(params?: {
           input,
           compat,
         });
->>>>>>> upstream/main
       }
       if (!readOnly) {
         const supplemental = await augmentModelCatalogWithProviderPlugins({
@@ -466,7 +428,14 @@ export async function loadModelCatalog(params?: {
           },
         });
         if (supplemental.length > 0) {
-          appendCatalogEntriesIfAbsent(models, supplemental);
+          const normalizedSupplemental: ModelCatalogEntry[] = [];
+          for (const entry of supplemental) {
+            normalizedSupplemental.push({
+              ...entry,
+              id: normalizeConfiguredProviderCatalogModelId(entry.provider, entry.id),
+            });
+          }
+          appendCatalogEntriesIfAbsent(models, normalizedSupplemental);
         }
       }
       logStage("plugin-models-merged", `entries=${models.length}`);

@@ -8,7 +8,7 @@ import {
   createAttachedChannelResultAdapter,
   type ChannelOutboundAdapter,
 } from "openclaw/plugin-sdk/channel-send-result";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { resolveOutboundSendDep } from "openclaw/plugin-sdk/outbound-send-deps";
 import { sendTextMediaPayload } from "openclaw/plugin-sdk/reply-payload";
 import {
@@ -89,10 +89,7 @@ type WhatsAppOutboundBaseCore = Pick<
   | "chunkerMode"
   | "textChunkLimit"
   | "sanitizeText"
-<<<<<<< HEAD
-=======
   | "deliveryCapabilities"
->>>>>>> upstream/main
   | "pollMaxOptions"
   | "resolveTarget"
   | "sendText"
@@ -115,10 +112,7 @@ export function createWhatsAppOutboundBase({
   | "chunkerMode"
   | "textChunkLimit"
   | "sanitizeText"
-<<<<<<< HEAD
-=======
   | "deliveryCapabilities"
->>>>>>> upstream/main
   | "pollMaxOptions"
   | "resolveTarget"
   | "sendPayload"
@@ -152,8 +146,6 @@ export function createWhatsAppOutboundBase({
     chunkerMode: "text",
     textChunkLimit: 4000,
     sanitizeText: ({ text }) => normalizeText(text),
-<<<<<<< HEAD
-=======
     deliveryCapabilities: {
       durableFinal: {
         text: true,
@@ -161,7 +153,6 @@ export function createWhatsAppOutboundBase({
         messageSendingHooks: true,
       },
     },
->>>>>>> upstream/main
     pollMaxOptions: 12,
     resolveTarget,
     ...createAttachedChannelResultAdapter({

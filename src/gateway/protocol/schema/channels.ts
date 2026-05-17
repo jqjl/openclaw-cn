@@ -36,9 +36,6 @@ export const TalkSpeakParamsSchema = Type.Object(
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeSessionParamsSchema = Type.Object(
-=======
 const TalkModeSchema = Type.Union([
   Type.Literal("realtime"),
   Type.Literal("stt-tts"),
@@ -161,27 +158,22 @@ export const TalkEventSchema = Type.Object(
 );
 
 export const TalkClientCreateParamsSchema = Type.Object(
->>>>>>> upstream/main
   {
     sessionKey: Type.Optional(Type.String()),
     provider: Type.Optional(Type.String()),
     model: Type.Optional(Type.String()),
     voice: Type.Optional(Type.String()),
-<<<<<<< HEAD
-=======
+    vadThreshold: Type.Optional(Type.Number()),
+    silenceDurationMs: Type.Optional(Type.Integer({ minimum: 1 })),
+    prefixPaddingMs: Type.Optional(Type.Integer({ minimum: 0 })),
+    reasoningEffort: Type.Optional(Type.String()),
     mode: Type.Optional(TalkModeSchema),
     transport: Type.Optional(TalkTransportSchema),
     brain: Type.Optional(TalkBrainSchema),
->>>>>>> upstream/main
   },
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeRelayAudioParamsSchema = Type.Object(
-  {
-    relaySessionId: NonEmptyString,
-=======
 export const TalkClientToolCallParamsSchema = Type.Object(
   {
     sessionKey: NonEmptyString,
@@ -212,9 +204,14 @@ export const TalkSessionJoinParamsSchema = Type.Object(
 export const TalkSessionCreateParamsSchema = Type.Object(
   {
     sessionKey: Type.Optional(Type.String()),
+    spawnedBy: Type.Optional(NonEmptyString),
     provider: Type.Optional(Type.String()),
     model: Type.Optional(Type.String()),
     voice: Type.Optional(Type.String()),
+    vadThreshold: Type.Optional(Type.Number()),
+    silenceDurationMs: Type.Optional(Type.Integer({ minimum: 1 })),
+    prefixPaddingMs: Type.Optional(Type.Integer({ minimum: 0 })),
+    reasoningEffort: Type.Optional(Type.String()),
     mode: Type.Optional(TalkModeSchema),
     transport: Type.Optional(TalkTransportSchema),
     brain: Type.Optional(TalkBrainSchema),
@@ -226,48 +223,29 @@ export const TalkSessionCreateParamsSchema = Type.Object(
 export const TalkSessionAppendAudioParamsSchema = Type.Object(
   {
     sessionId: NonEmptyString,
->>>>>>> upstream/main
     audioBase64: NonEmptyString,
     timestamp: Type.Optional(Type.Number()),
   },
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeRelayMarkParamsSchema = Type.Object(
-  {
-    relaySessionId: NonEmptyString,
-    markName: Type.Optional(Type.String()),
-=======
 export const TalkSessionTurnParamsSchema = Type.Object(
   {
     sessionId: NonEmptyString,
     turnId: Type.Optional(Type.String()),
->>>>>>> upstream/main
   },
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeRelayStopParamsSchema = Type.Object(
-  {
-    relaySessionId: NonEmptyString,
-=======
 export const TalkSessionCancelTurnParamsSchema = Type.Object(
   {
     sessionId: NonEmptyString,
     turnId: Type.Optional(Type.String()),
     reason: Type.Optional(Type.String()),
->>>>>>> upstream/main
   },
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeRelayToolResultParamsSchema = Type.Object(
-  {
-    relaySessionId: NonEmptyString,
-=======
 export const TalkSessionCancelOutputParamsSchema = Type.Object(
   {
     sessionId: NonEmptyString,
@@ -280,18 +258,21 @@ export const TalkSessionCancelOutputParamsSchema = Type.Object(
 export const TalkSessionSubmitToolResultParamsSchema = Type.Object(
   {
     sessionId: NonEmptyString,
->>>>>>> upstream/main
     callId: NonEmptyString,
     result: Type.Unknown(),
+    options: Type.Optional(
+      Type.Object(
+        {
+          suppressResponse: Type.Optional(Type.Boolean()),
+          willContinue: Type.Optional(Type.Boolean()),
+        },
+        { additionalProperties: false },
+      ),
+    ),
   },
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeRelayOkResultSchema = Type.Object(
-  {
-    ok: Type.Boolean(),
-=======
 export const TalkSessionCloseParamsSchema = Type.Object(
   {
     sessionId: NonEmptyString,
@@ -392,7 +373,6 @@ export const TalkCatalogResultSchema = Type.Object(
     speech: TalkCatalogProviderGroupSchema,
     transcription: TalkCatalogProviderGroupSchema,
     realtime: TalkCatalogProviderGroupSchema,
->>>>>>> upstream/main
   },
   { additionalProperties: false },
 );
@@ -407,12 +387,6 @@ const BrowserRealtimeAudioContractSchema = Type.Object(
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-const BrowserRealtimeWebRtcSdpSessionSchema = Type.Object(
-  {
-    provider: NonEmptyString,
-    transport: Type.Optional(Type.Literal("webrtc-sdp")),
-=======
 export const TalkSessionCreateResultSchema = Type.Object(
   {
     sessionId: NonEmptyString,
@@ -456,7 +430,6 @@ const BrowserRealtimeWebRtcSdpSessionSchema = Type.Object(
   {
     provider: NonEmptyString,
     transport: Type.Literal("webrtc"),
->>>>>>> upstream/main
     clientSecret: NonEmptyString,
     offerUrl: Type.Optional(Type.String()),
     offerHeaders: Type.Optional(Type.Record(Type.String(), Type.String())),
@@ -470,11 +443,7 @@ const BrowserRealtimeWebRtcSdpSessionSchema = Type.Object(
 const BrowserRealtimeJsonPcmWebSocketSessionSchema = Type.Object(
   {
     provider: NonEmptyString,
-<<<<<<< HEAD
-    transport: Type.Literal("json-pcm-websocket"),
-=======
     transport: Type.Literal("provider-websocket"),
->>>>>>> upstream/main
     protocol: NonEmptyString,
     clientSecret: NonEmptyString,
     websocketUrl: NonEmptyString,
@@ -513,11 +482,7 @@ const BrowserRealtimeManagedRoomSessionSchema = Type.Object(
   { additionalProperties: false },
 );
 
-<<<<<<< HEAD
-export const TalkRealtimeSessionResultSchema = Type.Union([
-=======
 export const TalkClientCreateResultSchema = Type.Union([
->>>>>>> upstream/main
   BrowserRealtimeWebRtcSdpSessionSchema,
   BrowserRealtimeJsonPcmWebSocketSessionSchema,
   BrowserRealtimeGatewayRelaySessionSchema,
@@ -532,14 +497,13 @@ const TalkProviderConfigSchema = Type.Object(talkProviderFieldSchemas, {
   additionalProperties: true,
 });
 
-<<<<<<< HEAD
-=======
 const TalkRealtimeConfigSchema = Type.Object(
   {
     provider: Type.Optional(Type.String()),
     providers: Type.Optional(Type.Record(Type.String(), TalkProviderConfigSchema)),
     model: Type.Optional(Type.String()),
     voice: Type.Optional(Type.String()),
+    instructions: Type.Optional(Type.String()),
     mode: Type.Optional(TalkModeSchema),
     transport: Type.Optional(TalkTransportSchema),
     brain: Type.Optional(TalkBrainSchema),
@@ -547,7 +511,6 @@ const TalkRealtimeConfigSchema = Type.Object(
   { additionalProperties: false },
 );
 
->>>>>>> upstream/main
 const ResolvedTalkConfigSchema = Type.Object(
   {
     provider: Type.String(),
@@ -560,12 +523,10 @@ const TalkConfigSchema = Type.Object(
   {
     provider: Type.Optional(Type.String()),
     providers: Type.Optional(Type.Record(Type.String(), TalkProviderConfigSchema)),
-<<<<<<< HEAD
-    resolved: ResolvedTalkConfigSchema,
-=======
     realtime: Type.Optional(TalkRealtimeConfigSchema),
     resolved: Type.Optional(ResolvedTalkConfigSchema),
->>>>>>> upstream/main
+    consultThinkingLevel: Type.Optional(Type.String()),
+    consultFastMode: Type.Optional(Type.Boolean()),
     speechLocale: Type.Optional(Type.String()),
     interruptOnSpeech: Type.Optional(Type.Boolean()),
     silenceTimeoutMs: Type.Optional(Type.Integer({ minimum: 1 })),
@@ -617,6 +578,7 @@ export const ChannelsStatusParamsSchema = Type.Object(
   {
     probe: Type.Optional(Type.Boolean()),
     timeoutMs: Type.Optional(Type.Integer({ minimum: 0 })),
+    channel: Type.Optional(NonEmptyString),
   },
   { additionalProperties: false },
 );
@@ -704,11 +666,8 @@ export const ChannelsStatusResultSchema = Type.Object(
     channelAccounts: Type.Record(NonEmptyString, Type.Array(ChannelAccountSnapshotSchema)),
     channelDefaultAccountId: Type.Record(NonEmptyString, NonEmptyString),
     eventLoop: Type.Optional(ChannelEventLoopHealthSchema),
-<<<<<<< HEAD
-=======
     partial: Type.Optional(Type.Boolean()),
     warnings: Type.Optional(Type.Array(Type.String())),
->>>>>>> upstream/main
   },
   { additionalProperties: false },
 );

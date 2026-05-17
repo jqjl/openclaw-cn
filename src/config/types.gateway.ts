@@ -38,16 +38,6 @@ export type DiscoveryConfig = {
   mdns?: MdnsDiscoveryConfig;
 };
 
-export type CanvasHostConfig = {
-  enabled?: boolean;
-  /** Directory to serve (default: ~/.openclaw/workspace/canvas). */
-  root?: string;
-  /** HTTP port to listen on (default: 18793). */
-  port?: number;
-  /** Enable live-reload file watching + WS reloads (default: true). */
-  liveReload?: boolean;
-};
-
 export type TalkProviderConfig = {
   /** Provider API key (optional; provider-specific env fallback may apply). */
   apiKey?: SecretInput;
@@ -55,8 +45,6 @@ export type TalkProviderConfig = {
   [key: string]: unknown;
 };
 
-<<<<<<< HEAD
-=======
 export type TalkRealtimeConfig = {
   /** Active realtime voice provider. */
   provider?: string;
@@ -66,6 +54,8 @@ export type TalkRealtimeConfig = {
   model?: string;
   /** Provider voice override for realtime sessions. */
   voice?: string;
+  /** Additional system instructions appended to realtime Talk sessions. */
+  instructions?: string;
   /** Realtime execution mode. */
   mode?: "realtime" | "stt-tts" | "transcription";
   /** Byte/session transport. */
@@ -74,7 +64,6 @@ export type TalkRealtimeConfig = {
   brain?: "agent-consult" | "direct-tools" | "none";
 };
 
->>>>>>> upstream/main
 export type ResolvedTalkConfig = {
   /** Active Talk TTS provider resolved from the current config payload. */
   provider: string;
@@ -87,11 +76,20 @@ export type TalkConfig = {
   provider?: string;
   /** Provider-specific Talk config keyed by provider id. */
   providers?: Record<string, TalkProviderConfig>;
-<<<<<<< HEAD
-=======
   /** Realtime Talk provider, model, voice, mode, transport, and brain config. */
   realtime?: TalkRealtimeConfig;
->>>>>>> upstream/main
+  /** Optional thinking level override for the agent run behind Talk realtime consults. */
+  consultThinkingLevel?:
+    | "off"
+    | "minimal"
+    | "low"
+    | "medium"
+    | "high"
+    | "xhigh"
+    | "adaptive"
+    | "max";
+  /** Optional fast mode override for the agent run behind Talk realtime consults. */
+  consultFastMode?: boolean;
   /** BCP 47 locale id used for Talk speech recognition on device nodes. */
   speechLocale?: string;
   /** Stop speaking when user starts talking (default: true). */
@@ -212,6 +210,13 @@ export type GatewayTailscaleConfig = {
   mode?: GatewayTailscaleMode;
   /** Reset serve/funnel configuration on shutdown. */
   resetOnExit?: boolean;
+  /**
+   * When `mode="serve"` and an externally configured Tailscale Funnel route
+   * already covers the gateway port, skip re-applying `tailscale serve` on
+   * startup. Lets operators manage Funnel exposure outside OpenClaw without
+   * losing it across gateway restarts.
+   */
+  preserveFunnel?: boolean;
 };
 
 export type GatewayRemoteConfig = {

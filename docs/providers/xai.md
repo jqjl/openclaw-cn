@@ -33,8 +33,9 @@ OpenClaw ships a bundled `xai` provider plugin for Grok models.
 
 <Note>
 OpenClaw uses the xAI Responses API as the bundled xAI transport. The same
-`XAI_API_KEY` can also power Grok-backed `web_search`, first-class `x_search`,
-and remote `code_execution`.
+API key from `openclaw onboard --auth-choice xai-api-key` can also power
+first-class `x_search` and remote `code_execution`; `XAI_API_KEY` or plugin
+web-search config can power Grok-backed `web_search` too.
 If you store an xAI key under `plugins.entries.xai.config.webSearch.apiKey`,
 the bundled xAI model provider reuses that key as a fallback too.
 Set `plugins.entries.xai.config.webSearch.baseUrl` to route Grok `web_search`
@@ -64,8 +65,6 @@ they follow the same API shape.
 variants are the current image-capable Grok refs in the bundled catalog.
 </Tip>
 
-<<<<<<< HEAD
-=======
 ## OpenClaw feature coverage
 
 The bundled plugin maps xAI's current public API surface onto OpenClaw's shared
@@ -97,7 +96,6 @@ Realtime voice sessions, are documented here as upstream capabilities rather
 than hidden plugin behavior.
 </Note>
 
->>>>>>> upstream/main
 ### Fast-mode mappings
 
 `/fast on` or `agents.defaults.models["xai/<model>"].params.fastMode: true`
@@ -125,7 +123,8 @@ Legacy aliases still normalize to the canonical bundled ids:
 
 <AccordionGroup>
   <Accordion title="Web search">
-    The bundled `grok` web-search provider uses `XAI_API_KEY` too:
+    The bundled `grok` web-search provider can use `XAI_API_KEY` or a plugin
+    web-search key:
 
     ```bash
     openclaw config set tools.web.search.provider grok
@@ -138,14 +137,6 @@ Legacy aliases still normalize to the canonical bundled ids:
     `video_generate` tool.
 
     - Default video model: `xai/grok-imagine-video`
-<<<<<<< HEAD
-    - Modes: text-to-video, image-to-video, and remote video edit/extend flows
-    - Supports `aspectRatio` and `resolution`
-
-    <Warning>
-    Local video buffers are not accepted. Use remote `http(s)` URLs for
-    video-reference and edit inputs.
-=======
     - Modes: text-to-video, image-to-video, reference-image generation, remote
       video edit, and remote video extension
     - Aspect ratios: `1:1`, `16:9`, `9:16`, `4:3`, `3:4`, `3:2`, `2:3`
@@ -159,7 +150,6 @@ Legacy aliases still normalize to the canonical bundled ids:
     Local video buffers are not accepted. Use remote `http(s)` URLs for
     video edit/extend inputs. Image-to-video accepts local image buffers because
     OpenClaw can encode those as data URLs for xAI.
->>>>>>> upstream/main
     </Warning>
 
     To use xAI as the default video provider:
@@ -183,8 +173,6 @@ Legacy aliases still normalize to the canonical bundled ids:
 
   </Accordion>
 
-<<<<<<< HEAD
-=======
   <Accordion title="Image generation">
     The bundled `xai` plugin registers image generation through the shared
     `image_generate` tool.
@@ -349,7 +337,6 @@ Legacy aliases still normalize to the canonical bundled ids:
 
   </Accordion>
 
->>>>>>> upstream/main
   <Accordion title="x_search configuration">
     The bundled xAI plugin exposes `x_search` as an OpenClaw tool for searching
     X (formerly Twitter) content via Grok.
@@ -358,15 +345,6 @@ Legacy aliases still normalize to the canonical bundled ids:
 
     | Key                | Type    | Default            | Description                          |
     | ------------------ | ------- | ------------------ | ------------------------------------ |
-<<<<<<< HEAD
-    | `enabled`          | boolean | —                  | Enable or disable x_search           |
-    | `model`            | string  | `grok-4-1-fast`    | Model used for x_search requests     |
-    | `baseUrl`          | string  | —                  | xAI Responses base URL override      |
-    | `inlineCitations`  | boolean | —                  | Include inline citations in results  |
-    | `maxTurns`         | number  | —                  | Maximum conversation turns           |
-    | `timeoutSeconds`   | number  | —                  | Request timeout in seconds           |
-    | `cacheTtlMinutes`  | number  | —                  | Cache time-to-live in minutes        |
-=======
     | `enabled`          | boolean | -                  | Enable or disable x_search           |
     | `model`            | string  | `grok-4-1-fast`    | Model used for x_search requests     |
     | `baseUrl`          | string  | -                  | xAI Responses base URL override      |
@@ -374,7 +352,6 @@ Legacy aliases still normalize to the canonical bundled ids:
     | `maxTurns`         | number  | -                  | Maximum conversation turns           |
     | `timeoutSeconds`   | number  | -                  | Request timeout in seconds           |
     | `cacheTtlMinutes`  | number  | -                  | Cache time-to-live in minutes        |
->>>>>>> upstream/main
 
     ```json5
     {
@@ -407,13 +384,8 @@ Legacy aliases still normalize to the canonical bundled ids:
     | ----------------- | ------- | ------------------ | ---------------------------------------- |
     | `enabled`         | boolean | `true` (if key available) | Enable or disable code execution  |
     | `model`           | string  | `grok-4-1-fast`    | Model used for code execution requests   |
-<<<<<<< HEAD
-    | `maxTurns`        | number  | —                  | Maximum conversation turns               |
-    | `timeoutSeconds`  | number  | —                  | Request timeout in seconds               |
-=======
     | `maxTurns`        | number  | -                  | Maximum conversation turns               |
     | `timeoutSeconds`  | number  | -                  | Request timeout in seconds               |
->>>>>>> upstream/main
 
     <Note>
     This is remote xAI sandbox execution, not local [`exec`](/tools/exec).
@@ -439,20 +411,18 @@ Legacy aliases still normalize to the canonical bundled ids:
   </Accordion>
 
   <Accordion title="Known limits">
-    - Auth is API-key only today. There is no xAI OAuth or device-code flow in
-      OpenClaw yet.
+    - Auth is API-key only today. The API key may be stored in an xAI auth
+      profile, environment variable, or plugin config; there is no xAI OAuth or
+      device-code flow in OpenClaw yet.
     - `grok-4.20-multi-agent-experimental-beta-0304` is not supported on the
       normal xAI provider path because it requires a different upstream API
       surface than the standard OpenClaw xAI transport.
-<<<<<<< HEAD
-=======
     - xAI Realtime voice is not registered as an OpenClaw provider yet. It
       needs a different bidirectional voice session contract than batch STT or
       streaming transcription.
     - xAI image `quality`, image `mask`, and extra native-only aspect ratios are
       not exposed until the shared `image_generate` tool has corresponding
       cross-provider controls.
->>>>>>> upstream/main
   </Accordion>
 
   <Accordion title="Advanced notes">
@@ -476,13 +446,10 @@ Legacy aliases still normalize to the canonical bundled ids:
   </Accordion>
 </AccordionGroup>
 
-<<<<<<< HEAD
-=======
 ## Live testing
 
-The xAI media paths are covered by unit tests and opt-in live suites. The live
-commands load secrets from your login shell, including `~/.profile`, before
-probing `XAI_API_KEY`.
+The xAI media paths are covered by unit tests and opt-in live suites. Export
+`XAI_API_KEY` in the process environment before running live probes.
 
 ```bash
 pnpm test extensions/xai
@@ -496,7 +463,6 @@ realtime STT, generates text-to-image output, and edits a reference image. The
 shared image live file verifies the same xAI provider through OpenClaw's
 runtime selection, fallback, normalization, and media attachment path.
 
->>>>>>> upstream/main
 ## Related
 
 <CardGroup cols={2}>

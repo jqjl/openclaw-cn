@@ -1,8 +1,4 @@
 import { spawnSync } from "node:child_process";
-<<<<<<< HEAD
-import { randomUUID } from "node:crypto";
-=======
->>>>>>> upstream/main
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -13,10 +9,7 @@ import {
   resolveGatewaySystemdServiceName,
 } from "../daemon/constants.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-<<<<<<< HEAD
-=======
 import { replaceFileAtomicSync } from "./replace-file.js";
->>>>>>> upstream/main
 import { cleanStaleGatewayProcessesSync, findGatewayPidsOnPortSync } from "./restart-stale-pids.js";
 import type { RestartAttempt } from "./restart.types.js";
 import { relaunchGatewayScheduledTask } from "./windows-task-restart.js";
@@ -138,15 +131,8 @@ export function writeGatewayRestartIntentSync(opts: {
     return false;
   }
   const env = opts.env ?? process.env;
-<<<<<<< HEAD
-  let tmpPath: string | undefined;
   try {
     const intentPath = resolveGatewayRestartIntentPath(env);
-    fs.mkdirSync(path.dirname(intentPath), { recursive: true });
-=======
-  try {
-    const intentPath = resolveGatewayRestartIntentPath(env);
->>>>>>> upstream/main
     const payload: GatewayRestartIntentPayload = {
       kind: "gateway-restart",
       pid: targetPid,
@@ -158,27 +144,6 @@ export function writeGatewayRestartIntentSync(opts: {
         ? { waitMs: Math.floor(opts.intent.waitMs) }
         : {}),
     };
-<<<<<<< HEAD
-    tmpPath = path.join(
-      path.dirname(intentPath),
-      `.${path.basename(intentPath)}.${process.pid}.${Date.now()}.${randomUUID()}.tmp`,
-    );
-    let fd: number | undefined;
-    try {
-      fd = fs.openSync(tmpPath, "wx", 0o600);
-      fs.writeFileSync(fd, `${JSON.stringify(payload)}\n`, "utf8");
-    } finally {
-      if (fd !== undefined) {
-        fs.closeSync(fd);
-      }
-    }
-    fs.renameSync(tmpPath, intentPath);
-    return true;
-  } catch (err) {
-    if (tmpPath) {
-      unlinkGatewayRestartIntentFileSync(tmpPath);
-    }
-=======
     replaceFileAtomicSync({
       filePath: intentPath,
       content: `${JSON.stringify(payload)}\n`,
@@ -187,7 +152,6 @@ export function writeGatewayRestartIntentSync(opts: {
     });
     return true;
   } catch (err) {
->>>>>>> upstream/main
     restartLog.warn(`failed to write gateway restart intent: ${String(err)}`);
     return false;
   }

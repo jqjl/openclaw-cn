@@ -55,10 +55,7 @@ export type QaLabServerStartParams = {
   autoKickoffTarget?: string;
   embeddedGateway?: string;
   sendKickoffOnStart?: boolean;
-<<<<<<< HEAD
-=======
   selfCheckWaitTimeoutMs?: number;
->>>>>>> upstream/main
 };
 
 export type QaLabServerHandle = {

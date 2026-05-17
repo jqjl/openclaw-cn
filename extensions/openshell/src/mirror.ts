@@ -1,10 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { movePathWithCopyFallback } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/string-coerce-runtime";
 
 export const DEFAULT_OPEN_SHELL_MIRROR_EXCLUDE_DIRS = ["hooks", "git-hooks", ".git"] as const;
 const COPY_TREE_FS_CONCURRENCY = 16;
@@ -141,27 +138,4 @@ export async function stageDirectoryContents(params: {
   }
 }
 
-<<<<<<< HEAD
-export async function movePathWithCopyFallback(params: {
-  from: string;
-  to: string;
-}): Promise<void> {
-  try {
-    await fs.rename(params.from, params.to);
-    return;
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException | null)?.code;
-    if (code !== "EXDEV") {
-      throw error;
-    }
-  }
-  await fs.cp(params.from, params.to, {
-    recursive: true,
-    force: true,
-    dereference: false,
-  });
-  await fs.rm(params.from, { recursive: true, force: true });
-}
-=======
 export { movePathWithCopyFallback };
->>>>>>> upstream/main

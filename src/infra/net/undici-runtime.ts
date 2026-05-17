@@ -11,14 +11,11 @@ export type UndiciRuntimeDeps = {
   fetch: typeof import("undici").fetch;
 };
 
-<<<<<<< HEAD
-=======
 export type UndiciGlobalDispatcherDeps = Pick<UndiciRuntimeDeps, "Agent" | "EnvHttpProxyAgent"> & {
   getGlobalDispatcher: typeof import("undici").getGlobalDispatcher;
   setGlobalDispatcher: typeof import("undici").setGlobalDispatcher;
 };
 
->>>>>>> upstream/main
 type UndiciAgentOptions = ConstructorParameters<UndiciRuntimeDeps["Agent"]>[0];
 type UndiciEnvHttpProxyAgentOptions = ConstructorParameters<
   UndiciRuntimeDeps["EnvHttpProxyAgent"]
@@ -58,8 +55,6 @@ function isUndiciRuntimeDeps(value: unknown): value is UndiciRuntimeDeps {
   );
 }
 
-<<<<<<< HEAD
-=======
 function isUndiciGlobalDispatcherDeps(value: unknown): value is UndiciGlobalDispatcherDeps {
   return (
     typeof value === "object" &&
@@ -71,7 +66,6 @@ function isUndiciGlobalDispatcherDeps(value: unknown): value is UndiciGlobalDisp
   );
 }
 
->>>>>>> upstream/main
 export function loadUndiciRuntimeDeps(): UndiciRuntimeDeps {
   const override = (globalThis as Record<string, unknown>)[TEST_UNDICI_RUNTIME_DEPS_KEY];
   if (isUndiciRuntimeDeps(override)) {
@@ -89,8 +83,6 @@ export function loadUndiciRuntimeDeps(): UndiciRuntimeDeps {
   };
 }
 
-<<<<<<< HEAD
-=======
 export function loadUndiciGlobalDispatcherDeps(): UndiciGlobalDispatcherDeps {
   const override = (globalThis as Record<string, unknown>)[TEST_UNDICI_RUNTIME_DEPS_KEY];
   if (isUndiciGlobalDispatcherDeps(override)) {
@@ -107,7 +99,6 @@ export function loadUndiciGlobalDispatcherDeps(): UndiciGlobalDispatcherDeps {
   };
 }
 
->>>>>>> upstream/main
 function withHttp1OnlyDispatcherOptions<T extends object | undefined>(
   options?: T,
   timeoutMs?: number,

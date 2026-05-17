@@ -24,12 +24,8 @@ Anthropic's current public docs:
 - [Claude Agent SDK overview](https://platform.claude.com/docs/en/agent-sdk/overview)
 - [Using Claude Code with your Pro or Max plan](https://support.claude.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan)
 - [Using Claude Code with your Team or Enterprise plan](https://support.anthropic.com/en/articles/11845131-using-claude-code-with-your-team-or-enterprise-plan/)
-<<<<<<< HEAD
-  </Warning>
-=======
 
 </Warning>
->>>>>>> upstream/main
 
 ## Getting started
 
@@ -110,7 +106,11 @@ Anthropic's current public docs:
       agents: {
         defaults: {
           model: { primary: "anthropic/claude-opus-4-7" },
-          agentRuntime: { id: "claude-cli" },
+          models: {
+            "anthropic/claude-opus-4-7": {
+              agentRuntime: { id: "claude-cli" },
+            },
+          },
         },
       },
     }
@@ -118,7 +118,7 @@ Anthropic's current public docs:
 
     Legacy `claude-cli/claude-opus-4-7` model refs still work for
     compatibility, but new config should keep provider/model selection as
-    `anthropic/*` and put the execution backend in `agentRuntime.id`.
+    `anthropic/*` and put the execution backend in provider/model runtime policy.
 
     <Tip>
     If you want the clearest billing path, use an Anthropic API key instead. OpenClaw also supports subscription-style options from [OpenAI Codex](/providers/openai), [Qwen Cloud](/providers/qwen), [MiniMax](/providers/minimax), and [Z.AI / GLM](/providers/glm).
@@ -257,9 +257,9 @@ OpenClaw supports Anthropic's prompt caching feature for API-key auth.
     auto-resolves media capabilities from the configured Anthropic auth — no
     additional config is needed.
 
-    | Property       | Value                |
-    | -------------- | -------------------- |
-    | Default model  | `claude-opus-4-6`    |
+    | Property        | Value                 |
+    | --------------- | --------------------- |
+    | Default model   | `claude-opus-4-7`     |
     | Supported input | Images, PDF documents |
 
     When an image or PDF is attached to a conversation, OpenClaw automatically
@@ -295,14 +295,11 @@ OpenClaw supports Anthropic's prompt caching feature for API-key auth.
     </Warning>
 
   </Accordion>
-<<<<<<< HEAD
-=======
 
   <Accordion title="Claude Opus 4.7 1M context">
     `anthropic/claude-opus-4.7` and its `claude-cli` variant have a 1M context
     window by default — no `params.context1m: true` needed.
   </Accordion>
->>>>>>> upstream/main
 </AccordionGroup>
 
 ## Troubleshooting

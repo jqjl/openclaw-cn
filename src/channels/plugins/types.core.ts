@@ -1,4 +1,4 @@
-import type { AgentTool, AgentToolResult } from "@mariozechner/pi-agent-core";
+import type { AgentTool, AgentToolResult } from "@earendil-works/pi-agent-core";
 import type { TSchema } from "typebox";
 import type { ReplyPayload } from "../../auto-reply/reply-payload.js";
 import type { MsgContext } from "../../auto-reply/templating.js";
@@ -277,7 +277,7 @@ export type ChannelGroupContext = {
  * Container tokens (file-extension shape, no leading dot) that the host
  * speech-core pipeline knows how to pre-transcode synthesized audio into.
  * Channels that benefit from a specific container — currently only
- * BlueBubbles, which needs Apple's native voice-memo CAF descriptor — name
+ * iMessage, which needs Apple's native voice-memo CAF descriptor — name
  * one here. Adding a new entry requires extending the host transcoder
  * recipe table in lockstep so a typed declaration cannot silently no-op.
  */
@@ -292,7 +292,7 @@ export type ChannelTtsVoiceDeliveryCapabilities = {
    * delivery. When set and the host can transcode (e.g. `afconvert` on
    * macOS), the TTS pipeline pre-encodes synthesized audio to this format
    * before handing it to the channel. Useful for channels (such as
-   * BlueBubbles) whose downstream attempts its own container conversion
+   * iMessage) whose downstream attempts its own container conversion
    * that races against the upload write and fails.
    */
   preferAudioFileFormat?: PreferredAudioFileFormat;
@@ -700,8 +700,6 @@ export type ChannelToolSend = {
   threadId?: string | null;
 };
 
-<<<<<<< HEAD
-=======
 export type ChannelMessagePreparedSendPayloadContext = {
   ctx: ChannelMessageActionContext;
   to: string;
@@ -710,7 +708,6 @@ export type ChannelMessagePreparedSendPayloadContext = {
   threadId?: string | number | null;
 };
 
->>>>>>> upstream/main
 /** Channel-owned action surface for the shared `message` tool. */
 export type ChannelMessageActionAdapter = {
   /**
@@ -745,8 +742,6 @@ export type ChannelMessageActionAdapter = {
   }) => boolean;
   extractToolSend?: (params: { args: Record<string, unknown> }) => ChannelToolSend | null;
   /**
-<<<<<<< HEAD
-=======
    * Translate generic `message(action=send)` arguments into the payload core
    * should persist, retry, recover, and ack. Return null to keep the legacy
    * plugin-owned action path for sends that cannot be represented durably.
@@ -755,7 +750,6 @@ export type ChannelMessageActionAdapter = {
     params: ChannelMessagePreparedSendPayloadContext,
   ) => ReplyPayload | null | undefined | Promise<ReplyPayload | null | undefined>;
   /**
->>>>>>> upstream/main
    * Prefer this for channel-specific poll semantics or extra poll parameters.
    * Core only parses the shared poll model when falling back to `outbound.sendPoll`.
    */

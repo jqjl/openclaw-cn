@@ -1,12 +1,10 @@
-<<<<<<< HEAD
-=======
 import { formatErrorMessage } from "openclaw/plugin-sdk/error-runtime";
->>>>>>> upstream/main
 import {
   GatewayClient,
   startGatewayClientWhenEventLoopReady,
 } from "openclaw/plugin-sdk/gateway-runtime";
 import type { RuntimeLogger } from "openclaw/plugin-sdk/plugin-runtime";
+import { sleep } from "openclaw/plugin-sdk/runtime-env";
 import type { GoogleMeetConfig } from "./config.js";
 
 type VoiceCallGatewayClient = InstanceType<typeof GatewayClient>;
@@ -22,15 +20,9 @@ type VoiceCallSpeakResult = {
   error?: string;
 };
 
-<<<<<<< HEAD
-type VoiceCallDtmfResult = {
-  success?: boolean;
-  error?: string;
-=======
 type VoiceCallStatusResult = {
   found?: boolean;
   call?: unknown;
->>>>>>> upstream/main
 };
 
 type VoiceCallMeetJoinResult = {
@@ -38,13 +30,6 @@ type VoiceCallMeetJoinResult = {
   dtmfSent: boolean;
   introSent: boolean;
 };
-
-function sleep(ms: number): Promise<void> {
-  if (ms <= 0) {
-    return Promise.resolve();
-  }
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 async function createConnectedGatewayClient(
   config: GoogleMeetConfig,
@@ -91,48 +76,35 @@ async function createConnectedGatewayClient(
   return client!;
 }
 
-<<<<<<< HEAD
-=======
 export function isVoiceCallMissingError(error: unknown): boolean {
   const message = formatErrorMessage(error).toLowerCase();
   return message.includes("call not found") || message.includes("call is not active");
 }
 
->>>>>>> upstream/main
 export async function joinMeetViaVoiceCallGateway(params: {
   config: GoogleMeetConfig;
   dialInNumber: string;
   dtmfSequence?: string;
   logger?: RuntimeLogger;
   message?: string;
-<<<<<<< HEAD
-=======
   requesterSessionKey?: string;
   sessionKey?: string;
->>>>>>> upstream/main
 }): Promise<VoiceCallMeetJoinResult> {
   let client: VoiceCallGatewayClient | undefined;
 
   try {
     client = await createConnectedGatewayClient(params.config);
     params.logger?.info(
-<<<<<<< HEAD
-      `[google-meet] Delegating Twilio join to Voice Call (dtmf=${params.dtmfSequence ? "post-connect" : "none"}, intro=${params.message ? "delayed" : "none"})`,
-=======
       `[google-meet] Delegating Twilio join to Voice Call (dtmf=${params.dtmfSequence ? "pre-connect" : "none"}, intro=${params.message ? "delayed" : "none"})`,
->>>>>>> upstream/main
     );
     const start = (await client.request(
       "voicecall.start",
       {
         to: params.dialInNumber,
         mode: "conversation",
-<<<<<<< HEAD
-=======
         ...(params.dtmfSequence ? { dtmfSequence: params.dtmfSequence } : {}),
         ...(params.requesterSessionKey ? { requesterSessionKey: params.requesterSessionKey } : {}),
         ...(params.sessionKey ? { sessionKey: params.sessionKey } : {}),
->>>>>>> upstream/main
       },
       { timeoutMs: params.config.voiceCall.requestTimeoutMs },
     )) as VoiceCallStartResult;
@@ -142,34 +114,10 @@ export async function joinMeetViaVoiceCallGateway(params: {
     params.logger?.info(
       `[google-meet] Voice Call Twilio phone leg started: callId=${start.callId}`,
     );
-<<<<<<< HEAD
-    let dtmfSent = false;
-    if (params.dtmfSequence) {
-      const delayMs = params.config.voiceCall.dtmfDelayMs;
-      params.logger?.info(
-        `[google-meet] Waiting ${delayMs}ms before sending Meet DTMF for callId=${start.callId}`,
-      );
-      await sleep(delayMs);
-      const dtmf = (await client.request(
-        "voicecall.dtmf",
-        {
-          callId: start.callId,
-          digits: params.dtmfSequence,
-        },
-        { timeoutMs: params.config.voiceCall.requestTimeoutMs },
-      )) as VoiceCallDtmfResult;
-      if (dtmf.success === false) {
-        throw new Error(dtmf.error || "voicecall.dtmf failed");
-      }
-      dtmfSent = true;
-      params.logger?.info(
-        `[google-meet] Meet DTMF sent after phone leg connected: callId=${start.callId} digits=${params.dtmfSequence.length}`,
-=======
     const dtmfSent = Boolean(params.dtmfSequence);
     if (dtmfSent) {
       params.logger?.info(
         `[google-meet] Meet DTMF queued before realtime connect: callId=${start.callId} digits=${params.dtmfSequence?.length ?? 0}`,
->>>>>>> upstream/main
       );
     }
     let introSent = false;
@@ -181,17 +129,6 @@ export async function joinMeetViaVoiceCallGateway(params: {
         );
         await sleep(delayMs);
       }
-<<<<<<< HEAD
-      const spoken = (await client.request(
-        "voicecall.speak",
-        {
-          callId: start.callId,
-          allowTwimlFallback: false,
-          message: params.message,
-        },
-        { timeoutMs: params.config.voiceCall.requestTimeoutMs },
-      )) as VoiceCallSpeakResult;
-=======
       let spoken: VoiceCallSpeakResult;
       try {
         spoken = (await client.request(
@@ -209,7 +146,6 @@ export async function joinMeetViaVoiceCallGateway(params: {
         );
         spoken = { success: false };
       }
->>>>>>> upstream/main
       if (spoken.success === false) {
         params.logger?.warn?.(
           `[google-meet] Skipped intro speech because realtime bridge was not ready: ${
@@ -241,10 +177,6 @@ export async function endMeetVoiceCallGatewayCall(params: {
 
   try {
     client = await createConnectedGatewayClient(params.config);
-<<<<<<< HEAD
-    await client.request(
-      "voicecall.end",
-=======
     try {
       await client.request(
         "voicecall.end",
@@ -273,16 +205,11 @@ export async function getMeetVoiceCallGatewayCall(params: {
     client = await createConnectedGatewayClient(params.config);
     return (await client.request(
       "voicecall.status",
->>>>>>> upstream/main
       {
         callId: params.callId,
       },
       { timeoutMs: params.config.voiceCall.requestTimeoutMs },
-<<<<<<< HEAD
-    );
-=======
     )) as VoiceCallStatusResult;
->>>>>>> upstream/main
   } finally {
     await client?.stopAndWait({ timeoutMs: 1_000 });
   }

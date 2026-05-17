@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import { createMessageReceiptFromOutboundResults } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { stripNextcloudTalkTargetPrefix } from "./normalize.js";
 import {
   convertMarkdownTables,
@@ -85,8 +82,6 @@ function recordNextcloudTalkOutboundActivity(accountId: string): void {
   }
 }
 
-<<<<<<< HEAD
-=======
 function createNextcloudTalkSendReceipt(params: {
   messageId: string;
   roomToken: string;
@@ -109,7 +104,6 @@ function createNextcloudTalkSendReceipt(params: {
   });
 }
 
->>>>>>> upstream/main
 export async function sendMessageNextcloudTalk(
   to: string,
   text: string,
@@ -173,7 +167,8 @@ export async function sendMessageNextcloudTalk(
       if (status === 400) {
         errorMsg = `Nextcloud Talk: bad request - ${errorBody || "invalid message format"}`;
       } else if (status === 401) {
-        errorMsg = "Nextcloud Talk: authentication failed - check bot secret";
+        errorMsg =
+          "Nextcloud Talk: bot send was rejected - check the bot secret and ensure the bot was installed with --feature response";
       } else if (status === 403) {
         errorMsg = "Nextcloud Talk: forbidden - bot may not have permission in this room";
       } else if (status === 404) {
@@ -212,9 +207,6 @@ export async function sendMessageNextcloudTalk(
 
     recordNextcloudTalkOutboundActivity(account.accountId);
 
-<<<<<<< HEAD
-    return { messageId, roomToken, timestamp };
-=======
     return {
       messageId,
       roomToken,
@@ -225,7 +217,6 @@ export async function sendMessageNextcloudTalk(
       }),
       timestamp,
     };
->>>>>>> upstream/main
   } finally {
     await release();
   }

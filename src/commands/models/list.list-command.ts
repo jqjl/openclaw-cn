@@ -1,5 +1,5 @@
-import type { Api, Model } from "@mariozechner/pi-ai";
-import type { ModelRegistry } from "@mariozechner/pi-coding-agent";
+import type { Api, Model } from "@earendil-works/pi-ai";
+import type { ModelRegistry } from "@earendil-works/pi-coding-agent";
 import { parseModelRef } from "../../agents/model-selection.js";
 import type { RuntimeEnv } from "../../runtime.js";
 import { createLazyImportLoader } from "../../shared/lazy-promise.js";
@@ -71,19 +71,10 @@ export async function modelsListCommand(
   }
   const [
     { loadAuthProfileStoreWithoutExternalProfiles },
-<<<<<<< HEAD
-    { resolveOpenClawAgentDir },
-    { resolveAgentWorkspaceDir, resolveDefaultAgentId },
-    { resolveDefaultAgentWorkspaceDir },
-  ] = await Promise.all([
-    import("../../agents/auth-profiles/store.js"),
-    import("../../agents/agent-paths.js"),
-=======
     { resolveAgentWorkspaceDir, resolveDefaultAgentDir, resolveDefaultAgentId },
     { resolveDefaultAgentWorkspaceDir },
   ] = await Promise.all([
     import("../../agents/auth-profiles/store.js"),
->>>>>>> upstream/main
     import("../../agents/agent-scope.js"),
     import("../../agents/workspace.js"),
   ]);
@@ -91,13 +82,8 @@ export async function modelsListCommand(
     commandName: "models list",
     runtime,
   });
-<<<<<<< HEAD
-  const authStore = loadAuthProfileStoreWithoutExternalProfiles();
-  const agentDir = resolveOpenClawAgentDir();
-=======
   const agentDir = resolveDefaultAgentDir(cfg);
   const authStore = loadAuthProfileStoreWithoutExternalProfiles(agentDir);
->>>>>>> upstream/main
   const workspaceDir =
     resolveAgentWorkspaceDir(cfg, resolveDefaultAgentId(cfg)) ?? resolveDefaultAgentWorkspaceDir();
   const authIndex = createModelListAuthIndex({ cfg, authStore, workspaceDir });

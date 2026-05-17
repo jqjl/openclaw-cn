@@ -8,9 +8,6 @@ title: "Multiple gateways"
 
 Most setups should use one Gateway because a single Gateway can handle multiple messaging connections and agents. If you need stronger isolation or redundancy (e.g., a rescue bot), run separate Gateways with isolated profiles/ports.
 
-<<<<<<< HEAD
-## Isolation checklist (required)
-=======
 ## Best recommended setup
 
 For most users, the simplest rescue-bot setup is:
@@ -120,77 +117,15 @@ different channels, tenants, workspaces, or operational roles.
 ## Isolation checklist
 
 Keep these unique per Gateway instance:
->>>>>>> upstream/main
 
 - `OPENCLAW_CONFIG_PATH` — per-instance config file
 - `OPENCLAW_STATE_DIR` — per-instance sessions, creds, caches
 - `agents.defaults.workspace` — per-instance workspace root
 - `gateway.port` (or `--port`) — unique per instance
-<<<<<<< HEAD
-- Derived ports (browser/canvas) must not overlap
-
-If these are shared, you will hit config races and port conflicts.
-
-## Recommended: profiles (`--profile`)
-
-Profiles auto-scope `OPENCLAW_STATE_DIR` + `OPENCLAW_CONFIG_PATH` and suffix service names.
-
-```bash
-# main
-openclaw --profile main setup
-openclaw --profile main gateway --port 18789
-
-# rescue
-openclaw --profile rescue setup
-openclaw --profile rescue gateway --port 19001
-```
-
-Per-profile services:
-
-```bash
-openclaw --profile main gateway install
-openclaw --profile rescue gateway install
-```
-
-## Rescue-bot guide
-
-Run a second Gateway on the same host with its own:
-
-- profile/config
-- state dir
-- workspace
-- base port (plus derived ports)
-
-This keeps the rescue bot isolated from the main bot so it can debug or apply config changes if the primary bot is down.
-
-Port spacing: leave at least 20 ports between base ports so the derived browser/canvas/CDP ports never collide.
-
-### How to install (rescue bot)
-
-```bash
-# Main bot (existing or fresh, without --profile param)
-# Runs on port 18789 + Chrome CDC/Canvas/... Ports
-openclaw onboard
-openclaw gateway install
-
-# Rescue bot (isolated profile + ports)
-openclaw --profile rescue onboard
-# Notes:
-# - workspace name will be postfixed with -rescue per default
-# - Port should be at least 18789 + 20 Ports,
-#   better choose completely different base port, like 19789,
-# - rest of the onboarding is the same as normal
-
-# To install the service (if not happened automatically during setup)
-openclaw --profile rescue gateway install
-```
-
-=======
 - derived browser/canvas/CDP ports
 
 If these are shared, you will hit config races and port conflicts.
 
->>>>>>> upstream/main
 ## Port mapping (derived)
 
 Base port = `gateway.port` (or `OPENCLAW_GATEWAY_PORT` / `--port`).
@@ -212,36 +147,21 @@ If you override any of these in config or env, you must keep them unique per ins
 
 ```bash
 OPENCLAW_CONFIG_PATH=~/.openclaw/main.json \
-<<<<<<< HEAD
-OPENCLAW_STATE_DIR=~/.openclaw-main \
-=======
 OPENCLAW_STATE_DIR=~/.openclaw \
->>>>>>> upstream/main
 openclaw gateway --port 18789
 
 OPENCLAW_CONFIG_PATH=~/.openclaw/rescue.json \
 OPENCLAW_STATE_DIR=~/.openclaw-rescue \
-<<<<<<< HEAD
-openclaw gateway --port 19001
-=======
 openclaw gateway --port 19789
->>>>>>> upstream/main
 ```
 
 ## Quick checks
 
 ```bash
-<<<<<<< HEAD
-openclaw --profile main gateway status --deep
-openclaw --profile rescue gateway status --deep
-openclaw --profile rescue gateway probe
-openclaw --profile main status
-=======
 openclaw gateway status --deep
 openclaw --profile rescue gateway status --deep
 openclaw --profile rescue gateway probe
 openclaw status
->>>>>>> upstream/main
 openclaw --profile rescue status
 openclaw --profile rescue browser status
 ```

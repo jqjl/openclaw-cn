@@ -96,9 +96,9 @@ add Node's sync I/O trace flag through the source runner:
 OPENCLAW_TRACE_SYNC_IO=1 pnpm openclaw gateway --force
 ```
 
-`pnpm gateway:watch` enables this flag by default for the watched Gateway child.
-Set `OPENCLAW_TRACE_SYNC_IO=0` to suppress Node sync I/O trace output in watch
-mode.
+`pnpm gateway:watch` leaves this flag disabled by default for the watched
+Gateway child. Set `OPENCLAW_TRACE_SYNC_IO=1` when you explicitly want Node
+sync I/O trace output in watch mode.
 
 ## Gateway watch mode
 
@@ -203,11 +203,7 @@ pnpm gateway:dev
 OPENCLAW_PROFILE=dev openclaw tui
 ```
 
-<<<<<<< HEAD
-If you don’t have a global install yet, run the CLI via `pnpm openclaw ...`.
-=======
 If you don't have a global install yet, run the CLI via `pnpm openclaw ...`.
->>>>>>> upstream/main
 
 What this does:
 
@@ -223,11 +219,7 @@ What this does:
    - Sets `agent.skipBootstrap=true` (no BOOTSTRAP.md).
    - Seeds the workspace files if missing:
      `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`.
-<<<<<<< HEAD
-   - Default identity: **C3‑PO** (protocol droid).
-=======
    - Default identity: **C3-PO** (protocol droid).
->>>>>>> upstream/main
    - Skips channel providers in dev mode (`OPENCLAW_SKIP_CHANNELS=1`).
 
 Reset flow (fresh start):
@@ -305,11 +297,7 @@ Default file:
 
 `~/.pi-mono/logs/raw-openai-completions.jsonl`
 
-<<<<<<< HEAD
-> Note: this is only emitted by processes using pi-mono’s
-=======
 > Note: this is only emitted by processes using pi-mono's
->>>>>>> upstream/main
 > `openai-completions` provider.
 
 ## Safety notes
@@ -318,8 +306,6 @@ Default file:
 - Keep logs local and delete them after debugging.
 - If you share logs, scrub secrets and PII first.
 
-<<<<<<< HEAD
-=======
 ## Debugging in VSCode
 
 Source maps are required to enable debugging in VSCode-based IDEs because many of the generated files end up with hashed names as part of the build process. The included `launch.json` configurations target the Gateway service, but can be adapted quickly for other purposes:
@@ -352,7 +338,6 @@ You can now set breakpoints in your TypeScript source files (`src/` directory) a
 - Modify the `launch.json` settings for `args` to debug other sections of the project
 - If you need to use the built OpenClaw CLI for other tasks (i.e. `dashboard --no-open` if your debug session spawns a new auth token), you can execute it in another terminal as `node ./openclaw.mjs` or create a shell alias like `alias openclaw-build="node $(pwd)/openclaw.mjs"`
 
->>>>>>> upstream/main
 ## Related
 
 - [Troubleshooting](/help/troubleshooting)

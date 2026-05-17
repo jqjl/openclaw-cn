@@ -80,8 +80,6 @@ Example:
 
 Reference: [Plugin architecture](/plugins/architecture)
 
-<<<<<<< HEAD
-=======
 ## Plugin present but blocked by suspicious ownership
 
 If `openclaw doctor`, setup, or startup warnings show:
@@ -116,7 +114,6 @@ Deeper docs:
 - [Plugin path ownership](/tools/plugin#blocked-plugin-path-ownership)
 - [Docker permissions](/install/docker#permissions-and-eacces)
 
->>>>>>> upstream/main
 ## Decision tree
 
 ```mermaid

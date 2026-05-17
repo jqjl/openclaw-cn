@@ -21,15 +21,12 @@ async function getFreePort(): Promise<number> {
   });
 }
 
-<<<<<<< HEAD
-=======
 function isIpv6UnavailableError(err: unknown): boolean {
   const code =
     typeof err === "object" && err !== null ? (err as { code?: unknown }).code : undefined;
   return code === "EAFNOSUPPORT" || code === "EADDRNOTAVAIL";
 }
 
->>>>>>> upstream/main
 function createOpenGatewayClient(requestTimeoutMs: number): {
   client: GatewayClient;
   send: ReturnType<typeof vi.fn>;
@@ -165,8 +162,6 @@ describe("GatewayClient", () => {
     }
   }, 4000);
 
-<<<<<<< HEAD
-=======
   test("connects to IPv6 loopback while managed proxy Gateway-only mode is active", async () => {
     wss = new WebSocketServer({ host: "::1", port: 0 });
     const bind = await new Promise<{ port: number } | null>((resolve, reject) => {
@@ -215,7 +210,7 @@ describe("GatewayClient", () => {
     });
 
     try {
-      expect(() => client.start()).not.toThrow();
+      expect(client.start()).toBeUndefined();
       await connected;
       expect(onConnectError).not.toHaveBeenCalled();
     } finally {
@@ -224,7 +219,6 @@ describe("GatewayClient", () => {
     }
   }, 5000);
 
->>>>>>> upstream/main
   test("lets pending requests own their timeout when ticks are missing", async () => {
     vi.useFakeTimers();
     try {

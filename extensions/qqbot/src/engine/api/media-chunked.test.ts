@@ -3,10 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-=======
 import { normalizeSource } from "../messaging/media-source.js";
->>>>>>> upstream/main
 import {
   ApiError,
   MediaFileType,
@@ -23,15 +20,12 @@ import type { UploadCacheAdapter } from "./media.js";
 import { UPLOAD_PREPARE_FALLBACK_CODE } from "./retry.js";
 import type { TokenManager } from "./token.js";
 
-<<<<<<< HEAD
-=======
 const fetchWithSsrFGuardMock = vi.hoisted(() => vi.fn());
 
 vi.mock("openclaw/plugin-sdk/ssrf-runtime", () => ({
   fetchWithSsrFGuard: fetchWithSsrFGuardMock,
 }));
 
->>>>>>> upstream/main
 // ============ Test doubles ============
 
 /** Build a minimal ApiClient stub whose `request` is fully mockable. */
@@ -94,20 +88,6 @@ const FIXTURE_BUFFER = Buffer.from("0123456789abcdefghij"); // 20 bytes
 let originalFetch: typeof globalThis.fetch;
 
 function stubFetchOk(): ReturnType<typeof vi.fn> {
-<<<<<<< HEAD
-  const spy = vi.fn(
-    async () =>
-      new Response("", {
-        status: 200,
-        headers: {
-          ETag: '"etag-value"',
-          "x-cos-request-id": "req-id",
-        },
-      }),
-  );
-  globalThis.fetch = spy as unknown as typeof globalThis.fetch;
-  return spy;
-=======
   fetchWithSsrFGuardMock.mockImplementation(async () => ({
     response: new Response("", {
       status: 200,
@@ -119,7 +99,6 @@ function stubFetchOk(): ReturnType<typeof vi.fn> {
     release: vi.fn(),
   }));
   return fetchWithSsrFGuardMock;
->>>>>>> upstream/main
 }
 
 // ============ Tests ============
@@ -148,10 +127,7 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
-<<<<<<< HEAD
-=======
     fetchWithSsrFGuardMock.mockReset();
->>>>>>> upstream/main
     vi.restoreAllMocks();
   });
 
@@ -265,13 +241,9 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
 
     // 3 COS PUTs, one per part, each to the presigned URL.
     expect(fetchSpy).toHaveBeenCalledTimes(3);
-<<<<<<< HEAD
-    const putUrls = fetchSpy.mock.calls.map((c) => c[0]);
-=======
     const putUrls = fetchSpy.mock.calls.map((c) => (c[0] as { url: string }).url);
->>>>>>> upstream/main
-    expect(putUrls).toEqual(
-      expect.arrayContaining([
+    expect(new Set(putUrls)).toEqual(
+      new Set([
         "https://cos.example.com/part-1",
         "https://cos.example.com/part-2",
         "https://cos.example.com/part-3",
@@ -292,7 +264,7 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
 
     // Progress callback hit 3 times with monotonically-increasing counts.
     expect(onProgress).toHaveBeenCalledTimes(3);
-    const last = onProgress.mock.calls[2][0];
+    const last = onProgress.mock.calls.at(2)?.[0];
     expect(last.completedParts).toBe(3);
     expect(last.totalParts).toBe(3);
     expect(last.uploadedBytes).toBe(FIXTURE_BUFFER.length);
@@ -368,8 +340,6 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
       await fs.promises.rm(tmp, { recursive: true, force: true });
     }
   });
-<<<<<<< HEAD
-=======
 
   it("uses the verified localPath handle if the path is replaced before chunked upload", async () => {
     const tmp = await fs.promises.mkdtemp(path.join(os.tmpdir(), "chunked-verified-"));
@@ -417,5 +387,4 @@ describe("media-chunked: ChunkedMediaApi.uploadChunked", () => {
       await fs.promises.rm(tmp, { recursive: true, force: true });
     }
   });
->>>>>>> upstream/main
 });

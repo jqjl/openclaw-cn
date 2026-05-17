@@ -1,14 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { runCommandWithTimeout } from "../process/exec.js";
-<<<<<<< HEAD
-import { fileExists } from "./archive.js";
-import { assertCanonicalPathWithinBase } from "./install-safe-path.js";
-=======
 import { pathExists } from "./fs-safe.js";
 import { assertCanonicalPathWithinBase } from "./install-safe-path.js";
 import { tryReadJson, writeJson } from "./json-files.js";
->>>>>>> upstream/main
+import { movePathWithCopyFallback } from "./replace-file.js";
 import { createSafeNpmInstallArgs, createSafeNpmInstallEnv } from "./safe-package-install.js";
 
 const INSTALL_BASE_CHANGED_ERROR_MESSAGE = "install base directory changed during install";
@@ -31,31 +27,11 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
 
 async function sanitizeManifestForNpmInstall(targetDir: string): Promise<void> {
   const manifestPath = path.join(targetDir, "package.json");
-<<<<<<< HEAD
-  let manifestRaw = "";
-  try {
-    manifestRaw = await fs.readFile(manifestPath, "utf-8");
-  } catch {
-    return;
-  }
-
-  let manifest: Record<string, unknown>;
-  try {
-    const parsed = JSON.parse(manifestRaw) as unknown;
-    if (!isObjectRecord(parsed)) {
-      return;
-    }
-    manifest = parsed;
-  } catch {
-    return;
-  }
-=======
   const parsed = await tryReadJson<unknown>(manifestPath);
   if (!isObjectRecord(parsed)) {
     return;
   }
   const manifest = parsed;
->>>>>>> upstream/main
 
   const devDependencies = manifest.devDependencies;
   if (!isObjectRecord(devDependencies)) {
@@ -75,11 +51,7 @@ async function sanitizeManifestForNpmInstall(targetDir: string): Promise<void> {
   } else {
     manifest.devDependencies = Object.fromEntries(filteredEntries);
   }
-<<<<<<< HEAD
-  await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
-=======
   await writeJson(manifestPath, manifest, { trailingNewline: true });
->>>>>>> upstream/main
 }
 
 async function hideProjectNpmConfigForInstall(targetDir: string): Promise<HiddenProjectConfigFile> {
@@ -239,7 +211,11 @@ export async function installPackageDir(params: {
     if (!backupDir) {
       return;
     }
-    await fs.rename(backupDir, canonicalTargetDir).catch(() => undefined);
+    await movePathWithCopyFallback({
+      from: backupDir,
+      sourceHardlinks: "reject",
+      to: canonicalTargetDir,
+    }).catch(() => undefined);
     backupDir = null;
   };
 
@@ -309,11 +285,7 @@ export async function installPackageDir(params: {
     }
   }
 
-<<<<<<< HEAD
-  if (params.mode === "update" && (await fileExists(canonicalTargetDir))) {
-=======
   if (params.mode === "update" && (await pathExists(canonicalTargetDir))) {
->>>>>>> upstream/main
     const backupRoot = path.join(installBaseRealPath, ".openclaw-install-backups");
     backupDir = path.join(backupRoot, `${path.basename(canonicalTargetDir)}-${Date.now()}`);
     try {
@@ -326,7 +298,11 @@ export async function installPackageDir(params: {
         installBaseDir,
         expectedRealPath: installBaseRealPath,
       });
-      await fs.rename(canonicalTargetDir, backupDir);
+      await movePathWithCopyFallback({
+        from: canonicalTargetDir,
+        sourceHardlinks: "reject",
+        to: backupDir,
+      });
     } catch (err) {
       return await fail(`${params.copyErrorPrefix}: ${String(err)}`, err);
     }
@@ -337,7 +313,11 @@ export async function installPackageDir(params: {
       installBaseDir,
       expectedRealPath: installBaseRealPath,
     });
-    await fs.rename(stageDir, canonicalTargetDir);
+    await movePathWithCopyFallback({
+      from: stageDir,
+      sourceHardlinks: "reject",
+      to: canonicalTargetDir,
+    });
     stageDir = null;
   } catch (err) {
     return await fail(`${params.copyErrorPrefix}: ${String(err)}`, err);

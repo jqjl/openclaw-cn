@@ -1,6 +1,6 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import type { ChannelGroupPolicy } from "openclaw/plugin-sdk/config-types";
-import type { TelegramAccountConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
+import type { ChannelGroupPolicy } from "openclaw/plugin-sdk/config-contracts";
+import type { TelegramAccountConfig } from "openclaw/plugin-sdk/config-contracts";
 import type { MockFn } from "openclaw/plugin-sdk/plugin-test-runtime";
 import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
 import { vi } from "vitest";
@@ -25,11 +25,7 @@ type EnsureConfiguredBindingRouteReadyFn =
 type GetAgentScopedMediaLocalRootsFn =
   typeof import("./bot-native-commands.runtime.js").getAgentScopedMediaLocalRoots;
 type CreateChannelReplyPipelineFn =
-<<<<<<< HEAD
-  typeof import("./bot-native-commands.delivery.runtime.js").createChannelReplyPipeline;
-=======
   typeof import("./bot-native-commands.delivery.runtime.js").createChannelMessageReplyPipeline;
->>>>>>> upstream/main
 type AnyMock = MockFn<(...args: unknown[]) => unknown>;
 type AnyAsyncMock = MockFn<(...args: unknown[]) => Promise<unknown>>;
 type NativeCommandHarness = {
@@ -61,11 +57,7 @@ const replyPipelineMocks = vi.hoisted(() => {
     dispatchReplyWithBufferedBlockDispatcher: vi.fn(
       (async () => dispatchReplyResult) as DispatchReplyWithBufferedBlockDispatcherFn,
     ),
-<<<<<<< HEAD
-    createChannelReplyPipeline: vi.fn((() => ({
-=======
     createChannelMessageReplyPipeline: vi.fn((() => ({
->>>>>>> upstream/main
       onModelSelected: () => {},
       responsePrefixContextProvider: () => undefined,
     })) as unknown as CreateChannelReplyPipelineFn),
@@ -92,11 +84,7 @@ vi.mock("./bot-native-commands.runtime.js", () => ({
   getAgentScopedMediaLocalRoots: replyPipelineMocks.getAgentScopedMediaLocalRoots,
 }));
 vi.mock("./bot-native-commands.delivery.runtime.js", () => ({
-<<<<<<< HEAD
-  createChannelReplyPipeline: replyPipelineMocks.createChannelReplyPipeline,
-=======
   createChannelMessageReplyPipeline: replyPipelineMocks.createChannelMessageReplyPipeline,
->>>>>>> upstream/main
   deliverReplies: deliveryMocks.deliverReplies,
   emitTelegramMessageSentHooks: vi.fn(),
 }));

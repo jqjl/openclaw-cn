@@ -16,12 +16,8 @@ read_when:
 - **Virtual keys** — Create keys with spend limits for OpenClaw
 - **Logging** — Full request/response logs for debugging
 - **Fallbacks** — Automatic failover if your primary provider is down
-<<<<<<< HEAD
-  </Tip>
-=======
 
 </Tip>
->>>>>>> upstream/main
 
 ## Quick start
 

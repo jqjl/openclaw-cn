@@ -1,11 +1,5 @@
 import { spawn } from "node:child_process";
-<<<<<<< HEAD
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/sandbox";
-=======
 import { tempWorkspaceSync, resolvePreferredOpenClawTmpDir } from "openclaw/plugin-sdk/sandbox";
->>>>>>> upstream/main
 
 type TranscodeOutcome =
   | { ok: true; buffer: Buffer }
@@ -58,15 +52,6 @@ export async function transcodeAudioBuffer(params: {
     return { ok: false, reason: "platform-unsupported" };
   }
 
-<<<<<<< HEAD
-  const tmpRoot = resolvePreferredOpenClawTmpDir();
-  mkdirSync(tmpRoot, { recursive: true, mode: 0o700 });
-  const tmpDir = mkdtempSync(join(tmpRoot, "tts-transcode-"));
-  const inPath = join(tmpDir, `in.${source}`);
-  const outPath = join(tmpDir, `out.${target}`);
-  try {
-    writeFileSync(inPath, params.audioBuffer, { mode: 0o600 });
-=======
   const tmp = tempWorkspaceSync({
     rootDir: resolvePreferredOpenClawTmpDir(),
     prefix: "tts-transcode-",
@@ -74,7 +59,6 @@ export async function transcodeAudioBuffer(params: {
   const inPath = tmp.write(`in.${source}`, params.audioBuffer);
   const outPath = tmp.path(`out.${target}`);
   try {
->>>>>>> upstream/main
     const result = await runAfconvert({
       args: [...recipe, inPath, outPath],
       timeoutMs: params.timeoutMs ?? 5000,
@@ -82,23 +66,11 @@ export async function transcodeAudioBuffer(params: {
     if (!result.ok) {
       return { ok: false, reason: "transcoder-failed", detail: result.detail };
     }
-<<<<<<< HEAD
-    return { ok: true, buffer: readFileSync(outPath) };
-  } catch (err) {
-    return { ok: false, reason: "transcoder-failed", detail: (err as Error).message };
-  } finally {
-    try {
-      rmSync(tmpDir, { recursive: true, force: true });
-    } catch {
-      // best-effort cleanup
-    }
-=======
     return { ok: true, buffer: tmp.read(`out.${target}`) };
   } catch (err) {
     return { ok: false, reason: "transcoder-failed", detail: (err as Error).message };
   } finally {
     tmp.cleanup();
->>>>>>> upstream/main
   }
 }
 
@@ -110,13 +82,13 @@ function normalizeExt(ext: string): string | undefined {
   return /^[a-z0-9]{1,12}$/.test(trimmed) ? trimmed : undefined;
 }
 
-function pickAfconvertRecipe(source: string, target: string): string[] | undefined {
-  // Currently only the MP3→CAF path used by BlueBubbles voice memos.
+function pickAfconvertRecipe(_source: string, target: string): string[] | undefined {
+  // Currently only the MP3->CAF path used by native Messages voice memos.
   if (target === "caf") {
     // Opus-in-CAF, mono, 24 kHz. Validated against macOS 15.x Messages.app's
     // native voice-memo CAF descriptor (1 ch, 24000 Hz, opus); other CAF
     // flavors (PCM, AAC) get downgraded to plain audio attachments along the
-    // BlueBubbles → Messages.app path. If iMessage stops rendering the result
+    // Messages.app path. If iMessage stops rendering the result
     // as a voice memo after a system update, try forcing frames-per-packet
     // explicitly via `opus@24000#480` and re-validate. See #72506.
     return ["-f", "caff", "-d", "opus@24000", "-c", "1"];

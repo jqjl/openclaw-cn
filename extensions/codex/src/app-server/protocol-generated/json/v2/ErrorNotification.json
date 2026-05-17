@@ -2,9 +2,13 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ErrorNotification",
   "type": "object",
-  "required": ["error", "threadId", "turnId", "willRetry"],
+  "required": [
+    "error",
+    "threadId",
+    "turnId",
+    "willRetry"
+  ],
   "properties": {
-<<<<<<< HEAD
     "error": {
       "$ref": "#/definitions/TurnError"
     },
@@ -17,12 +21,6 @@
     "willRetry": {
       "type": "boolean"
     }
-=======
-    "error": { "$ref": "#/definitions/TurnError" },
-    "threadId": { "type": "string" },
-    "turnId": { "type": "string" },
-    "willRetry": { "type": "boolean" }
->>>>>>> upstream/main
   },
   "definitions": {
     "CodexErrorInfo": {
@@ -45,20 +43,21 @@
         },
         {
           "type": "object",
-          "required": ["httpConnectionFailed"],
+          "required": [
+            "httpConnectionFailed"
+          ],
           "properties": {
             "httpConnectionFailed": {
               "type": "object",
               "properties": {
-<<<<<<< HEAD
                 "httpStatusCode": {
-                  "type": ["integer", "null"],
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
                   "format": "uint16",
-                  "minimum": 0.0
+                  "minimum": 0
                 }
-=======
-                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
->>>>>>> upstream/main
               }
             }
           },
@@ -68,20 +67,21 @@
         {
           "description": "Failed to connect to the response SSE stream.",
           "type": "object",
-          "required": ["responseStreamConnectionFailed"],
+          "required": [
+            "responseStreamConnectionFailed"
+          ],
           "properties": {
             "responseStreamConnectionFailed": {
               "type": "object",
               "properties": {
-<<<<<<< HEAD
                 "httpStatusCode": {
-                  "type": ["integer", "null"],
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
                   "format": "uint16",
-                  "minimum": 0.0
+                  "minimum": 0
                 }
-=======
-                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
->>>>>>> upstream/main
               }
             }
           },
@@ -91,20 +91,21 @@
         {
           "description": "The response SSE stream disconnected in the middle of a turn before completion.",
           "type": "object",
-          "required": ["responseStreamDisconnected"],
+          "required": [
+            "responseStreamDisconnected"
+          ],
           "properties": {
             "responseStreamDisconnected": {
               "type": "object",
               "properties": {
-<<<<<<< HEAD
                 "httpStatusCode": {
-                  "type": ["integer", "null"],
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
                   "format": "uint16",
-                  "minimum": 0.0
+                  "minimum": 0
                 }
-=======
-                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
->>>>>>> upstream/main
               }
             }
           },
@@ -114,20 +115,21 @@
         {
           "description": "Reached the retry limit for responses.",
           "type": "object",
-          "required": ["responseTooManyFailedAttempts"],
+          "required": [
+            "responseTooManyFailedAttempts"
+          ],
           "properties": {
             "responseTooManyFailedAttempts": {
               "type": "object",
               "properties": {
-<<<<<<< HEAD
                 "httpStatusCode": {
-                  "type": ["integer", "null"],
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
                   "format": "uint16",
-                  "minimum": 0.0
+                  "minimum": 0
                 }
-=======
-                "httpStatusCode": { "type": ["integer", "null"], "format": "uint16", "minimum": 0 }
->>>>>>> upstream/main
               }
             }
           },
@@ -137,20 +139,20 @@
         {
           "description": "Returned when `turn/start` or `turn/steer` is submitted while the current active turn cannot accept same-turn steering, for example `/review` or manual `/compact`.",
           "type": "object",
-          "required": ["activeTurnNotSteerable"],
+          "required": [
+            "activeTurnNotSteerable"
+          ],
           "properties": {
             "activeTurnNotSteerable": {
               "type": "object",
-              "required": ["turnKind"],
-<<<<<<< HEAD
+              "required": [
+                "turnKind"
+              ],
               "properties": {
                 "turnKind": {
                   "$ref": "#/definitions/NonSteerableTurnKind"
                 }
               }
-=======
-              "properties": { "turnKind": { "$ref": "#/definitions/NonSteerableTurnKind" } }
->>>>>>> upstream/main
             }
           },
           "additionalProperties": false,
@@ -158,22 +160,25 @@
         }
       ]
     },
-<<<<<<< HEAD
     "NonSteerableTurnKind": {
       "type": "string",
-      "enum": ["review", "compact"]
+      "enum": [
+        "review",
+        "compact"
+      ]
     },
-=======
-    "NonSteerableTurnKind": { "type": "string", "enum": ["review", "compact"] },
->>>>>>> upstream/main
     "TurnError": {
       "type": "object",
-      "required": ["message"],
+      "required": [
+        "message"
+      ],
       "properties": {
-<<<<<<< HEAD
         "additionalDetails": {
           "default": null,
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "codexErrorInfo": {
           "anyOf": [
@@ -188,13 +193,6 @@
         "message": {
           "type": "string"
         }
-=======
-        "additionalDetails": { "default": null, "type": ["string", "null"] },
-        "codexErrorInfo": {
-          "anyOf": [{ "$ref": "#/definitions/CodexErrorInfo" }, { "type": "null" }]
-        },
-        "message": { "type": "string" }
->>>>>>> upstream/main
       }
     }
   }

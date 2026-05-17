@@ -114,13 +114,10 @@ local while `web_search` and `x_search` can use xAI Responses under the hood.
 
 ## Auto-detection
 
-<<<<<<< HEAD
-=======
 ## Native OpenAI web search
 
 Direct OpenAI Responses models use OpenAI's hosted `web_search` tool automatically when OpenClaw web search is enabled and no managed provider is pinned. This is provider-owned behavior in the bundled OpenAI plugin and only applies to native OpenAI API traffic, not OpenAI-compatible proxy base URLs or Azure routes. Set `tools.web.search.provider` to another provider such as `brave` to keep the managed `web_search` tool for OpenAI models, or set `tools.web.search.enabled: false` to disable both managed search and native OpenAI search.
 
->>>>>>> upstream/main
 ## Native Codex web search
 
 Codex-capable models can optionally use the provider-native Responses `web_search` tool instead of OpenClaw's managed `web_search` function.
@@ -198,11 +195,6 @@ If no provider is detected, it falls back to Brave (you will get a missing-key
 error prompting you to configure one).
 
 <Note>
-<<<<<<< HEAD
-  All provider key fields support SecretRef objects. In auto-detect mode,
-  OpenClaw resolves only the selected provider key -- non-selected SecretRefs
-  stay inactive.
-=======
   All provider key fields support SecretRef objects. Plugin-scoped SecretRefs
   under `plugins.entries.<plugin>.config.webSearch.apiKey` are resolved for the
   bundled API-backed web search providers, including Brave, Exa, Firecrawl,
@@ -212,7 +204,6 @@ error prompting you to configure one).
   selected provider key -- non-selected SecretRefs stay inactive, so you can
   keep multiple providers configured without paying resolution cost for the
   ones you are not using.
->>>>>>> upstream/main
 </Note>
 
 ## Config
@@ -264,7 +255,8 @@ When you choose **Kimi** during `openclaw onboard` or
 - the default Kimi web-search model (defaults to `kimi-k2.6`)
 
 For `x_search`, configure `plugins.entries.xai.config.xSearch.*`. It uses the
-same `XAI_API_KEY` fallback as Grok web search.
+same xAI auth profile as chat, or the `XAI_API_KEY` / plugin web-search
+credential used by Grok web search.
 Legacy `tools.web.x_search.*` config is auto-migrated by `openclaw doctor --fix`.
 When you choose Grok during `openclaw onboard` or `openclaw configure --section web`,
 OpenClaw can also offer optional `x_search` setup with the same key.
@@ -376,7 +368,7 @@ tool on the request that serves this tool call.
             cacheTtlMinutes: 15,
           },
           webSearch: {
-            apiKey: "xai-...", // optional if XAI_API_KEY is set
+            apiKey: "xai-...", // optional if an xAI auth profile or XAI_API_KEY is set
             baseUrl: "https://api.x.ai/v1", // optional shared xAI Responses base URL
           },
         },

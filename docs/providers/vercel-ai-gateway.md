@@ -19,12 +19,8 @@ access hundreds of models through a single endpoint.
 <Tip>
 OpenClaw auto-discovers the Gateway `/v1/models` catalog, so
 `/models vercel-ai-gateway` includes current model refs such as
-<<<<<<< HEAD
-`vercel-ai-gateway/openai/gpt-5.4`.
-=======
 `vercel-ai-gateway/openai/gpt-5.5` and
 `vercel-ai-gateway/moonshotai/kimi-k2.6`.
->>>>>>> upstream/main
 </Tip>
 
 ## Getting started
@@ -93,10 +89,10 @@ configuration. OpenClaw resolves the canonical form automatically.
     `AI_GATEWAY_API_KEY` is available to that process.
 
     <Warning>
-    A key set only in `~/.profile` will not be visible to a launchd/systemd
-    daemon unless that environment is explicitly imported. Set the key in
-    `~/.openclaw/.env` or via `env.shellEnv` to ensure the gateway process can
-    read it.
+    A key exported only in an interactive shell will not be visible to a
+    launchd/systemd daemon unless that environment is explicitly imported. Set
+    the key in `~/.openclaw/.env` or via `env.shellEnv` to ensure the gateway
+    process can read it.
     </Warning>
 
   </Accordion>
@@ -104,14 +100,9 @@ configuration. OpenClaw resolves the canonical form automatically.
   <Accordion title="Provider routing">
     Vercel AI Gateway routes requests to the upstream provider based on the model
     ref prefix. For example, `vercel-ai-gateway/anthropic/claude-opus-4.6` routes
-<<<<<<< HEAD
-    through Anthropic, while `vercel-ai-gateway/openai/gpt-5.4` routes through
-    OpenAI. Your single `AI_GATEWAY_API_KEY` handles authentication for all
-=======
     through Anthropic, while `vercel-ai-gateway/openai/gpt-5.5` routes through
     OpenAI and `vercel-ai-gateway/moonshotai/kimi-k2.6` routes through
     MoonshotAI. Your single `AI_GATEWAY_API_KEY` handles authentication for all
->>>>>>> upstream/main
     upstream providers.
   </Accordion>
   <Accordion title="Thinking levels">

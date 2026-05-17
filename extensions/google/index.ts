@@ -9,7 +9,7 @@ import type {
   RealtimeVoiceProviderPlugin,
 } from "openclaw/plugin-sdk/realtime-voice";
 import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
-import { normalizeOptionalString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import type { VideoGenerationProvider } from "openclaw/plugin-sdk/video-generation";
 import { buildGoogleGeminiCliBackend } from "./cli-backend.js";
 import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
@@ -200,24 +200,18 @@ function resolveGoogleRealtimeEnvApiKey(): string | undefined {
   );
 }
 
-<<<<<<< HEAD
-=======
 const GOOGLE_REALTIME_LAZY_MAX_PENDING_AUDIO_CHUNKS = 320;
 
->>>>>>> upstream/main
 function createLazyGoogleRealtimeVoiceBridge(
   req: RealtimeVoiceBridgeCreateRequest,
 ): RealtimeVoiceBridge {
   let bridge: RealtimeVoiceBridge | undefined;
   let bridgePromise: Promise<RealtimeVoiceBridge> | undefined;
-<<<<<<< HEAD
-=======
   let closed = false;
   let latestMediaTimestamp: number | undefined;
   let pendingGreeting: string | undefined;
   const pendingAudio: Buffer[] = [];
   const pendingUserMessages: string[] = [];
->>>>>>> upstream/main
   const loadBridge = async () => {
     if (!bridgePromise) {
       bridgePromise = loadGoogleRealtimeVoiceProvider().then((provider) =>
@@ -233,17 +227,6 @@ function createLazyGoogleRealtimeVoiceBridge(
     }
     return bridge;
   };
-<<<<<<< HEAD
-  return {
-    supportsToolResultContinuation: true,
-    connect: async () => {
-      await (await loadBridge()).connect();
-    },
-    sendAudio: (audio) => requireBridge().sendAudio(audio),
-    setMediaTimestamp: (ts) => requireBridge().setMediaTimestamp(ts),
-    sendUserMessage: (text) => requireBridge().sendUserMessage?.(text),
-    triggerGreeting: (instructions) => requireBridge().triggerGreeting?.(instructions),
-=======
   const flushPending = (loadedBridge: RealtimeVoiceBridge) => {
     if (typeof latestMediaTimestamp === "number") {
       loadedBridge.setMediaTimestamp(latestMediaTimestamp);
@@ -305,14 +288,10 @@ function createLazyGoogleRealtimeVoiceBridge(
         pendingGreeting = instructions;
       }
     },
->>>>>>> upstream/main
     handleBargeIn: (options) => requireBridge().handleBargeIn?.(options),
     submitToolResult: (callId, result, options) =>
       requireBridge().submitToolResult(callId, result, options),
     acknowledgeMark: () => requireBridge().acknowledgeMark(),
-<<<<<<< HEAD
-    close: () => bridge?.close(),
-=======
     close: () => {
       closed = true;
       pendingAudio.length = 0;
@@ -320,7 +299,6 @@ function createLazyGoogleRealtimeVoiceBridge(
       pendingGreeting = undefined;
       bridge?.close();
     },
->>>>>>> upstream/main
     isConnected: () => bridge?.isConnected() ?? false,
   };
 }

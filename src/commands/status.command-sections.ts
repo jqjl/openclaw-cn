@@ -273,6 +273,15 @@ export function buildStatusHealthRows(params: {
       Detail: formatEventLoopHealthDetail(params.health.eventLoop),
     });
   }
+  if (params.health.modelPricing?.state === "degraded") {
+    rows.push({
+      Item: "Model pricing",
+      Status: params.warn("WARN"),
+      Detail: `optional pricing refresh degraded${
+        params.health.modelPricing.detail ? `: ${params.health.modelPricing.detail}` : ""
+      }`,
+    });
+  }
   for (const line of params.formatHealthChannelLines(params.health, { accountMode: "all" })) {
     const colon = line.indexOf(":");
     if (colon === -1) {
@@ -326,10 +335,7 @@ export function buildStatusSessionsRows(params: {
         Kind: "",
         Age: "",
         Model: "",
-<<<<<<< HEAD
-=======
         Runtime: "",
->>>>>>> upstream/main
         Tokens: "",
         ...(params.verbose ? { Cache: "" } : {}),
       },
@@ -340,10 +346,7 @@ export function buildStatusSessionsRows(params: {
     Kind: sess.kind,
     Age: sess.updatedAt && sess.age != null ? params.formatTimeAgo(sess.age) : "no activity",
     Model: sess.model ?? "unknown",
-<<<<<<< HEAD
-=======
     Runtime: sess.runtime ?? "unknown",
->>>>>>> upstream/main
     Tokens: params.formatTokensCompact(sess),
     ...(params.verbose
       ? { Cache: params.formatPromptCacheCompact(sess) || params.muted("—") }

@@ -1,19 +1,12 @@
 {
   "name": "@openclaw/synology-chat",
-<<<<<<< HEAD
-  "version": "2026.5.4",
-=======
-  "version": "2026.5.6",
->>>>>>> upstream/main
+  "version": "2026.5.12-beta.1",
   "description": "Synology Chat channel plugin for OpenClaw",
   "repository": {
     "type": "git",
     "url": "https://github.com/openclaw/openclaw"
   },
   "type": "module",
-  "dependencies": {
-    "zod": "^4.4.3"
-  },
   "devDependencies": {
     "@openclaw/plugin-sdk": "workspace:*"
   },
@@ -37,21 +30,17 @@
       "minHostVersion": ">=2026.4.10"
     },
     "compat": {
-<<<<<<< HEAD
-      "pluginApi": ">=2026.5.4"
+      "pluginApi": ">=2026.5.12-beta.1"
     },
     "build": {
-      "openclawVersion": "2026.5.4"
-=======
-      "pluginApi": ">=2026.5.6"
-    },
-    "build": {
-      "openclawVersion": "2026.5.6"
->>>>>>> upstream/main
+      "openclawVersion": "2026.5.12-beta.1"
     },
     "release": {
       "publishToClawHub": true,
       "publishToNpm": true
     }
+  },
+  "dependencies": {
+    "zod": "4.4.3"
   }
 }

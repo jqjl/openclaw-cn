@@ -17,11 +17,7 @@ import {
   type ReplyPrefixOptions as ReplyPrefixOptionsCompat,
   type SourceReplyDeliveryMode as SourceReplyDeliveryModeCompat,
   type TypingCallbacks as TypingCallbacksCompat,
-<<<<<<< HEAD
-} from "./channel-reply-pipeline.js";
-=======
 } from "./channel-reply-core.js";
->>>>>>> upstream/main
 
 const shouldWarnCompatImport =
   process.env.VITEST !== "true" &&
@@ -88,31 +84,6 @@ export * from "./reply-history.js";
 export * from "./directory-runtime.js";
 export { mapAllowlistResolutionInputs } from "./allow-from.js";
 
-<<<<<<< HEAD
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export const createChannelReplyPipeline = createChannelReplyPipelineCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export const createReplyPrefixContext = createReplyPrefixContextCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export const createReplyPrefixOptions = createReplyPrefixOptionsCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export const createTypingCallbacks = createTypingCallbacksCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export const resolveChannelSourceReplyDeliveryMode = resolveChannelSourceReplyDeliveryModeCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export type ChannelReplyPipeline = ChannelReplyPipelineCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export type CreateTypingCallbacksParams = CreateTypingCallbacksParamsCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export type ReplyPrefixContext = ReplyPrefixContextCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export type ReplyPrefixContextBundle = ReplyPrefixContextBundleCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export type ReplyPrefixOptions = ReplyPrefixOptionsCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-export type SourceReplyDeliveryMode = SourceReplyDeliveryModeCompat;
-/** @deprecated Use `openclaw/plugin-sdk/channel-reply-pipeline`. */
-=======
 /** @deprecated Use `openclaw/plugin-sdk/channel-message`. */
 export const createChannelReplyPipeline = createChannelReplyPipelineCompat;
 /** @deprecated Use `openclaw/plugin-sdk/channel-message`. */
@@ -136,11 +107,4 @@ export type ReplyPrefixOptions = ReplyPrefixOptionsCompat;
 /** @deprecated Use `openclaw/plugin-sdk/channel-message`. */
 export type SourceReplyDeliveryMode = SourceReplyDeliveryModeCompat;
 /** @deprecated Use `openclaw/plugin-sdk/channel-message`. */
->>>>>>> upstream/main
 export type TypingCallbacks = TypingCallbacksCompat;
-
-export {
-  resolveBlueBubblesGroupRequireMention,
-  resolveBlueBubblesGroupToolPolicy,
-} from "./bluebubbles-policy.js";
-export { collectBlueBubblesStatusIssues } from "./bluebubbles.js";

@@ -1,14 +1,14 @@
-import { applyXaiModelCompat } from "openclaw/plugin-sdk/provider-tools";
+import { applyXaiModelCompat } from "./model-compat.js";
 
 type XaiRuntimeModelCompat = {
   compat?: unknown;
-  thinkingLevelMap?: Partial<
-    Record<"off" | "minimal" | "low" | "medium" | "high" | "xhigh", string | null>
-  >;
+  reasoning?: unknown;
+  thinkingLevelMap?: XaiThinkingLevelMap;
 };
+type XaiThinkingLevelMap = Partial<
+  Record<"off" | "minimal" | "low" | "medium" | "high" | "xhigh", string | null>
+>;
 
-<<<<<<< HEAD
-=======
 const XAI_UNSUPPORTED_REASONING_EFFORTS = {
   off: null,
   minimal: null,
@@ -18,18 +18,24 @@ const XAI_UNSUPPORTED_REASONING_EFFORTS = {
   xhigh: null,
 } satisfies NonNullable<XaiRuntimeModelCompat["thinkingLevelMap"]>;
 
->>>>>>> upstream/main
-export function applyXaiRuntimeModelCompat<T extends XaiRuntimeModelCompat>(model: T): T {
+const XAI_REASONING_EFFORTS = {
+  off: null,
+  minimal: "low",
+  low: "low",
+  medium: "medium",
+  high: "high",
+  xhigh: "high",
+} satisfies NonNullable<XaiRuntimeModelCompat["thinkingLevelMap"]>;
+
+export function applyXaiRuntimeModelCompat<T extends XaiRuntimeModelCompat>(
+  model: T,
+): T & { thinkingLevelMap: XaiThinkingLevelMap } {
   const withCompat = applyXaiModelCompat(model);
   return {
     ...withCompat,
     thinkingLevelMap: {
       ...withCompat.thinkingLevelMap,
-<<<<<<< HEAD
-      off: null,
-=======
-      ...XAI_UNSUPPORTED_REASONING_EFFORTS,
->>>>>>> upstream/main
+      ...(withCompat.reasoning ? XAI_REASONING_EFFORTS : XAI_UNSUPPORTED_REASONING_EFFORTS),
     },
   };
 }

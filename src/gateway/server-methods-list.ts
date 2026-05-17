@@ -52,18 +52,11 @@ const BASE_METHODS = [
   "plugin.approval.waitDecision",
   "plugin.approval.resolve",
   "plugins.uiDescriptors",
+  "plugins.sessionAction",
   "wizard.start",
   "wizard.next",
   "wizard.cancel",
   "wizard.status",
-<<<<<<< HEAD
-  "talk.config",
-  "talk.realtime.session",
-  "talk.realtime.relayAudio",
-  "talk.realtime.relayMark",
-  "talk.realtime.relayStop",
-  "talk.realtime.relayToolResult",
-=======
   "talk.catalog",
   "talk.config",
   "talk.client.create",
@@ -77,7 +70,6 @@ const BASE_METHODS = [
   "talk.session.cancelOutput",
   "talk.session.submitToolResult",
   "talk.session.close",
->>>>>>> upstream/main
   "talk.speak",
   "talk.mode",
   "commands.list",
@@ -86,11 +78,11 @@ const BASE_METHODS = [
   "tools.catalog",
   "tools.effective",
   "tools.invoke",
-<<<<<<< HEAD
-=======
+  "tasks.list",
+  "tasks.get",
+  "tasks.cancel",
   "environments.list",
   "environments.status",
->>>>>>> upstream/main
   "agents.list",
   "agents.create",
   "agents.update",
@@ -105,6 +97,9 @@ const BASE_METHODS = [
   "skills.search",
   "skills.detail",
   "skills.bins",
+  "skills.upload.begin",
+  "skills.upload.chunk",
+  "skills.upload.commit",
   "skills.install",
   "skills.update",
   "update.status",
@@ -153,6 +148,7 @@ const BASE_METHODS = [
   "node.rename",
   "node.list",
   "node.describe",
+  "node.pluginSurface.refresh",
   "node.pending.drain",
   "node.pending.enqueue",
   "node.invoke",
@@ -160,7 +156,7 @@ const BASE_METHODS = [
   "node.pending.ack",
   "node.invoke.result",
   "node.event",
-  "node.canvas.capability.refresh",
+  "cron.get",
   "cron.list",
   "cron.status",
   "cron.add",
@@ -201,10 +197,7 @@ export const GATEWAY_EVENTS = [
   "presence",
   "tick",
   "talk.mode",
-<<<<<<< HEAD
-=======
   "talk.event",
->>>>>>> upstream/main
   "shutdown",
   "health",
   "heartbeat",

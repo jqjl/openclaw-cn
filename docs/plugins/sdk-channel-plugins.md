@@ -23,14 +23,6 @@ pairing, reply threading, and outbound messaging.
 Channel plugins do not need their own send/edit/react tools. OpenClaw keeps one
 shared `message` tool in core. Your plugin owns:
 
-<<<<<<< HEAD
-- **Config** — account resolution and setup wizard
-- **Security** — DM policy and allowlists
-- **Pairing** — DM approval flow
-- **Session grammar** — how provider-specific conversation ids map to base chats, thread ids, and parent fallbacks
-- **Outbound** — sending text, media, and polls to the platform
-- **Threading** — how replies are threaded
-=======
 - **Config** - account resolution and setup wizard
 - **Security** - DM policy and allowlists
 - **Pairing** - DM approval flow
@@ -38,13 +30,10 @@ shared `message` tool in core. Your plugin owns:
 - **Outbound** - sending text, media, and polls to the platform
 - **Threading** - how replies are threaded
 - **Heartbeat typing** - optional typing/busy signals for heartbeat delivery targets
->>>>>>> upstream/main
 
 Core owns the shared message tool, prompt wiring, the outer session-key shape,
 generic `:thread:` bookkeeping, and dispatch.
 
-<<<<<<< HEAD
-=======
 New channel plugins should also expose a `message` adapter with
 `defineChannelMessageAdapter` from `openclaw/plugin-sdk/channel-message`. The
 adapter declares which durable final-send capabilities the native transport
@@ -85,13 +74,22 @@ remain available for compatibility dispatchers. Do not use those names for new
 channel code; new plugins should start with the `message` adapter, receipts, and
 receive/send lifecycle helpers on `openclaw/plugin-sdk/channel-message`.
 
+Channels migrating inbound authorization can use the experimental
+`openclaw/plugin-sdk/channel-ingress-runtime` subpath from runtime receive
+paths. The subpath keeps platform lookup and side effects in the plugin, while
+sharing allowlist state resolution, route/sender/command/event/activation
+decisions, redacted diagnostics, and turn-admission mapping. Keep plugin
+identity normalization in the descriptor you pass to the resolver; do not
+serialize raw match values from the resolved state or decision. See
+[Channel ingress API](/plugins/sdk-channel-ingress) for the API design,
+ownership boundary, and test expectations.
+
 If your channel supports typing indicators outside inbound replies, expose
 `heartbeat.sendTyping(...)` on the channel plugin. Core calls it with the
 resolved heartbeat delivery target before the heartbeat model run starts and
 uses the shared typing keepalive/cleanup lifecycle. Add `heartbeat.clearTyping(...)`
 when the platform needs an explicit stop signal.
 
->>>>>>> upstream/main
 If your channel adds message-tool params that carry media sources, expose those
 param names through `describeMessageTool(...).mediaSourceParams`. Core uses
 that explicit list for sandbox path normalization and outbound media-access
@@ -102,8 +100,6 @@ Prefer returning an action-keyed map such as
 inherit another action's media args. A flat array still works for params that
 are intentionally shared across every exposed action.
 
-<<<<<<< HEAD
-=======
 If your channel needs provider-specific shaping for `message(action="send")`,
 prefer `actions.prepareSendPayload(...)`. Put native cards, blocks, embeds, or
 other durable data under `payload.channelData.<channel>` and let core perform
@@ -111,7 +107,6 @@ the actual send through the outbound/message adapter. Use
 `actions.handleAction(...)` for send only as a compatibility fallback for
 payloads that cannot be serialized and retried.
 
->>>>>>> upstream/main
 If your platform stores extra scope inside conversation ids, keep that parsing
 in the plugin with `messaging.resolveSessionConversation(...)`. That is the
 canonical hook for mapping `rawId` to the base conversation id, optional thread
@@ -160,19 +155,11 @@ Most channel plugins do not need approval-specific code.
 - If a channel needs native approval delivery, keep channel code focused on target normalization plus transport/presentation facts. Use `createChannelExecApprovalProfile`, `createChannelNativeOriginTargetResolver`, `createChannelApproverDmTargetResolver`, and `createApproverRestrictedNativeApprovalCapability` from `openclaw/plugin-sdk/approval-runtime`. Put the channel-specific facts behind `approvalCapability.nativeRuntime`, ideally via `createChannelApprovalNativeRuntimeAdapter(...)` or `createLazyChannelApprovalNativeRuntimeAdapter(...)`, so core can assemble the handler and own request filtering, routing, dedupe, expiry, gateway subscription, and routed-elsewhere notices. `nativeRuntime` is split into a few smaller seams:
 - `createChannelNativeOriginTargetResolver` uses the shared channel-route matcher by default for `{ to, accountId, threadId }` targets. Pass `targetsMatch` only when a channel has provider-specific equivalence rules, such as Slack timestamp prefix matching.
 - Pass `normalizeTargetForMatch` to `createChannelNativeOriginTargetResolver` when the channel needs to canonicalize provider ids before the default route matcher or a custom `targetsMatch` callback runs, while preserving the original target for delivery. Use `normalizeTarget` only when the resolved delivery target itself should be canonicalized.
-<<<<<<< HEAD
-- `availability` — whether the account is configured and whether a request should be handled
-- `presentation` — map the shared approval view model into pending/resolved/expired native payloads or final actions
-- `transport` — prepare targets plus send/update/delete native approval messages
-- `interactions` — optional bind/unbind/clear-action hooks for native buttons or reactions
-- `observe` — optional delivery diagnostics hooks
-=======
 - `availability` - whether the account is configured and whether a request should be handled
 - `presentation` - map the shared approval view model into pending/resolved/expired native payloads or final actions
 - `transport` - prepare targets plus send/update/delete native approval messages
 - `interactions` - optional bind/unbind/clear-action hooks for native buttons or reactions
 - `observe` - optional delivery diagnostics hooks
->>>>>>> upstream/main
 - If the channel needs runtime-owned objects such as a client, token, Bolt app, or webhook receiver, register them through `openclaw/plugin-sdk/channel-runtime-context`. The generic runtime-context registry lets core bootstrap capability-driven handlers from channel startup state without adding approval-specific wrapper glue.
 - Reach for the lower-level `createChannelApprovalHandler` or `createChannelNativeApprovalRuntime` only when the capability-driven seam is not expressive enough yet.
 - Native approval channels must route both `accountId` and `approvalKind` through those helpers. `accountId` keeps multi-account approval policy scoped to the right bot account, and `approvalKind` keeps exec vs plugin approval behavior available to the channel without hardcoded branches in core.
@@ -200,7 +187,7 @@ need one part of that family:
 - `openclaw/plugin-sdk/channel-runtime-context`
 
 Likewise, prefer `openclaw/plugin-sdk/setup-runtime`,
-`openclaw/plugin-sdk/setup-adapter-runtime`,
+`openclaw/plugin-sdk/setup-runtime`,
 `openclaw/plugin-sdk/reply-runtime`,
 `openclaw/plugin-sdk/reply-dispatch-runtime`,
 `openclaw/plugin-sdk/reply-reference`, and
@@ -215,8 +202,8 @@ For setup specifically:
   `createSetupInputPresenceValidator`), lookup-note output,
   `promptResolvedAllowFrom`, `splitSetupEntries`, and the delegated
   setup-proxy builders
-- `openclaw/plugin-sdk/setup-adapter-runtime` is the narrow env-aware adapter
-  seam for `createEnvPatchedAccountSetupAdapter`
+- `openclaw/plugin-sdk/setup-runtime` includes the env-aware adapter seam for
+  `createEnvPatchedAccountSetupAdapter`
 - `openclaw/plugin-sdk/channel-setup` covers the optional-install setup
   builders plus a few setup-safe primitives:
   `createOptionalChannelSetupSurface`, `createOptionalChannelSetupAdapter`,
@@ -225,8 +212,6 @@ If your channel supports env-driven setup or auth and generic startup/config
 flows should know those env names before runtime loads, declare them in the
 plugin manifest with `channelEnvVars`. Keep channel runtime `envVars` or local
 constants for operator-facing copy only.
-<<<<<<< HEAD
-=======
 
 If your channel can appear in `status`, `channels list`, `channels status`, or
 SecretRef scans before the plugin runtime starts, add `openclaw.setupEntry` in
@@ -243,7 +228,6 @@ listeners, subprocess launchers, or service startup modules. Put those runtime
 pieces in modules loaded from `registerFull(...)`, runtime setters, or lazy
 capability adapters.
 
->>>>>>> upstream/main
 `createOptionalChannelSetupWizard`, `DEFAULT_ACCOUNT_ID`,
 `createTopLevelChannelDmPolicy`, `setSetupChannelEnabled`, and
 `splitSetupEntries`
@@ -273,15 +257,12 @@ surfaces:
 - `openclaw/plugin-sdk/outbound-media` and
   `openclaw/plugin-sdk/outbound-runtime` for media loading plus outbound
   identity/send delegates and payload planning
-<<<<<<< HEAD
-=======
 - `buildThreadAwareOutboundSessionRoute(...)` from
   `openclaw/plugin-sdk/channel-core` when an outbound route should preserve an
   explicit `replyToId`/`threadId` or recover the current `:thread:` session
   after the base session key still matches. Provider plugins can override
   precedence, suffix behavior, and thread id normalization when their platform
   has native thread delivery semantics.
->>>>>>> upstream/main
 - `openclaw/plugin-sdk/thread-bindings-runtime` for thread-binding lifecycle
   and adapter registration
 - `openclaw/plugin-sdk/agent-media-payload` only when a legacy agent/media
@@ -453,11 +434,7 @@ should use `resolveInboundMentionDecision({ facts, policy })`.
 
   <Step title="Build the channel plugin object">
     The `ChannelPlugin` interface has many optional adapter surfaces. Start with
-<<<<<<< HEAD
-    the minimum — `id` and `setup` — and add adapters as you need them.
-=======
     the minimum - `id` and `setup` - and add adapters as you need them.
->>>>>>> upstream/main
 
     Create `src/channel.ts`:
 
@@ -664,11 +641,7 @@ should use `resolveInboundMentionDecision({ facts, policy })`.
           const event = parseWebhookPayload(req);
 
           // Your inbound handler dispatches the message to OpenClaw.
-<<<<<<< HEAD
-          // The exact wiring depends on your platform SDK —
-=======
           // The exact wiring depends on your platform SDK -
->>>>>>> upstream/main
           // see a real example in the bundled Microsoft Teams or Google Chat plugin package.
           await handleAcmeChatInbound(api, event);
 
@@ -779,17 +752,10 @@ surface unless you are maintaining that bundled plugin family directly.
 
 ## Next steps
 
-<<<<<<< HEAD
-- [Provider Plugins](/plugins/sdk-provider-plugins) — if your plugin also provides models
-- [SDK Overview](/plugins/sdk-overview) — full subpath import reference
-- [SDK Testing](/plugins/sdk-testing) — test utilities and contract tests
-- [Plugin Manifest](/plugins/manifest) — full manifest schema
-=======
 - [Provider Plugins](/plugins/sdk-provider-plugins) - if your plugin also provides models
 - [SDK Overview](/plugins/sdk-overview) - full subpath import reference
 - [SDK Testing](/plugins/sdk-testing) - test utilities and contract tests
 - [Plugin Manifest](/plugins/manifest) - full manifest schema
->>>>>>> upstream/main
 
 ## Related
 

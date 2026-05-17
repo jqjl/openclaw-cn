@@ -1,6 +1,4 @@
 import {
-<<<<<<< HEAD
-=======
   createLiveMessageState,
   createPreviewMessageReceipt,
   defineFinalizableLivePreviewAdapter,
@@ -9,8 +7,8 @@ import {
   type LiveMessageState,
 } from "openclaw/plugin-sdk/channel-message";
 import {
->>>>>>> upstream/main
   createChannelProgressDraftGate,
+  type ChannelProgressDraftLine,
   formatChannelProgressDraftText,
   isChannelProgressDraftWorkToolName,
   resolveChannelPreviewStreamMode,
@@ -18,7 +16,7 @@ import {
   resolveChannelProgressDraftLabel,
   resolveChannelStreamingPreviewToolProgress,
 } from "openclaw/plugin-sdk/channel-streaming";
-import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeOptionalLowercaseString } from "openclaw/plugin-sdk/string-coerce-runtime";
 import type { MSTeamsConfig, ReplyPayload } from "../runtime-api.js";
 import { formatUnknownError } from "./errors.js";
 import type { MSTeamsMonitorLogger } from "./monitor-types.js";
@@ -73,11 +71,9 @@ export function createTeamsReplyStreamController(params: {
 
   let streamReceivedTokens = false;
   let informativeUpdateSent = false;
-  let progressLines: string[] = [];
+  let progressLines: Array<string | ChannelProgressDraftLine> = [];
   let lastInformativeText = "";
   let pendingFinalize: Promise<void> | undefined;
-<<<<<<< HEAD
-=======
   let liveState: LiveMessageState<ReplyPayload> = createLiveMessageState({
     canFinalizeInPlace: Boolean(stream),
   });
@@ -92,7 +88,6 @@ export function createTeamsReplyStreamController(params: {
     }
     liveState = markLiveMessageFinalized(liveState, createPreviewMessageReceipt({ id: messageId }));
   };
->>>>>>> upstream/main
 
   const renderInformativeUpdate = async () => {
     if (!stream) {
@@ -131,7 +126,7 @@ export function createTeamsReplyStreamController(params: {
   };
 
   const pushProgressLine = async (
-    line?: string,
+    line?: string | ChannelProgressDraftLine,
     options?: { toolName?: string },
   ): Promise<void> => {
     if (!stream || streamMode !== "progress") {
@@ -141,11 +136,13 @@ export function createTeamsReplyStreamController(params: {
       return;
     }
     if (shouldStreamPreviewToolProgress) {
-      const normalized = line?.replace(/\s+/g, " ").trim();
+      const normalized = normalizeProgressLineIdentity(line);
       if (normalized) {
-        const previous = progressLines.at(-1);
+        const previous = normalizeProgressLineIdentity(progressLines.at(-1));
         if (previous !== normalized) {
-          progressLines = [...progressLines, normalized].slice(
+          const progressLine: string | ChannelProgressDraftLine =
+            typeof line === "object" && line !== undefined ? line : normalized;
+          progressLines = [...progressLines, progressLine].slice(
             -resolveChannelProgressDraftMaxLines(params.msteamsConfig),
           );
         }
@@ -172,8 +169,6 @@ export function createTeamsReplyStreamController(params: {
     return { ...payload, text: remainingText };
   };
 
-<<<<<<< HEAD
-=======
   const finalizeProgressPayload = async (
     payload: ReplyPayload,
     hasMedia: boolean,
@@ -218,7 +213,6 @@ export function createTeamsReplyStreamController(params: {
       : payload;
   };
 
->>>>>>> upstream/main
   return {
     async onReplyStart(): Promise<void> {
       return;
@@ -239,7 +233,10 @@ export function createTeamsReplyStreamController(params: {
       stream.update(payload.text);
     },
 
-    async pushProgressLine(line?: string, options?: { toolName?: string }): Promise<void> {
+    async pushProgressLine(
+      line?: string | ChannelProgressDraftLine,
+      options?: { toolName?: string },
+    ): Promise<void> {
       await pushProgressLine(line, options);
     },
 
@@ -258,16 +255,7 @@ export function createTeamsReplyStreamController(params: {
         if (!payload.text) {
           return payload;
         }
-<<<<<<< HEAD
-        const finalized = await stream.replaceInformativeWithFinal(payload.text);
-        informativeUpdateSent = false;
-        if (!finalized || stream.isFailed) {
-          return payload;
-        }
-        return hasMedia ? { ...payload, text: undefined } : undefined;
-=======
         return await finalizeProgressPayload(payload, hasMedia);
->>>>>>> upstream/main
       }
 
       if (!stream || !streamReceivedTokens) {
@@ -290,13 +278,9 @@ export function createTeamsReplyStreamController(params: {
       // subsequent text segments (after tool calls) use fallback delivery.
       // finalize() is idempotent; the later call in markDispatchIdle is a no-op.
       streamReceivedTokens = false;
-<<<<<<< HEAD
-      pendingFinalize = stream.finalize();
-=======
       pendingFinalize = stream.finalize().then(() => {
         markStreamFinalized();
       });
->>>>>>> upstream/main
 
       if (!hasMedia) {
         return undefined;
@@ -307,27 +291,20 @@ export function createTeamsReplyStreamController(params: {
     async finalize(): Promise<void> {
       progressDraftGate.cancel();
       await pendingFinalize;
-<<<<<<< HEAD
-      await stream?.finalize();
-=======
       if (!pendingFinalize) {
         await stream?.finalize();
         markStreamFinalized();
       }
->>>>>>> upstream/main
     },
 
     hasStream(): boolean {
       return Boolean(stream);
     },
 
-<<<<<<< HEAD
-=======
     liveState(): LiveMessageState<ReplyPayload> {
       return liveState;
     },
 
->>>>>>> upstream/main
     /**
      * Whether the Teams streaming card is currently receiving LLM tokens.
      * Used to gate side-channel keepalive activity so we don't overlay plain
@@ -355,4 +332,11 @@ export function createTeamsReplyStreamController(params: {
       return streamReceivedTokens;
     },
   };
+}
+
+function normalizeProgressLineIdentity(
+  line: string | ChannelProgressDraftLine | undefined,
+): string {
+  const text = typeof line === "string" ? line : line?.text;
+  return text?.replace(/\s+/g, " ").trim() ?? "";
 }

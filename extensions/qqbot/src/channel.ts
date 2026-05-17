@@ -1,14 +1,11 @@
 import { getExecApprovalReplyMetadata } from "openclaw/plugin-sdk/approval-runtime";
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
   type ChannelMessageSendResult,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import type { ChannelPlugin } from "openclaw/plugin-sdk/core";
 // Register the PlatformAdapter before any core/ module is used.
 import "./bridge/bootstrap.js";
@@ -34,14 +31,6 @@ import type { ResolvedQQBotAccount } from "./types.js";
 
 // Shared promise so concurrent multi-account startups serialize the dynamic
 // import of the gateway module, avoiding an ESM circular-dependency race.
-<<<<<<< HEAD
-let _gatewayModulePromise: Promise<typeof import("./bridge/gateway.js")> | undefined;
-function loadGatewayModule(): Promise<typeof import("./bridge/gateway.js")> {
-  _gatewayModulePromise ??= import("./bridge/gateway.js");
-  return _gatewayModulePromise;
-}
-
-=======
 let gatewayModulePromise: Promise<typeof import("./bridge/gateway.js")> | undefined;
 function loadGatewayModule(): Promise<typeof import("./bridge/gateway.js")> {
   gatewayModulePromise ??= import("./bridge/gateway.js");
@@ -173,7 +162,6 @@ const qqbotMessageAdapter = defineChannelMessageAdapter({
   },
 });
 
->>>>>>> upstream/main
 const EXEC_APPROVAL_COMMAND_RE =
   /\/approve(?:@[^\s]+)?\s+[A-Za-z0-9][A-Za-z0-9._:-]*\s+(?:allow-once|allow-always|always|deny)\b/i;
 
@@ -241,10 +229,7 @@ export const qqbotPlugin: ChannelPlugin<ResolvedQQBotAccount> = {
     ...qqbotSetupAdapterShared,
   },
   approvalCapability: getQQBotApprovalCapability(),
-<<<<<<< HEAD
-=======
   message: qqbotMessageAdapter,
->>>>>>> upstream/main
   messaging: {
     targetPrefixes: ["qqbot"],
     /** Normalize common QQ Bot target formats into the canonical qqbot:... form. */
@@ -267,52 +252,13 @@ export const qqbotPlugin: ChannelPlugin<ResolvedQQBotAccount> = {
         payload,
         hint,
       }),
-<<<<<<< HEAD
-    sendText: async ({ to, text, accountId, replyToId, cfg }) => {
-      // Ensure bridge/gateway.ts module-level registrations (audio adapter factory,
-      // platform adapter, etc.) have executed before engine code runs.
-      await loadGatewayModule();
-      const account = resolveQQBotAccount(cfg, accountId);
-      const { sendText } = await import("./engine/messaging/outbound.js");
-      const result = await sendText({
-=======
     sendText: async ({ to, text, accountId, replyToId, cfg }) =>
       await sendQQBotText({
         cfg,
->>>>>>> upstream/main
         to,
         text,
         accountId,
         replyToId,
-<<<<<<< HEAD
-        account: toGatewayAccount(account),
-      });
-      return {
-        channel: "qqbot" as const,
-        messageId: result.messageId ?? "",
-        meta: result.error ? { error: result.error } : undefined,
-      };
-    },
-    sendMedia: async ({ to, text, mediaUrl, accountId, replyToId, cfg }) => {
-      // Same guard as sendText — ensure adapters are registered.
-      await loadGatewayModule();
-      const account = resolveQQBotAccount(cfg, accountId);
-      const { sendMedia } = await import("./engine/messaging/outbound.js");
-      const result = await sendMedia({
-        to,
-        text: text ?? "",
-        mediaUrl: mediaUrl ?? "",
-        accountId,
-        replyToId,
-        account: toGatewayAccount(account),
-      });
-      return {
-        channel: "qqbot" as const,
-        messageId: result.messageId ?? "",
-        meta: result.error ? { error: result.error } : undefined,
-      };
-    },
-=======
       }),
     sendMedia: async ({ to, text, mediaUrl, accountId, replyToId, cfg }) =>
       await sendQQBotMedia({
@@ -323,7 +269,6 @@ export const qqbotPlugin: ChannelPlugin<ResolvedQQBotAccount> = {
         accountId,
         replyToId,
       }),
->>>>>>> upstream/main
   },
   gateway: {
     startAccount: async (ctx) => {

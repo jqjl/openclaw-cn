@@ -51,11 +51,6 @@ The tool accepts a single `input` string that wraps one or more file operations:
 
 ## Related
 
-<<<<<<< HEAD
-- [Diffs](/tools/diffs)
-- [Exec tool](/tools/exec)
-- [Code execution](/tools/code-execution)
-=======
 <CardGroup cols={2}>
   <Card title="Diffs" href="/tools/diffs" icon="code-compare">
     Read-only diff viewer for change presentation.
@@ -67,4 +62,3 @@ The tool accepts a single `input` string that wraps one or more file operations:
     Sandboxed remote Python analysis with xAI.
   </Card>
 </CardGroup>
->>>>>>> upstream/main

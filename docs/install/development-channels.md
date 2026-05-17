@@ -8,11 +8,6 @@ title: "Release channels"
 sidebarTitle: "Release Channels"
 ---
 
-<<<<<<< HEAD
-# Development channels
-
-=======
->>>>>>> upstream/main
 OpenClaw ships three update channels:
 
 - **stable**: npm dist-tag `latest`. Recommended for most users.

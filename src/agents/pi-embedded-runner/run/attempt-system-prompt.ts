@@ -1,6 +1,9 @@
 import type { OpenClawConfig } from "../../../config/types.openclaw.js";
 import type { ProviderTransformSystemPromptContext } from "../../../plugins/types.js";
-import { appendAgentBootstrapSystemPromptSupplement } from "../../system-prompt.js";
+import {
+  appendAgentBootstrapSystemPromptSupplement,
+  appendModelIdentitySystemPrompt,
+} from "../../system-prompt.js";
 import { buildEmbeddedSystemPrompt, createSystemPromptOverride } from "../system-prompt.js";
 
 type EmbeddedSystemPromptParams = Parameters<typeof buildEmbeddedSystemPrompt>[0];
@@ -30,8 +33,6 @@ export type AttemptSystemPrompt = {
   systemPromptOverride: (defaultPrompt?: string) => string;
 };
 
-<<<<<<< HEAD
-=======
 function appendRuntimeExtraSystemPrompt(params: {
   systemPrompt: string;
   extraSystemPrompt?: string;
@@ -46,28 +47,22 @@ function appendRuntimeExtraSystemPrompt(params: {
   return `${params.systemPrompt.trimEnd()}\n\n${contextHeader}\n${extraSystemPrompt}\n`;
 }
 
->>>>>>> upstream/main
 export function buildAttemptSystemPrompt(
   params: BuildAttemptSystemPromptParams,
 ): AttemptSystemPrompt {
   const baseSystemPrompt = params.systemPromptOverrideText
-<<<<<<< HEAD
-    ? appendAgentBootstrapSystemPromptSupplement({
-        systemPrompt: params.systemPromptOverrideText,
-        bootstrapMode: params.embeddedSystemPrompt.bootstrapMode,
-        bootstrapTruncationNotice: params.embeddedSystemPrompt.bootstrapTruncationNotice,
-        contextFiles: params.embeddedSystemPrompt.contextFiles,
-=======
-    ? appendRuntimeExtraSystemPrompt({
-        systemPrompt: appendAgentBootstrapSystemPromptSupplement({
-          systemPrompt: params.systemPromptOverrideText,
-          bootstrapMode: params.embeddedSystemPrompt.bootstrapMode,
-          bootstrapTruncationNotice: params.embeddedSystemPrompt.bootstrapTruncationNotice,
-          contextFiles: params.embeddedSystemPrompt.contextFiles,
+    ? appendModelIdentitySystemPrompt({
+        systemPrompt: appendRuntimeExtraSystemPrompt({
+          systemPrompt: appendAgentBootstrapSystemPromptSupplement({
+            systemPrompt: params.systemPromptOverrideText,
+            bootstrapMode: params.embeddedSystemPrompt.bootstrapMode,
+            bootstrapTruncationNotice: params.embeddedSystemPrompt.bootstrapTruncationNotice,
+            contextFiles: params.embeddedSystemPrompt.contextFiles,
+          }),
+          extraSystemPrompt: params.embeddedSystemPrompt.extraSystemPrompt,
+          promptMode: params.embeddedSystemPrompt.promptMode,
         }),
-        extraSystemPrompt: params.embeddedSystemPrompt.extraSystemPrompt,
-        promptMode: params.embeddedSystemPrompt.promptMode,
->>>>>>> upstream/main
+        model: params.embeddedSystemPrompt.runtimeInfo.model,
       })
     : buildEmbeddedSystemPrompt(params.embeddedSystemPrompt);
 

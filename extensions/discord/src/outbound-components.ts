@@ -67,16 +67,12 @@ export async function resolveDiscordComponentSpec(
     | { components?: unknown; presentationComponents?: DiscordComponentMessageSpec }
     | undefined;
   const rawComponentSpec =
-<<<<<<< HEAD
-    discordData?.presentationComponents ?? readDiscordComponentSpec(discordData?.components);
-=======
     discordData?.presentationComponents ??
     (discordData?.components &&
     typeof discordData.components === "object" &&
     !Array.isArray(discordData.components)
       ? readDiscordComponentSpec(discordData.components)
       : null);
->>>>>>> upstream/main
   if (rawComponentSpec) {
     return addPayloadTextFallback(rawComponentSpec, payload);
   }

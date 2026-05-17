@@ -1,11 +1,8 @@
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import JSZip from "jszip";
 import * as tar from "tar";
->>>>>>> upstream/main
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { expectSingleNpmPackIgnoreScriptsCall } from "../test-utils/exec-assertions.js";
 import {
@@ -37,10 +34,6 @@ let tempDirIndex = 0;
 const sharedArchivePathByName = new Map<string, string>();
 
 const fixturesDir = path.resolve(process.cwd(), "test", "fixtures", "hooks-install");
-<<<<<<< HEAD
-const zipHooksBuffer = fs.readFileSync(path.join(fixturesDir, "zip-hooks.zip"));
-const zipTraversalBuffer = fs.readFileSync(path.join(fixturesDir, "zip-traversal.zip"));
-=======
 const zipHooksBuffer = await createZipHookPackBuffer({
   packageName: "@openclaw/zip-hooks",
   hookName: "zip-hook",
@@ -48,21 +41,16 @@ const zipHooksBuffer = await createZipHookPackBuffer({
   heading: "Zip Hook",
 });
 const zipTraversalBuffer = await createZipBuffer([{ path: "../pwned.txt", contents: "pwned" }]);
->>>>>>> upstream/main
 const tarHooksBuffer = fs.readFileSync(path.join(fixturesDir, "tar-hooks.tar"));
 const tarTraversalBuffer = fs.readFileSync(path.join(fixturesDir, "tar-traversal.tar"));
 const tarEvilIdBuffer = fs.readFileSync(path.join(fixturesDir, "tar-evil-id.tar"));
 const tarReservedIdBuffer = fs.readFileSync(path.join(fixturesDir, "tar-reserved-id.tar"));
-<<<<<<< HEAD
-const npmPackHooksBuffer = fs.readFileSync(path.join(fixturesDir, "npm-pack-hooks.tgz"));
-=======
 const npmPackHooksBuffer = await createTarGzHookPackBuffer({
   packageName: "@openclaw/test-hooks",
   hookName: "one-hook",
   hookDescription: "One hook",
   heading: "One Hook",
 });
->>>>>>> upstream/main
 
 function makeTempDir() {
   const dir = path.join(fixtureRoot, `case-${tempDirIndex++}`);
@@ -134,8 +122,6 @@ function writeHookPackManifest(params: {
   );
 }
 
-<<<<<<< HEAD
-=======
 async function createZipBuffer(entries: Array<{ path: string; contents: string }>) {
   const zip = new JSZip();
   for (const entry of entries) {
@@ -225,7 +211,6 @@ async function createTarGzHookPackBuffer(params: {
   return fs.readFileSync(archivePath);
 }
 
->>>>>>> upstream/main
 async function installArchiveFixture(params: { fileName: string; contents: Buffer }) {
   const fixture = writeArchiveFixture(params);
   const result = await installHooksFromArchive({

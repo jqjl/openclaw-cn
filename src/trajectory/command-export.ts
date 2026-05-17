@@ -1,10 +1,7 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { pathExists } from "../infra/fs-safe.js";
 import { isPathInside } from "../infra/path-guards.js";
->>>>>>> upstream/main
 import { exportTrajectoryBundle, resolveDefaultTrajectoryExportDir } from "./export.js";
 
 export type TrajectoryCommandExportSummary = {
@@ -17,14 +14,6 @@ export type TrajectoryCommandExportSummary = {
   files: string[];
 };
 
-<<<<<<< HEAD
-function isPathInsideOrEqual(baseDir: string, candidate: string): boolean {
-  const relative = path.relative(baseDir, candidate);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-}
-
-=======
->>>>>>> upstream/main
 async function validateExistingExportDirectory(params: {
   dir: string;
   label: string;
@@ -35,11 +24,7 @@ async function validateExistingExportDirectory(params: {
     throw new Error(`${params.label} must be a real directory inside the workspace`);
   }
   const realDir = await fsp.realpath(params.dir);
-<<<<<<< HEAD
-  if (!isPathInsideOrEqual(params.realWorkspace, realDir)) {
-=======
   if (!isPathInside(params.realWorkspace, realDir)) {
->>>>>>> upstream/main
     throw new Error("Trajectory exports directory must stay inside the workspace");
   }
   return realDir;
@@ -81,18 +66,6 @@ async function resolveTrajectoryExportBaseDir(workspaceDir: string): Promise<{
   return { baseDir: path.resolve(baseDir), realBase };
 }
 
-<<<<<<< HEAD
-async function pathExists(pathName: string): Promise<boolean> {
-  try {
-    await fsp.access(pathName);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-=======
->>>>>>> upstream/main
 export async function resolveTrajectoryCommandOutputDir(params: {
   outputPath?: string;
   workspaceDir: string;
@@ -125,11 +98,7 @@ export async function resolveTrajectoryCommandOutputDir(params: {
     existingParent = next;
   }
   const realExistingParent = await fsp.realpath(existingParent);
-<<<<<<< HEAD
-  if (!isPathInsideOrEqual(realBase, realExistingParent)) {
-=======
   if (!isPathInside(realBase, realExistingParent)) {
->>>>>>> upstream/main
     throw new Error("Output path must stay inside the real trajectory exports directory");
   }
   return outputDir;

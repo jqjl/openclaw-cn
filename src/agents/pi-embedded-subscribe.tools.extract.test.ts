@@ -20,8 +20,6 @@ describe("extractMessagingToolSend", () => {
           },
           source: "test",
         },
-<<<<<<< HEAD
-=======
         {
           pluginId: "slack",
           plugin: {
@@ -35,7 +33,6 @@ describe("extractMessagingToolSend", () => {
           plugin: createChannelTestPluginBase({ id: "discord" }),
           source: "test",
         },
->>>>>>> upstream/main
       ]),
     );
   });
@@ -76,8 +73,6 @@ describe("extractMessagingToolSend", () => {
     expect(result?.provider).toBe("telegram");
     expect(result?.to).toBe("telegram:123");
   });
-<<<<<<< HEAD
-=======
 
   it("recognizes attachment-style message tool sends", () => {
     const upload = extractMessagingToolSend("message", {
@@ -99,21 +94,15 @@ describe("extractMessagingToolSend", () => {
       content: "done",
     });
 
-    expect(upload).toMatchObject({
-      tool: "message",
-      provider: "discord",
-      to: "channel:123",
-    });
-    expect(attachment).toMatchObject({
-      tool: "message",
-      provider: "discord",
-      to: "channel:123",
-    });
-    expect(effect).toMatchObject({
-      tool: "message",
-      provider: "discord",
-      to: "channel:123",
-    });
+    expect(upload?.tool).toBe("message");
+    expect(upload?.provider).toBe("discord");
+    expect(upload?.to).toBe("channel:123");
+    expect(attachment?.tool).toBe("message");
+    expect(attachment?.provider).toBe("discord");
+    expect(attachment?.to).toBe("channel:123");
+    expect(effect?.tool).toBe("message");
+    expect(effect?.provider).toBe("discord");
+    expect(effect?.to).toBe("channel:123");
   });
 
   it("keeps thread id evidence for thread replies", () => {
@@ -125,12 +114,9 @@ describe("extractMessagingToolSend", () => {
       content: "done",
     });
 
-    expect(result).toMatchObject({
-      tool: "message",
-      provider: "discord",
-      to: "channel:123",
-      threadId: "456",
-    });
+    expect(result?.tool).toBe("message");
+    expect(result?.provider).toBe("discord");
+    expect(result?.to).toBe("channel:123");
+    expect(result?.threadId).toBe("456");
   });
->>>>>>> upstream/main
 });

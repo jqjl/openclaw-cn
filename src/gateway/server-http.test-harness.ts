@@ -107,13 +107,6 @@ export async function dispatchRequest(
   req: IncomingMessage,
   res: ServerResponse,
 ): Promise<void> {
-<<<<<<< HEAD
-  server.emit("request", req, res);
-  await Promise.race([
-    responseEndPromises.get(res) ?? new Promise((resolve) => setImmediate(resolve)),
-    new Promise((resolve) => setTimeout(resolve, 2_000)),
-  ]);
-=======
   let timeout: NodeJS.Timeout | undefined;
   server.emit("request", req, res);
   try {
@@ -130,7 +123,6 @@ export async function dispatchRequest(
       clearTimeout(timeout);
     }
   }
->>>>>>> upstream/main
 }
 
 export async function withGatewayTempConfig(
@@ -149,7 +141,6 @@ export function createTestGatewayServer(options: {
   overrides?: GatewayServerOptions;
 }): GatewayHttpServer {
   return createGatewayHttpServer({
-    canvasHost: null,
     clients: new Set(),
     controlUiEnabled: false,
     controlUiBasePath: "/__control__",

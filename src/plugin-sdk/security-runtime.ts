@@ -1,33 +1,30 @@
-// Public security/policy helpers for plugins that need shared trust and DM gating logic.
+/**
+ * @deprecated Broad public SDK barrel. Prefer focused security/SSRF/secret
+ * subpaths and avoid adding new imports here.
+ */
 
-<<<<<<< HEAD
-=======
 import { root as fsRoot, type OpenResult } from "../infra/fs-safe.js";
 
->>>>>>> upstream/main
 export * from "../secrets/channel-secret-collector-runtime.js";
 export * from "../secrets/runtime-shared.js";
 export * from "../secrets/shared.js";
 export type * from "../secrets/target-registry-types.js";
 export * from "../security/channel-metadata.js";
 export * from "../security/context-visibility.js";
-export * from "../security/dm-policy-shared.js";
+export * from "./channel-access-compat.js";
 export {
   ACCESS_GROUP_ALLOW_FROM_PREFIX,
   expandAllowFromWithAccessGroups,
   parseAccessGroupAllowFromEntry,
   resolveAccessGroupAllowFromMatches,
+  resolveAccessGroupAllowFromState,
   type AccessGroupMembershipResolver,
+  type AccessGroupMembershipLookup,
+  type ResolvedAccessGroupAllowFromState,
 } from "./access-groups.js";
 export * from "../security/external-content.js";
 export * from "../security/safe-regex.js";
 export {
-<<<<<<< HEAD
-  SafeOpenError,
-  openFileWithinRoot,
-  writeFileFromPathWithinRoot,
-} from "../infra/fs-safe.js";
-=======
   appendRegularFile,
   appendRegularFileSync,
   FsSafeError,
@@ -41,7 +38,10 @@ export {
   resolveRegularFileAppendFlags,
   root,
   statRegularFileSync,
+  writeExternalFileWithinRoot,
   withTimeout,
+  type ExternalFileWriteOptions,
+  type ExternalFileWriteResult,
   type FsSafeErrorCode as SafeOpenErrorCode,
 } from "../infra/fs-safe.js";
 
@@ -73,7 +73,6 @@ export async function writeFileFromPathWithinRoot(params: {
   });
 }
 
->>>>>>> upstream/main
 export { extractErrorCode, formatErrorMessage } from "../infra/errors.js";
 export { hasProxyEnvConfigured } from "../infra/net/proxy-env.js";
 export { normalizeHostname } from "../infra/net/hostname.js";
@@ -87,17 +86,16 @@ export {
   type SsrFPolicy,
 } from "../infra/net/ssrf.js";
 export { isNotFoundPathError, isPathInside } from "../infra/path-guards.js";
-<<<<<<< HEAD
-export { ensurePortAvailable } from "../infra/ports.js";
-export { generateSecureToken } from "../infra/secure-random.js";
-=======
 export {
   assertAbsolutePathInput,
   canonicalPathFromExistingAncestor,
+  ensureAbsoluteDirectory,
   findExistingAncestor,
   resolveAbsolutePathForRead,
   resolveAbsolutePathForWrite,
   type AbsolutePathSymlinkPolicy,
+  type EnsureAbsoluteDirectoryOptions,
+  type EnsureAbsoluteDirectoryResult,
   type ResolvedAbsolutePath,
   type ResolvedWritableAbsolutePath,
 } from "../infra/fs-safe.js";
@@ -139,7 +137,6 @@ export {
   resolveWritablePathWithinRoot,
 } from "../infra/root-paths.js";
 export { writeViaSiblingTempPath } from "../infra/fs-safe-advanced.js";
->>>>>>> upstream/main
 export { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 export { redactSensitiveText } from "../logging/redact.js";
 export { safeEqualSecret } from "../security/secret-equal.js";

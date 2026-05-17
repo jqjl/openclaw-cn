@@ -54,11 +54,7 @@ describe("executeZalouserTool", () => {
   });
 
   it("sends text message for send action", async () => {
-<<<<<<< HEAD
-    mockSendMessage.mockResolvedValueOnce({ ok: true, messageId: "m-1" });
-=======
     mockSendMessage.mockResolvedValueOnce({ ok: true, messageId: "m-1" } as never);
->>>>>>> upstream/main
     const result = await executeZalouserTool("tool-1", {
       action: "send",
       threadId: "t-1",
@@ -74,11 +70,7 @@ describe("executeZalouserTool", () => {
   });
 
   it("defaults send routing from ambient deliveryContext target", async () => {
-<<<<<<< HEAD
-    mockSendMessage.mockResolvedValueOnce({ ok: true, messageId: "m-ambient" });
-=======
     mockSendMessage.mockResolvedValueOnce({ ok: true, messageId: "m-ambient" } as never);
->>>>>>> upstream/main
     const tool = createZalouserTool({
       deliveryContext: {
         channel: "zalouser",
@@ -99,11 +91,7 @@ describe("executeZalouserTool", () => {
   });
 
   it("keeps explicit threadId over ambient delivery defaults", async () => {
-<<<<<<< HEAD
-    mockSendMessage.mockResolvedValueOnce({ ok: true, messageId: "m-explicit" });
-=======
     mockSendMessage.mockResolvedValueOnce({ ok: true, messageId: "m-explicit" } as never);
->>>>>>> upstream/main
     const tool = createZalouserTool({
       deliveryContext: {
         channel: "zalouser",
@@ -145,11 +133,7 @@ describe("executeZalouserTool", () => {
   });
 
   it("returns tool error when send action fails", async () => {
-<<<<<<< HEAD
-    mockSendMessage.mockResolvedValueOnce({ ok: false, error: "blocked" });
-=======
     mockSendMessage.mockResolvedValueOnce({ ok: false, error: "blocked" } as never);
->>>>>>> upstream/main
     const result = await executeZalouserTool("tool-1", {
       action: "send",
       threadId: "t-1",
@@ -159,11 +143,7 @@ describe("executeZalouserTool", () => {
   });
 
   it("routes image and link actions to correct helpers", async () => {
-<<<<<<< HEAD
-    mockSendImage.mockResolvedValueOnce({ ok: true, messageId: "img-1" });
-=======
     mockSendImage.mockResolvedValueOnce({ ok: true, messageId: "img-1" } as never);
->>>>>>> upstream/main
     const imageResult = await executeZalouserTool("tool-1", {
       action: "image",
       threadId: "g-1",
@@ -178,11 +158,7 @@ describe("executeZalouserTool", () => {
     });
     expect(extractDetails(imageResult)).toEqual({ success: true, messageId: "img-1" });
 
-<<<<<<< HEAD
-    mockSendLink.mockResolvedValueOnce({ ok: true, messageId: "lnk-1" });
-=======
     mockSendLink.mockResolvedValueOnce({ ok: true, messageId: "lnk-1" } as never);
->>>>>>> upstream/main
     const linkResult = await executeZalouserTool("tool-1", {
       action: "link",
       threadId: "t-2",

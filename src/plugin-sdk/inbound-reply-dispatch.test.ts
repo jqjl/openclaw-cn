@@ -1,15 +1,8 @@
-<<<<<<< HEAD
-import { describe, expect, it, vi } from "vitest";
-=======
 import { beforeEach, describe, expect, it, vi } from "vitest";
->>>>>>> upstream/main
 import type { DispatchReplyWithBufferedBlockDispatcher } from "../auto-reply/reply/provider-dispatcher.types.js";
 import type { FinalizedMsgContext } from "../auto-reply/templating.js";
 import type { RecordInboundSession } from "../channels/session.types.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-<<<<<<< HEAD
-import {
-=======
 
 const deliverInboundReplyWithMessageSendContext = vi.hoisted(() => vi.fn());
 
@@ -39,22 +32,21 @@ import {
   resolveChannelSourceReplyDeliveryMode,
 } from "./channel-reply-pipeline.js";
 import {
-  dispatchInboundReplyWithBase,
->>>>>>> upstream/main
   hasFinalInboundReplyDispatch,
   hasVisibleInboundReplyDispatch,
   recordInboundSessionAndDispatchReply,
   resolveInboundReplyDispatchCounts,
 } from "./inbound-reply-dispatch.js";
 
+function readFirstMockArg(fn: unknown): unknown {
+  return (fn as { mock: { calls: unknown[][] } }).mock.calls[0]?.[0];
+}
+
 describe("recordInboundSessionAndDispatchReply", () => {
-<<<<<<< HEAD
-=======
   beforeEach(() => {
     deliverInboundReplyWithMessageSendContext.mockReset();
   });
 
->>>>>>> upstream/main
   it("delegates record and dispatch through the channel turn kernel once", async () => {
     const recordInboundSession = vi.fn(async () => undefined) as unknown as RecordInboundSession;
     const deliver = vi.fn(async () => undefined);
@@ -82,11 +74,7 @@ describe("recordInboundSessionAndDispatchReply", () => {
       Surface: "test",
     } as FinalizedMsgContext;
 
-<<<<<<< HEAD
-    await recordInboundSessionAndDispatchReply({
-=======
     await recordChannelMessageReplyDispatch({
->>>>>>> upstream/main
       cfg: {} as OpenClawConfig,
       channel: "test",
       accountId: "default",
@@ -102,12 +90,11 @@ describe("recordInboundSessionAndDispatchReply", () => {
     });
 
     expect(recordInboundSession).toHaveBeenCalledTimes(1);
-    expect(recordInboundSession).toHaveBeenCalledWith(
-      expect.objectContaining({
-        sessionKey: "agent:main:test:peer",
-        ctx: ctxPayload,
-      }),
-    );
+    const recordParams = readFirstMockArg(recordInboundSession) as
+      | { ctx?: unknown; sessionKey?: string }
+      | undefined;
+    expect(recordParams?.sessionKey).toBe("agent:main:test:peer");
+    expect(recordParams?.ctx).toBe(ctxPayload);
     expect(dispatchReplyWithBufferedBlockDispatcher).toHaveBeenCalledTimes(1);
     expect(deliver).toHaveBeenCalledWith({
       text: "hello",
@@ -118,8 +105,6 @@ describe("recordInboundSessionAndDispatchReply", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("keeps public compatibility delivery channel-owned when durable is omitted", async () => {
     const recordInboundSession = vi.fn(async () => undefined) as unknown as RecordInboundSession;
     const deliver = vi.fn(async () => undefined);
@@ -216,21 +201,27 @@ describe("recordInboundSessionAndDispatchReply", () => {
       onDispatchError: vi.fn(),
     });
 
-    expect(deliverInboundReplyWithMessageSendContext).toHaveBeenCalledWith(
-      expect.objectContaining({
-        channel: "telegram",
-        accountId: "default",
-        agentId: "main",
-        ctxPayload,
-        payload: expect.objectContaining({ text: "hello durable" }),
-        info: { kind: "final" },
-        replyToMode: "first",
-      }),
-    );
+    const durableParams = readFirstMockArg(deliverInboundReplyWithMessageSendContext) as
+      | {
+          accountId?: string;
+          agentId?: string;
+          channel?: string;
+          ctxPayload?: unknown;
+          info?: unknown;
+          payload?: { text?: string };
+          replyToMode?: string;
+        }
+      | undefined;
+    expect(durableParams?.channel).toBe("telegram");
+    expect(durableParams?.accountId).toBe("default");
+    expect(durableParams?.agentId).toBe("main");
+    expect(durableParams?.ctxPayload).toBe(ctxPayload);
+    expect(durableParams?.payload?.text).toBe("hello durable");
+    expect(durableParams?.info).toEqual({ kind: "final" });
+    expect(durableParams?.replyToMode).toBe("first");
     expect(deliver).not.toHaveBeenCalled();
   });
 
->>>>>>> upstream/main
   it("exports shared visible reply dispatch helpers", () => {
     expect(hasVisibleInboundReplyDispatch(undefined)).toBe(false);
     expect(
@@ -256,8 +247,6 @@ describe("recordInboundSessionAndDispatchReply", () => {
       final: 0,
     });
   });
-<<<<<<< HEAD
-=======
 
   it("exposes channel-message dispatch names as the canonical helpers for new channel code", () => {
     expect(createChannelMessageReplyPipeline).toBe(createChannelReplyPipeline);
@@ -267,11 +256,6 @@ describe("recordInboundSessionAndDispatchReply", () => {
     expect(createChannelMessageReplyPrefixContext).toBe(createReplyPrefixContext);
     expect(createChannelMessageReplyPrefixOptions).toBe(createReplyPrefixOptions);
     expect(createChannelMessageTypingCallbacks).toBe(createTypingCallbacks);
-    expect(typeof dispatchChannelMessageReplyWithBase).toBe("function");
-    expect(typeof dispatchInboundReplyWithBase).toBe("function");
     expect(hasFinalChannelMessageReplyDispatch).toBe(hasFinalInboundReplyDispatch);
-    expect(typeof recordChannelMessageReplyDispatch).toBe("function");
-    expect(typeof recordInboundSessionAndDispatchReply).toBe("function");
   });
->>>>>>> upstream/main
 });

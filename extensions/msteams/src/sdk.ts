@@ -876,9 +876,6 @@ export async function createBotFrameworkJwtValidator(creds: MSTeamsCredentials):
           return false;
         }
         return true;
-<<<<<<< HEAD
-      } catch {
-=======
       } catch (err) {
         // Network-level failures (DNS, firewall, TLS) must be distinguished from
         // invalid tokens so callers can log them at an appropriate severity.
@@ -887,14 +884,11 @@ export async function createBotFrameworkJwtValidator(creds: MSTeamsCredentials):
         if (isJwksNetworkError(err)) {
           throw err;
         }
->>>>>>> upstream/main
         return false;
       }
     },
   };
 }
-<<<<<<< HEAD
-=======
 
 /**
  * Return true when the error originated from a network-level failure fetching
@@ -920,4 +914,3 @@ function isJwksNetworkError(err: unknown): boolean {
     /jwks|key fetch|getSigningKey/i.test(err.message) && /network|fetch|connect/i.test(err.message)
   );
 }
->>>>>>> upstream/main

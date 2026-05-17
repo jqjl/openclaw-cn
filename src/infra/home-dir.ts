@@ -1,27 +1,14 @@
 import os from "node:os";
 import path from "node:path";
-<<<<<<< HEAD
-import { normalizeOptionalString } from "../shared/string-coerce.js";
-
-function normalize(value: string | undefined): string | undefined {
-  const trimmed = normalizeOptionalString(value);
-  if (!trimmed) {
-    return undefined;
-  }
-  if (trimmed === "undefined" || trimmed === "null") {
-=======
 
 function normalize(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   if (!trimmed || trimmed === "undefined" || trimmed === "null") {
->>>>>>> upstream/main
     return undefined;
   }
   return trimmed;
 }
 
-<<<<<<< HEAD
-=======
 function normalizeSafe(homedir: () => string): string | undefined {
   try {
     return normalize(homedir());
@@ -46,7 +33,6 @@ function resolveRawHomeDir(env: NodeJS.ProcessEnv, homedir: () => string): strin
   return explicitHome;
 }
 
->>>>>>> upstream/main
 export function resolveEffectiveHomeDir(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = os.homedir,
@@ -63,45 +49,6 @@ export function resolveOsHomeDir(
   return raw ? path.resolve(raw) : undefined;
 }
 
-<<<<<<< HEAD
-function resolveRawHomeDir(env: NodeJS.ProcessEnv, homedir: () => string): string | undefined {
-  const explicitHome = normalize(env.OPENCLAW_HOME);
-  if (explicitHome) {
-    if (explicitHome === "~" || explicitHome.startsWith("~/") || explicitHome.startsWith("~\\")) {
-      const fallbackHome = resolveRawOsHomeDir(env, homedir);
-      if (fallbackHome) {
-        return explicitHome.replace(/^~(?=$|[\\/])/, fallbackHome);
-      }
-      return undefined;
-    }
-    return explicitHome;
-  }
-
-  return resolveRawOsHomeDir(env, homedir);
-}
-
-function resolveRawOsHomeDir(env: NodeJS.ProcessEnv, homedir: () => string): string | undefined {
-  const envHome = normalize(env.HOME);
-  if (envHome) {
-    return envHome;
-  }
-  const userProfile = normalize(env.USERPROFILE);
-  if (userProfile) {
-    return userProfile;
-  }
-  return normalizeSafe(homedir);
-}
-
-function normalizeSafe(homedir: () => string): string | undefined {
-  try {
-    return normalize(homedir());
-  } catch {
-    return undefined;
-  }
-}
-
-=======
->>>>>>> upstream/main
 export function resolveRequiredHomeDir(
   env: NodeJS.ProcessEnv = process.env,
   homedir: () => string = os.homedir,
@@ -158,8 +105,6 @@ export function resolveHomeRelativePath(
   return path.resolve(trimmed);
 }
 
-<<<<<<< HEAD
-=======
 export function resolveUserPath(
   input: string,
   env: NodeJS.ProcessEnv = process.env,
@@ -168,7 +113,6 @@ export function resolveUserPath(
   return resolveHomeRelativePath(input, { env, homedir });
 }
 
->>>>>>> upstream/main
 export function resolveOsHomeRelativePath(
   input: string,
   opts?: {

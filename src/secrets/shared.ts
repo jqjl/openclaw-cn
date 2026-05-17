@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { privateFileStoreSync } from "../infra/private-file-store.js";
 import { replaceFileAtomicSync } from "../infra/replace-file.js";
->>>>>>> upstream/main
 export { isRecord } from "../utils.js";
 
 export function isNonEmptyString(value: unknown): value is string {
@@ -45,15 +42,9 @@ export function ensureDirForFile(filePath: string): void {
 }
 
 export function writeJsonFileSecure(pathname: string, value: unknown): void {
-<<<<<<< HEAD
-  ensureDirForFile(pathname);
-  fs.writeFileSync(pathname, `${JSON.stringify(value, null, 2)}\n`, "utf8");
-  fs.chmodSync(pathname, 0o600);
-=======
   privateFileStoreSync(path.dirname(pathname)).writeJson(path.basename(pathname), value, {
     trailingNewline: true,
   });
->>>>>>> upstream/main
 }
 
 export function readTextFileIfExists(pathname: string): string | null {
@@ -64,13 +55,6 @@ export function readTextFileIfExists(pathname: string): string | null {
 }
 
 export function writeTextFileAtomic(pathname: string, value: string, mode = 0o600): void {
-<<<<<<< HEAD
-  ensureDirForFile(pathname);
-  const tempPath = `${pathname}.tmp-${process.pid}-${Date.now()}`;
-  fs.writeFileSync(tempPath, value, "utf8");
-  fs.chmodSync(tempPath, mode);
-  fs.renameSync(tempPath, pathname);
-=======
   if (mode !== 0o600) {
     replaceFileAtomicSync({
       filePath: pathname,
@@ -81,5 +65,4 @@ export function writeTextFileAtomic(pathname: string, value: string, mode = 0o60
     return;
   }
   privateFileStoreSync(path.dirname(pathname)).writeText(path.basename(pathname), value);
->>>>>>> upstream/main
 }

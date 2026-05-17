@@ -1,12 +1,9 @@
 import {
-<<<<<<< HEAD
-=======
   defineChannelMessageAdapter,
   type ChannelMessageSendResult,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
 import {
->>>>>>> upstream/main
   createAttachedChannelResultAdapter,
   createEmptyChannelResult,
 } from "openclaw/plugin-sdk/channel-send-result";
@@ -16,12 +13,8 @@ import { type ChannelPlugin, type ResolvedLineAccount } from "./channel-api.js";
 import { resolveLineOutboundMedia, type LineOutboundMediaResolved } from "./outbound-media.js";
 import { buildLineQuickReplyFallbackText } from "./quick-reply-fallback.js";
 import { getLineRuntime } from "./runtime.js";
-<<<<<<< HEAD
-import type { LineChannelData } from "./types.js";
-=======
 import { createLineSendReceipt } from "./send-receipt.js";
 import type { LineChannelData, LineSendResult } from "./types.js";
->>>>>>> upstream/main
 
 const loadLineOutboundRuntime = createLazyRuntimeModule(() => import("./outbound.runtime.js"));
 
@@ -104,11 +97,7 @@ export const lineOutboundAdapter: NonNullable<ChannelPlugin<ResolvedLineAccount>
       lineRuntime?.buildTemplateMessageFromPayload ??
       outboundRuntime.buildTemplateMessageFromPayload;
 
-<<<<<<< HEAD
-    let lastResult: { messageId: string; chatId: string } | null = null;
-=======
     let lastResult: LineSendResult | null = null;
->>>>>>> upstream/main
     const quickReplies = lineData.quickReplies ?? [];
     const hasQuickReplies = quickReplies.length > 0;
     const quickReply = hasQuickReplies
@@ -127,11 +116,7 @@ export const lineOutboundAdapter: NonNullable<ChannelPlugin<ResolvedLineAccount>
           cfg,
           accountId: accountId ?? undefined,
         });
-<<<<<<< HEAD
-        lastResult = { messageId: result.messageId, chatId: result.chatId };
-=======
         lastResult = result;
->>>>>>> upstream/main
       }
     };
 
@@ -344,11 +329,7 @@ export const lineOutboundAdapter: NonNullable<ChannelPlugin<ResolvedLineAccount>
       const sendText = outboundRuntime.pushMessageLine;
       const sendFlex = outboundRuntime.pushFlexMessage;
       const processed = outboundRuntime.processLineMessage(text);
-<<<<<<< HEAD
-      let result: { messageId: string; chatId: string };
-=======
       let result: LineSendResult;
->>>>>>> upstream/main
       if (processed.text.trim()) {
         result = await sendText(to, processed.text, {
           verbose: false,
@@ -356,15 +337,11 @@ export const lineOutboundAdapter: NonNullable<ChannelPlugin<ResolvedLineAccount>
           accountId: accountId ?? undefined,
         });
       } else {
-<<<<<<< HEAD
-        result = { messageId: "processed", chatId: to };
-=======
         result = {
           messageId: "processed",
           chatId: to,
           receipt: createLineSendReceipt({ messageId: "processed", chatId: to, kind: "card" }),
         };
->>>>>>> upstream/main
       }
       for (const flexMsg of processed.flexMessages) {
         const flexContents = flexMsg.contents;
@@ -387,8 +364,6 @@ export const lineOutboundAdapter: NonNullable<ChannelPlugin<ResolvedLineAccount>
       }),
   }),
 };
-<<<<<<< HEAD
-=======
 
 function toLineMessageSendResult(
   result: Awaited<ReturnType<NonNullable<typeof lineOutboundAdapter.sendPayload>>>,
@@ -450,4 +425,3 @@ export const lineMessageAdapter = defineChannelMessageAdapter({
     supportedAckPolicies: ["after_receive_record", "after_agent_dispatch"],
   },
 });
->>>>>>> upstream/main

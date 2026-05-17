@@ -1,18 +1,10 @@
-<<<<<<< HEAD
-import fsSync from "node:fs";
-import fs from "node:fs/promises";
-import path from "node:path";
-import { isPidAlive } from "../shared/pid-alive.js";
-import { resolveProcessScopedMap } from "../shared/process-scoped-map.js";
-=======
 import "../infra/fs-safe-defaults.js";
 import {
   acquireFileLock as acquireFsSafeFileLock,
   drainFileLockManagerForTest,
   resetFileLockManagerForTest,
 } from "@openclaw/fs-safe/file-lock";
-import { isPidAlive } from "../shared/pid-alive.js";
->>>>>>> upstream/main
+import { shouldRemoveDeadOwnerOrExpiredLock } from "../infra/stale-lock-file.js";
 
 export type FileLockOptions = {
   retries: {
@@ -25,172 +17,25 @@ export type FileLockOptions = {
   stale: number;
 };
 
-type LockFilePayload = {
-<<<<<<< HEAD
-  pid: number;
-  createdAt: string;
-};
-
-type HeldLock = {
-  count: number;
-  handle: fs.FileHandle;
-  lockPath: string;
-};
-
-const HELD_LOCKS_KEY = Symbol.for("openclaw.fileLockHeldLocks");
-const HELD_LOCKS = resolveProcessScopedMap<HeldLock>(HELD_LOCKS_KEY);
-const CLEANUP_REGISTERED_KEY = Symbol.for("openclaw.fileLockCleanupRegistered");
-
-function releaseAllLocksSync(): void {
-  for (const [normalizedFile, held] of HELD_LOCKS) {
-    // Kick off best-effort async closes before dropping references so tests
-    // don't leave FileHandle objects for GC to close later.
-    void held.handle.close().catch(() => undefined);
-    rmLockPathSync(held.lockPath);
-    HELD_LOCKS.delete(normalizedFile);
-  }
-}
-
-async function drainAllLocks(): Promise<void> {
-  for (const [normalizedFile, held] of Array.from(HELD_LOCKS.entries())) {
-    HELD_LOCKS.delete(normalizedFile);
-    await held.handle.close().catch(() => undefined);
-    await fs.rm(held.lockPath, { force: true }).catch(() => undefined);
-  }
-}
-
-function rmLockPathSync(lockPath: string): void {
-  try {
-    fsSync.rmSync(lockPath, { force: true });
-  } catch {
-    // Best-effort exit cleanup only.
-  }
-}
-
-function ensureExitCleanupRegistered(): void {
-  const proc = process as NodeJS.Process & { [CLEANUP_REGISTERED_KEY]?: boolean };
-  if (proc[CLEANUP_REGISTERED_KEY]) {
-    return;
-  }
-  proc[CLEANUP_REGISTERED_KEY] = true;
-  process.on("exit", releaseAllLocksSync);
-}
-
-function computeDelayMs(retries: FileLockOptions["retries"], attempt: number): number {
-  const base = Math.min(
-    retries.maxTimeout,
-    Math.max(retries.minTimeout, retries.minTimeout * retries.factor ** attempt),
-  );
-  const jitter = retries.randomize ? 1 + Math.random() : 1;
-  return Math.min(retries.maxTimeout, Math.round(base * jitter));
-}
-
-async function readLockPayload(lockPath: string): Promise<LockFilePayload | null> {
-  try {
-    const raw = await fs.readFile(lockPath, "utf8");
-    const parsed = JSON.parse(raw) as Partial<LockFilePayload>;
-    if (typeof parsed.pid !== "number" || typeof parsed.createdAt !== "string") {
-      return null;
-    }
-    return { pid: parsed.pid, createdAt: parsed.createdAt };
-  } catch {
-    return null;
-  }
-}
-
-async function resolveNormalizedFilePath(filePath: string): Promise<string> {
-  const resolved = path.resolve(filePath);
-  const dir = path.dirname(resolved);
-  await fs.mkdir(dir, { recursive: true });
-  try {
-    const realDir = await fs.realpath(dir);
-    return path.join(realDir, path.basename(resolved));
-  } catch {
-    return resolved;
-  }
-}
-
-async function isStaleLock(lockPath: string, staleMs: number): Promise<boolean> {
-  const payload = await readLockPayload(lockPath);
-  if (payload?.pid && !isPidAlive(payload.pid)) {
-    return true;
-  }
-  if (payload?.createdAt) {
-    const createdAt = Date.parse(payload.createdAt);
-    if (!Number.isFinite(createdAt) || Date.now() - createdAt > staleMs) {
-      return true;
-    }
-  }
-  try {
-    const stat = await fs.stat(lockPath);
-    return Date.now() - stat.mtimeMs > staleMs;
-  } catch {
-    return true;
-  }
-}
-
-=======
-  pid?: number;
-  createdAt?: string;
-};
-
->>>>>>> upstream/main
 export type FileLockHandle = {
   lockPath: string;
   release: () => Promise<void>;
 };
 
 export const FILE_LOCK_TIMEOUT_ERROR_CODE = "file_lock_timeout";
+export const FILE_LOCK_STALE_ERROR_CODE = "file_lock_stale";
 
 export type FileLockTimeoutError = Error & {
   code: typeof FILE_LOCK_TIMEOUT_ERROR_CODE;
   lockPath: string;
 };
 
-<<<<<<< HEAD
-function createFileLockTimeoutError(
-  normalizedFile: string,
-  lockPath: string,
-): FileLockTimeoutError {
-  const error = new Error(`file lock timeout for ${normalizedFile}`);
-  return Object.assign(error, {
-    code: FILE_LOCK_TIMEOUT_ERROR_CODE,
-    lockPath,
-  }) as FileLockTimeoutError;
-}
+export type FileLockStaleError = Error & {
+  code: typeof FILE_LOCK_STALE_ERROR_CODE;
+  lockPath: string;
+};
 
-async function releaseHeldLock(normalizedFile: string): Promise<void> {
-  const current = HELD_LOCKS.get(normalizedFile);
-  if (!current) {
-    return;
-  }
-  current.count -= 1;
-  if (current.count > 0) {
-    return;
-  }
-  HELD_LOCKS.delete(normalizedFile);
-  await current.handle.close().catch(() => undefined);
-  await fs.rm(current.lockPath, { force: true }).catch(() => undefined);
-}
-
-export function resetFileLockStateForTest(): void {
-  releaseAllLocksSync();
-}
-
-export async function drainFileLockStateForTest(): Promise<void> {
-  await drainAllLocks();
-=======
 const FILE_LOCK_MANAGER_KEY = "openclaw.plugin-sdk.file-lock";
-
-function readLockPayload(value: Record<string, unknown> | null): LockFilePayload | null {
-  if (!value) {
-    return null;
-  }
-  return {
-    pid: typeof value.pid === "number" ? value.pid : undefined,
-    createdAt: typeof value.createdAt === "string" ? value.createdAt : undefined,
-  };
-}
 
 async function shouldReclaimPluginLock(params: {
   lockPath: string;
@@ -198,23 +43,25 @@ async function shouldReclaimPluginLock(params: {
   staleMs: number;
   nowMs: number;
 }): Promise<boolean> {
-  const payload = readLockPayload(params.payload);
-  if (payload?.pid && !isPidAlive(payload.pid)) {
-    return true;
-  }
-  if (payload?.createdAt) {
-    const createdAt = Date.parse(payload.createdAt);
-    return !Number.isFinite(createdAt) || params.nowMs - createdAt > params.staleMs;
-  }
-  return true;
+  return shouldRemoveDeadOwnerOrExpiredLock({
+    payload: params.payload,
+    staleMs: params.staleMs,
+    nowMs: params.nowMs,
+  });
 }
 
-function normalizeTimeoutError(err: unknown): never {
+function normalizeLockError(err: unknown): never {
   if ((err as { code?: unknown }).code === FILE_LOCK_TIMEOUT_ERROR_CODE) {
     throw Object.assign(new Error((err as Error).message), {
       code: FILE_LOCK_TIMEOUT_ERROR_CODE,
       lockPath: (err as { lockPath?: string }).lockPath ?? "",
     }) as FileLockTimeoutError;
+  }
+  if ((err as { code?: unknown }).code === FILE_LOCK_STALE_ERROR_CODE) {
+    throw Object.assign(new Error((err as Error).message), {
+      code: FILE_LOCK_STALE_ERROR_CODE,
+      lockPath: (err as { lockPath?: string }).lockPath ?? "",
+    }) as FileLockStaleError;
   }
   throw err;
 }
@@ -225,7 +72,6 @@ export function resetFileLockStateForTest(): void {
 
 export async function drainFileLockStateForTest(): Promise<void> {
   await drainFileLockManagerForTest(FILE_LOCK_MANAGER_KEY, FILE_LOCK_MANAGER_KEY);
->>>>>>> upstream/main
 }
 
 /** Acquire a re-entrant process-local file lock backed by a `.lock` sidecar file. */
@@ -233,69 +79,25 @@ export async function acquireFileLock(
   filePath: string,
   options: FileLockOptions,
 ): Promise<FileLockHandle> {
-<<<<<<< HEAD
-  ensureExitCleanupRegistered();
-  const normalizedFile = await resolveNormalizedFilePath(filePath);
-  const lockPath = `${normalizedFile}.lock`;
-  const held = HELD_LOCKS.get(normalizedFile);
-  if (held) {
-    held.count += 1;
-    return {
-      lockPath,
-      release: () => releaseHeldLock(normalizedFile),
-    };
-  }
-
-  for (let attempt = 0; attempt <= options.retries.retries; attempt += 1) {
-    try {
-      const handle = await fs.open(lockPath, "wx");
-      try {
-        await handle.writeFile(
-          JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }, null, 2),
-          "utf8",
-        );
-      } catch (writeError) {
-        await handle.close().catch(() => undefined);
-        await fs.rm(lockPath, { force: true }).catch(() => undefined);
-        throw writeError;
-      }
-      HELD_LOCKS.set(normalizedFile, { count: 1, handle, lockPath });
-      return {
-        lockPath,
-        release: () => releaseHeldLock(normalizedFile),
-      };
-    } catch (err) {
-      const code = (err as { code?: string }).code;
-      if (code !== "EEXIST") {
-        throw err;
-      }
-      if (await isStaleLock(lockPath, options.stale)) {
-        await fs.rm(lockPath, { force: true }).catch(() => undefined);
-        continue;
-      }
-      if (attempt >= options.retries.retries) {
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, computeDelayMs(options.retries, attempt)));
-    }
-  }
-
-  throw createFileLockTimeoutError(normalizedFile, lockPath);
-=======
   try {
     const lock = await acquireFsSafeFileLock(filePath, {
       managerKey: FILE_LOCK_MANAGER_KEY,
       staleMs: options.stale,
       retry: options.retries,
+      staleRecovery: "remove-if-unchanged",
       allowReentrant: true,
       payload: () => ({ pid: process.pid, createdAt: new Date().toISOString() }),
       shouldReclaim: shouldReclaimPluginLock,
+      shouldRemoveStaleLock: (snapshot) =>
+        shouldRemoveDeadOwnerOrExpiredLock({
+          payload: snapshot.payload,
+          staleMs: options.stale,
+        }),
     });
     return { lockPath: lock.lockPath, release: lock.release };
   } catch (err) {
-    return normalizeTimeoutError(err);
+    return normalizeLockError(err);
   }
->>>>>>> upstream/main
 }
 
 /** Run an async callback while holding a file lock, always releasing the lock afterward. */

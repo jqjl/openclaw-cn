@@ -2,11 +2,8 @@ import { describeAccountSnapshot } from "openclaw/plugin-sdk/account-helpers";
 import { DEFAULT_ACCOUNT_ID } from "openclaw/plugin-sdk/account-id";
 import { createHybridChannelConfigAdapter } from "openclaw/plugin-sdk/channel-config-helpers";
 import { createChatChannelPlugin, type ChannelPlugin } from "openclaw/plugin-sdk/channel-core";
-<<<<<<< HEAD
-=======
 import { createChannelMessageAdapterFromOutbound } from "openclaw/plugin-sdk/channel-message";
 import type { ChannelOutboundAdapter } from "openclaw/plugin-sdk/channel-send-result";
->>>>>>> upstream/main
 import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
 import { createRuntimeOutboundDelegates } from "openclaw/plugin-sdk/outbound-runtime";
 import {
@@ -63,8 +60,6 @@ const tlonConfigAdapter = createHybridChannelConfigAdapter({
     allowFrom.map((entry) => normalizeShip(String(entry))).filter(Boolean),
 });
 
-<<<<<<< HEAD
-=======
 const tlonChannelOutbound: ChannelOutboundAdapter = {
   deliveryMode: "direct",
   textChunkLimit: 10000,
@@ -90,7 +85,6 @@ const tlonMessageAdapter = createChannelMessageAdapterFromOutbound({
   outbound: tlonChannelOutbound,
 });
 
->>>>>>> upstream/main
 export const tlonPlugin = createChatChannelPlugin({
   base: {
     id: TLON_CHANNEL_ID,
@@ -146,10 +140,7 @@ export const tlonPlugin = createChatChannelPlugin({
       },
       resolveOutboundSessionRoute: (params) => resolveTlonOutboundSessionRoute(params),
     },
-<<<<<<< HEAD
-=======
     message: tlonMessageAdapter,
->>>>>>> upstream/main
     status: createComputedAccountStatusAdapter<ReturnType<typeof resolveTlonAccount>>({
       defaultRuntime: createDefaultChannelRuntimeState(DEFAULT_ACCOUNT_ID),
       collectStatusIssues: (accounts) => {
@@ -197,18 +188,5 @@ export const tlonPlugin = createChatChannelPlugin({
         await (await loadTlonChannelRuntime()).startTlonGatewayAccount(ctx),
     },
   },
-<<<<<<< HEAD
-  outbound: {
-    deliveryMode: "direct",
-    textChunkLimit: 10000,
-    resolveTarget: ({ to }) => resolveTlonOutboundTarget(to),
-    ...createRuntimeOutboundDelegates({
-      getRuntime: loadTlonChannelRuntime,
-      sendText: { resolve: (runtime) => runtime.tlonRuntimeOutbound.sendText },
-      sendMedia: { resolve: (runtime) => runtime.tlonRuntimeOutbound.sendMedia },
-    }),
-  },
-=======
   outbound: tlonChannelOutbound,
->>>>>>> upstream/main
 });

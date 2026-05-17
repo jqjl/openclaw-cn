@@ -1,9 +1,4 @@
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-<<<<<<< HEAD
-import { resolveThreadSessionKeys } from "openclaw/plugin-sdk/routing";
-import { describe, expect, it } from "vitest";
-import { resolveTelegramConversationBaseSessionKey } from "./conversation-route.js";
-=======
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import {
   __testing as conversationBindingTesting,
   registerSessionBindingAdapter,
@@ -15,18 +10,14 @@ import {
   resolveTelegramConversationBaseSessionKey,
   resolveTelegramConversationRoute,
 } from "./conversation-route.js";
->>>>>>> upstream/main
 
 describe("resolveTelegramConversationBaseSessionKey", () => {
   const cfg: OpenClawConfig = {};
 
-<<<<<<< HEAD
-=======
   beforeEach(() => {
     conversationBindingTesting.resetSessionBindingAdaptersForTests();
   });
 
->>>>>>> upstream/main
   it("keeps default-account DMs on the route session key", () => {
     expect(
       resolveTelegramConversationBaseSessionKey({
@@ -126,8 +117,6 @@ describe("resolveTelegramConversationBaseSessionKey", () => {
       }).sessionKey,
     ).toBe("agent:main:telegram:personal:direct:12345:thread:12345:99");
   });
-<<<<<<< HEAD
-=======
 
   it("keeps inbound DMs on the main route when a stale runtime binding points at a cron run", () => {
     const touch = vi.fn<NonNullable<SessionBindingAdapter["touch"]>>();
@@ -165,11 +154,8 @@ describe("resolveTelegramConversationBaseSessionKey", () => {
     expect(touch).not.toHaveBeenCalled();
     expect(result.configuredBinding).toBeNull();
     expect(result.configuredBindingSessionKey).toBe("");
-    expect(result.route).toMatchObject({
-      agentId: "main",
-      sessionKey: "agent:main:main",
-      matchedBy: "default",
-    });
+    expect(result.route.agentId).toBe("main");
+    expect(result.route.sessionKey).toBe("agent:main:main");
+    expect(result.route.matchedBy).toBe("default");
   });
->>>>>>> upstream/main
 });

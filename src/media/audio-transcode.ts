@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-=======
-import path from "node:path";
+import { writeExternalFileWithinRoot } from "../infra/fs-safe.js";
 import { withTempWorkspace } from "../infra/private-temp-workspace.js";
->>>>>>> upstream/main
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { runFfmpeg } from "./ffmpeg-exec.js";
+import { basenameFromAnyPath } from "./file-name.js";
 
 const DEFAULT_OPUS_SAMPLE_RATE_HZ = 48_000;
 const DEFAULT_OPUS_BITRATE = "64k";
@@ -37,7 +34,7 @@ function normalizeTempPrefix(value?: string): string {
 }
 
 function normalizeOutputFileName(value?: string): string {
-  const baseName = path.basename(value?.trim() || DEFAULT_OUTPUT_FILE_NAME);
+  const baseName = basenameFromAnyPath(value?.trim() || DEFAULT_OUTPUT_FILE_NAME);
   if (/^[a-zA-Z0-9._-]{1,80}$/.test(baseName) && baseName !== "." && baseName !== "..") {
     return baseName;
   }
@@ -55,42 +52,6 @@ export async function transcodeAudioBufferToOpus(params: {
   bitrate?: string;
   channels?: number;
 }): Promise<Buffer> {
-<<<<<<< HEAD
-  const tempRoot = resolvePreferredOpenClawTmpDir();
-  await mkdir(tempRoot, { recursive: true, mode: 0o700 });
-  const tempDir = await mkdtemp(path.join(tempRoot, normalizeTempPrefix(params.tempPrefix)));
-  try {
-    const inputPath = path.join(tempDir, `input${normalizeAudioExtension(params)}`);
-    const outputPath = path.join(tempDir, normalizeOutputFileName(params.outputFileName));
-    await writeFile(inputPath, params.audioBuffer, { mode: 0o600 });
-    await runFfmpeg(
-      [
-        "-hide_banner",
-        "-loglevel",
-        "error",
-        "-y",
-        "-i",
-        inputPath,
-        "-vn",
-        "-sn",
-        "-dn",
-        "-c:a",
-        "libopus",
-        "-b:a",
-        params.bitrate ?? DEFAULT_OPUS_BITRATE,
-        "-ar",
-        String(params.sampleRateHz ?? DEFAULT_OPUS_SAMPLE_RATE_HZ),
-        "-ac",
-        String(params.channels ?? DEFAULT_OPUS_CHANNELS),
-        outputPath,
-      ],
-      { timeoutMs: params.timeoutMs },
-    );
-    return await readFile(outputPath);
-  } finally {
-    await rm(tempDir, { recursive: true, force: true });
-  }
-=======
   return await withTempWorkspace(
     {
       rootDir: resolvePreferredOpenClawTmpDir(),
@@ -101,32 +62,39 @@ export async function transcodeAudioBufferToOpus(params: {
         `input${normalizeAudioExtension(params)}`,
         params.audioBuffer,
       );
-      const outputPath = workspace.path(normalizeOutputFileName(params.outputFileName));
-      await runFfmpeg(
-        [
-          "-hide_banner",
-          "-loglevel",
-          "error",
-          "-y",
-          "-i",
-          inputPath,
-          "-vn",
-          "-sn",
-          "-dn",
-          "-c:a",
-          "libopus",
-          "-b:a",
-          params.bitrate ?? DEFAULT_OPUS_BITRATE,
-          "-ar",
-          String(params.sampleRateHz ?? DEFAULT_OPUS_SAMPLE_RATE_HZ),
-          "-ac",
-          String(params.channels ?? DEFAULT_OPUS_CHANNELS),
-          outputPath,
-        ],
-        { timeoutMs: params.timeoutMs },
-      );
-      return await workspace.read(normalizeOutputFileName(params.outputFileName));
+      const outputFileName = normalizeOutputFileName(params.outputFileName);
+      await writeExternalFileWithinRoot({
+        rootDir: workspace.dir,
+        path: outputFileName,
+        write: async (outputPath) => {
+          await runFfmpeg(
+            [
+              "-hide_banner",
+              "-loglevel",
+              "error",
+              "-y",
+              "-i",
+              inputPath,
+              "-vn",
+              "-sn",
+              "-dn",
+              "-c:a",
+              "libopus",
+              "-b:a",
+              params.bitrate ?? DEFAULT_OPUS_BITRATE,
+              "-ar",
+              String(params.sampleRateHz ?? DEFAULT_OPUS_SAMPLE_RATE_HZ),
+              "-ac",
+              String(params.channels ?? DEFAULT_OPUS_CHANNELS),
+              "-f",
+              "opus",
+              outputPath,
+            ],
+            { timeoutMs: params.timeoutMs },
+          );
+        },
+      });
+      return await workspace.read(outputFileName);
     },
   );
->>>>>>> upstream/main
 }

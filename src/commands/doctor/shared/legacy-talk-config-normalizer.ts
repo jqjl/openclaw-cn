@@ -14,8 +14,6 @@ function buildLegacyTalkProviderCompat(
   return Object.keys(compat).length > 0 ? compat : undefined;
 }
 
-<<<<<<< HEAD
-=======
 function buildLegacyRealtimeTalkCompat(
   talk: Record<string, unknown>,
   normalizedTalk: NonNullable<OpenClawConfig["talk"]>,
@@ -41,7 +39,6 @@ function buildLegacyRealtimeTalkCompat(
   return normalizeTalkSection({ realtime: compat } as OpenClawConfig["talk"])?.realtime;
 }
 
->>>>>>> upstream/main
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value && typeof value === "object" && !Array.isArray(value));
 }
@@ -63,8 +60,6 @@ export function normalizeLegacyTalkConfig(cfg: OpenClawConfig, changes: string[]
       },
     };
   }
-<<<<<<< HEAD
-=======
   const legacyRealtimeCompat = buildLegacyRealtimeTalkCompat(rawTalk, normalizedTalk);
   if (legacyRealtimeCompat) {
     normalizedTalk.realtime = {
@@ -72,7 +67,6 @@ export function normalizeLegacyTalkConfig(cfg: OpenClawConfig, changes: string[]
       ...normalizedTalk.realtime,
     };
   }
->>>>>>> upstream/main
   if (Object.keys(normalizedTalk).length === 0 || isDeepStrictEqual(normalizedTalk, rawTalk)) {
     return cfg;
   }
@@ -80,12 +74,9 @@ export function normalizeLegacyTalkConfig(cfg: OpenClawConfig, changes: string[]
   changes.push(
     "Normalized talk.provider/providers shape (trimmed provider ids and merged missing compatibility fields).",
   );
-<<<<<<< HEAD
-=======
   if (legacyRealtimeCompat) {
     changes.push("Moved legacy realtime Talk provider/model fields into talk.realtime.");
   }
->>>>>>> upstream/main
   return {
     ...cfg,
     talk: normalizedTalk,

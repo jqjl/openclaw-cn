@@ -4,28 +4,16 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import path from "node:path";
 import { resolveAgentAvatar, resolvePublicAgentAvatarSource } from "../agents/identity-avatar.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-<<<<<<< HEAD
-import { matchBoundaryFileOpenFailure, openBoundaryFileSync } from "../infra/boundary-file-read.js";
-=======
 import { matchRootFileOpenFailure, openRootFileSync } from "../infra/boundary-file-read.js";
->>>>>>> upstream/main
 import {
   isPackageProvenControlUiRootSync,
   resolveControlUiRootSync,
 } from "../infra/control-ui-assets.js";
 import { listDevicePairing, verifyDeviceToken } from "../infra/device-pairing.js";
-<<<<<<< HEAD
-import { openLocalFileSafely, SafeOpenError } from "../infra/fs-safe.js";
-import { safeFileURLToPath } from "../infra/local-file-access.js";
-import { verifyPairingToken } from "../infra/pairing-token.js";
-import { isWithinDir } from "../infra/path-safety.js";
-import { openVerifiedFileSync } from "../infra/safe-open-sync.js";
-=======
 import { openLocalFileSafely, FsSafeError, readSecureFile } from "../infra/fs-safe.js";
 import { safeFileURLToPath } from "../infra/local-file-access.js";
 import { verifyPairingToken } from "../infra/pairing-token.js";
 import { isWithinDir } from "../infra/path-safety.js";
->>>>>>> upstream/main
 import { assertLocalMediaAllowed, getDefaultLocalRoots } from "../media/local-media-access.js";
 import { getAgentScopedMediaLocalRoots } from "../media/local-roots.js";
 import { resolveMediaReferenceLocalPath } from "../media/media-reference.js";
@@ -57,7 +45,7 @@ import {
   normalizeControlUiBasePath,
   resolveAssistantAvatarUrl,
 } from "./control-ui-shared.js";
-import { sendGatewayAuthFailure } from "./http-common.js";
+import { buildMissingScopeForbiddenBody, sendGatewayAuthFailure } from "./http-common.js";
 import {
   getBearerToken,
   resolveHttpBrowserOriginPolicy,
@@ -147,6 +135,16 @@ const STATIC_ASSET_EXTENSIONS = new Set([
   ".ico",
   ".txt",
   ".webmanifest",
+]);
+
+const CONTROL_UI_NAMESPACE_PREFIX = "/__openclaw__/";
+const CONTROL_UI_ROOT_PUBLIC_ASSETS = new Set([
+  "apple-touch-icon.png",
+  "favicon-32.png",
+  "favicon.ico",
+  "favicon.svg",
+  "manifest.webmanifest",
+  "sw.js",
 ]);
 
 export type ControlUiAvatarResolution =
@@ -353,13 +351,7 @@ async function authorizeControlUiReadRequest(
     requestedScopes,
   );
   if (!scopeAuth.allowed) {
-    sendJson(res, 403, {
-      ok: false,
-      error: {
-        type: "forbidden",
-        message: `missing scope: ${scopeAuth.missingScope}`,
-      },
-    });
+    sendJson(res, 403, buildMissingScopeForbiddenBody(scopeAuth.missingScope));
     return false;
   }
 
@@ -452,11 +444,7 @@ function verifyAssistantMediaTicket(ticket: string | null, source: string, nowMs
 }
 
 function classifyAssistantMediaError(err: unknown): AssistantMediaAvailability {
-<<<<<<< HEAD
-  if (err instanceof SafeOpenError) {
-=======
   if (err instanceof FsSafeError) {
->>>>>>> upstream/main
     switch (err.code) {
       case "not-found":
         return { available: false, code: "file-not-found", reason: "File not found" };
@@ -702,34 +690,17 @@ export async function handleControlUiAvatarRequest(
     return true;
   }
 
-<<<<<<< HEAD
-  const safeAvatar = resolveSafeAvatarFile(resolved.filePath);
-=======
   const safeAvatar = await resolveSafeAvatarFile(resolved.filePath);
->>>>>>> upstream/main
   if (!safeAvatar) {
     respondControlUiNotFound(res);
     return true;
   }
-<<<<<<< HEAD
-  try {
-    if (respondHeadForFile(req, res, safeAvatar.path)) {
-      return true;
-    }
-
-    serveResolvedFile(res, safeAvatar.path, fs.readFileSync(safeAvatar.fd));
-    return true;
-  } finally {
-    fs.closeSync(safeAvatar.fd);
-  }
-=======
   if (respondHeadForFile(req, res, safeAvatar.path)) {
     return true;
   }
 
   serveResolvedFile(res, safeAvatar.path, safeAvatar.buffer);
   return true;
->>>>>>> upstream/main
 }
 
 function setStaticFileHeaders(res: ServerResponse, filePath: string) {
@@ -764,18 +735,6 @@ function isExpectedSafePathError(error: unknown): boolean {
   return code === "ENOENT" || code === "ENOTDIR" || code === "ELOOP";
 }
 
-<<<<<<< HEAD
-function resolveSafeAvatarFile(filePath: string): { path: string; fd: number } | null {
-  const opened = openVerifiedFileSync({
-    filePath,
-    rejectPathSymlink: true,
-    maxBytes: AVATAR_MAX_BYTES,
-  });
-  if (!opened.ok) {
-    return null;
-  }
-  return { path: opened.path, fd: opened.fd };
-=======
 async function resolveSafeAvatarFile(
   filePath: string,
 ): Promise<{ path: string; buffer: Buffer } | null> {
@@ -790,7 +749,6 @@ async function resolveSafeAvatarFile(
   } catch {
     return null;
   }
->>>>>>> upstream/main
 }
 
 function resolveSafeControlUiFile(
@@ -798,11 +756,7 @@ function resolveSafeControlUiFile(
   filePath: string,
   rejectHardlinks: boolean,
 ): { path: string; fd: number } | null {
-<<<<<<< HEAD
-  const opened = openBoundaryFileSync({
-=======
   const opened = openRootFileSync({
->>>>>>> upstream/main
     absolutePath: filePath,
     rootPath: rootReal,
     rootRealPath: rootReal,
@@ -811,11 +765,7 @@ function resolveSafeControlUiFile(
     rejectHardlinks,
   });
   if (!opened.ok) {
-<<<<<<< HEAD
-    return matchBoundaryFileOpenFailure(opened, {
-=======
     return matchRootFileOpenFailure(opened, {
->>>>>>> upstream/main
       io: (failure) => {
         throw failure.error;
       },
@@ -978,6 +928,12 @@ export async function handleControlUiHttpRequest(
   const rel = (() => {
     if (uiPath === ROOT_PREFIX) {
       return "";
+    }
+    if (uiPath.startsWith(CONTROL_UI_NAMESPACE_PREFIX)) {
+      const namespacedRel = uiPath.slice(CONTROL_UI_NAMESPACE_PREFIX.length);
+      if (CONTROL_UI_ROOT_PUBLIC_ASSETS.has(namespacedRel)) {
+        return namespacedRel;
+      }
     }
     const assetsIndex = uiPath.indexOf("/assets/");
     if (assetsIndex >= 0) {

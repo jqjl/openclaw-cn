@@ -3,13 +3,10 @@ import {
   buildThreadAwareOutboundSessionRoute,
   createChatChannelPlugin,
 } from "openclaw/plugin-sdk/channel-core";
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { getChatChannelMeta } from "openclaw/plugin-sdk/channel-plugin-common";
 import {
   DEFAULT_ACCOUNT_ID,
@@ -30,8 +27,6 @@ import type { CoreConfig, ResolvedQaChannelAccount } from "./types.js";
 const CHANNEL_ID = "qa-channel" as const;
 const meta = { ...getChatChannelMeta(CHANNEL_ID) };
 
-<<<<<<< HEAD
-=======
 const qaChannelMessageAdapter = defineChannelMessageAdapter({
   id: CHANNEL_ID,
   durableFinal: {
@@ -67,7 +62,6 @@ const qaChannelMessageAdapter = defineChannelMessageAdapter({
   },
 });
 
->>>>>>> upstream/main
 export const qaChannelPlugin: ChannelPlugin<ResolvedQaChannelAccount> = createChatChannelPlugin({
   base: {
     id: CHANNEL_ID,
@@ -169,10 +163,7 @@ export const qaChannelPlugin: ChannelPlugin<ResolvedQaChannelAccount> = createCh
       },
     },
     actions: qaChannelMessageActions,
-<<<<<<< HEAD
-=======
     message: qaChannelMessageAdapter,
->>>>>>> upstream/main
   },
   outbound: {
     base: {

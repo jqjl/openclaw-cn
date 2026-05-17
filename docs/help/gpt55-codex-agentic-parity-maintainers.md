@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# GPT-5.4 / Codex Parity Maintainer Notes
-
-This note explains how to review the GPT-5.4 / Codex parity program as four merge units without losing the original six-contract architecture.
-=======
 ---
 summary: "How to review the GPT-5.5 / Codex parity program as four merge units"
 title: "GPT-5.5 / Codex parity maintainer notes"
@@ -12,7 +7,6 @@ read_when:
 ---
 
 This note explains how to review the GPT-5.5 / Codex parity program as four merge units without losing the original six-contract architecture.
->>>>>>> upstream/main
 
 ## Merge units
 
@@ -104,11 +98,7 @@ PR D is the proof layer. It should not be the reason runtime-correctness PRs are
 
 ### PR B
 
-<<<<<<< HEAD
-- auth/proxy/runtime failures stop collapsing into generic “model failed” handling
-=======
 - auth/proxy/runtime failures stop collapsing into generic "model failed" handling
->>>>>>> upstream/main
 - `/elevated full` is only described as available when it is actually available
 - blocked reasons are visible to both the model and the user-facing runtime
 

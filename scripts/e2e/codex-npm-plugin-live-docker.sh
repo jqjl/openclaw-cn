@@ -11,11 +11,7 @@ IMAGE_NAME="$(docker_e2e_resolve_image "openclaw-codex-npm-plugin-live-e2e" OPEN
 DOCKER_TARGET="${OPENCLAW_CODEX_NPM_PLUGIN_DOCKER_TARGET:-bare}"
 HOST_BUILD="${OPENCLAW_CODEX_NPM_PLUGIN_HOST_BUILD:-1}"
 PACKAGE_TGZ="${OPENCLAW_CURRENT_PACKAGE_TGZ:-}"
-<<<<<<< HEAD
-PROFILE_FILE="${OPENCLAW_CODEX_NPM_PLUGIN_PROFILE_FILE:-$HOME/.profile}"
-=======
 PROFILE_FILE="${OPENCLAW_CODEX_NPM_PLUGIN_PROFILE_FILE:-${OPENCLAW_TESTBOX_PROFILE_FILE:-$HOME/.openclaw-testbox-live.profile}}"
->>>>>>> upstream/main
 
 docker_e2e_build_or_reuse "$IMAGE_NAME" codex-npm-plugin-live "$ROOT_DIR/scripts/e2e/Dockerfile" "$ROOT_DIR" "$DOCKER_TARGET"
 
@@ -36,13 +32,10 @@ prepare_package_tgz
 PROFILE_MOUNT=()
 PROFILE_STATUS="none"
 if [ -f "$PROFILE_FILE" ] && [ -r "$PROFILE_FILE" ]; then
-<<<<<<< HEAD
-=======
   set -a
   # shellcheck disable=SC1090
   source "$PROFILE_FILE"
   set +a
->>>>>>> upstream/main
   PROFILE_MOUNT=(-v "$PROFILE_FILE":/home/appuser/.profile:ro)
   PROFILE_STATUS="$PROFILE_FILE"
 fi
@@ -59,11 +52,8 @@ if ! docker_e2e_run_with_harness \
   -e OPENCLAW_CODEX_NPM_PLUGIN_FORCE_UNSAFE_INSTALL="${OPENCLAW_CODEX_NPM_PLUGIN_FORCE_UNSAFE_INSTALL:-0}" \
   -e OPENCLAW_CODEX_NPM_PLUGIN_MODEL="${OPENCLAW_CODEX_NPM_PLUGIN_MODEL:-codex/gpt-5.4}" \
   -e OPENCLAW_CODEX_NPM_PLUGIN_SPEC="${OPENCLAW_CODEX_NPM_PLUGIN_SPEC:-npm:@openclaw/codex}" \
-<<<<<<< HEAD
-=======
   -e OPENAI_API_KEY \
   -e OPENAI_BASE_URL \
->>>>>>> upstream/main
   -e "OPENCLAW_TEST_STATE_SCRIPT_B64=$OPENCLAW_TEST_STATE_SCRIPT_B64" \
   "${DOCKER_E2E_PACKAGE_ARGS[@]}" \
   "${PROFILE_MOUNT[@]}" \

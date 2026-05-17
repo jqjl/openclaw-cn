@@ -4,19 +4,6 @@ title: "Fireworks"
 read_when:
   - You want to use Fireworks with OpenClaw
   - You need the Fireworks API key env var or default model id
-<<<<<<< HEAD
----
-
-[Fireworks](https://fireworks.ai) exposes open-weight and routed models through an OpenAI-compatible API. OpenClaw includes a bundled Fireworks provider plugin.
-
-| Property      | Value                                                  |
-| ------------- | ------------------------------------------------------ |
-| Provider      | `fireworks`                                            |
-| Auth          | `FIREWORKS_API_KEY`                                    |
-| API           | OpenAI-compatible chat/completions                     |
-| Base URL      | `https://api.fireworks.ai/inference/v1`                |
-| Default model | `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` |
-=======
   - You are debugging Kimi thinking-off behavior on Fireworks
 ---
 
@@ -33,19 +20,10 @@ read_when:
 | Base URL        | `https://api.fireworks.ai/inference/v1`                |
 | Default model   | `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` |
 | Default alias   | `Kimi K2.5 Turbo`                                      |
->>>>>>> upstream/main
 
 ## Getting started
 
 <Steps>
-<<<<<<< HEAD
-  <Step title="Set up Fireworks auth through onboarding">
-    ```bash
-    openclaw onboard --auth-choice fireworks-api-key
-    ```
-
-    This stores your Fireworks key in OpenClaw config and sets the Fire Pass starter model as the default.
-=======
   <Step title="Set the Fireworks API key">
     <CodeGroup>
 
@@ -66,21 +44,12 @@ export FIREWORKS_API_KEY=fw-...
     </CodeGroup>
 
     Onboarding stores the key against the `fireworks` provider in your auth profiles and sets the **Fire Pass** Kimi K2.5 Turbo router as the default model.
->>>>>>> upstream/main
 
   </Step>
   <Step title="Verify the model is available">
     ```bash
     openclaw models list --provider fireworks
     ```
-<<<<<<< HEAD
-  </Step>
-</Steps>
-
-## Non-interactive example
-
-For scripted or CI setups, pass all values on the command line:
-=======
 
     The list should include `Kimi K2.6` and `Kimi K2.5 Turbo (Fire Pass)`. If `FIREWORKS_API_KEY` is unresolved, `openclaw models status --json` reports the missing credential under `auth.unusableProfiles`.
 
@@ -90,7 +59,6 @@ For scripted or CI setups, pass all values on the command line:
 ## Non-interactive setup
 
 For scripted or CI installs, pass everything on the command line:
->>>>>>> upstream/main
 
 ```bash
 openclaw onboard --non-interactive \
@@ -103,19 +71,6 @@ openclaw onboard --non-interactive \
 
 ## Built-in catalog
 
-<<<<<<< HEAD
-| Model ref                                              | Name                        | Input      | Context | Max output | Notes                                      |
-| ------------------------------------------------------ | --------------------------- | ---------- | ------- | ---------- | ------------------------------------------ |
-| `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo` | Kimi K2.5 Turbo (Fire Pass) | text,image | 256,000 | 256,000    | Default bundled starter model on Fireworks |
-
-<Tip>
-If Fireworks publishes a newer model such as a fresh Qwen or Gemma release, you can switch to it directly by using its Fireworks model id without waiting for a bundled catalog update.
-</Tip>
-
-## Custom Fireworks model ids
-
-OpenClaw accepts dynamic Fireworks model ids too. Use the exact model or router id shown by Fireworks and prefix it with `fireworks/`.
-=======
 | Model ref                                              | Name                        | Input        | Context | Max output | Thinking             |
 | ------------------------------------------------------ | --------------------------- | ------------ | ------- | ---------- | -------------------- |
 | `fireworks/accounts/fireworks/models/kimi-k2p6`        | Kimi K2.6                   | text + image | 262,144 | 262,144    | Forced off           |
@@ -128,18 +83,13 @@ OpenClaw accepts dynamic Fireworks model ids too. Use the exact model or router 
 ## Custom Fireworks model ids
 
 OpenClaw accepts any Fireworks model or router id at runtime. Use the exact id shown by Fireworks and prefix it with `fireworks/`. Dynamic resolution clones the Fire Pass template (text + image input, OpenAI-compatible API, default cost zero) and disables thinking automatically when the id matches the Kimi pattern.
->>>>>>> upstream/main
 
 ```json5
 {
   agents: {
     defaults: {
       model: {
-<<<<<<< HEAD
-        primary: "fireworks/accounts/fireworks/routers/kimi-k2p5-turbo",
-=======
         primary: "fireworks/accounts/fireworks/models/<your-model-id>",
->>>>>>> upstream/main
       },
     },
   },
@@ -153,19 +103,6 @@ OpenClaw accepts any Fireworks model or router id at runtime. Use the exact id s
     - Router model: `fireworks/accounts/fireworks/routers/kimi-k2p5-turbo`
     - Direct model: `fireworks/accounts/fireworks/models/<model-name>`
 
-<<<<<<< HEAD
-    OpenClaw strips the `fireworks/` prefix when building the API request and sends the remaining path to the Fireworks endpoint.
-
-  </Accordion>
-
-  <Accordion title="Environment note">
-    If the Gateway runs outside your interactive shell, make sure `FIREWORKS_API_KEY` is available to that process too.
-
-    <Warning>
-    A key sitting only in `~/.profile` will not help a launchd/systemd daemon unless that environment is imported there as well. Set the key in `~/.openclaw/.env` or via `env.shellEnv` to ensure the gateway process can read it.
-    </Warning>
-
-=======
     OpenClaw strips the `fireworks/` prefix when constructing the API request and sends the remaining path to the Fireworks endpoint as the OpenAI-compatible `model` field.
 
   </Accordion>
@@ -181,23 +118,17 @@ OpenClaw accepts any Fireworks model or router id at runtime. Use the exact id s
     If the Gateway runs as a managed service (launchd, systemd, Docker), the Fireworks key must be visible to that process — not just to your interactive shell.
 
     <Warning>
-      A key sitting only in `~/.profile` will not help a launchd or systemd daemon unless that environment is imported there too. Set the key in `~/.openclaw/.env` or via `env.shellEnv` to make it readable from the gateway process.
+      A key exported only in an interactive shell will not help a launchd or systemd daemon unless that environment is imported there too. Set the key in `~/.openclaw/.env` or via `env.shellEnv` to make it readable from the gateway process.
     </Warning>
 
     On macOS, `openclaw gateway install` already wires `~/.openclaw/.env` into the LaunchAgent environment file. Re-run install (or `openclaw doctor --fix`) after rotating the key.
 
->>>>>>> upstream/main
   </Accordion>
 </AccordionGroup>
 
 ## Related
 
 <CardGroup cols={2}>
-<<<<<<< HEAD
-  <Card title="Model selection" href="/concepts/model-providers" icon="layers">
-    Choosing providers, model refs, and failover behavior.
-  </Card>
-=======
   <Card title="Model providers" href="/concepts/model-providers" icon="layers">
     Choosing providers, model refs, and failover behavior.
   </Card>
@@ -207,7 +138,6 @@ OpenClaw accepts any Fireworks model or router id at runtime. Use the exact id s
   <Card title="Moonshot" href="/providers/moonshot" icon="moon">
     Run Kimi with native thinking output through Moonshot's own API.
   </Card>
->>>>>>> upstream/main
   <Card title="Troubleshooting" href="/help/troubleshooting" icon="wrench">
     General troubleshooting and FAQ.
   </Card>

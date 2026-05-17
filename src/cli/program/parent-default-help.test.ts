@@ -1,13 +1,5 @@
 import { Command } from "commander";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-<<<<<<< HEAD
-import { applyParentDefaultHelpAction } from "./parent-default-help.js";
-
-describe("applyParentDefaultHelpAction (#73077)", () => {
-  let originalExitCode: NodeJS.Process["exitCode"];
-  beforeEach(() => {
-    originalExitCode = process.exitCode;
-=======
 import { applyParentDefaultHelpAction, isParentDefaultHelpAction } from "./parent-default-help.js";
 
 describe("applyParentDefaultHelpAction (#73077)", () => {
@@ -16,19 +8,15 @@ describe("applyParentDefaultHelpAction (#73077)", () => {
   beforeEach(() => {
     originalExitCode = process.exitCode;
     originalSuppressHelpBanner = process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
->>>>>>> upstream/main
     process.exitCode = undefined;
   });
   afterEach(() => {
     process.exitCode = originalExitCode;
-<<<<<<< HEAD
-=======
     if (originalSuppressHelpBanner === undefined) {
       delete process.env.OPENCLAW_SUPPRESS_HELP_BANNER;
     } else {
       process.env.OPENCLAW_SUPPRESS_HELP_BANNER = originalSuppressHelpBanner;
     }
->>>>>>> upstream/main
   });
 
   function buildParent(): Command {
@@ -43,12 +31,6 @@ describe("applyParentDefaultHelpAction (#73077)", () => {
 
   it("invokes parent help and exits 0 when invoked without subcommand", async () => {
     const parent = buildParent();
-<<<<<<< HEAD
-    const helpSpy = vi.spyOn(parent, "outputHelp").mockImplementation(() => {});
-    applyParentDefaultHelpAction(parent);
-    await parent.parent!.parseAsync(["node", "test", "parent"]);
-    expect(helpSpy).toHaveBeenCalledTimes(1);
-=======
     const suppressHelpBannerValues: Array<string | undefined> = [];
     const helpSpy = vi.spyOn(parent, "outputHelp").mockImplementation(() => {
       suppressHelpBannerValues.push(process.env.OPENCLAW_SUPPRESS_HELP_BANNER);
@@ -60,7 +42,6 @@ describe("applyParentDefaultHelpAction (#73077)", () => {
     expect(helpSpy).toHaveBeenCalledTimes(1);
     expect(suppressHelpBannerValues).toEqual(["1"]);
     expect(process.env.OPENCLAW_SUPPRESS_HELP_BANNER).toBeUndefined();
->>>>>>> upstream/main
     expect(process.exitCode).toBe(0);
   });
 

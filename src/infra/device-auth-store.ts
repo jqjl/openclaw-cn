@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import fs from "node:fs";
-=======
->>>>>>> upstream/main
 import path from "node:path";
 import { z } from "zod";
 import { resolveStateDir } from "../config/paths.js";
@@ -12,11 +8,7 @@ import {
   storeDeviceAuthTokenInStore,
 } from "../shared/device-auth-store.js";
 import type { DeviceAuthStore } from "../shared/device-auth.js";
-<<<<<<< HEAD
-import { safeParseJsonWithSchema } from "../utils/zod-parse.js";
-=======
 import { privateFileStoreSync } from "./private-file-store.js";
->>>>>>> upstream/main
 
 const DEVICE_AUTH_FILE = "device-auth.json";
 const DeviceAuthStoreSchema = z.object({
@@ -31,38 +23,20 @@ function resolveDeviceAuthPath(env: NodeJS.ProcessEnv = process.env): string {
 
 function readStore(filePath: string): DeviceAuthStore | null {
   try {
-<<<<<<< HEAD
-    if (!fs.existsSync(filePath)) {
-      return null;
-    }
-    const raw = fs.readFileSync(filePath, "utf8");
-    return safeParseJsonWithSchema(DeviceAuthStoreSchema, raw);
-=======
     const parsed = privateFileStoreSync(path.dirname(filePath)).readJsonIfExists(
       path.basename(filePath),
     );
     const store = DeviceAuthStoreSchema.safeParse(parsed);
     return store.success ? store.data : null;
->>>>>>> upstream/main
   } catch {
     return null;
   }
 }
 
 function writeStore(filePath: string, store: DeviceAuthStore): void {
-<<<<<<< HEAD
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, `${JSON.stringify(store, null, 2)}\n`, { mode: 0o600 });
-  try {
-    fs.chmodSync(filePath, 0o600);
-  } catch {
-    // best-effort
-  }
-=======
   privateFileStoreSync(path.dirname(filePath)).writeJson(path.basename(filePath), store, {
     trailingNewline: true,
   });
->>>>>>> upstream/main
 }
 
 export function loadDeviceAuthToken(params: {

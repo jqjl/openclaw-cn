@@ -23,8 +23,6 @@ title: "Retry policy"
 
 ## Behavior
 
-<<<<<<< HEAD
-=======
 ### Model providers
 
 - OpenClaw lets provider SDKs handle normal short retries.
@@ -37,7 +35,6 @@ title: "Retry policy"
   Set it to `0`, `false`, `off`, `none`, or `disabled` to let SDKs honor long
   `Retry-After` sleeps internally.
 
->>>>>>> upstream/main
 ### Discord
 
 - Retries on rate-limit errors (HTTP 429), request timeouts, HTTP 5xx responses,

@@ -1,12 +1,6 @@
 import type { webhook } from "@line/bot-sdk";
-<<<<<<< HEAD
-import { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
-import { hasFinalInboundReplyDispatch } from "openclaw/plugin-sdk/inbound-reply-dispatch";
-=======
-import { hasFinalChannelMessageReplyDispatch } from "openclaw/plugin-sdk/channel-message";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
->>>>>>> upstream/main
+import { hasFinalChannelTurnDispatch } from "openclaw/plugin-sdk/channel-message";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { chunkMarkdownText } from "openclaw/plugin-sdk/reply-runtime";
 import {
   danger,
@@ -29,10 +23,7 @@ import { resolveDefaultLineAccountId } from "./accounts.js";
 import { deliverLineAutoReply } from "./auto-reply-delivery.js";
 import { createLineBot } from "./bot.js";
 import { processLineMessage } from "./markdown-to-line.js";
-<<<<<<< HEAD
-=======
 import { resolveLineDurableReplyOptions } from "./monitor-durable.js";
->>>>>>> upstream/main
 import { sendLineReplyChunks } from "./reply-chunks.js";
 import { getLineRuntime } from "./runtime.js";
 import {
@@ -232,16 +223,6 @@ export async function monitorLineProvider(
       try {
         const textLimit = 5000;
         let replyTokenUsed = false;
-<<<<<<< HEAD
-        const { onModelSelected, ...replyPipeline } = createChannelReplyPipeline({
-          cfg: config,
-          agentId: route.agentId,
-          channel: "line",
-          accountId: route.accountId,
-        });
-
-=======
->>>>>>> upstream/main
         const core = getLineRuntime();
         const turnResult = await core.channel.turn.run({
           channel: "line",
@@ -264,15 +245,6 @@ export async function monitorLineProvider(
               dispatchReplyWithBufferedBlockDispatcher:
                 core.channel.reply.dispatchReplyWithBufferedBlockDispatcher,
               record: ctx.turn.record,
-<<<<<<< HEAD
-              dispatcherOptions: {
-                ...replyPipeline,
-              },
-              replyOptions: {
-                onModelSelected,
-              },
-              delivery: {
-=======
               replyPipeline: {},
               delivery: {
                 durable: (payload, info) =>
@@ -283,7 +255,6 @@ export async function monitorLineProvider(
                     replyToken,
                     replyTokenUsed,
                   }),
->>>>>>> upstream/main
                 deliver: async (payload) => {
                   const lineData = (payload.channelData?.line as LineChannelData | undefined) ?? {};
 
@@ -342,11 +313,7 @@ export async function monitorLineProvider(
           },
         });
         const dispatchResult = turnResult.dispatched ? turnResult.dispatchResult : undefined;
-<<<<<<< HEAD
-        if (!hasFinalInboundReplyDispatch(dispatchResult)) {
-=======
-        if (!hasFinalChannelMessageReplyDispatch(dispatchResult)) {
->>>>>>> upstream/main
+        if (!hasFinalChannelTurnDispatch(dispatchResult)) {
           logVerbose(`line: no response generated for message from ${ctxPayload.From}`);
         }
       } catch (err) {

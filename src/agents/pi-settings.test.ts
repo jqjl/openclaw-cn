@@ -5,13 +5,9 @@ import {
   applyPiCompactionSettingsFromConfig,
   DEFAULT_PI_COMPACTION_RESERVE_TOKENS_FLOOR,
   isSilentOverflowProneModel,
-<<<<<<< HEAD
-  resolveCompactionReserveTokensFloor,
-=======
   resolveEffectiveCompactionMode,
   resolveCompactionReserveTokensFloor,
   shouldDisablePiAutoCompaction,
->>>>>>> upstream/main
 } from "./pi-settings.js";
 
 describe("applyPiCompactionSettingsFromConfig", () => {
@@ -353,8 +349,6 @@ describe("resolveCompactionReserveTokensFloor", () => {
     ).toBe(0);
   });
 });
-<<<<<<< HEAD
-=======
 describe("resolveEffectiveCompactionMode", () => {
   it("defaults to default compaction mode", () => {
     expect(resolveEffectiveCompactionMode()).toBe("default");
@@ -389,7 +383,6 @@ describe("resolveEffectiveCompactionMode", () => {
     ).toBe("safeguard");
   });
 });
->>>>>>> upstream/main
 
 describe("isSilentOverflowProneModel", () => {
   // Reporter's repro shape: openrouter routing to z-ai/glm. Both the bare
@@ -475,8 +468,6 @@ describe("isSilentOverflowProneModel", () => {
   });
 });
 
-<<<<<<< HEAD
-=======
 describe("shouldDisablePiAutoCompaction", () => {
   it("returns false with no owner, default mode, and ordinary provider behavior", () => {
     expect(shouldDisablePiAutoCompaction({})).toBe(false);
@@ -507,7 +498,6 @@ describe("shouldDisablePiAutoCompaction", () => {
   });
 });
 
->>>>>>> upstream/main
 describe("applyPiAutoCompactionGuard", () => {
   // Direct repro of openclaw#75799: pi-ai's silent-overflow detection misfires
   // on a successful turn against z.ai-style providers, triggering Pi's
@@ -557,8 +547,6 @@ describe("applyPiAutoCompactionGuard", () => {
     expect(setCompactionEnabled).toHaveBeenCalledWith(false);
   });
 
-<<<<<<< HEAD
-=======
   it("disables Pi auto-compaction when provider config forces safeguard mode", () => {
     const setCompactionEnabled = vi.fn();
     const settingsManager = {
@@ -579,7 +567,6 @@ describe("applyPiAutoCompactionGuard", () => {
     expect(setCompactionEnabled).toHaveBeenCalledWith(false);
   });
 
->>>>>>> upstream/main
   // Default-mode runs against ordinary providers must keep Pi's auto-compaction
   // enabled. Disabling it across the board would silently remove Pi's
   // overflow-recovery path inside Session.prompt() for users who are not

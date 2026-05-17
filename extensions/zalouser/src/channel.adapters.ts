@@ -1,8 +1,5 @@
 import { createScopedDmSecurityResolver } from "openclaw/plugin-sdk/channel-config-helpers";
-<<<<<<< HEAD
-=======
 import { defineChannelMessageAdapter } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { createPairingPrefixStripper } from "openclaw/plugin-sdk/channel-pairing";
 import {
   createEmptyChannelResult,
@@ -11,7 +8,7 @@ import {
 import { createStaticReplyToModeResolver } from "openclaw/plugin-sdk/conversation-runtime";
 import { createLazyRuntimeModule } from "openclaw/plugin-sdk/lazy-runtime";
 import type { RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/string-coerce-runtime";
 import {
   checkZcaAuthenticated,
   listZalouserAccountIds,
@@ -47,8 +44,6 @@ const loadZalouserChannelRuntime = createLazyRuntimeModule(() => import("./chann
 
 const ZALOUSER_TEXT_CHUNK_LIMIT = 2000;
 
-<<<<<<< HEAD
-=======
 type ZalouserSendTextContext = {
   to: string;
   text: string;
@@ -62,7 +57,6 @@ type ZalouserSendMediaContext = ZalouserSendTextContext & {
   mediaReadFile?: (filePath: string) => Promise<Buffer>;
 };
 
->>>>>>> upstream/main
 export function resolveZalouserQrProfile(accountId?: string | null): string {
   const normalized = normalizeAccountId(accountId);
   if (!normalized || normalized === DEFAULT_ACCOUNT_ID) {
@@ -112,36 +106,6 @@ function resolveZalouserRequireMention(params: ChannelGroupContext): boolean {
   return true;
 }
 
-<<<<<<< HEAD
-const zalouserRawSendResultAdapter = createRawChannelSendResultAdapter({
-  channel: "zalouser",
-  sendText: async ({ to, text, accountId, cfg }) => {
-    const { sendMessageZalouser } = await loadZalouserChannelRuntime();
-    const account = resolveZalouserAccountSync({ cfg: cfg, accountId });
-    const target = parseZalouserOutboundTarget(to);
-    return await sendMessageZalouser(target.threadId, text, {
-      profile: account.profile,
-      isGroup: target.isGroup,
-      textMode: "markdown",
-      textChunkMode: resolveZalouserOutboundChunkMode(cfg, account.accountId),
-      textChunkLimit: resolveZalouserOutboundTextChunkLimit(cfg, account.accountId),
-    });
-  },
-  sendMedia: async ({ to, text, mediaUrl, accountId, cfg, mediaLocalRoots, mediaReadFile }) => {
-    const { sendMessageZalouser } = await loadZalouserChannelRuntime();
-    const account = resolveZalouserAccountSync({ cfg: cfg, accountId });
-    const target = parseZalouserOutboundTarget(to);
-    return await sendMessageZalouser(target.threadId, text, {
-      profile: account.profile,
-      isGroup: target.isGroup,
-      mediaUrl,
-      mediaLocalRoots,
-      mediaReadFile,
-      textMode: "markdown",
-      textChunkMode: resolveZalouserOutboundChunkMode(cfg, account.accountId),
-      textChunkLimit: resolveZalouserOutboundTextChunkLimit(cfg, account.accountId),
-    });
-=======
 async function sendZalouserTextFromContext({ to, text, accountId, cfg }: ZalouserSendTextContext) {
   const { sendMessageZalouser } = await loadZalouserChannelRuntime();
   const account = resolveZalouserAccountSync({ cfg: cfg, accountId });
@@ -197,7 +161,6 @@ export const zalouserMessageAdapter = defineChannelMessageAdapter({
   send: {
     text: sendZalouserTextFromContext,
     media: sendZalouserMediaFromContext,
->>>>>>> upstream/main
   },
 });
 

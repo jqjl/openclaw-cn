@@ -1,9 +1,5 @@
 ---
-<<<<<<< HEAD
-summary: "Terminal UI (TUI): connect to the Gateway from any machine"
-=======
 summary: "Terminal UI (TUI): connect to the Gateway or run locally in embedded mode"
->>>>>>> upstream/main
 read_when:
   - You want a beginner-friendly walkthrough of the TUI
   - You need the complete list of TUI features, commands, and shortcuts
@@ -12,11 +8,8 @@ title: "TUI"
 
 ## Quick start
 
-<<<<<<< HEAD
-=======
 ### Gateway mode
 
->>>>>>> upstream/main
 1. Start the Gateway.
 
 ```bash
@@ -39,8 +32,6 @@ openclaw tui --url ws://<host>:<port> --token <gateway-token>
 
 Use `--password` if your Gateway uses password auth.
 
-<<<<<<< HEAD
-=======
 ### Local mode
 
 Run the TUI without a Gateway:
@@ -58,7 +49,6 @@ Notes:
 - Local mode uses the embedded agent runtime directly. Most local tools work, but Gateway-only features are unavailable.
 - `openclaw` and `openclaw crestodian` also use this TUI shell, with Crestodian as the local setup and repair chat backend.
 
->>>>>>> upstream/main
 ## What you see
 
 - Header: connection URL, current agent, current session.
@@ -83,6 +73,7 @@ Notes:
 ## Sending + delivery
 
 - Messages are sent to the Gateway; delivery to providers is off by default.
+- The TUI is an internal source surface like WebChat, not a generic outbound channel. Harnesses that require `tools.message` for visible replies can satisfy the active TUI turn with a targetless `message.send`; explicit provider delivery still uses normal configured channels and never falls back to `lastChannel`.
 - Turn delivery on:
   - `/deliver on`
   - or the Settings panel
@@ -136,13 +127,10 @@ Session lifecycle:
 - `/settings`
 - `/exit`
 
-<<<<<<< HEAD
-=======
 Local mode only:
 
 - `/auth [provider]` opens the provider auth/login flow inside the TUI.
 
->>>>>>> upstream/main
 Other Gateway slash commands (for example, `/context`) are forwarded to the Gateway and shown as system output. See [Slash commands](/tools/slash-commands).
 
 ## Local shell commands
@@ -153,8 +141,6 @@ Other Gateway slash commands (for example, `/context`) are forwarded to the Gate
 - Local shell commands receive `OPENCLAW_SHELL=tui-local` in their environment.
 - A lone `!` is sent as a normal message; leading spaces do not trigger local exec.
 
-<<<<<<< HEAD
-=======
 ## Repair configs from the local TUI
 
 Use local mode when the current config already validates and you want the
@@ -197,7 +183,6 @@ Tips:
 - `openclaw docs "<query>"` searches the live docs index from the same machine.
 - `openclaw config validate --json` is useful when you want structured schema and SecretRef/resolvability errors.
 
->>>>>>> upstream/main
 ## Tool output
 
 - Tool calls show as cards with args + results.
@@ -223,10 +208,7 @@ Tips:
 
 ## Options
 
-<<<<<<< HEAD
-=======
 - `--local`: Run against the local embedded agent runtime
->>>>>>> upstream/main
 - `--url <url>`: Gateway WebSocket URL (defaults to config or `ws://127.0.0.1:<port>`)
 - `--token <token>`: Gateway token (if required)
 - `--password <password>`: Gateway password (if required)
@@ -237,14 +219,9 @@ Tips:
 - `--timeout-ms <ms>`: Agent timeout in ms (defaults to `agents.defaults.timeoutSeconds`)
 - `--history-limit <n>`: History entries to load (default `200`)
 
-<<<<<<< HEAD
-Note: when you set `--url`, the TUI does not fall back to config or environment credentials.
-Pass `--token` or `--password` explicitly. Missing explicit credentials is an error.
-=======
 <Warning>
 When you set `--url`, the TUI does not fall back to config or environment credentials. Pass `--token` or `--password` explicitly. Missing explicit credentials is an error. In local mode, do not pass `--url`, `--token`, or `--password`.
 </Warning>
->>>>>>> upstream/main
 
 ## Troubleshooting
 
@@ -264,9 +241,6 @@ No output after sending a message:
 ## Related
 
 - [Control UI](/web/control-ui) — web-based control interface
-<<<<<<< HEAD
-=======
 - [Config](/cli/config) — inspect, validate, and edit `openclaw.json`
 - [Doctor](/cli/doctor) — guided repair and migration checks
->>>>>>> upstream/main
 - [CLI Reference](/cli) — full CLI command reference

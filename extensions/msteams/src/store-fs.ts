@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import fs from "node:fs";
-import { withFileLock as withPathLock } from "openclaw/plugin-sdk/file-lock";
-import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
-=======
 import { withFileLock as withPathLock } from "openclaw/plugin-sdk/file-lock";
 import { readJsonFileWithFallback, writeJsonFileAtomically } from "openclaw/plugin-sdk/json-store";
 import { pathExists } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 
 const STORE_LOCK_OPTIONS = {
   retries: {
@@ -31,13 +25,7 @@ export async function writeJsonFile(filePath: string, value: unknown): Promise<v
 }
 
 async function ensureJsonFile(filePath: string, fallback: unknown) {
-<<<<<<< HEAD
-  try {
-    await fs.promises.access(filePath);
-  } catch {
-=======
   if (!(await pathExists(filePath))) {
->>>>>>> upstream/main
     await writeJsonFile(filePath, fallback);
   }
 }

@@ -10,10 +10,7 @@ import {
   listConfiguredChannelIdsForReadOnlyScope,
   resolveDiscoverableScopedChannelPluginIds,
 } from "../../plugins/channel-plugin-ids.js";
-<<<<<<< HEAD
-=======
 import { getCurrentPluginMetadataSnapshot } from "../../plugins/current-plugin-metadata-snapshot.js";
->>>>>>> upstream/main
 import {
   channelPluginIdBelongsToManifest,
   resolveSetupChannelRegistration,
@@ -701,14 +698,6 @@ export function resolveReadOnlyChannelPluginsForConfig(
 ): ReadOnlyChannelPluginResolution {
   const env = options.env ?? process.env;
   const workspaceDir = resolveReadOnlyWorkspaceDir(cfg, options);
-<<<<<<< HEAD
-  const manifestRecords = loadPluginMetadataSnapshot({
-    config: cfg,
-    stateDir: options.stateDir,
-    workspaceDir,
-    env,
-  }).plugins;
-=======
   const metadataSnapshot =
     options.stateDir === undefined
       ? getCurrentPluginMetadataSnapshot({
@@ -725,7 +714,6 @@ export function resolveReadOnlyChannelPluginsForConfig(
       workspaceDir,
       env,
     }).plugins;
->>>>>>> upstream/main
   const bundledManifestRecords = listBundledChannelManifestRecords(manifestRecords);
   const externalManifestRecords = listExternalChannelManifestRecords(manifestRecords);
   const configuredChannelIds = [

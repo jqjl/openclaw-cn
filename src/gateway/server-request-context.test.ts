@@ -33,11 +33,7 @@ describe("createGatewayRequestContext", () => {
       nodeSubscribe: vi.fn(),
       nodeUnsubscribe: vi.fn(),
       nodeUnsubscribeAll: vi.fn(),
-<<<<<<< HEAD
-      hasConnectedMobileNode: vi.fn(() => false),
-=======
       hasConnectedTalkNode: vi.fn(() => false),
->>>>>>> upstream/main
       clients: new Set(),
       enforceSharedGatewayAuthGenerationForConfigWrite: vi.fn(),
       nodeRegistry: {} as never,
@@ -47,6 +43,9 @@ describe("createGatewayRequestContext", () => {
       chatRunBuffers: new Map(),
       chatDeltaSentAt: new Map(),
       chatDeltaLastBroadcastLen: new Map(),
+      chatDeltaLastBroadcastText: new Map(),
+      agentDeltaSentAt: new Map(),
+      bufferedAgentEvents: new Map(),
       addChatRun: vi.fn(),
       removeChatRun: vi.fn(),
       subscribeSessionEvents: vi.fn(),

@@ -29,11 +29,7 @@ provider in two different ways.
       </Step>
       <Step title="Set a default model">
         ```bash
-<<<<<<< HEAD
-        openclaw models set github-copilot/claude-opus-4.6
-=======
         openclaw models set github-copilot/claude-opus-4.7
->>>>>>> upstream/main
         ```
 
         Or in config:
@@ -41,11 +37,7 @@ provider in two different ways.
         ```json5
         {
           agents: {
-<<<<<<< HEAD
-            defaults: { model: { primary: "github-copilot/claude-opus-4.6" } },
-=======
             defaults: { model: { primary: "github-copilot/claude-opus-4.7" } },
->>>>>>> upstream/main
           },
         }
         ```
@@ -108,6 +100,35 @@ back to `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, then `GITHUB_TOKEN`. Use
   <Accordion title="Model availability depends on your plan">
     Copilot model availability depends on your GitHub plan. If a model is
     rejected, try another ID (for example `github-copilot/gpt-4.1`).
+  </Accordion>
+
+  <Accordion title="Live catalog refresh from the Copilot API">
+    Once the device-login (or env-var) auth path has resolved a GitHub token,
+    OpenClaw refreshes the model catalog on demand from `${baseUrl}/models`
+    (the same endpoint VS Code Copilot uses) so the runtime tracks
+    per-account entitlement and accurate context windows without manifest
+    churn. Newly published Copilot models become visible without an OpenClaw
+    upgrade, and context windows reflect the real per-model limits
+    (e.g. 400k for the gpt-5.x series, 1M for the internal
+    `claude-opus-*-1m` variants).
+
+    The bundled static catalog stays as the visible fallback when discovery
+    is disabled, the user has no GitHub auth profile, the token-exchange
+    fails, or the `/models` HTTPS call errors. To opt out and rely entirely
+    on the static manifest catalog (offline / air-gapped scenarios):
+
+    ```json5
+    {
+      plugins: {
+        entries: {
+          "github-copilot": {
+            config: { discovery: { enabled: false } },
+          },
+        },
+      },
+    }
+    ```
+
   </Accordion>
 
   <Accordion title="Transport selection">

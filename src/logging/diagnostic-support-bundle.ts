@@ -1,9 +1,6 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { isPathInside } from "../infra/path-guards.js";
->>>>>>> upstream/main
 
 export type DiagnosticSupportBundleFile = {
   path: string;
@@ -85,12 +82,7 @@ function resolveSupportBundleFilePath(outputDir: string, pathName: string): stri
   const safePath = assertSafeBundleRelativePath(pathName);
   const resolvedBase = path.resolve(outputDir);
   const resolvedFile = path.resolve(resolvedBase, safePath);
-<<<<<<< HEAD
-  const relative = path.relative(resolvedBase, resolvedFile);
-  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
-=======
   if (resolvedFile === resolvedBase || !isPathInside(resolvedBase, resolvedFile)) {
->>>>>>> upstream/main
     throw new Error(`Bundle file path escaped output directory: ${pathName}`);
   }
   return resolvedFile;

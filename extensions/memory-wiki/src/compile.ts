@@ -4,11 +4,8 @@ import {
   replaceManagedMarkdownBlock,
   withTrailingNewline,
 } from "openclaw/plugin-sdk/memory-host-markdown";
-<<<<<<< HEAD
-=======
 import { root as fsRoot } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/string-coerce-runtime";
 import {
   assessClaimFreshness,
   assessPageFreshness,
@@ -772,23 +769,16 @@ async function refreshPageRelatedBlocks(params: {
   if (!params.config.render.createBacklinks) {
     return [];
   }
-<<<<<<< HEAD
-=======
   const root = await fsRoot(params.config.vault.path);
->>>>>>> upstream/main
   const updatedFiles: string[] = [];
   for (const page of params.pages) {
     if (page.kind === "report") {
       continue;
     }
-<<<<<<< HEAD
-    const original = await fs.readFile(page.absolutePath, "utf8");
-=======
     const original = await root.readText(page.relativePath);
     if (original.trim().length === 0) {
       continue;
     }
->>>>>>> upstream/main
     const updated = withTrailingNewline(
       replaceManagedMarkdownBlock({
         original,
@@ -805,11 +795,7 @@ async function refreshPageRelatedBlocks(params: {
     if (updated === original) {
       continue;
     }
-<<<<<<< HEAD
-    await fs.writeFile(page.absolutePath, updated, "utf8");
-=======
     await root.write(page.relativePath, updated);
->>>>>>> upstream/main
     updatedFiles.push(page.absolutePath);
   }
   return updatedFiles;
@@ -836,23 +822,15 @@ function renderSectionList(params: {
 }
 
 async function writeManagedMarkdownFile(params: {
-<<<<<<< HEAD
-  filePath: string;
-=======
   rootDir: string;
   relativePath: string;
->>>>>>> upstream/main
   title: string;
   startMarker: string;
   endMarker: string;
   body: string;
 }): Promise<boolean> {
-<<<<<<< HEAD
-  const original = await fs.readFile(params.filePath, "utf8").catch(() => `# ${params.title}\n`);
-=======
   const root = await fsRoot(params.rootDir);
   const original = await root.readText(params.relativePath).catch(() => `# ${params.title}\n`);
->>>>>>> upstream/main
   const updated = replaceManagedMarkdownBlock({
     original,
     heading: "## Generated",
@@ -864,11 +842,7 @@ async function writeManagedMarkdownFile(params: {
   if (rendered === original) {
     return false;
   }
-<<<<<<< HEAD
-  await fs.writeFile(params.filePath, rendered, "utf8");
-=======
   await root.write(params.relativePath, rendered);
->>>>>>> upstream/main
   return true;
 }
 
@@ -879,13 +853,8 @@ async function writeDashboardPage(params: {
   pages: WikiPageSummary[];
   now: Date;
 }): Promise<boolean> {
-<<<<<<< HEAD
-  const filePath = path.join(params.rootDir, params.definition.relativePath);
-  const original = await fs.readFile(filePath, "utf8").catch(() =>
-=======
   const root = await fsRoot(params.rootDir);
   const original = await root.readText(params.definition.relativePath).catch(() =>
->>>>>>> upstream/main
     renderWikiMarkdown({
       frontmatter: {
         pageType: "report",
@@ -949,11 +918,7 @@ async function writeDashboardPage(params: {
       body: updatedBody,
     }),
   );
-<<<<<<< HEAD
-  await fs.writeFile(filePath, rendered, "utf8");
-=======
   await root.write(params.definition.relativePath, rendered);
->>>>>>> upstream/main
   return true;
 }
 
@@ -1309,13 +1274,6 @@ async function writeAgentDigestArtifacts(params: {
     [agentDigestPath, agentDigest],
     [claimsDigestPath, claimsDigest],
   ] as const) {
-<<<<<<< HEAD
-    const existing = await fs.readFile(filePath, "utf8").catch(() => "");
-    if (existing === content) {
-      continue;
-    }
-    await fs.writeFile(filePath, content, "utf8");
-=======
     const relativePath = path.relative(params.rootDir, filePath);
     const root = await fsRoot(params.rootDir);
     const existing = await root.readText(relativePath).catch(() => "");
@@ -1323,7 +1281,6 @@ async function writeAgentDigestArtifacts(params: {
       continue;
     }
     await root.write(relativePath, content);
->>>>>>> upstream/main
     updatedFiles.push(filePath);
   }
   return updatedFiles;
@@ -1355,12 +1312,8 @@ export async function compileMemoryWikiVault(
   const rootIndexPath = path.join(rootDir, "index.md");
   if (
     await writeManagedMarkdownFile({
-<<<<<<< HEAD
-      filePath: rootIndexPath,
-=======
       rootDir,
       relativePath: "index.md",
->>>>>>> upstream/main
       title: "Wiki Index",
       startMarker: "<!-- openclaw:wiki:index:start -->",
       endMarker: "<!-- openclaw:wiki:index:end -->",
@@ -1371,19 +1324,12 @@ export async function compileMemoryWikiVault(
   }
 
   for (const group of COMPILE_PAGE_GROUPS) {
-<<<<<<< HEAD
-    const filePath = path.join(rootDir, group.dir, "index.md");
-    if (
-      await writeManagedMarkdownFile({
-        filePath,
-=======
     const relativePath = path.join(group.dir, "index.md").replace(/\\/g, "/");
     const filePath = path.join(rootDir, relativePath);
     if (
       await writeManagedMarkdownFile({
         rootDir,
         relativePath,
->>>>>>> upstream/main
         title: group.heading,
         startMarker: `<!-- openclaw:wiki:${group.dir}:index:start -->`,
         endMarker: `<!-- openclaw:wiki:${group.dir}:index:end -->`,

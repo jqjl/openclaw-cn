@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import fs from "node:fs/promises";
-import path from "node:path";
-=======
 import { withTempWorkspace, type TempWorkspace } from "../infra/private-temp-workspace.js";
->>>>>>> upstream/main
 import { resolvePreferredOpenClawTmpDir } from "../infra/tmp-openclaw-dir.js";
 import { runExec } from "../process/exec.js";
 import { createLazyPromiseLoader } from "../shared/lazy-promise.js";
@@ -361,21 +356,6 @@ function readJpegExifOrientation(buffer: Buffer): number | null {
   return null;
 }
 
-<<<<<<< HEAD
-async function withTempDir<T>(fn: (dir: string) => Promise<T>): Promise<T> {
-  const dir = await fs.mkdtemp(path.join(resolvePreferredOpenClawTmpDir(), "openclaw-img-"));
-  try {
-    return await fn(dir);
-  } finally {
-    await fs.rm(dir, { recursive: true, force: true }).catch(() => {});
-  }
-}
-
-async function sipsMetadataFromBuffer(buffer: Buffer): Promise<ImageMetadata | null> {
-  return await withTempDir(async (dir) => {
-    const input = path.join(dir, "in.img");
-    await fs.writeFile(input, buffer);
-=======
 async function withImageTemp<T>(fn: (workspace: TempWorkspace) => Promise<T>): Promise<T> {
   return await withTempWorkspace(
     { rootDir: resolvePreferredOpenClawTmpDir(), prefix: "openclaw-img-" },
@@ -386,7 +366,6 @@ async function withImageTemp<T>(fn: (workspace: TempWorkspace) => Promise<T>): P
 async function sipsMetadataFromBuffer(buffer: Buffer): Promise<ImageMetadata | null> {
   return await withImageTemp(async (workspace) => {
     const input = await workspace.write("in.img", buffer);
->>>>>>> upstream/main
     const { stdout } = await runExec(
       "/usr/bin/sips",
       ["-g", "pixelWidth", "-g", "pixelHeight", input],
@@ -417,16 +396,9 @@ async function sipsResizeToJpeg(params: {
   maxSide: number;
   quality: number;
 }): Promise<Buffer> {
-<<<<<<< HEAD
-  return await withTempDir(async (dir) => {
-    const input = path.join(dir, "in.img");
-    const output = path.join(dir, "out.jpg");
-    await fs.writeFile(input, params.buffer);
-=======
   return await withImageTemp(async (workspace) => {
     const input = await workspace.write("in.img", params.buffer);
     const output = workspace.path("out.jpg");
->>>>>>> upstream/main
     await runExec(
       "/usr/bin/sips",
       [
@@ -444,34 +416,19 @@ async function sipsResizeToJpeg(params: {
       ],
       { timeoutMs: 20_000, maxBuffer: 1024 * 1024 },
     );
-<<<<<<< HEAD
-    return await fs.readFile(output);
-=======
     return await workspace.read("out.jpg");
->>>>>>> upstream/main
   });
 }
 
 async function sipsConvertToJpeg(buffer: Buffer): Promise<Buffer> {
-<<<<<<< HEAD
-  return await withTempDir(async (dir) => {
-    const input = path.join(dir, "in.heic");
-    const output = path.join(dir, "out.jpg");
-    await fs.writeFile(input, buffer);
-=======
   return await withImageTemp(async (workspace) => {
     const input = await workspace.write("in.heic", buffer);
     const output = workspace.path("out.jpg");
->>>>>>> upstream/main
     await runExec("/usr/bin/sips", ["-s", "format", "jpeg", input, "--out", output], {
       timeoutMs: 20_000,
       maxBuffer: 1024 * 1024,
     });
-<<<<<<< HEAD
-    return await fs.readFile(output);
-=======
     return await workspace.read("out.jpg");
->>>>>>> upstream/main
   });
 }
 
@@ -532,25 +489,14 @@ async function sipsApplyOrientation(buffer: Buffer, orientation: number): Promis
       return buffer;
   }
 
-<<<<<<< HEAD
-  return await withTempDir(async (dir) => {
-    const input = path.join(dir, "in.jpg");
-    const output = path.join(dir, "out.jpg");
-    await fs.writeFile(input, buffer);
-=======
   return await withImageTemp(async (workspace) => {
     const input = await workspace.write("in.jpg", buffer);
     const output = workspace.path("out.jpg");
->>>>>>> upstream/main
     await runExec("/usr/bin/sips", [...ops, input, "--out", output], {
       timeoutMs: 20_000,
       maxBuffer: 1024 * 1024,
     });
-<<<<<<< HEAD
-    return await fs.readFile(output);
-=======
     return await workspace.read("out.jpg");
->>>>>>> upstream/main
   });
 }
 
@@ -626,7 +572,14 @@ export async function convertHeicToJpeg(buffer: Buffer): Promise<Buffer> {
     return await sipsConvertToJpeg(buffer);
   }
   const ops = await loadMediaAttachmentImageOps();
-  return await ops.convertHeicToJpeg(buffer);
+  try {
+    return await ops.convertHeicToJpeg(buffer);
+  } catch (error) {
+    if (process.platform !== "darwin") {
+      throw error;
+    }
+    return await sipsConvertToJpeg(buffer);
+  }
 }
 
 /**

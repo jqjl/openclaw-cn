@@ -316,12 +316,9 @@ export async function writeCliStartupMetadata(options?: {
   distDir?: string;
   outputPath?: string;
   extensionsDir?: string;
-<<<<<<< HEAD
-=======
   renderBundledRootHelpText?: typeof renderBundledRootHelpText;
   renderSourceRootHelpText?: typeof renderSourceRootHelpText;
   renderSourceBrowserHelpText?: typeof renderSourceBrowserHelpText;
->>>>>>> upstream/main
 }): Promise<void> {
   const resolvedDistDir = options?.distDir ?? distDir;
   const resolvedOutputPath = options?.outputPath ?? outputPath;
@@ -358,13 +355,6 @@ export async function writeCliStartupMetadata(options?: {
 
   let rootHelpText: string;
   try {
-<<<<<<< HEAD
-    rootHelpText = await renderBundledRootHelpText(resolvedDistDir, renderContext);
-  } catch {
-    rootHelpText = renderSourceRootHelpText(renderContext);
-  }
-  const browserHelpText = renderSourceBrowserHelpText(renderContext);
-=======
     rootHelpText = await (options?.renderBundledRootHelpText ?? renderBundledRootHelpText)(
       resolvedDistDir,
       renderContext,
@@ -375,7 +365,6 @@ export async function writeCliStartupMetadata(options?: {
   const browserHelpText = (options?.renderSourceBrowserHelpText ?? renderSourceBrowserHelpText)(
     renderContext,
   );
->>>>>>> upstream/main
 
   mkdirSync(resolvedDistDir, { recursive: true });
   writeFileSync(

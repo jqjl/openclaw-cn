@@ -14,41 +14,6 @@ media capabilities are tool-driven: the agent decides when to use them based
 on the conversation, and each tool only appears when at least one backing
 provider is configured.
 
-<<<<<<< HEAD
-## Capabilities
-
-## Capabilities at a glance
-
-| Capability           | Tool             | Providers                                                                                    | What it does                                            |
-| -------------------- | ---------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Image generation     | `image_generate` | ComfyUI, fal, Google, MiniMax, OpenAI, Vydra                                                 | Creates or edits images from text prompts or references |
-| Video generation     | `video_generate` | Alibaba, BytePlus, ComfyUI, fal, Google, MiniMax, OpenAI, Qwen, Runway, Together, Vydra, xAI | Creates videos from text, images, or existing videos    |
-| Music generation     | `music_generate` | ComfyUI, Google, MiniMax                                                                     | Creates music or audio tracks from text prompts         |
-| Text-to-speech (TTS) | `tts`            | ElevenLabs, Microsoft, MiniMax, OpenAI                                                       | Converts outbound replies to spoken audio               |
-| Media understanding  | (automatic)      | Any vision/audio-capable model provider, plus CLI fallbacks                                  | Summarizes inbound images, audio, and video             |
-
-## Provider capability matrix
-
-This table shows which providers support which media capabilities across the platform.
-
-| Provider   | Image | Video | Music | TTS | STT / Transcription | Media Understanding |
-| ---------- | ----- | ----- | ----- | --- | ------------------- | ------------------- |
-| Alibaba    |       | Yes   |       |     |                     |                     |
-| BytePlus   |       | Yes   |       |     |                     |                     |
-| ComfyUI    | Yes   | Yes   | Yes   |     |                     |                     |
-| Deepgram   |       |       |       |     | Yes                 |                     |
-| ElevenLabs |       |       |       | Yes |                     |                     |
-| fal        | Yes   | Yes   |       |     |                     |                     |
-| Google     | Yes   | Yes   | Yes   |     |                     | Yes                 |
-| Microsoft  |       |       |       | Yes |                     |                     |
-| MiniMax    | Yes   | Yes   | Yes   | Yes |                     |                     |
-| OpenAI     | Yes   | Yes   |       | Yes | Yes                 | Yes                 |
-| Qwen       |       | Yes   |       |     |                     |                     |
-| Runway     |       | Yes   |       |     |                     |                     |
-| Together   |       | Yes   |       |     |                     |                     |
-| Vydra      | Yes   | Yes   |       |     |                     |                     |
-| xAI        |       | Yes   |       |     |                     |                     |
-=======
 Live speech uses the Talk session contract instead of the one-shot media tool
 path. Talk has three modes: provider-native `realtime`, local or streaming
 `stt-tts`, and `transcription` for observe-only speech capture. Those modes
@@ -102,7 +67,7 @@ telephony, meetings, browser realtime, and native push-to-talk clients.
 | MiniMax     |   ✓   |   ✓   |   ✓   |  ✓  |     |                |                     |
 | Mistral     |       |       |       |     |  ✓  |                |                     |
 | OpenAI      |   ✓   |   ✓   |       |  ✓  |  ✓  |       ✓        |          ✓          |
-| OpenRouter  |   ✓   |   ✓   |       |  ✓  |     |                |          ✓          |
+| OpenRouter  |   ✓   |   ✓   |       |  ✓  |  ✓  |                |          ✓          |
 | Qwen        |       |   ✓   |       |     |     |                |                     |
 | Runway      |       |   ✓   |       |     |     |                |                     |
 | SenseAudio  |       |       |       |     |  ✓  |                |                     |
@@ -110,7 +75,6 @@ telephony, meetings, browser realtime, and native push-to-talk clients.
 | Vydra       |   ✓   |   ✓   |       |  ✓  |     |                |                     |
 | xAI         |   ✓   |   ✓   |       |  ✓  |  ✓  |                |          ✓          |
 | Xiaomi MiMo |   ✓   |       |       |  ✓  |     |                |          ✓          |
->>>>>>> upstream/main
 
 <Note>
 Media understanding uses any vision-capable or audio-capable model registered
@@ -130,10 +94,6 @@ reply model.
 | Music (shared)  | Asynchronous | Same provider-processing characteristic as video.                                                    |
 | Music (ComfyUI) | Synchronous  | Local workflow runs inline against the configured ComfyUI server.                                    |
 
-<<<<<<< HEAD
-## Quick links
-=======
->>>>>>> upstream/main
 For async tools, OpenClaw submits the request to the provider, returns a task
 id immediately, and tracks the job in the task ledger. The agent continues
 responding to other messages while the job runs. When the provider finishes,
@@ -145,7 +105,7 @@ the generated media fallback directly to the original channel.
 
 ## Speech-to-text and Voice Call
 
-Deepgram, DeepInfra, ElevenLabs, Mistral, OpenAI, SenseAudio, and xAI can all transcribe
+Deepgram, DeepInfra, ElevenLabs, Mistral, OpenAI, OpenRouter, SenseAudio, and xAI can all transcribe
 inbound audio through the batch `tools.media.audio` path when configured.
 Channel plugins that preflight a voice note for mention gating or command
 parsing mark the transcribed attachment on the inbound context, so the shared
@@ -156,14 +116,11 @@ Deepgram, ElevenLabs, Mistral, OpenAI, and xAI also register Voice Call
 streaming STT providers, so live phone audio can be forwarded to the selected
 vendor without waiting for a completed recording.
 
-<<<<<<< HEAD
-=======
 For live user conversations, prefer [Talk mode](/nodes/talk). Batch audio
 attachments stay on the media path; browser realtime, native push-to-talk,
 telephony, and meeting audio should use Talk events and the session-scoped
 catalogs returned by the Gateway.
 
->>>>>>> upstream/main
 ## Provider mappings (how vendors split across surfaces)
 
 <AccordionGroup>
@@ -198,7 +155,4 @@ catalogs returned by the Gateway.
 - [Text-to-speech](/tools/tts)
 - [Media understanding](/nodes/media-understanding)
 - [Audio nodes](/nodes/audio)
-<<<<<<< HEAD
-=======
 - [Talk mode](/nodes/talk)
->>>>>>> upstream/main

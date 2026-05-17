@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { describe, expect, it } from "vitest";
-import { buildAttemptSystemPrompt } from "./attempt-system-prompt.js";
-=======
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let buildAttemptSystemPrompt: typeof import("./attempt-system-prompt.js").buildAttemptSystemPrompt;
@@ -11,7 +7,6 @@ beforeEach(async () => {
   vi.doUnmock("../system-prompt.js");
   ({ buildAttemptSystemPrompt } = await import("./attempt-system-prompt.js"));
 });
->>>>>>> upstream/main
 
 const baseProviderTransform = {
   provider: "openai",
@@ -63,6 +58,7 @@ describe("buildAttemptSystemPrompt", () => {
     });
 
     expect(result.systemPrompt).toContain("Custom override prompt.");
+    expect(result.systemPrompt).toContain("Current model identity: openai/gpt-5.5.");
     expect(result.systemPrompt).toContain("## Bootstrap Pending");
     expect(result.systemPrompt).toContain("BOOTSTRAP.md is included below in Project Context");
     expect(result.systemPrompt).toContain("## Bootstrap Context Notice");
@@ -73,8 +69,6 @@ describe("buildAttemptSystemPrompt", () => {
     expect(result.systemPrompt).not.toContain("USER.md");
   });
 
-<<<<<<< HEAD
-=======
   it("preserves runtime extra system prompt context when a system prompt override is configured", () => {
     const result = buildAttemptSystemPrompt({
       isRawModelRun: false,
@@ -103,11 +97,11 @@ describe("buildAttemptSystemPrompt", () => {
     });
 
     expect(result.systemPrompt).toContain("Custom override prompt.");
+    expect(result.systemPrompt).toContain("Current model identity: openai/gpt-5.5.");
     expect(result.systemPrompt).toContain("## Subagent Context");
     expect(result.systemPrompt).toContain("RUN_MODE_TASK_77950");
   });
 
->>>>>>> upstream/main
   it("omits system prompts for raw model probes", () => {
     const result = buildAttemptSystemPrompt({
       isRawModelRun: true,

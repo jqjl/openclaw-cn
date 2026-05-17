@@ -2,16 +2,11 @@
  * Low-level outbound media sends (photo, voice, video, document) and path resolution.
  */
 
-<<<<<<< HEAD
-import fs from "node:fs";
-import path from "node:path";
-=======
 import path from "node:path";
 import {
   pathExistsSync,
   resolveLocalPathFromRootsSync,
 } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 import type { GatewayAccount } from "../types.js";
 import { MediaFileType } from "../types.js";
 import {
@@ -106,52 +101,6 @@ function isHttpOrDataSource(pathValue: string): boolean {
   );
 }
 
-<<<<<<< HEAD
-function isPathWithinRoot(candidate: string, root: string): boolean {
-  const relative = path.relative(root, candidate);
-  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
-}
-
-function resolveMissingPathWithinMediaRoot(normalizedPath: string): string | null {
-  const resolvedCandidate = path.resolve(normalizedPath);
-  if (fs.existsSync(resolvedCandidate)) {
-    return null;
-  }
-
-  const allowedRoot = path.resolve(getQQBotMediaDir());
-  let canonicalAllowedRoot: string;
-  try {
-    canonicalAllowedRoot = fs.realpathSync(allowedRoot);
-  } catch {
-    return null;
-  }
-
-  const missingSegments: string[] = [];
-  let cursor = resolvedCandidate;
-  while (!fs.existsSync(cursor)) {
-    const parent = path.dirname(cursor);
-    if (parent === cursor) {
-      break;
-    }
-    missingSegments.unshift(path.basename(cursor));
-    cursor = parent;
-  }
-
-  if (!fs.existsSync(cursor)) {
-    return null;
-  }
-
-  let canonicalCursor: string;
-  try {
-    canonicalCursor = fs.realpathSync(cursor);
-  } catch {
-    return null;
-  }
-  const canonicalCandidate =
-    missingSegments.length > 0 ? path.join(canonicalCursor, ...missingSegments) : canonicalCursor;
-
-  return isPathWithinRoot(canonicalCandidate, canonicalAllowedRoot) ? canonicalCandidate : null;
-=======
 function resolveMissingPathWithinMediaRoot(normalizedPath: string): string | null {
   const resolvedCandidate = path.resolve(normalizedPath);
   if (pathExistsSync(resolvedCandidate)) {
@@ -165,38 +114,12 @@ function resolveMissingPathWithinMediaRoot(normalizedPath: string): string | nul
       allowMissing: true,
     })?.path ?? null
   );
->>>>>>> upstream/main
 }
 
 function resolveExistingPathWithinRoots(
   normalizedPath: string,
   allowedRoots: readonly string[],
 ): string | null {
-<<<<<<< HEAD
-  const resolvedCandidate = path.resolve(normalizedPath);
-  if (!fs.existsSync(resolvedCandidate)) {
-    return null;
-  }
-
-  let canonicalCandidate: string;
-  try {
-    canonicalCandidate = fs.realpathSync(resolvedCandidate);
-  } catch {
-    return null;
-  }
-
-  for (const root of allowedRoots) {
-    const resolvedRoot = path.resolve(root);
-    const canonicalRoot = fs.existsSync(resolvedRoot)
-      ? fs.realpathSync(resolvedRoot)
-      : resolvedRoot;
-    if (isPathWithinRoot(canonicalCandidate, canonicalRoot)) {
-      return canonicalCandidate;
-    }
-  }
-
-  return null;
-=======
   return (
     resolveLocalPathFromRootsSync({
       filePath: normalizedPath,
@@ -204,7 +127,6 @@ function resolveExistingPathWithinRoots(
       label: "QQ Bot local roots",
     })?.path ?? null
   );
->>>>>>> upstream/main
 }
 
 export function resolveOutboundMediaPath(

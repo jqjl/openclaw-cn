@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-import type { OpenClawConfig } from "../../config/types.openclaw.js";
-import type { DeliverableMessageChannel } from "../../utils/message-channel.js";
-
-export function resetOutboundChannelBootstrapStateForTests(): void {
-  // Runtime channel plugins are loaded during Gateway startup now.
-=======
 import { resolveAgentWorkspaceDir, resolveDefaultAgentId } from "../../agents/agent-scope.js";
 import { applyPluginAutoEnable } from "../../config/plugin-auto-enable.js";
 import type { OpenClawConfig } from "../../config/types.openclaw.js";
@@ -19,16 +12,12 @@ const bootstrapAttempts = new Set<string>();
 
 export function resetOutboundChannelBootstrapStateForTests(): void {
   bootstrapAttempts.clear();
->>>>>>> upstream/main
 }
 
 export function bootstrapOutboundChannelPlugin(params: {
   channel: DeliverableMessageChannel;
   cfg?: OpenClawConfig;
 }): void {
-<<<<<<< HEAD
-  void params;
-=======
   const cfg = params.cfg;
   if (!cfg) {
     return;
@@ -64,5 +53,4 @@ export function bootstrapOutboundChannelPlugin(params: {
   } catch {
     bootstrapAttempts.delete(attemptKey);
   }
->>>>>>> upstream/main
 }

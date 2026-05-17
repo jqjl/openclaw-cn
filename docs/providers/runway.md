@@ -7,15 +7,6 @@ read_when:
   - You want to make Runway the default video provider
 ---
 
-<<<<<<< HEAD
-OpenClaw ships a bundled `runway` provider for hosted video generation.
-
-| Property    | Value                                                             |
-| ----------- | ----------------------------------------------------------------- |
-| Provider id | `runway`                                                          |
-| Auth        | `RUNWAYML_API_SECRET` (canonical) or `RUNWAY_API_KEY`             |
-| API         | Runway task-based video generation (`GET /v1/tasks/{id}` polling) |
-=======
 OpenClaw ships a bundled `runway` provider for hosted video generation. The plugin is enabled by default and registers the `runway` provider against the `videoGenerationProviders` contract.
 
 | Property        | Value                                                             |
@@ -27,7 +18,6 @@ OpenClaw ships a bundled `runway` provider for hosted video generation. The plug
 | Direct CLI flag | `--runway-api-key <key>`                                          |
 | API             | Runway task-based video generation (`GET /v1/tasks/{id}` polling) |
 | Default model   | `runway/gen4.5`                                                   |
->>>>>>> upstream/main
 
 ## Getting started
 
@@ -47,25 +37,6 @@ OpenClaw ships a bundled `runway` provider for hosted video generation. The plug
   </Step>
 </Steps>
 
-<<<<<<< HEAD
-## Supported modes
-
-| Mode           | Model              | Reference input         |
-| -------------- | ------------------ | ----------------------- |
-| Text-to-video  | `gen4.5` (default) | None                    |
-| Image-to-video | `gen4.5`           | 1 local or remote image |
-| Video-to-video | `gen4_aleph`       | 1 local or remote video |
-
-<Note>
-Local image and video references are supported via data URIs. Text-only runs
-currently expose `16:9` and `9:16` aspect ratios.
-</Note>
-
-<Warning>
-Video-to-video currently requires `runway/gen4_aleph` specifically.
-</Warning>
-
-=======
 ## Supported modes and models
 
 The provider exposes seven Runway models split across three modes. The same model id can serve more than one mode (for example `gen4.5` works for both text-to-video and image-to-video).
@@ -91,7 +62,6 @@ Local image and video references are supported via data URIs.
   Picking a Runway model id from the wrong column produces an explicit error before the API request leaves OpenClaw. The provider validates `model` against the mode's allowlist (`TEXT_ONLY_MODELS`, `IMAGE_MODELS`, `VIDEO_MODELS`) in `extensions/runway/video-generation-provider.ts`.
 </Note>
 
->>>>>>> upstream/main
 ## Configuration
 
 ```json5

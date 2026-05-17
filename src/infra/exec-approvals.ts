@@ -12,10 +12,7 @@ import type { CommandExplanationSummary } from "./command-analysis/explain.js";
 import { resolveAllowAlwaysPatternEntries } from "./exec-approvals-allowlist.js";
 import type { ExecCommandSegment } from "./exec-approvals-analysis.js";
 import type { ExecAllowlistEntry } from "./exec-approvals.types.js";
-<<<<<<< HEAD
-=======
 import { assertNoSymlinkParentsSync } from "./fs-safe-advanced.js";
->>>>>>> upstream/main
 import { expandHomePrefix, resolveRequiredHomeDir } from "./home-dir.js";
 import { requestJsonlSocket } from "./jsonl-socket.js";
 export * from "./exec-approvals-analysis.js";
@@ -112,6 +109,11 @@ export type SystemRunApprovalPlan = {
   mutableFileOperand?: SystemRunApprovalFileOperand | null;
 };
 
+export type ExecApprovalCommandSpan = {
+  startIndex: number;
+  endIndex: number;
+};
+
 export type ExecApprovalRequestPayload = {
   command: string;
   commandPreview?: string | null;
@@ -127,6 +129,7 @@ export type ExecApprovalRequestPayload = {
   ask?: string | null;
   warningText?: string | null;
   commandAnalysis?: CommandExplanationSummary | null;
+  commandSpans?: ExecApprovalCommandSpan[];
   allowedDecisions?: readonly ExecApprovalDecision[];
   agentId?: string | null;
   resolvedPath?: string | null;
@@ -262,44 +265,12 @@ function mergeLegacyAgent(
 
 function ensureDir(filePath: string) {
   const dir = path.dirname(filePath);
-<<<<<<< HEAD
-  assertNoSymlinkPathComponents(dir, resolveRequiredHomeDir());
-=======
   assertNoExecApprovalsSymlinkParents(dir, resolveRequiredHomeDir());
->>>>>>> upstream/main
   fs.mkdirSync(dir, { recursive: true });
   const dirStat = fs.lstatSync(dir);
   if (!dirStat.isDirectory() || dirStat.isSymbolicLink()) {
     throw new Error(`Refusing to use unsafe exec approvals directory: ${dir}`);
   }
-<<<<<<< HEAD
-  return dir;
-}
-
-function assertNoSymlinkPathComponents(targetPath: string, trustedRoot: string): void {
-  const resolvedTarget = path.resolve(targetPath);
-  const resolvedRoot = path.resolve(trustedRoot);
-  if (resolvedTarget !== resolvedRoot && !resolvedTarget.startsWith(`${resolvedRoot}${path.sep}`)) {
-    return;
-  }
-
-  const relative = path.relative(resolvedRoot, resolvedTarget);
-  const segments = relative && relative !== "." ? relative.split(path.sep) : [];
-  let current = resolvedRoot;
-  for (const segment of segments) {
-    current = path.join(current, segment);
-    try {
-      const stat = fs.lstatSync(current);
-      if (stat.isSymbolicLink()) {
-        throw new Error(`Refusing to traverse symlink in exec approvals path: ${current}`);
-      }
-    } catch (err) {
-      if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-        throw err;
-      }
-    }
-  }
-=======
   try {
     fs.chmodSync(dir, 0o700);
   } catch (err) {
@@ -317,7 +288,6 @@ function assertNoExecApprovalsSymlinkParents(targetPath: string, trustedRoot: st
     allowOutsideRoot: true,
     messagePrefix: "Refusing to traverse symlink in exec approvals path",
   });
->>>>>>> upstream/main
 }
 
 function assertSafeExecApprovalsDestination(filePath: string): void {
@@ -333,8 +303,6 @@ function assertSafeExecApprovalsDestination(filePath: string): void {
   }
 }
 
-<<<<<<< HEAD
-=======
 function assertSafeExecApprovalsOverwriteFallback(filePath: string): void {
   assertSafeExecApprovalsDestination(filePath);
   try {
@@ -530,7 +498,6 @@ function renameExecApprovalsWithFallback(tempPath: string, filePath: string): vo
   }
 }
 
->>>>>>> upstream/main
 // Coerce legacy/corrupted allowlists into `ExecAllowlistEntry[]` before we spread
 // entries to add ids (spreading strings creates {"0":"l","1":"s",...}).
 function coerceAllowlistEntries(allowlist: unknown): ExecAllowlistEntry[] | undefined {
@@ -744,10 +711,6 @@ function writeExecApprovalsRaw(filePath: string, raw: string) {
   let tempWritten = false;
   try {
     fs.writeFileSync(tempPath, raw, { mode: 0o600, flag: "wx" });
-<<<<<<< HEAD
-    tempWritten = true;
-    fs.renameSync(tempPath, filePath);
-=======
     try {
       fs.chmodSync(tempPath, 0o600);
     } catch {
@@ -755,7 +718,6 @@ function writeExecApprovalsRaw(filePath: string, raw: string) {
     }
     tempWritten = true;
     renameExecApprovalsWithFallback(tempPath, filePath);
->>>>>>> upstream/main
   } finally {
     if (tempWritten && fs.existsSync(tempPath)) {
       fs.rmSync(tempPath, { force: true });

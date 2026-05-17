@@ -129,8 +129,6 @@ Run a persistent OpenClaw Gateway on Oracle Cloud's **Always Free** ARM tier (up
   </Step>
 </Steps>
 
-<<<<<<< HEAD
-=======
 ## Verify the security posture
 
 With the VCN locked down (only UDP 41641 open) and the Gateway bound to loopback, public traffic is blocked at the network edge and admin access is tailnet-only. That removes the need for several traditional VPS hardening steps:
@@ -187,7 +185,6 @@ These survive reboots. To take a portable snapshot:
 openclaw backup create
 ```
 
->>>>>>> upstream/main
 ## Fallback: SSH tunnel
 
 If Tailscale Serve is not working, use an SSH tunnel from your local machine:

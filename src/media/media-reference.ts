@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-=======
 import fs from "node:fs/promises";
->>>>>>> upstream/main
 import path from "node:path";
 import { safeFileURLToPath } from "../infra/local-file-access.js";
 import { resolveUserPath } from "../utils.js";
@@ -90,8 +87,15 @@ function maybeLocalPathFromSource(source: string): string | null {
   return null;
 }
 
-<<<<<<< HEAD
-=======
+function relativePathEscapesBase(relativePath: string): boolean {
+  return (
+    relativePath === ".." ||
+    relativePath.startsWith("../") ||
+    relativePath.startsWith("..\\") ||
+    path.isAbsolute(relativePath)
+  );
+}
+
 async function resolvePathForContainment(candidate: string): Promise<string> {
   try {
     return await fs.realpath(candidate);
@@ -100,7 +104,6 @@ async function resolvePathForContainment(candidate: string): Promise<string> {
   }
 }
 
->>>>>>> upstream/main
 async function resolveInboundMediaUri(
   normalizedSource: string,
 ): Promise<InboundMediaReference | null> {
@@ -163,23 +166,17 @@ export async function resolveInboundMediaReference(
     return null;
   }
 
-<<<<<<< HEAD
-  const inboundDir = path.resolve(getMediaDir(), "inbound");
-  const resolvedPath = path.resolve(localPath);
-  const rel = path.relative(inboundDir, resolvedPath);
-=======
   const rawInboundDir = path.resolve(getMediaDir(), "inbound");
   const rawResolvedPath = path.resolve(localPath);
   const rawRel = path.relative(rawInboundDir, rawResolvedPath);
   const rel =
-    rawRel && !rawRel.startsWith("..") && !path.isAbsolute(rawRel)
+    rawRel && !relativePathEscapesBase(rawRel)
       ? rawRel
       : path.relative(
           await resolvePathForContainment(rawInboundDir),
           await resolvePathForContainment(localPath),
         );
->>>>>>> upstream/main
-  if (!rel || rel.startsWith("..") || path.isAbsolute(rel) || rel.includes(path.sep)) {
+  if (!rel || relativePathEscapesBase(rel) || rel.includes(path.sep)) {
     return null;
   }
 

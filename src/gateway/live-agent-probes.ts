@@ -38,8 +38,6 @@ export function assertLiveImageProbeReply(text: string): void {
   }
 }
 
-<<<<<<< HEAD
-=======
 export function shouldRunLiveImageProbe(params: { agent: string; override?: string }): boolean {
   const override = params.override?.trim();
   if (override) {
@@ -56,7 +54,6 @@ export function shouldRunLiveImageProbe(params: { agent: string; override?: stri
   return normalizeOptionalLowercaseString(params.agent) !== "opencode";
 }
 
->>>>>>> upstream/main
 export function createLiveCronProbeSpec(
   params: {
     agentId?: string;

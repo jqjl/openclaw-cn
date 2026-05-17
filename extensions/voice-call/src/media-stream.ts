@@ -9,13 +9,12 @@
 
 import type { IncomingMessage } from "node:http";
 import type { Duplex } from "node:stream";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import type {
   RealtimeTranscriptionProviderConfig,
   RealtimeTranscriptionProviderPlugin,
   RealtimeTranscriptionSession,
 } from "openclaw/plugin-sdk/realtime-transcription";
-<<<<<<< HEAD
-=======
 import {
   createTalkSessionController,
   recordTalkObservabilityEvent,
@@ -23,7 +22,6 @@ import {
   type TalkEventInput,
   type TalkSessionController,
 } from "openclaw/plugin-sdk/realtime-voice";
->>>>>>> upstream/main
 import { type RawData, WebSocket, WebSocketServer } from "ws";
 
 /**
@@ -34,6 +32,8 @@ export interface MediaStreamConfig {
   transcriptionProvider: RealtimeTranscriptionProviderPlugin;
   /** Provider-owned config blob passed into the transcription session. */
   providerConfig: RealtimeTranscriptionProviderConfig;
+  /** Full runtime config, used by providers that can resolve OAuth profiles. */
+  cfg?: OpenClawConfig;
   /** Close sockets that never send a valid `start` frame within this window. */
   preStartTimeoutMs?: number;
   /** Max concurrent pre-start sockets. */
@@ -58,11 +58,8 @@ export interface MediaStreamConfig {
   onSpeechStart?: (callId: string) => void;
   /** Callback when stream disconnects */
   onDisconnect?: (callId: string, streamSid: string) => void;
-<<<<<<< HEAD
-=======
   /** Callback for common Talk events emitted by the telephony STT/TTS adapter. */
   onTalkEvent?: (callId: string, streamSid: string, event: TalkEvent) => void;
->>>>>>> upstream/main
 }
 
 /**
@@ -73,10 +70,7 @@ interface StreamSession {
   streamSid: string;
   ws: WebSocket;
   sttSession: RealtimeTranscriptionSession;
-<<<<<<< HEAD
-=======
   talk: TalkSessionController;
->>>>>>> upstream/main
 }
 
 type TtsQueueEntry = {
@@ -244,8 +238,6 @@ export class MediaStreamHandler {
             if (session && message.media?.payload) {
               // Forward audio to STT
               const audioBuffer = Buffer.from(message.media.payload, "base64");
-<<<<<<< HEAD
-=======
               const turnId = this.ensureActiveTurn(session);
               this.emitTalkEvent(session, {
                 type: "input.audio.delta",
@@ -256,7 +248,6 @@ export class MediaStreamHandler {
                   bytes: audioBuffer.byteLength,
                 },
               });
->>>>>>> upstream/main
               session.sttSession.sendAudio(audioBuffer);
             }
             break;
@@ -326,16 +317,9 @@ export class MediaStreamHandler {
     }
 
     const sttSession = this.config.transcriptionProvider.createSession({
+      cfg: this.config.cfg,
       providerConfig: this.config.providerConfig,
       onPartial: (partial) => {
-<<<<<<< HEAD
-        this.config.onPartialTranscript?.(callSid, partial);
-      },
-      onTranscript: (transcript) => {
-        this.config.onTranscript?.(callSid, transcript);
-      },
-      onSpeechStart: () => {
-=======
         const session = this.sessions.get(streamSid);
         if (session) {
           this.emitTalkEvent(session, {
@@ -370,13 +354,10 @@ export class MediaStreamHandler {
         if (session) {
           this.ensureActiveTurn(session);
         }
->>>>>>> upstream/main
         this.config.onSpeechStart?.(callSid);
       },
       onError: (error) => {
         console.warn("[MediaStream] Transcription session error:", error.message);
-<<<<<<< HEAD
-=======
         const session = this.sessions.get(streamSid);
         if (session) {
           this.emitTalkEvent(session, {
@@ -385,7 +366,6 @@ export class MediaStreamHandler {
             payload: { callId: callSid, streamSid, error: error.message },
           });
         }
->>>>>>> upstream/main
       },
     });
 
@@ -394,21 +374,15 @@ export class MediaStreamHandler {
       streamSid,
       ws,
       sttSession,
-<<<<<<< HEAD
-=======
       talk: this.createTalkEvents(callSid, streamSid),
->>>>>>> upstream/main
     };
 
     this.sessions.set(streamSid, session);
     this.config.onConnect?.(callSid, streamSid);
-<<<<<<< HEAD
-=======
     this.emitTalkEvent(session, {
       type: "session.started",
       payload: { callId: callSid, streamSid, provider: this.config.transcriptionProvider.id },
     });
->>>>>>> upstream/main
     void this.connectTranscriptionAndNotify(session);
 
     return session;
@@ -422,8 +396,6 @@ export class MediaStreamHandler {
         "[MediaStream] STT connection failed; closing media stream:",
         error instanceof Error ? error.message : String(error),
       );
-<<<<<<< HEAD
-=======
       this.emitTalkEvent(session, {
         type: "session.error",
         final: true,
@@ -433,7 +405,6 @@ export class MediaStreamHandler {
           error: error instanceof Error ? error.message : String(error),
         },
       });
->>>>>>> upstream/main
       if (
         this.sessions.get(session.streamSid) === session &&
         session.ws.readyState === WebSocket.OPEN
@@ -453,13 +424,10 @@ export class MediaStreamHandler {
       return;
     }
 
-<<<<<<< HEAD
-=======
     this.emitTalkEvent(session, {
       type: "session.ready",
       payload: { callId: session.callId, streamSid: session.streamSid },
     });
->>>>>>> upstream/main
     this.config.onTranscriptionReady?.(session.callId, session.streamSid);
   }
 
@@ -472,14 +440,11 @@ export class MediaStreamHandler {
     this.clearTtsState(session.streamSid);
     session.sttSession.close();
     this.sessions.delete(session.streamSid);
-<<<<<<< HEAD
-=======
     this.emitTalkEvent(session, {
       type: "session.closed",
       final: true,
       payload: { callId: session.callId, streamSid: session.streamSid },
     });
->>>>>>> upstream/main
     this.config.onDisconnect?.(session.callId, session.streamSid);
   }
 
@@ -648,8 +613,6 @@ export class MediaStreamHandler {
    * Audio should be mu-law encoded at 8kHz mono.
    */
   sendAudio(streamSid: string, muLawAudio: Buffer): StreamSendResult {
-<<<<<<< HEAD
-=======
     const session = this.getOpenSession(streamSid);
     if (session) {
       this.emitTalkEvent(session, {
@@ -658,7 +621,6 @@ export class MediaStreamHandler {
         payload: { callId: session.callId, streamSid, bytes: muLawAudio.byteLength },
       });
     }
->>>>>>> upstream/main
     return this.sendToStream(streamSid, {
       event: "media",
       streamSid,
@@ -718,8 +680,6 @@ export class MediaStreamHandler {
     const queue = this.getTtsQueue(streamSid);
     this.resolveQueuedTtsEntries(queue);
     this.ttsActiveControllers.get(streamSid)?.abort();
-<<<<<<< HEAD
-=======
     const session = this.sessions.get(streamSid);
     if (session?.talk.activeTurnId) {
       const cancelled = session.talk.cancelTurn({
@@ -729,7 +689,6 @@ export class MediaStreamHandler {
         this.config.onTalkEvent?.(session.callId, session.streamSid, cancelled.event);
       }
     }
->>>>>>> upstream/main
     this.clearAudio(streamSid);
   }
 
@@ -779,11 +738,6 @@ export class MediaStreamHandler {
 
       const entry = queue.shift()!;
       this.ttsActiveControllers.set(streamSid, entry.controller);
-<<<<<<< HEAD
-
-      try {
-        await entry.playFn(entry.controller.signal);
-=======
       const session = this.sessions.get(streamSid);
       let playbackTurnId: string | undefined;
 
@@ -818,7 +772,6 @@ export class MediaStreamHandler {
             }
           }
         }
->>>>>>> upstream/main
         entry.resolve();
       } catch (error) {
         if (entry.controller.signal.aborted) {
@@ -835,8 +788,6 @@ export class MediaStreamHandler {
     }
   }
 
-<<<<<<< HEAD
-=======
   private createTalkEvents(callId: string, streamSid: string): TalkSessionController {
     return createTalkSessionController(
       {
@@ -866,7 +817,6 @@ export class MediaStreamHandler {
     return turn.turnId;
   }
 
->>>>>>> upstream/main
   private clearTtsState(streamSid: string): void {
     const queue = this.ttsQueues.get(streamSid);
     if (queue) {

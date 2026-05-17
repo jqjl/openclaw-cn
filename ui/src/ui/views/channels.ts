@@ -55,11 +55,8 @@ export function renderChannels(props: ChannelsProps) {
       }
       return a.order - b.order;
     });
-<<<<<<< HEAD
-=======
   const showingStaleSnapshot = Boolean(props.loading && props.snapshot && props.lastSuccessAt);
   const partialWarnings = props.snapshot?.warnings?.filter((warning) => warning.trim()) ?? [];
->>>>>>> upstream/main
 
   return html`
     <section class="grid grid-cols-2">
@@ -88,8 +85,6 @@ export function renderChannels(props: ChannelsProps) {
           ${props.lastSuccessAt ? formatRelativeTimestamp(props.lastSuccessAt) : t("common.na")}
         </div>
       </div>
-<<<<<<< HEAD
-=======
       ${showingStaleSnapshot
         ? html`
             <div class="callout info" style="margin-top: 12px;">
@@ -105,7 +100,6 @@ export function renderChannels(props: ChannelsProps) {
             </div>
           `
         : nothing}
->>>>>>> upstream/main
       ${props.lastError
         ? html`<div class="callout danger" style="margin-top: 12px;">${props.lastError}</div>`
         : nothing}

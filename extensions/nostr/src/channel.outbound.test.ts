@@ -1,15 +1,9 @@
-<<<<<<< HEAD
-=======
 import { verifyChannelMessageAdapterCapabilityProofs } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { createStartAccountContext } from "openclaw/plugin-sdk/channel-test-helpers";
-import type { OpenClawConfig } from "openclaw/plugin-sdk/config-types";
+import type { OpenClawConfig } from "openclaw/plugin-sdk/config-contracts";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PluginRuntime } from "../runtime-api.js";
-<<<<<<< HEAD
-=======
 import { nostrPlugin } from "./channel.js";
->>>>>>> upstream/main
 import { nostrOutboundAdapter, startNostrGatewayAccount } from "./gateway.js";
 import { setNostrRuntime } from "./runtime.js";
 import { TEST_RESOLVED_PRIVATE_KEY, buildResolvedNostrAccount } from "./test-fixtures.js";
@@ -133,22 +127,23 @@ describe("nostr outbound cfg threading", () => {
 
     cleanup.stop();
   });
-<<<<<<< HEAD
-=======
 
   it("backs declared message adapter capabilities with outbound sends", async () => {
     installOutboundRuntime();
     const { cleanup, sendDm } = await startOutboundAccount();
     const adapter = nostrPlugin.message;
-    expect(adapter).toBeDefined();
-    expect(adapter!.send?.media).toBeUndefined();
+    if (!adapter?.send?.text) {
+      throw new Error("expected Nostr message adapter with text sender");
+    }
+    const sendText = adapter.send.text;
+    expect(adapter.send.media).toBeUndefined();
 
     await verifyChannelMessageAdapterCapabilityProofs({
       adapterName: "nostrMessageAdapter",
-      adapter: adapter!,
+      adapter,
       proofs: {
         text: async () => {
-          const result = await adapter!.send!.text!({
+          const result = await sendText({
             cfg: createCfg() as OpenClawConfig,
             to: "NPUB123",
             text: "hello",
@@ -158,12 +153,11 @@ describe("nostr outbound cfg threading", () => {
           expect(result.receipt.parts[0]?.kind).toBe("text");
         },
         messageSendingHooks: () => {
-          expect(adapter!.send!.text).toBeTypeOf("function");
+          expect(sendText).toBeTypeOf("function");
         },
       },
     });
 
     cleanup.stop();
   });
->>>>>>> upstream/main
 });

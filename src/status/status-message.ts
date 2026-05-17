@@ -2,12 +2,9 @@ import fs from "node:fs";
 import { resolveContextTokensForModel } from "../agents/context.js";
 import { DEFAULT_CONTEXT_TOKENS, DEFAULT_MODEL, DEFAULT_PROVIDER } from "../agents/defaults.js";
 import { resolveModelAuthMode } from "../agents/model-auth.js";
+import { areRuntimeModelRefsEquivalent } from "../agents/model-runtime-aliases.js";
 import {
   buildModelAliasIndex,
-<<<<<<< HEAD
-  isCliProvider,
-=======
->>>>>>> upstream/main
   resolveConfiguredModelRef,
   resolveModelRefFromString,
 } from "../agents/model-selection.js";
@@ -50,10 +47,6 @@ import {
   normalizeOptionalLowercaseString,
   normalizeOptionalString,
 } from "../shared/string-coerce.js";
-<<<<<<< HEAD
-import { sanitizeTerminalText } from "../terminal/safe-text.js";
-=======
->>>>>>> upstream/main
 import { resolveStatusTtsSnapshot } from "../tts/status-config.js";
 import {
   estimateUsageCost,
@@ -62,10 +55,7 @@ import {
   resolveModelCostConfig,
 } from "../utils/usage-format.js";
 import { VERSION } from "../version.js";
-<<<<<<< HEAD
-=======
 import { resolveAgentRuntimeLabel } from "./agent-runtime-label.js";
->>>>>>> upstream/main
 import { resolveActiveFallbackState } from "./fallback-notice-state.js";
 import { formatFastModeLabel } from "./status-labels.js";
 
@@ -209,54 +199,6 @@ function resolveExecutionLabel(
   return `${runtime}/${sandboxMode}`;
 }
 
-<<<<<<< HEAD
-const AGENT_RUNTIME_LABELS: Readonly<Record<string, string>> = {
-  pi: "OpenClaw Pi Default",
-  codex: "OpenAI Codex",
-  "codex-cli": "OpenAI Codex",
-  "claude-cli": "Claude CLI",
-  "google-gemini-cli": "Gemini CLI",
-};
-
-function resolveAgentRuntimeLabel(
-  args: Pick<StatusArgs, "config" | "sessionEntry" | "resolvedHarness"> & {
-    fallbackProvider?: string;
-  },
-): string {
-  const acpAgentRaw = normalizeOptionalString(args.sessionEntry?.acp?.agent);
-  const acpAgent = acpAgentRaw ? sanitizeTerminalText(acpAgentRaw) : undefined;
-  if (acpAgent) {
-    const backendRaw = normalizeOptionalString(args.sessionEntry?.acp?.backend);
-    const backend = backendRaw ? sanitizeTerminalText(backendRaw) : undefined;
-    return backend ? `${acpAgent} (acp/${backend})` : `${acpAgent} (acp)`;
-  }
-
-  const runtimeRaw =
-    normalizeOptionalString(args.resolvedHarness) ??
-    normalizeOptionalString(args.sessionEntry?.agentRuntimeOverride) ??
-    normalizeOptionalString(args.sessionEntry?.agentHarnessId);
-  const runtime = normalizeOptionalLowercaseString(runtimeRaw);
-  if (runtime && runtime !== "auto" && runtime !== "default") {
-    return AGENT_RUNTIME_LABELS[runtime] ?? sanitizeTerminalText(runtimeRaw ?? runtime);
-  }
-
-  const providerRaw =
-    normalizeOptionalString(args.sessionEntry?.modelProvider) ??
-    normalizeOptionalString(args.sessionEntry?.providerOverride) ??
-    normalizeOptionalString(args.fallbackProvider);
-  const provider = providerRaw ? sanitizeTerminalText(providerRaw) : undefined;
-  if (provider && isCliProvider(provider, args.config)) {
-    return (
-      AGENT_RUNTIME_LABELS[normalizeOptionalLowercaseString(providerRaw) ?? ""] ??
-      `${provider} (cli)`
-    );
-  }
-
-  return AGENT_RUNTIME_LABELS.pi;
-}
-
-=======
->>>>>>> upstream/main
 const formatTokens = (total: number | null | undefined, contextTokens: number | null) => {
   const ctx = contextTokens ?? null;
   if (total == null) {
@@ -710,14 +652,6 @@ export function buildStatusMessage(args: StatusArgs): string {
     model: selectedModel,
     allowAsyncLoad: false,
   });
-<<<<<<< HEAD
-  const activeContextTokens = resolveContextTokensForModel({
-    cfg: contextConfig,
-    ...(contextLookupProvider ? { provider: contextLookupProvider } : {}),
-    model: contextLookupModel,
-    allowAsyncLoad: false,
-  });
-=======
   const explicitRuntimeContextTokens =
     typeof args.runtimeContextTokens === "number" && args.runtimeContextTokens > 0
       ? args.runtimeContextTokens
@@ -729,7 +663,6 @@ export function buildStatusMessage(args: StatusArgs): string {
       model: contextLookupModel,
       allowAsyncLoad: false,
     }) ?? explicitRuntimeContextTokens;
->>>>>>> upstream/main
   const channelModelNote = resolveChannelModelNote({
     config: args.config,
     entry,
@@ -745,13 +678,6 @@ export function buildStatusMessage(args: StatusArgs): string {
     typeof args.agent?.contextTokens === "number" && args.agent.contextTokens > 0
       ? args.agent.contextTokens
       : undefined;
-<<<<<<< HEAD
-  const explicitRuntimeContextTokens =
-    typeof args.runtimeContextTokens === "number" && args.runtimeContextTokens > 0
-      ? args.runtimeContextTokens
-      : undefined;
-=======
->>>>>>> upstream/main
   const explicitConfiguredContextTokens =
     typeof args.explicitConfiguredContextTokens === "number" &&
     args.explicitConfiguredContextTokens > 0
@@ -763,28 +689,18 @@ export function buildStatusMessage(args: StatusArgs): string {
         ? Math.min(explicitConfiguredContextTokens, activeContextTokens)
         : explicitConfiguredContextTokens
       : undefined;
-<<<<<<< HEAD
-=======
   const cappedAgentContextTokens =
     typeof agentContextTokens === "number"
       ? typeof activeContextTokens === "number"
         ? Math.min(agentContextTokens, activeContextTokens)
         : agentContextTokens
       : undefined;
->>>>>>> upstream/main
   const channelOverrideContextTokens = channelModelNote
     ? (explicitRuntimeContextTokens ??
       cappedConfiguredContextTokens ??
       (typeof activeContextTokens === "number"
-<<<<<<< HEAD
-        ? typeof agentContextTokens === "number"
-          ? Math.min(agentContextTokens, activeContextTokens)
-          : activeContextTokens
-        : agentContextTokens))
-=======
         ? (cappedAgentContextTokens ?? activeContextTokens)
         : cappedAgentContextTokens))
->>>>>>> upstream/main
     : undefined;
   // When a fallback model is active, the selected-model context limit that
   // callers keep on the agent config is often stale. Prefer an explicit runtime
@@ -833,15 +749,11 @@ export function buildStatusMessage(args: StatusArgs): string {
         ...(contextLookupProvider ? { provider: contextLookupProvider } : {}),
         model: contextLookupModel,
         contextTokensOverride:
-<<<<<<< HEAD
-          channelOverrideContextTokens ?? persistedContextTokens ?? agentContextTokens,
-=======
           channelOverrideContextTokens ??
           persistedContextTokens ??
           cappedConfiguredContextTokens ??
           cappedAgentContextTokens ??
           explicitRuntimeContextTokens,
->>>>>>> upstream/main
         fallbackContextTokens: DEFAULT_CONTEXT_TOKENS,
         allowAsyncLoad: false,
       }) ?? DEFAULT_CONTEXT_TOKENS);
@@ -938,17 +850,25 @@ export function buildStatusMessage(args: StatusArgs): string {
   ];
   const activationLine = activationParts.filter(Boolean).join(" · ");
 
+  const selectedModelLabel = modelRefs.selected.label || "unknown";
+  const runtimeAliasModelEquivalent = areRuntimeModelRefsEquivalent(
+    selectedModelLabel,
+    activeModelLabel,
+  );
   const selectedAuthMode =
     normalizeAuthMode(args.modelAuth) ?? resolveModelAuthMode(selectedProvider, args.config);
-  const selectedAuthLabelValue =
-    args.modelAuth ??
-    (selectedAuthMode && selectedAuthMode !== "unknown" ? selectedAuthMode : undefined);
+  const rawSelectedAuthLabelValue =
+    selectedAuthMode && selectedAuthMode !== "unknown"
+      ? (args.modelAuth ?? selectedAuthMode)
+      : undefined;
   const activeAuthMode =
     normalizeAuthMode(args.activeModelAuth) ?? resolveModelAuthMode(activeProvider, args.config);
   const activeAuthLabelValue =
-    args.activeModelAuth ??
-    (activeAuthMode && activeAuthMode !== "unknown" ? activeAuthMode : undefined);
-  const selectedModelLabel = modelRefs.selected.label || "unknown";
+    activeAuthMode && activeAuthMode !== "unknown"
+      ? (args.activeModelAuth ?? activeAuthMode)
+      : undefined;
+  const selectedAuthLabelValue =
+    rawSelectedAuthLabelValue ?? (runtimeAliasModelEquivalent ? activeAuthLabelValue : undefined);
   const fallbackState = resolveActiveFallbackState({
     selectedModelRef: selectedModelLabel,
     activeModelRef: activeModelLabel,
@@ -958,15 +878,16 @@ export function buildStatusMessage(args: StatusArgs): string {
     ? activeAuthMode
     : (selectedAuthMode ?? activeAuthMode);
   const showCost = effectiveCostAuthMode === "api-key" || effectiveCostAuthMode === "mixed";
-  const costConfig = showCost
-    ? resolveModelCostConfig({
-        provider: activeProvider,
-        model: activeModel,
-        config: args.config,
-        allowPluginNormalization: false,
-      })
-    : undefined;
   const hasUsage = typeof inputTokens === "number" || typeof outputTokens === "number";
+  const costConfig =
+    showCost && hasUsage
+      ? resolveModelCostConfig({
+          provider: activeProvider,
+          model: activeModel,
+          config: args.config,
+          allowPluginNormalization: false,
+        })
+      : undefined;
   const cost =
     showCost && hasUsage
       ? estimateUsageCost({

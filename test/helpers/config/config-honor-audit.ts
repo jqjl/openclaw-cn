@@ -1,11 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-<<<<<<< HEAD
-import { GENERATED_BASE_CONFIG_SCHEMA } from "../../../src/config/schema.base.generated.js";
-=======
 import { computeBaseConfigSchemaResponse } from "../../../src/config/schema-base.js";
->>>>>>> upstream/main
 
 export type ConfigHonorInventoryRow = {
   key: string;
@@ -39,12 +35,6 @@ export type ConfigHonorAuditResult = {
 };
 
 const REPO_ROOT = fileURLToPath(new URL("../../../", import.meta.url));
-<<<<<<< HEAD
-
-function hasSchemaPath(schemaPath: string): boolean {
-  const segments = schemaPath.split(".");
-  let current: unknown = GENERATED_BASE_CONFIG_SCHEMA.schema;
-=======
 const BASE_CONFIG_SCHEMA = computeBaseConfigSchemaResponse({
   generatedAt: "2026-05-05T00:00:00.000Z",
 });
@@ -52,7 +42,6 @@ const BASE_CONFIG_SCHEMA = computeBaseConfigSchemaResponse({
 function hasSchemaPath(schemaPath: string): boolean {
   const segments = schemaPath.split(".");
   let current: unknown = BASE_CONFIG_SCHEMA.schema;
->>>>>>> upstream/main
   for (const segment of segments) {
     if (!current || typeof current !== "object") {
       return false;
@@ -78,11 +67,7 @@ export function listSchemaLeafKeysForPrefixes(prefixes: string[]): string[] {
   const keys = new Set<string>();
   for (const prefix of prefixes) {
     const segments = prefix.split(".");
-<<<<<<< HEAD
-    let current: unknown = GENERATED_BASE_CONFIG_SCHEMA.schema;
-=======
     let current: unknown = BASE_CONFIG_SCHEMA.schema;
->>>>>>> upstream/main
     for (const segment of segments) {
       if (!current || typeof current !== "object") {
         current = null;

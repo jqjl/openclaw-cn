@@ -1,26 +1,9 @@
 ---
-<<<<<<< HEAD
-summary: "Groq setup (auth + model selection)"
-=======
 summary: "Groq setup (auth + model selection + Whisper transcription)"
->>>>>>> upstream/main
 title: "Groq"
 read_when:
   - You want to use Groq with OpenClaw
   - You need the API key env var or CLI auth choice
-<<<<<<< HEAD
----
-
-[Groq](https://groq.com) provides ultra-fast inference on open-source models
-(Llama, Gemma, Mistral, and more) using custom LPU hardware. OpenClaw connects
-to Groq through its OpenAI-compatible API.
-
-| Property | Value             |
-| -------- | ----------------- |
-| Provider | `groq`            |
-| Auth     | `GROQ_API_KEY`    |
-| API      | OpenAI-compatible |
-=======
   - You are configuring Whisper audio transcription on Groq
 ---
 
@@ -36,7 +19,6 @@ to Groq through its OpenAI-compatible API.
 | Base URL               | `https://api.groq.com/openai/v1`         |
 | Audio transcription    | `whisper-large-v3-turbo` (default)       |
 | Suggested chat default | `groq/llama-3.3-70b-versatile`           |
->>>>>>> upstream/main
 
 ## Getting started
 
@@ -45,11 +27,6 @@ to Groq through its OpenAI-compatible API.
     Create an API key at [console.groq.com/keys](https://console.groq.com/keys).
   </Step>
   <Step title="Set the API key">
-<<<<<<< HEAD
-    ```bash
-    export GROQ_API_KEY="gsk_..."
-    ```
-=======
     <CodeGroup>
 
 ```bash Onboarding
@@ -62,7 +39,6 @@ export GROQ_API_KEY=gsk_...
 
     </CodeGroup>
 
->>>>>>> upstream/main
   </Step>
   <Step title="Set a default model">
     ```json5
@@ -75,14 +51,11 @@ export GROQ_API_KEY=gsk_...
     }
     ```
   </Step>
-<<<<<<< HEAD
-=======
   <Step title="Verify the catalog is reachable">
     ```bash
     openclaw models list --provider groq
     ```
   </Step>
->>>>>>> upstream/main
 </Steps>
 
 ### Config file example
@@ -100,23 +73,6 @@ export GROQ_API_KEY=gsk_...
 
 ## Built-in catalog
 
-<<<<<<< HEAD
-OpenClaw ships a manifest-backed Groq catalog for fast provider-filtered model
-listing. Run `openclaw models list --all --provider groq` to see the bundled
-rows, or check
-[console.groq.com/docs/models](https://console.groq.com/docs/models).
-
-| Model                       | Notes                              |
-| --------------------------- | ---------------------------------- |
-| **Llama 3.3 70B Versatile** | General-purpose, large context     |
-| **Llama 3.1 8B Instant**    | Fast, lightweight                  |
-| **Gemma 2 9B**              | Compact, efficient                 |
-| **Mixtral 8x7B**            | MoE architecture, strong reasoning |
-
-<Tip>
-Use `openclaw models list --all --provider groq` for the manifest-backed Groq
-rows known to this OpenClaw version.
-=======
 OpenClaw ships a manifest-backed Groq catalog with both reasoning and non-reasoning entries. Run `openclaw models list --provider groq` to see the bundled rows for your installed version, or check [console.groq.com/docs/models](https://console.groq.com/docs/models) for Groq's authoritative list.
 
 | Model ref                                            | Name                          | Reasoning | Input        | Context |
@@ -142,25 +98,10 @@ OpenClaw ships a manifest-backed Groq catalog with both reasoning and non-reason
 
 <Tip>
   The catalog evolves with each OpenClaw release. `openclaw models list --provider groq` shows the rows known to your installed version; cross-check with [console.groq.com/docs/models](https://console.groq.com/docs/models) for newly-added or deprecated models.
->>>>>>> upstream/main
 </Tip>
 
 ## Reasoning models
 
-<<<<<<< HEAD
-OpenClaw maps its shared `/think` levels to Groq's model-specific
-`reasoning_effort` values. For `qwen/qwen3-32b`, disabled thinking sends
-`none` and enabled thinking sends `default`. For Groq GPT-OSS reasoning models,
-OpenClaw sends `low`, `medium`, or `high`; disabled thinking omits
-`reasoning_effort` because those models do not support a disabled value.
-
-## Audio transcription
-
-Groq also provides fast Whisper-based audio transcription. When configured as a
-media-understanding provider, OpenClaw uses Groq's `whisper-large-v3-turbo`
-model to transcribe voice messages through the shared `tools.media.audio`
-surface.
-=======
 OpenClaw maps its shared `/think` levels to Groq's model-specific `reasoning_effort` values:
 
 - For `qwen/qwen3-32b`, disabled thinking sends `none` and enabled thinking sends `default`.
@@ -182,7 +123,6 @@ Groq's bundled plugin also registers an **audio media-understanding provider** s
 | API endpoint       | OpenAI-compatible `/audio/transcriptions` |
 
 To make Groq the default audio backend:
->>>>>>> upstream/main
 
 ```json5
 {
@@ -197,34 +137,11 @@ To make Groq the default audio backend:
 ```
 
 <AccordionGroup>
-<<<<<<< HEAD
-  <Accordion title="Audio transcription details">
-    | Property | Value |
-    |----------|-------|
-    | Shared config path | `tools.media.audio` |
-    | Default base URL   | `https://api.groq.com/openai/v1` |
-    | Default model      | `whisper-large-v3-turbo` |
-    | API endpoint       | OpenAI-compatible `/audio/transcriptions` |
-  </Accordion>
-
-  <Accordion title="Environment note">
-    If the Gateway runs as a daemon (launchd/systemd), make sure `GROQ_API_KEY` is
-    available to that process (for example, in `~/.openclaw/.env` or via
-    `env.shellEnv`).
-
-    <Warning>
-    Keys set only in your interactive shell are not visible to daemon-managed
-    gateway processes. Use `~/.openclaw/.env` or `env.shellEnv` config for
-    persistent availability.
-    </Warning>
-
-  </Accordion>
-=======
   <Accordion title="Environment availability for the daemon">
     If the Gateway runs as a managed service (launchd, systemd, Docker), `GROQ_API_KEY` must be visible to that process — not just to your interactive shell.
 
     <Warning>
-      A key sitting only in `~/.profile` will not help a launchd or systemd daemon unless that environment is imported there too. Set the key in `~/.openclaw/.env` or via `env.shellEnv` to make it readable from the gateway process.
+      A key exported only in an interactive shell will not help a launchd or systemd daemon unless that environment is imported there too. Set the key in `~/.openclaw/.env` or via `env.shellEnv` to make it readable from the gateway process.
     </Warning>
 
   </Accordion>
@@ -243,34 +160,21 @@ To make Groq the default audio backend:
     ```
 
   </Accordion>
->>>>>>> upstream/main
 </AccordionGroup>
 
 ## Related
 
 <CardGroup cols={2}>
-<<<<<<< HEAD
-  <Card title="Model selection" href="/concepts/model-providers" icon="layers">
-    Choosing providers, model refs, and failover behavior.
-  </Card>
-=======
   <Card title="Model providers" href="/concepts/model-providers" icon="layers">
     Choosing providers, model refs, and failover behavior.
   </Card>
   <Card title="Thinking modes" href="/tools/thinking" icon="brain">
     Reasoning effort levels and provider-policy interaction.
   </Card>
->>>>>>> upstream/main
   <Card title="Configuration reference" href="/gateway/configuration-reference" icon="gear">
     Full config schema including provider and audio settings.
   </Card>
   <Card title="Groq Console" href="https://console.groq.com" icon="arrow-up-right-from-square">
     Groq dashboard, API docs, and pricing.
   </Card>
-<<<<<<< HEAD
-  <Card title="Groq model list" href="https://console.groq.com/docs/models" icon="list">
-    Official Groq model catalog.
-  </Card>
-=======
->>>>>>> upstream/main
 </CardGroup>

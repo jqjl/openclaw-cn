@@ -6,11 +6,7 @@ read_when:
 title: "macOS app"
 ---
 
-<<<<<<< HEAD
-The macOS app is the **menu‑bar companion** for OpenClaw. It owns permissions,
-=======
 The macOS app is the **menu-bar companion** for OpenClaw. It owns permissions,
->>>>>>> upstream/main
 manages/attaches to the Gateway locally (launchd or manual), and exposes macOS
 capabilities to the agent as a node.
 
@@ -20,11 +16,7 @@ capabilities to the agent as a node.
 - Owns TCC prompts (Notifications, Accessibility, Screen Recording, Microphone,
   Speech Recognition, Automation/AppleScript).
 - Runs or connects to the Gateway (local or remote).
-<<<<<<< HEAD
-- Exposes macOS‑only tools (Canvas, Camera, Screen Recording, `system.run`).
-=======
 - Exposes macOS-only tools (Canvas, Camera, Screen Recording, `system.run`).
->>>>>>> upstream/main
 - Starts the local node host service in **remote** mode (launchd), and stops it in **local** mode.
 - Optionally hosts **PeekabooBridge** for UI automation.
 - Installs the global CLI (`openclaw`) on request via npm, pnpm, or bun (the app prefers npm, then pnpm, then bun; Node remains the recommended Gateway runtime).
@@ -42,11 +34,7 @@ capabilities to the agent as a node.
 
 ## Launchd control
 
-<<<<<<< HEAD
-The app manages a per‑user LaunchAgent labeled `ai.openclaw.gateway`
-=======
 The app manages a per-user LaunchAgent labeled `ai.openclaw.gateway`
->>>>>>> upstream/main
 (or `ai.openclaw.<profile>` when using `--profile`/`OPENCLAW_PROFILE`; legacy `com.openclaw.*` still unloads).
 
 ```bash
@@ -56,11 +44,7 @@ launchctl bootout gui/$UID/ai.openclaw.gateway
 
 Replace the label with `ai.openclaw.<profile>` when running a named profile.
 
-<<<<<<< HEAD
-If the LaunchAgent isn’t installed, enable it from the app or run
-=======
 If the LaunchAgent isn't installed, enable it from the app or run
->>>>>>> upstream/main
 `openclaw gateway install`.
 
 ## Node capabilities (mac)
@@ -72,11 +56,7 @@ The macOS app presents itself as a node. Common commands:
 - Screen: `screen.snapshot`, `screen.record`
 - System: `system.run`, `system.notify`
 
-<<<<<<< HEAD
-The node reports a `permissions` map so agents can decide what’s allowed.
-=======
 The node reports a `permissions` map so agents can decide what's allowed.
->>>>>>> upstream/main
 
 Node service + app IPC:
 
@@ -124,13 +104,8 @@ Notes:
 
 - `allowlist` entries are glob patterns for resolved binary paths, or bare command names for PATH-invoked commands.
 - Raw shell command text that contains shell control or expansion syntax (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss and requires explicit approval (or allowlisting the shell binary).
-<<<<<<< HEAD
-- Choosing “Always Allow” in the prompt adds that command to the allowlist.
-- `system.run` environment overrides are filtered (drops `PATH`, `DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`, `SHELLOPTS`, `PS4`) and then merged with the app’s environment.
-=======
 - Choosing "Always Allow" in the prompt adds that command to the allowlist.
 - `system.run` environment overrides are filtered (drops `PATH`, `DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`, `SHELLOPTS`, `PS4`) and then merged with the app's environment.
->>>>>>> upstream/main
 - For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped environment overrides are reduced to a small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
 - For allow-always decisions in allowlist mode, known dispatch wrappers (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper paths. If unwrapping is not safe, no allowlist entry is persisted automatically.
 
@@ -187,11 +162,7 @@ If `openclaw doctor` detects state under:
 
 it will warn and recommend moving back to a local path.
 
-<<<<<<< HEAD
-## Build & dev workflow (native)
-=======
 ## Build and dev workflow (native)
->>>>>>> upstream/main
 
 - `cd apps/macos && swift build`
 - `swift run OpenClaw` (or Xcode)
@@ -218,11 +189,7 @@ Connect options:
 
 Discovery options:
 
-<<<<<<< HEAD
-- `--include-local`: include gateways that would be filtered as “local”
-=======
 - `--include-local`: include gateways that would be filtered as "local"
->>>>>>> upstream/main
 - `--timeout <ms>`: overall discovery window (default: `2000`)
 - `--json`: structured output for diffing
 

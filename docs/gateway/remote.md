@@ -5,11 +5,7 @@ read_when:
 title: "Remote access"
 ---
 
-<<<<<<< HEAD
-This repo supports “remote over SSH” by keeping a single Gateway (the master) running on a dedicated host (desktop/server) and connecting clients to it.
-=======
 This repo supports "remote over SSH" by keeping a single Gateway (the master) running on a dedicated host (desktop/server) and connecting clients to it.
->>>>>>> upstream/main
 
 - For **operators (you / the macOS app)**: SSH tunneling is the universal fallback.
 - For **nodes (iOS/Android and future devices)**: connect to the Gateway **WebSocket** (LAN/tailnet or SSH tunnel as needed).
@@ -65,11 +61,7 @@ Flow example (Telegram → node):
 Notes:
 
 - **Nodes do not run the gateway service.** Only one gateway should run per host unless you intentionally run isolated profiles (see [Multiple gateways](/gateway/multiple-gateways)).
-<<<<<<< HEAD
-- macOS app “node mode” is just a node client over the Gateway WebSocket.
-=======
 - macOS app "node mode" is just a node client over the Gateway WebSocket.
->>>>>>> upstream/main
 
 ## SSH tunnel (CLI + tools)
 
@@ -109,11 +101,7 @@ You can persist a remote target so CLI commands use it by default:
 ```
 
 When the gateway is loopback-only, keep the URL at `ws://127.0.0.1:18789` and open the SSH tunnel first.
-<<<<<<< HEAD
-In the macOS app’s SSH tunnel transport, discovered gateway hostnames belong in
-=======
 In the macOS app's SSH tunnel transport, discovered gateway hostnames belong in
->>>>>>> upstream/main
 `gateway.remote.sshTarget`; `gateway.remote.url` remains the local tunnel URL.
 
 ## Credential precedence
@@ -139,11 +127,7 @@ Gateway credential resolution follows one shared contract across call/probe/stat
 WebChat no longer uses a separate HTTP port. The SwiftUI chat UI connects directly to the Gateway WebSocket.
 
 - Forward `18789` over SSH (see above), then connect clients to `ws://127.0.0.1:18789`.
-<<<<<<< HEAD
-- On macOS, prefer the app’s “Remote over SSH” mode, which manages the tunnel automatically.
-=======
 - On macOS, prefer the app's "Remote over SSH" mode, which manages the tunnel automatically.
->>>>>>> upstream/main
 
 ## macOS app Remote over SSH
 
@@ -153,11 +137,7 @@ Runbook: [macOS remote access](/platforms/mac/remote).
 
 ## Security rules (remote/VPN)
 
-<<<<<<< HEAD
-Short version: **keep the Gateway loopback-only** unless you’re sure you need a bind.
-=======
 Short version: **keep the Gateway loopback-only** unless you're sure you need a bind.
->>>>>>> upstream/main
 
 - **Loopback + SSH/Tailscale Serve** is the safest default (no public exposure).
 - Plaintext `ws://` is loopback-only by default. For trusted private networks,
@@ -168,7 +148,7 @@ Short version: **keep the Gateway loopback-only** unless you're sure you need a 
 - `gateway.remote.token` / `.password` are client credential sources. They do **not** configure server auth by themselves.
 - Local call paths can use `gateway.remote.*` as fallback only when `gateway.auth.*` is unset.
 - If `gateway.auth.token` / `gateway.auth.password` is explicitly configured via SecretRef and unresolved, resolution fails closed (no remote fallback masking).
-- `gateway.remote.tlsFingerprint` pins the remote TLS cert when using `wss://`.
+- `gateway.remote.tlsFingerprint` pins the remote TLS cert when using `wss://`, including macOS direct mode. Without a configured or previously stored pin, macOS only pins a first-use certificate after normal system trust passes; self-signed or private-CA gateways that macOS does not already trust need an explicit fingerprint or Remote over SSH.
 - **Tailscale Serve** can authenticate Control UI/WebSocket traffic via identity
   headers when `gateway.auth.allowTailscale: true`; HTTP API endpoints do not
   use that Tailscale header auth and instead follow the gateway's normal HTTP

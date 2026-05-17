@@ -1,10 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import type { MemorySearchResult } from "openclaw/plugin-sdk/memory-core-host-runtime-files";
 import { resolveDefaultAgentId, resolveSessionAgentId } from "openclaw/plugin-sdk/memory-host-core";
-import type { MemorySearchResult } from "openclaw/plugin-sdk/memory-host-files";
 import { getActiveMemorySearchManager } from "openclaw/plugin-sdk/memory-host-search";
-<<<<<<< HEAD
-=======
 import {
   extractTranscriptStemFromSessionsMemoryHit,
   loadCombinedSessionStoreForGateway,
@@ -15,8 +13,7 @@ import {
   createSessionVisibilityGuard,
   resolveEffectiveSessionToolsVisibility,
 } from "openclaw/plugin-sdk/session-visibility";
->>>>>>> upstream/main
-import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeLowercaseStringOrEmpty } from "openclaw/plugin-sdk/string-coerce-runtime";
 import type { OpenClawConfig } from "../api.js";
 import { assessClaimFreshness, isClaimContestedStatus } from "./claim-health.js";
 import type { ResolvedMemoryWikiConfig, WikiSearchBackend, WikiSearchCorpus } from "./config.js";
@@ -965,8 +962,6 @@ function buildLookupCandidates(lookup: string): string[] {
   return [...new Set([normalized, withExtension])];
 }
 
-<<<<<<< HEAD
-=======
 function shouldEnforceSessionVisibility(params: {
   agentSessionKey?: string;
   sandboxed?: boolean;
@@ -1012,7 +1007,6 @@ export function isSessionMemoryPath(relPath: string): boolean {
   );
 }
 
->>>>>>> upstream/main
 function shouldSearchWiki(config: ResolvedMemoryWikiConfig): boolean {
   return config.search.corpus === "wiki" || config.search.corpus === "all";
 }
@@ -1021,15 +1015,7 @@ function shouldSearchSharedMemory(
   config: ResolvedMemoryWikiConfig,
   appConfig?: OpenClawConfig,
 ): boolean {
-<<<<<<< HEAD
-  return (
-    config.search.backend === "shared" &&
-    appConfig !== undefined &&
-    (config.search.corpus === "memory" || config.search.corpus === "all")
-  );
-=======
   return shouldUseSharedMemory(config) && appConfig !== undefined;
->>>>>>> upstream/main
 }
 
 function resolveActiveMemoryAgentId(params: {
@@ -1217,8 +1203,6 @@ function toMemoryWikiSearchResult(
   };
 }
 
-<<<<<<< HEAD
-=======
 async function filterMemoryWikiSearchHitsBySessionVisibility(params: {
   cfg: OpenClawConfig;
   requesterSessionKey: string | undefined;
@@ -1317,7 +1301,6 @@ function canReadSessionMemoryPath(params: {
   return filtered.length > 0;
 }
 
->>>>>>> upstream/main
 async function searchWikiCorpus(params: {
   rootDir: string;
   query: string;
@@ -1389,10 +1372,7 @@ export async function searchMemoryWiki(params: {
   appConfig?: OpenClawConfig;
   agentId?: string;
   agentSessionKey?: string;
-<<<<<<< HEAD
-=======
   sandboxed?: boolean;
->>>>>>> upstream/main
   query: string;
   maxResults?: number;
   searchBackend?: WikiSearchBackend;
@@ -1400,8 +1380,6 @@ export async function searchMemoryWiki(params: {
   mode?: WikiSearchMode;
 }): Promise<WikiSearchResult[]> {
   const effectiveConfig = applySearchOverrides(params.config, params);
-<<<<<<< HEAD
-=======
   assertSessionVisibilityAppConfig({
     config: effectiveConfig,
     appConfig: params.appConfig,
@@ -1409,7 +1387,6 @@ export async function searchMemoryWiki(params: {
     sandboxed: params.sandboxed,
     operation: "wiki_search",
   });
->>>>>>> upstream/main
   await initializeMemoryWikiVault(effectiveConfig);
   const maxResults = Math.max(1, params.maxResults ?? 10);
   const mode = params.mode ?? "auto";
@@ -1430,13 +1407,6 @@ export async function searchMemoryWiki(params: {
         agentSessionKey: params.agentSessionKey,
       })
     : null;
-<<<<<<< HEAD
-  const memoryResults = sharedMemoryManager
-    ? (await sharedMemoryManager.search(params.query, { maxResults })).map((result) =>
-        toMemoryWikiSearchResult(result, mode),
-      )
-    : [];
-=======
   let rawMemoryResults = sharedMemoryManager
     ? await sharedMemoryManager.search(params.query, { maxResults })
     : [];
@@ -1453,7 +1423,6 @@ export async function searchMemoryWiki(params: {
     });
   }
   const memoryResults = rawMemoryResults.map((result) => toMemoryWikiSearchResult(result, mode));
->>>>>>> upstream/main
 
   return mergeWikiSearchCorpusResults({
     wikiResults,
@@ -1468,10 +1437,7 @@ export async function getMemoryWikiPage(params: {
   appConfig?: OpenClawConfig;
   agentId?: string;
   agentSessionKey?: string;
-<<<<<<< HEAD
-=======
   sandboxed?: boolean;
->>>>>>> upstream/main
   lookup: string;
   fromLine?: number;
   lineCount?: number;
@@ -1479,8 +1445,6 @@ export async function getMemoryWikiPage(params: {
   searchCorpus?: WikiSearchCorpus;
 }): Promise<WikiGetResult | null> {
   const effectiveConfig = applySearchOverrides(params.config, params);
-<<<<<<< HEAD
-=======
   assertSessionVisibilityAppConfig({
     config: effectiveConfig,
     appConfig: params.appConfig,
@@ -1488,7 +1452,6 @@ export async function getMemoryWikiPage(params: {
     sandboxed: params.sandboxed,
     operation: "wiki_get",
   });
->>>>>>> upstream/main
   await initializeMemoryWikiVault(effectiveConfig);
   const fromLine = Math.max(1, params.fromLine ?? 1);
   const lineCount = Math.max(1, params.lineCount ?? 200);
@@ -1540,9 +1503,6 @@ export async function getMemoryWikiPage(params: {
     return null;
   }
 
-<<<<<<< HEAD
-  for (const relPath of buildLookupCandidates(params.lookup)) {
-=======
   const lookupCandidates = buildLookupCandidates(params.lookup);
   const canReadSessionPath =
     params.appConfig &&
@@ -1567,7 +1527,6 @@ export async function getMemoryWikiPage(params: {
       continue;
     }
 
->>>>>>> upstream/main
     try {
       const result = await manager.readFile({
         relPath,

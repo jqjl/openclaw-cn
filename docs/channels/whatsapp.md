@@ -14,27 +14,19 @@ Status: production-ready via WhatsApp Web (Baileys). Gateway owns linked session
 - `openclaw channels login --channel whatsapp` also offers the install flow when
   the plugin is not present yet.
 - Dev channel + git checkout: defaults to the local plugin path.
-- Stable/Beta: uses the npm package `@openclaw/whatsapp` on the current official
-  release tag.
+- Stable/Beta: installs the official `@openclaw/whatsapp` plugin from ClawHub
+  first, with npm as the fallback.
+- The WhatsApp runtime is distributed outside the core OpenClaw npm package so
+  WhatsApp-specific runtime dependencies stay with the external plugin.
 
 Manual install stays available:
 
 ```bash
-openclaw plugins install @openclaw/whatsapp
+openclaw plugins install clawhub:@openclaw/whatsapp
 ```
 
-Use the bare package to follow the current official release tag. Pin an exact
-version only when you need a reproducible install.
-
-On Windows, the WhatsApp plugin needs Git on `PATH` during npm install because
-one of its Baileys/libsignal dependencies is fetched from a git URL. Install
-Git for Windows, then restart the shell and rerun the install:
-
-```powershell
-winget install --id Git.Git -e
-```
-
-Portable Git also works if its `bin` directory is on `PATH`.
+Use the bare npm package (`@openclaw/whatsapp`) only when you need the registry
+fallback. Pin an exact version only when you need a reproducible install.
 
 <CardGroup cols={3}>
   <Card title="Pairing" icon="link" href="/channels/pairing">
@@ -160,11 +152,7 @@ OpenClaw recommends running WhatsApp on a separate number when possible. (The ch
 ## Runtime model
 
 - Gateway owns the WhatsApp socket and reconnect loop.
-<<<<<<< HEAD
-- The reconnect watchdog uses WhatsApp Web transport activity, not only inbound app-message volume, so a quiet linked-device session is not restarted solely because nobody has sent a message recently. A longer application-silence cap still forces a reconnect if transport frames keep arriving but no application messages are handled for the watchdog window.
-=======
 - The reconnect watchdog uses WhatsApp Web transport activity, not only inbound app-message volume, so a quiet linked-device session is not restarted solely because nobody has sent a message recently. A longer application-silence cap still forces a reconnect if transport frames keep arriving but no application messages are handled for the watchdog window; after a transient reconnect for a recently active session, that application-silence check uses the normal message timeout for the first recovery window.
->>>>>>> upstream/main
 - Baileys socket timings are explicit under `web.whatsapp.*`: `keepAliveIntervalMs` controls WhatsApp Web application pings, `connectTimeoutMs` controls the opening handshake timeout, and `defaultQueryTimeoutMs` controls Baileys query timeouts.
 - Outbound sends require an active WhatsApp listener for the target account.
 - Group sends attach native mention metadata for `@+<digits>` and `@<digits>` tokens in text and media captions when the token matches current WhatsApp participant metadata, including LID-backed groups.
@@ -420,8 +408,6 @@ When the linked self number is also present in `allowFrom`, WhatsApp self-chat s
   </Accordion>
 </AccordionGroup>
 
-<<<<<<< HEAD
-=======
 ## Reply quoting
 
 WhatsApp supports native reply quoting, where outbound replies visibly quote the inbound message. Control it with `channels.whatsapp.replyToMode`.
@@ -445,7 +431,6 @@ Default is `"off"`. Per-account overrides use `channels.whatsapp.accounts.<id>.r
 }
 ```
 
->>>>>>> upstream/main
 ## Reaction level
 
 `channels.whatsapp.reactionLevel` controls how broadly the agent uses emoji reactions on WhatsApp:
@@ -604,8 +589,6 @@ Behavior notes:
 
   </Accordion>
 
-<<<<<<< HEAD
-=======
   <Accordion title="Reply appears in transcript but not in WhatsApp">
     Transcript rows record what the agent generated. WhatsApp delivery is checked separately: OpenClaw only treats an auto-reply as sent after Baileys returns an outbound message id for at least one visible text or media send.
 
@@ -615,7 +598,6 @@ Behavior notes:
 
   </Accordion>
 
->>>>>>> upstream/main
   <Accordion title="Group messages unexpectedly ignored">
     Check in this order:
 
@@ -632,8 +614,6 @@ Behavior notes:
   </Accordion>
 </AccordionGroup>
 
-<<<<<<< HEAD
-=======
 ## System prompts
 
 WhatsApp supports Telegram-style system prompts for groups and direct chats via the `groups` and `direct` maps.
@@ -705,7 +685,6 @@ Example:
 }
 ```
 
->>>>>>> upstream/main
 ## Configuration reference pointers
 
 Primary reference:
@@ -715,18 +694,11 @@ Primary reference:
 High-signal WhatsApp fields:
 
 - access: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`
-<<<<<<< HEAD
-- delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `sendReadReceipts`, `ackReaction`, `reactionLevel`, `exposeErrorText`
-- multi-account: `accounts.<id>.enabled`, `accounts.<id>.authDir`, account-level overrides
-- operations: `configWrites`, `debounceMs`, `web.enabled`, `web.heartbeatSeconds`, `web.reconnect.*`, `web.whatsapp.*`
-- session behavior: `session.dmScope`, `historyLimit`, `dmHistoryLimit`, `dms.<id>.historyLimit`
-=======
 - delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `sendReadReceipts`, `ackReaction`, `reactionLevel`
 - multi-account: `accounts.<id>.enabled`, `accounts.<id>.authDir`, account-level overrides
 - operations: `configWrites`, `debounceMs`, `web.enabled`, `web.heartbeatSeconds`, `web.reconnect.*`, `web.whatsapp.*`
 - session behavior: `session.dmScope`, `historyLimit`, `dmHistoryLimit`, `dms.<id>.historyLimit`
 - prompts: `groups.<id>.systemPrompt`, `groups["*"].systemPrompt`, `direct.<id>.systemPrompt`, `direct["*"].systemPrompt`
->>>>>>> upstream/main
 
 ## Related
 

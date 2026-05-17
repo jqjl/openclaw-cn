@@ -10,10 +10,7 @@ import {
   addSubagentRunForTests,
   resetSubagentRegistryForTests,
 } from "../../agents/subagent-registry.js";
-<<<<<<< HEAD
-=======
 import type { ModelDefinitionConfig } from "../../config/types.models.js";
->>>>>>> upstream/main
 import {
   completeTaskRunByRunId,
   createQueuedTaskRun,
@@ -29,6 +26,24 @@ import {
   configureInMemoryTaskRegistryStoreForTests,
 } from "./commands.test-harness.js";
 
+type LoadProviderUsageSummary =
+  typeof import("../../infra/provider-usage.js").loadProviderUsageSummary;
+
+const providerUsageMock = vi.hoisted(() => ({
+  loadProviderUsageSummary: vi.fn<LoadProviderUsageSummary>(async () => ({
+    updatedAt: Date.now(),
+    providers: [],
+  })),
+}));
+
+vi.mock("../../infra/provider-usage.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../infra/provider-usage.js")>();
+  return {
+    ...actual,
+    loadProviderUsageSummary: providerUsageMock.loadProviderUsageSummary,
+  };
+});
+
 vi.mock("../../agents/harness/builtin-pi.js", () => ({
   createPiAgentHarness: () => ({
     id: "pi",
@@ -41,8 +56,6 @@ vi.mock("../../agents/harness/builtin-pi.js", () => ({
 }));
 
 const baseCfg = baseCommandTestConfig;
-<<<<<<< HEAD
-=======
 const codexStatusModel: ModelDefinitionConfig = {
   id: "gpt-5.5",
   name: "GPT-5.5",
@@ -53,7 +66,6 @@ const codexStatusModel: ModelDefinitionConfig = {
   contextTokens: 1_000_000,
   maxTokens: 128_000,
 };
->>>>>>> upstream/main
 
 async function buildStatusReplyForTest(params: { sessionKey?: string; verbose?: boolean }) {
   const commandParams = buildCommandTestParams("/status", baseCfg);
@@ -97,6 +109,11 @@ function registerStatusCodexHarness(): void {
 
 afterEach(() => {
   clearAgentHarnesses();
+  providerUsageMock.loadProviderUsageSummary.mockReset();
+  providerUsageMock.loadProviderUsageSummary.mockResolvedValue({
+    updatedAt: Date.now(),
+    providers: [],
+  });
 });
 
 function writeTranscriptUsageLog(params: {
@@ -606,12 +623,34 @@ describe("buildStatusReply subagent summary", () => {
                 provider: "openai-codex",
                 access: "access-token",
                 refresh: "refresh-token",
-                expires: Date.now() + 60_000,
+                expires: Date.now() + 60 * 60_000,
               },
             },
           }),
           "utf8",
         );
+        const usageResetBase = Math.floor(Date.now() / 1000);
+        providerUsageMock.loadProviderUsageSummary.mockResolvedValue({
+          updatedAt: Date.now(),
+          providers: [
+            {
+              provider: "openai-codex",
+              displayName: "Codex",
+              windows: [
+                {
+                  label: "5h",
+                  usedPercent: 9,
+                  resetAt: (usageResetBase + 60 * 60) * 1000,
+                },
+                {
+                  label: "Week",
+                  usedPercent: 30,
+                  resetAt: (usageResetBase + 3 * 24 * 60 * 60) * 1000,
+                },
+              ],
+            },
+          ],
+        });
 
         const commonParams = {
           sessionEntry: {
@@ -644,19 +683,29 @@ describe("buildStatusReply subagent summary", () => {
           },
           ...commonParams,
         });
-        const piText = await buildStatusText({
+        const implicitCodexText = await buildStatusText({
           cfg: baseCfg,
           ...commonParams,
         });
 
         const normalizedCodex = normalizeTestText(codexText);
-        const normalizedPi = normalizeTestText(piText);
+        const normalizedImplicitCodex = normalizeTestText(implicitCodexText);
         expect(normalizedCodex).toContain("Model: openai/gpt-5.5");
         expect(normalizedCodex).toContain("oauth (openai-codex:status)");
         expect(normalizedCodex).toContain("openai-codex:status");
-        expect(normalizedPi).toContain("Model: openai/gpt-5.5");
-        expect(normalizedPi).toContain("unknown");
-        expect(normalizedPi).not.toContain("openai-codex:status");
+        expect(normalizedCodex).toContain("Usage: 5h 91% left");
+        expect(normalizedCodex).toContain("Week 70% left");
+        expect(normalizedImplicitCodex).toContain("Model: openai/gpt-5.5");
+        expect(normalizedImplicitCodex).toContain("oauth (openai-codex:status)");
+        expect(normalizedImplicitCodex).toContain("Runtime: OpenAI Codex");
+        expect(normalizedImplicitCodex).toContain("Usage: 5h 91% left");
+        const providerUsageCall = providerUsageMock.loadProviderUsageSummary.mock.calls.find(
+          ([params]) => params?.providers?.includes("openai-codex"),
+        );
+        if (!providerUsageCall) {
+          throw new Error("expected provider usage summary call for openai-codex");
+        }
+        expect(providerUsageCall[0]?.providers).toEqual(["openai-codex"]);
       },
       {
         env: {
@@ -667,8 +716,65 @@ describe("buildStatusReply subagent summary", () => {
     );
   });
 
-<<<<<<< HEAD
-=======
+  it("uses Claude CLI OAuth auth labels for anthropic models running on the Claude CLI runtime", async () => {
+    await withTempHome(
+      async (dir) => {
+        const authPath = path.join(dir, ".claude", ".credentials.json");
+        fs.mkdirSync(path.dirname(authPath), { recursive: true });
+        fs.writeFileSync(
+          authPath,
+          JSON.stringify({
+            claudeAiOauth: {
+              accessToken: "access-token",
+              refreshToken: "refresh-token",
+              expiresAt: Date.now() + 60_000,
+            },
+          }),
+          "utf8",
+        );
+
+        const text = await buildStatusText({
+          cfg: {
+            ...baseCfg,
+            agents: {
+              defaults: {
+                agentRuntime: { id: "claude-cli" },
+              },
+            },
+          },
+          sessionEntry: {
+            sessionId: "sess-status-claude-cli-oauth",
+            updatedAt: 0,
+          },
+          sessionKey: "agent:main:main",
+          parentSessionKey: "agent:main:main",
+          sessionScope: "per-sender",
+          statusChannel: "mobilechat",
+          provider: "anthropic",
+          model: "claude-opus-4-7",
+          contextTokens: 32_000,
+          resolvedHarness: "claude-cli",
+          resolvedFastMode: false,
+          resolvedVerboseLevel: "off",
+          resolvedReasoningLevel: "off",
+          resolveDefaultThinkingLevel: async () => undefined,
+          isGroup: false,
+          defaultGroupActivation: () => "mention",
+        });
+
+        const normalized = normalizeTestText(text);
+        expect(normalized).toContain("Model: anthropic/claude-opus-4-7");
+        expect(normalized).toContain("oauth (claude-cli)");
+      },
+      {
+        env: {
+          ANTHROPIC_API_KEY: undefined,
+          ANTHROPIC_OAUTH_TOKEN: undefined,
+        },
+      },
+    );
+  });
+
   it("uses Codex OAuth context overrides for openai models running on the Codex harness", async () => {
     registerStatusCodexHarness();
 
@@ -715,7 +821,6 @@ describe("buildStatusReply subagent summary", () => {
     expect(normalized).toContain("Context: 25k/1.0m");
   });
 
->>>>>>> upstream/main
   it("uses workspace-scoped auth evidence in /status auth labels", async () => {
     const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "openclaw-status-auth-label-"));
     const workspaceDir = path.join(tempRoot, "workspace");

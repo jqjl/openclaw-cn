@@ -276,6 +276,7 @@ function renderPrometheusMetrics(store: PrometheusMetricStore): string {
 }
 
 function runLabels(evt: {
+  blockedBy?: string;
   channel?: string;
   model?: string;
   outcome?: string;
@@ -283,6 +284,7 @@ function runLabels(evt: {
   trigger?: string;
 }): LabelSet {
   return {
+    ...(evt.blockedBy ? { blocked_by: lowCardinalityLabel(evt.blockedBy) } : {}),
     channel: lowCardinalityLabel(evt.channel),
     model: lowCardinalityLabel(evt.model),
     outcome: lowCardinalityLabel(evt.outcome, "unknown"),
@@ -351,8 +353,6 @@ function harnessLabels(evt: {
   };
 }
 
-<<<<<<< HEAD
-=======
 function sessionRecoveryLabels(
   evt: Extract<
     DiagnosticEventPayload,
@@ -382,7 +382,6 @@ function talkLabels(evt: Extract<DiagnosticEventPayload, { type: "talk.event" }>
   };
 }
 
->>>>>>> upstream/main
 function recordModelUsage(
   store: PrometheusMetricStore,
   evt: Extract<DiagnosticEventPayload, { type: "model.usage" }>,
@@ -529,8 +528,6 @@ function recordDiagnosticEvent(
         seconds(evt.durationMs),
       );
       return;
-<<<<<<< HEAD
-=======
     case "message.delivery.started":
       store.counter(
         "openclaw_message_delivery_started_total",
@@ -541,7 +538,6 @@ function recordDiagnosticEvent(
         },
       );
       return;
->>>>>>> upstream/main
     case "message.delivery.completed":
     case "message.delivery.error":
       store.counter(
@@ -572,8 +568,6 @@ function recordDiagnosticEvent(
         seconds(evt.durationMs),
       );
       return;
-<<<<<<< HEAD
-=======
     case "talk.event":
       store.counter("openclaw_talk_event_total", "Talk events emitted by type.", talkLabels(evt));
       store.histogram(
@@ -604,7 +598,6 @@ function recordDiagnosticEvent(
         seconds(evt.ageMs),
       );
       return;
->>>>>>> upstream/main
     case "queue.lane.enqueue":
     case "queue.lane.dequeue":
       store.gauge(

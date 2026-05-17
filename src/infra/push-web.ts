@@ -1,11 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
-<<<<<<< HEAD
-import { createAsyncLock, readJsonFile, writeJsonAtomic } from "./json-files.js";
-=======
 import { createAsyncLock, tryReadJson, writeJson } from "./json-files.js";
->>>>>>> upstream/main
 
 // --- Types ---
 
@@ -92,21 +88,13 @@ function isValidKey(key: string): boolean {
 
 async function loadState(baseDir?: string): Promise<WebPushRegistrationState> {
   const filePath = resolveWebPushStatePath(baseDir);
-<<<<<<< HEAD
-  const state = await readJsonFile<WebPushRegistrationState>(filePath);
-=======
   const state = await tryReadJson<WebPushRegistrationState>(filePath);
->>>>>>> upstream/main
   return state ?? { subscriptionsByEndpointHash: {} };
 }
 
 async function persistState(state: WebPushRegistrationState, baseDir?: string): Promise<void> {
   const filePath = resolveWebPushStatePath(baseDir);
-<<<<<<< HEAD
-  await writeJsonAtomic(filePath, state, { trailingNewline: true });
-=======
   await writeJson(filePath, state, { trailingNewline: true });
->>>>>>> upstream/main
 }
 
 // --- VAPID keys ---
@@ -128,11 +116,7 @@ export async function resolveVapidKeys(baseDir?: string): Promise<VapidKeyPair> 
   // prevent concurrent bootstraps from writing different keypairs.
   return await withLock(async () => {
     const filePath = resolveVapidKeysPath(baseDir);
-<<<<<<< HEAD
-    const existing = await readJsonFile<VapidKeyPair>(filePath);
-=======
     const existing = await tryReadJson<VapidKeyPair>(filePath);
->>>>>>> upstream/main
     if (existing?.publicKey && existing?.privateKey) {
       return {
         publicKey: existing.publicKey,
@@ -149,11 +133,7 @@ export async function resolveVapidKeys(baseDir?: string): Promise<VapidKeyPair> 
       privateKey: keys.privateKey,
       subject: resolveVapidSubjectFromEnv(),
     };
-<<<<<<< HEAD
-    await writeJsonAtomic(filePath, pair, { trailingNewline: true });
-=======
     await writeJson(filePath, pair, { trailingNewline: true });
->>>>>>> upstream/main
     return pair;
   });
 }

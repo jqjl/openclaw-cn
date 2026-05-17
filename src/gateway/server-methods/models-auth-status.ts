@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import { resolveOpenClawAgentDir } from "../../agents/agent-paths.js";
-=======
 import { resolveDefaultAgentDir } from "../../agents/agent-scope.js";
->>>>>>> upstream/main
 import {
   type AuthHealthSummary,
   type AuthProfileHealthStatus,
@@ -110,6 +106,8 @@ function providerDisplayName(provider: string): string {
  * where a healthy OAuth sits alongside an expired/missing bearer token.
  * For the dashboard's OAuth-health signal, token profiles are a separate
  * concern — we want "is OAuth healthy?", not "is every credential healthy?"
+ * It also consumes the provider's effective profile subset when auth order
+ * excludes stale inventory from the runtime credential path.
  *
  * `expectsOAuth` surfaces the configured-OAuth-but-no-oauth-profile case as
  * `missing` instead of silently falling back to the provider's rollup (which
@@ -128,7 +126,8 @@ export function aggregateOAuthStatus(
   expiresAt?: number;
   remainingMs?: number;
 } {
-  const oauth = prov.profiles.filter((p) => p.type === "oauth");
+  const profiles = prov.effectiveProfiles ?? prov.profiles;
+  const oauth = profiles.filter((p) => p.type === "oauth");
   if (oauth.length === 0) {
     if (expectsOAuth) {
       return { status: "missing" };
@@ -295,11 +294,7 @@ export const modelsAuthStatusHandlers: GatewayRequestHandlers = {
     }
     try {
       const cfg = context.getRuntimeConfig();
-<<<<<<< HEAD
-      const agentDir = resolveOpenClawAgentDir();
-=======
       const agentDir = resolveDefaultAgentDir(cfg);
->>>>>>> upstream/main
       const store = ensureAuthProfileStore(agentDir, {
         externalCli: externalCliDiscoveryForConfigStatus({ cfg }),
       });

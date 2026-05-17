@@ -1,10 +1,6 @@
 ---
-<<<<<<< HEAD
-title: "Text-to-Speech"
-=======
 summary: "Redirect to /tools/tts"
 title: "Text-to-speech"
->>>>>>> upstream/main
 redirect: /tools/tts
 ---
 

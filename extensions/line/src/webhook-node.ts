@@ -1,12 +1,9 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { webhook } from "@line/bot-sdk";
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiveContext,
   type MessageReceiveContext,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { danger, logVerbose, type RuntimeEnv } from "openclaw/plugin-sdk/runtime-env";
 import {
   isRequestBodyLimitError,
@@ -64,10 +61,7 @@ export function createLineNodeWebhookHandler(params: {
       return;
     }
 
-<<<<<<< HEAD
-=======
     let receiveContext: MessageReceiveContext<webhook.CallbackRequest> | undefined;
->>>>>>> upstream/main
     try {
       const signatureHeader = req.headers["x-line-signature"];
       const signature =
@@ -110,8 +104,6 @@ export function createLineNodeWebhookHandler(params: {
 
       params.onRequestAuthenticated?.();
 
-<<<<<<< HEAD
-=======
       receiveContext = createMessageReceiveContext({
         id: `${Date.now()}:line:webhook`,
         channel: "line",
@@ -124,25 +116,17 @@ export function createLineNodeWebhookHandler(params: {
         },
       });
 
->>>>>>> upstream/main
       if (body.events && body.events.length > 0) {
         logVerbose(`line: received ${body.events.length} webhook events`);
         await params.bot.handleWebhook(body);
       }
 
-<<<<<<< HEAD
-      res.statusCode = 200;
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify({ status: "ok" }));
-    } catch (err) {
-=======
       const ackStage = body.events?.length ? "agent_dispatch" : "receive_record";
       if (receiveContext.shouldAckAfter(ackStage)) {
         await receiveContext.ack();
       }
     } catch (err) {
       await receiveContext?.nack(err);
->>>>>>> upstream/main
       if (isRequestBodyLimitError(err, "PAYLOAD_TOO_LARGE")) {
         res.statusCode = 413;
         res.setHeader("Content-Type", "application/json");

@@ -1,15 +1,12 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import {
   canonicalPathFromExistingAncestor,
   FsSafeError,
   resolveAbsolutePathForWrite,
   root,
 } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 
 const MAX_CONTENT_BYTES = 16 * 1024 * 1024; // 16 MB
 
@@ -48,72 +45,6 @@ function err(code: string, message: string, canonicalPath?: string): FileWriteEr
   return { ok: false, code, message, ...(canonicalPath ? { canonicalPath } : {}) };
 }
 
-<<<<<<< HEAD
-async function pathExists(p: string): Promise<boolean> {
-  try {
-    await fs.access(p);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function findExistingAncestor(p: string): Promise<string | null> {
-  let current = p;
-  while (true) {
-    try {
-      await fs.lstat(current);
-      return current;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
-        throw error;
-      }
-    }
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return null;
-    }
-    current = parent;
-  }
-}
-
-async function canonicalTargetFromExistingAncestor(targetPath: string): Promise<string> {
-  const ancestor = await findExistingAncestor(targetPath);
-  if (!ancestor) {
-    return targetPath;
-  }
-  let canonicalAncestor: string;
-  try {
-    canonicalAncestor = await fs.realpath(ancestor);
-  } catch {
-    canonicalAncestor = ancestor;
-  }
-  const relative = path.relative(ancestor, targetPath);
-  return relative ? path.join(canonicalAncestor, relative) : canonicalAncestor;
-}
-
-async function rejectParentSymlinkRedirect(
-  targetPath: string,
-  parentDir: string,
-): Promise<FileWriteError | null> {
-  const ancestor = await findExistingAncestor(parentDir);
-  if (!ancestor) {
-    return null;
-  }
-  let canonicalAncestor: string;
-  try {
-    canonicalAncestor = await fs.realpath(ancestor);
-  } catch {
-    return null;
-  }
-  if (canonicalAncestor === ancestor) {
-    return null;
-  }
-  const canonicalTarget = path.join(canonicalAncestor, path.relative(ancestor, targetPath));
-  return err(
-    "SYMLINK_REDIRECT",
-    `parent ${ancestor} resolves through a symlink to ${canonicalAncestor}; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowWritePaths to the canonical path)`,
-=======
 function symlinkRedirectError(error: FsSafeError): FileWriteError {
   const canonicalTarget =
     error.cause &&
@@ -125,13 +56,10 @@ function symlinkRedirectError(error: FsSafeError): FileWriteError {
   return err(
     "SYMLINK_REDIRECT",
     "path traverses a symlink; refusing because followSymlinks=false (set plugins.entries.file-transfer.config.nodes.<node>.followSymlinks=true to allow, or update allowWritePaths to the canonical path)",
->>>>>>> upstream/main
     canonicalTarget,
   );
 }
 
-<<<<<<< HEAD
-=======
 function writeFsSafeError(error: FsSafeError, targetPath: string): FileWriteError {
   if (error.code === "symlink") {
     return err(
@@ -148,7 +76,6 @@ function writeFsSafeError(error: FsSafeError, targetPath: string): FileWriteErro
   return err("WRITE_ERROR", error.message, targetPath);
 }
 
->>>>>>> upstream/main
 export async function handleFileWrite(
   params: Partial<FileWriteParams> & Record<string, unknown>,
 ): Promise<FileWriteResult> {
@@ -200,22 +127,6 @@ export async function handleFileWrite(
     );
   }
 
-<<<<<<< HEAD
-  // 3. Resolve parent dir
-  const targetPath = path.normalize(rawPath);
-  const parentDir = path.dirname(targetPath);
-
-  const parentExists = await pathExists(parentDir);
-
-  // Refuse symlink traversal in the existing parent chain before creating
-  // missing directories. Recursive mkdir follows symlinked ancestors, so this
-  // has to run before mkdir can mutate the canonical target.
-  if (!followSymlinks) {
-    const redirect = await rejectParentSymlinkRedirect(targetPath, parentDir);
-    if (redirect) {
-      return redirect;
-    }
-=======
   let targetPath: string;
   let parentDir: string;
   let parentExists: boolean;
@@ -231,7 +142,6 @@ export async function handleFileWrite(
       return symlinkRedirectError(error);
     }
     throw error;
->>>>>>> upstream/main
   }
 
   if (!parentExists) {
@@ -249,11 +159,7 @@ export async function handleFileWrite(
       }
       return {
         ok: true,
-<<<<<<< HEAD
-        path: await canonicalTargetFromExistingAncestor(targetPath),
-=======
         path: await canonicalPathFromExistingAncestor(targetPath),
->>>>>>> upstream/main
         size: buf.length,
         sha256: computedSha256,
         overwritten: false,
@@ -267,17 +173,6 @@ export async function handleFileWrite(
     }
   }
 
-<<<<<<< HEAD
-  // Re-check after mkdir as a race-defense: if the parent chain changed
-  // between the first check and directory creation, fail before writing bytes.
-  if (!followSymlinks) {
-    const redirect = await rejectParentSymlinkRedirect(targetPath, parentDir);
-    if (redirect) {
-      return redirect;
-    }
-  }
-
-=======
   try {
     await resolveAbsolutePathForWrite(targetPath, {
       symlinks: followSymlinks ? "follow" : "reject",
@@ -291,7 +186,6 @@ export async function handleFileWrite(
 
   const targetFileName = path.basename(targetPath);
   const parentRoot = await root(parentDir);
->>>>>>> upstream/main
   let overwritten = false;
   try {
     const existingLStat = await fs.lstat(targetPath);
@@ -312,14 +206,9 @@ export async function handleFileWrite(
     }
     overwritten = true;
   } catch (statErr: unknown) {
-<<<<<<< HEAD
-    // ENOENT is fine — file does not exist yet
-    if ((statErr as NodeJS.ErrnoException).code !== "ENOENT") {
-=======
     const statErrorCode =
       statErr instanceof FsSafeError ? statErr.code : (statErr as NodeJS.ErrnoException).code;
     if (statErrorCode !== "not-found" && statErrorCode !== "ENOENT") {
->>>>>>> upstream/main
       const message = statErr instanceof Error ? statErr.message : String(statErr);
       if (message.toLowerCase().includes("permission")) {
         return err("PERMISSION_DENIED", `permission denied: ${targetPath}`);
@@ -345,29 +234,13 @@ export async function handleFileWrite(
   if (preflightOnly) {
     return {
       ok: true,
-<<<<<<< HEAD
-      path: await canonicalTargetFromExistingAncestor(targetPath),
-=======
       path: await canonicalPathFromExistingAncestor(targetPath),
->>>>>>> upstream/main
       size: buf.length,
       sha256: computedSha256,
       overwritten,
     };
   }
 
-<<<<<<< HEAD
-  // 6. Atomic write: write to tmp, then rename
-  const tmpSuffix = crypto.randomBytes(8).toString("hex");
-  const tmpPath = `${targetPath}.${tmpSuffix}.tmp`;
-
-  try {
-    await fs.writeFile(tmpPath, buf);
-  } catch (writeErr) {
-    const message = writeErr instanceof Error ? writeErr.message : String(writeErr);
-    // Clean up tmp if possible
-    await fs.unlink(tmpPath).catch(() => {});
-=======
   try {
     if (overwrite) {
       await parentRoot.write(targetFileName, buf);
@@ -379,35 +252,12 @@ export async function handleFileWrite(
       return writeFsSafeError(writeErr, targetPath);
     }
     const message = writeErr instanceof Error ? writeErr.message : String(writeErr);
->>>>>>> upstream/main
     if (message.toLowerCase().includes("permission") || message.toLowerCase().includes("access")) {
       return err("PERMISSION_DENIED", `permission denied writing to: ${parentDir}`);
     }
     return err("WRITE_ERROR", `failed to write file: ${message}`);
   }
 
-<<<<<<< HEAD
-  try {
-    await fs.rename(tmpPath, targetPath);
-  } catch (renameErr) {
-    const message = renameErr instanceof Error ? renameErr.message : String(renameErr);
-    await fs.unlink(tmpPath).catch(() => {});
-    if (message.toLowerCase().includes("permission") || message.toLowerCase().includes("access")) {
-      return err("PERMISSION_DENIED", `permission denied renaming to: ${targetPath}`);
-    }
-    return err("WRITE_ERROR", `failed to rename tmp to target: ${message}`);
-  }
-
-  const writtenBuf = buf;
-
-  // 8. Re-realpath to resolve any symlinks in the final path
-  let canonicalPath = targetPath;
-  try {
-    canonicalPath = await fs.realpath(targetPath);
-  } catch {
-    // Best effort; use normalized path as fallback
-    canonicalPath = targetPath;
-=======
   let canonicalPath = targetPath;
   try {
     const opened = await parentRoot.open(targetFileName);
@@ -417,17 +267,12 @@ export async function handleFileWrite(
     if (openErr instanceof FsSafeError) {
       return writeFsSafeError(openErr, targetPath);
     }
->>>>>>> upstream/main
   }
 
   return {
     ok: true,
     path: canonicalPath,
-<<<<<<< HEAD
-    size: writtenBuf.length,
-=======
     size: buf.length,
->>>>>>> upstream/main
     sha256: computedSha256,
     overwritten,
   };

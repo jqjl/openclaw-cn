@@ -6,11 +6,6 @@ read_when:
 title: "Provider directory"
 ---
 
-<<<<<<< HEAD
-# Model Providers
-
-=======
->>>>>>> upstream/main
 OpenClaw can use many LLM providers. Pick a provider, authenticate, then set the
 default model as `provider/model`.
 
@@ -31,26 +26,18 @@ Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugi
 
 - [Alibaba Model Studio](/providers/alibaba)
 - [Amazon Bedrock](/providers/bedrock)
-<<<<<<< HEAD
-=======
 - [Amazon Bedrock Mantle](/providers/bedrock-mantle)
->>>>>>> upstream/main
 - [Anthropic (API + Claude CLI)](/providers/anthropic)
 - [Arcee AI (Trinity models)](/providers/arcee)
 - [Azure Speech](/providers/azure-speech)
 - [BytePlus (International)](/concepts/model-providers#byteplus-international)
 - [Cerebras](/providers/cerebras)
 - [Chutes](/providers/chutes)
-<<<<<<< HEAD
-- [ComfyUI](/providers/comfy)
-- [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
-- [DeepSeek](/providers/deepseek)
-=======
 - [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
 - [ComfyUI](/providers/comfy)
 - [DeepSeek](/providers/deepseek)
+- [ds4 (local DeepSeek V4)](/providers/ds4)
 - [ElevenLabs](/providers/elevenlabs)
->>>>>>> upstream/main
 - [fal](/providers/fal)
 - [Fireworks](/providers/fireworks)
 - [GitHub Copilot](/providers/github-copilot)
@@ -80,14 +67,6 @@ Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugi
 - [SGLang (local models)](/providers/sglang)
 - [StepFun](/providers/stepfun)
 - [Synthetic](/providers/synthetic)
-<<<<<<< HEAD
-- [Together AI](/providers/together)
-- [Venice (Venice AI, privacy-focused)](/providers/venice)
-- [Vercel AI Gateway](/providers/vercel-ai-gateway)
-- [Vydra](/providers/vydra)
-- [vLLM (local models)](/providers/vllm)
-- [Volcengine (Doubao)](/providers/volcengine)
-=======
 - [Tencent Cloud (TokenHub)](/providers/tencent)
 - [Together AI](/providers/together)
 - [Venice (Venice AI, privacy-focused)](/providers/venice)
@@ -95,7 +74,6 @@ Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugi
 - [vLLM (local models)](/providers/vllm)
 - [Volcengine (Doubao)](/providers/volcengine)
 - [Vydra](/providers/vydra)
->>>>>>> upstream/main
 - [xAI](/providers/xai)
 - [Xiaomi](/providers/xiaomi)
 - [Z.AI](/providers/zai)
@@ -110,14 +88,11 @@ Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugi
 ## Transcription providers
 
 - [Deepgram (audio transcription)](/providers/deepgram)
-<<<<<<< HEAD
-=======
 - [ElevenLabs](/providers/elevenlabs#speech-to-text)
 - [Mistral](/providers/mistral#audio-transcription-voxtral)
 - [OpenAI](/providers/openai#speech-to-text)
 - [SenseAudio](/providers/senseaudio)
 - [xAI](/providers/xai#speech-to-text)
->>>>>>> upstream/main
 
 ## Community tools
 

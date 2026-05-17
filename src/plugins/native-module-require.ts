@@ -1,9 +1,4 @@
 import { createRequire } from "node:module";
-<<<<<<< HEAD
-import path from "node:path";
-
-const nodeRequire = createRequire(import.meta.url);
-=======
 import Module from "node:module";
 import path from "node:path";
 
@@ -17,7 +12,6 @@ type ResolveFilename = (
 const moduleWithResolver = Module as typeof Module & {
   _resolveFilename?: ResolveFilename;
 };
->>>>>>> upstream/main
 
 export function isJavaScriptModulePath(modulePath: string): boolean {
   return [".js", ".mjs", ".cjs"].includes(path.extname(modulePath).toLowerCase());
@@ -49,16 +43,12 @@ function isSourceTransformFallbackError(error: unknown, modulePath: string): boo
 
 export function tryNativeRequireJavaScriptModule(
   modulePath: string,
-<<<<<<< HEAD
-  options: { allowWindows?: boolean; fallbackOnMissingDependency?: boolean } = {},
-=======
   options: {
     allowWindows?: boolean;
     aliasMap?: Record<string, string>;
     fallbackOnMissingDependency?: boolean;
     fallbackOnNativeError?: boolean;
   } = {},
->>>>>>> upstream/main
 ): { ok: true; moduleExport: unknown } | { ok: false } {
   if (process.platform === "win32" && options.allowWindows !== true) {
     return { ok: false };
@@ -67,26 +57,11 @@ export function tryNativeRequireJavaScriptModule(
     return { ok: false };
   }
   try {
-<<<<<<< HEAD
-    return { ok: true, moduleExport: nodeRequire(modulePath) };
-=======
     return { ok: true, moduleExport: requireWithOptionalAliases(modulePath, options.aliasMap) };
->>>>>>> upstream/main
   } catch (error) {
     const code =
       error && typeof error === "object" ? (error as { code?: unknown }).code : undefined;
     if (
-<<<<<<< HEAD
-      !isSourceTransformFallbackError(error, modulePath) &&
-      !(
-        options.fallbackOnMissingDependency === true &&
-        (code === "MODULE_NOT_FOUND" || code === "ERR_MODULE_NOT_FOUND")
-      )
-    ) {
-      throw error;
-    }
-    return { ok: false };
-=======
       isSourceTransformFallbackError(error, modulePath) ||
       options.fallbackOnNativeError ||
       (options.fallbackOnMissingDependency === true &&
@@ -124,6 +99,5 @@ export function withNativeRequireAliases<T>(
     return run();
   } finally {
     moduleWithResolver._resolveFilename = originalResolveFilename;
->>>>>>> upstream/main
   }
 }

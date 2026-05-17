@@ -5,8 +5,6 @@ export {
   sanitizeTempFileName,
   withTempDownloadPath,
 } from "../infra/temp-download.js";
-<<<<<<< HEAD
-=======
 export {
   tempWorkspace,
   tempWorkspaceSync,
@@ -16,4 +14,3 @@ export {
   withTempWorkspace,
   withTempWorkspaceSync,
 } from "../infra/private-temp-workspace.js";
->>>>>>> upstream/main

@@ -1,9 +1,5 @@
 import { resolveChunkMode, resolveTextChunkLimit } from "../../auto-reply/chunk.js";
 import type { ReplyPayload } from "../../auto-reply/types.js";
-<<<<<<< HEAD
-import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
-import type {
-=======
 import { createRenderedMessageBatchPlan } from "../../channels/message/rendered-batch.js";
 import type {
   ChannelMessageAdapterShape,
@@ -15,7 +11,6 @@ import type {
 import { loadChannelOutboundAdapter } from "../../channels/plugins/outbound/load.js";
 import type {
   ChannelDeliveryCapabilities,
->>>>>>> upstream/main
   ChannelOutboundAdapter,
   ChannelOutboundContext,
   ChannelOutboundPayloadContext,
@@ -46,15 +41,14 @@ import { diagnosticErrorCategory } from "../diagnostic-error-metadata.js";
 import { emitDiagnosticEvent, type DiagnosticMessageDeliveryKind } from "../diagnostic-events.js";
 import { formatErrorMessage } from "../errors.js";
 import { throwIfAborted } from "./abort.js";
-<<<<<<< HEAD
-import type { OutboundDeliveryResult } from "./deliver-types.js";
-import {
-  ackDelivery,
-  enqueueDelivery,
-  failDelivery,
-=======
 import { resolveOutboundChannelMessageAdapter } from "./channel-resolution.js";
-import type { OutboundDeliveryResult } from "./deliver-types.js";
+import {
+  OutboundDeliveryError,
+  type OutboundDeliveryFailureStage,
+  type OutboundDeliveryResult,
+  type OutboundPayloadDeliveryOutcome,
+  type OutboundPayloadDeliverySuppressionReason,
+} from "./deliver-types.js";
 import {
   attachOutboundDeliveryCommitHook,
   runOutboundDeliveryCommitHooks,
@@ -67,7 +61,6 @@ import {
   markDeliveryPlatformOutcomeUnknown,
   markDeliveryPlatformSendAttemptStarted,
   type QueuedRenderedMessageBatchPlan,
->>>>>>> upstream/main
   withActiveDeliveryClaim,
 } from "./delivery-queue.js";
 import type { OutboundDeliveryFormattingOptions } from "./formatting.js";
@@ -80,14 +73,13 @@ import {
 import type { DeliveryMirror } from "./mirror.js";
 import {
   createOutboundPayloadPlan,
-  projectOutboundPayloadPlanForDelivery,
   summarizeOutboundPayloadForTransport,
   type NormalizedOutboundPayload,
   type OutboundPayloadPlan,
 } from "./payloads.js";
 import { createReplyToDeliveryPolicy } from "./reply-policy.js";
 import { stripInternalRuntimeScaffolding } from "./sanitize-text.js";
-import { resolveOutboundSendDep, type OutboundSendDeps } from "./send-deps.js";
+import { type OutboundSendDeps } from "./send-deps.js";
 import type { OutboundSessionContext } from "./session-context.js";
 import type { OutboundChannel } from "./targets.js";
 
@@ -96,8 +88,6 @@ export type { NormalizedOutboundPayload } from "./payloads.js";
 export { normalizeOutboundPayloads } from "./payloads.js";
 export { resolveOutboundSendDep, type OutboundSendDeps } from "./send-deps.js";
 
-<<<<<<< HEAD
-=======
 export type OutboundDeliveryQueuePolicy = "required" | "best_effort";
 
 export type OutboundDeliveryIntent = {
@@ -124,7 +114,6 @@ export type OutboundDurableDeliverySupport =
       capability?: DurableFinalDeliveryRequirement;
     };
 
->>>>>>> upstream/main
 const log = createSubsystemLogger("outbound/deliver");
 let transcriptRuntimePromise:
   | Promise<typeof import("../../config/sessions/transcript.runtime.js")>
@@ -147,6 +136,7 @@ async function loadChannelBootstrapRuntime() {
 type ChannelHandler = {
   chunker: ChannelOutboundAdapter["chunker"] | null;
   chunkerMode?: "text" | "markdown";
+  chunkedTextFormatting?: OutboundDeliveryFormattingOptions;
   textChunkLimit?: number;
   supportsMedia: boolean;
   sanitizeText?: (payload: ReplyPayload) => string;
@@ -190,11 +180,8 @@ type ChannelHandler = {
   ) => Promise<OutboundDeliveryResult>;
 };
 
-<<<<<<< HEAD
-=======
 type ChannelMessageLifecycleContext = ChannelMessageSendAttemptContext;
 
->>>>>>> upstream/main
 type ChannelHandlerParams = {
   cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
@@ -211,10 +198,7 @@ type ChannelHandlerParams = {
   silent?: boolean;
   mediaAccess?: OutboundMediaAccess;
   gatewayClientScopes?: readonly string[];
-<<<<<<< HEAD
-=======
   onPlatformSendStart?: () => Promise<void>;
->>>>>>> upstream/main
 };
 
 // Channel docking: outbound delivery delegates to plugin.outbound adapters.
@@ -222,27 +206,13 @@ async function resolveChannelOutboundDirectiveOptions(params: {
   cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
 }): Promise<{ extractMarkdownImages?: boolean }> {
-<<<<<<< HEAD
-  let outbound = await loadChannelOutboundAdapter(params.channel);
-  if (!outbound) {
-    const { bootstrapOutboundChannelPlugin } = await loadChannelBootstrapRuntime();
-    bootstrapOutboundChannelPlugin({
-      channel: params.channel,
-      cfg: params.cfg,
-    });
-    outbound = await loadChannelOutboundAdapter(params.channel);
-  }
-=======
   const outbound = await loadBootstrappedOutboundAdapter(params);
->>>>>>> upstream/main
   return {
     extractMarkdownImages: outbound?.extractMarkdownImages === true ? true : undefined,
   };
 }
 
 async function createChannelHandler(params: ChannelHandlerParams): Promise<ChannelHandler> {
-<<<<<<< HEAD
-=======
   const outbound = await loadBootstrappedOutboundAdapter(params);
   const message = resolveOutboundChannelMessageAdapter(params);
   const handler = createPluginHandler({ ...params, outbound, message });
@@ -256,7 +226,6 @@ async function loadBootstrappedOutboundAdapter(params: {
   cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
 }): Promise<ChannelOutboundAdapter | undefined> {
->>>>>>> upstream/main
   let outbound = await loadChannelOutboundAdapter(params.channel);
   if (!outbound) {
     const { bootstrapOutboundChannelPlugin } = await loadChannelBootstrapRuntime();
@@ -266,27 +235,6 @@ async function loadBootstrappedOutboundAdapter(params: {
     });
     outbound = await loadChannelOutboundAdapter(params.channel);
   }
-<<<<<<< HEAD
-  const handler = createPluginHandler({ ...params, outbound });
-  if (!handler) {
-    throw new Error(`Outbound not configured for channel: ${params.channel}`);
-  }
-  return handler;
-}
-
-function createPluginHandler(
-  params: ChannelHandlerParams & { outbound?: ChannelOutboundAdapter },
-): ChannelHandler | null {
-  const outbound = params.outbound;
-  if (!outbound?.sendText) {
-    return null;
-  }
-  const baseCtx = createChannelOutboundContextBase(params);
-  const sendText = outbound.sendText;
-  const sendMedia = outbound.sendMedia;
-  const chunker = outbound.chunker ?? null;
-  const chunkerMode = outbound.chunkerMode;
-=======
   return outbound;
 }
 
@@ -393,12 +341,12 @@ function createPluginHandler(
   const sendMedia = outbound?.sendMedia;
   const chunker = outbound?.chunker ?? null;
   const chunkerMode = outbound?.chunkerMode;
->>>>>>> upstream/main
   const resolveCtx = (overrides?: {
     replyToId?: string | null;
     replyToIdSource?: "explicit" | "implicit";
     threadId?: string | number | null;
     audioAsVoice?: boolean;
+    formatting?: OutboundDeliveryFormattingOptions;
   }): Omit<ChannelOutboundContext, "text" | "mediaUrl"> => ({
     ...baseCtx,
     replyToId: overrides && "replyToId" in overrides ? overrides.replyToId : baseCtx.replyToId,
@@ -408,6 +356,10 @@ function createPluginHandler(
         : baseCtx.replyToIdSource,
     threadId: overrides && "threadId" in overrides ? overrides.threadId : baseCtx.threadId,
     audioAsVoice: overrides?.audioAsVoice,
+    formatting:
+      overrides && "formatting" in overrides
+        ? { ...baseCtx.formatting, ...overrides.formatting }
+        : baseCtx.formatting,
   });
   const buildTargetRef = (overrides?: {
     threadId?: string | number | null;
@@ -420,29 +372,22 @@ function createPluginHandler(
   return {
     chunker,
     chunkerMode,
-<<<<<<< HEAD
-    textChunkLimit: outbound.textChunkLimit,
-    supportsMedia: Boolean(sendMedia),
-    sanitizeText: outbound.sanitizeText
-      ? (payload) => outbound.sanitizeText!({ text: payload.text ?? "", payload })
-      : undefined,
-    normalizePayload: outbound.normalizePayload
-      ? (payload) => outbound.normalizePayload!({ payload })
-      : undefined,
-    sendTextOnlyErrorPayloads: outbound.sendTextOnlyErrorPayloads === true,
-    renderPresentation: outbound.renderPresentation
-=======
+    chunkedTextFormatting: outbound?.chunkedTextFormatting,
     textChunkLimit: outbound?.textChunkLimit,
     supportsMedia: Boolean(messageMedia ?? sendMedia),
     sanitizeText: outbound?.sanitizeText
       ? (payload) => outbound.sanitizeText!({ text: payload.text ?? "", payload })
       : undefined,
     normalizePayload: outbound?.normalizePayload
-      ? (payload) => outbound.normalizePayload!({ payload })
+      ? (payload) =>
+          outbound.normalizePayload!({
+            payload,
+            cfg: params.cfg,
+            accountId: params.accountId,
+          })
       : undefined,
     sendTextOnlyErrorPayloads: outbound?.sendTextOnlyErrorPayloads === true,
     renderPresentation: outbound?.renderPresentation
->>>>>>> upstream/main
       ? async (payload) => {
           const presentation = normalizeMessagePresentation(payload.presentation);
           if (!presentation) {
@@ -461,11 +406,7 @@ function createPluginHandler(
           return await outbound.renderPresentation!({ payload, presentation, ctx });
         }
       : undefined,
-<<<<<<< HEAD
-    pinDeliveredMessage: outbound.pinDeliveredMessage
-=======
     pinDeliveredMessage: outbound?.pinDeliveredMessage
->>>>>>> upstream/main
       ? async ({ target, messageId, pin }) =>
           outbound.pinDeliveredMessage!({
             cfg: params.cfg,
@@ -474,11 +415,7 @@ function createPluginHandler(
             pin,
           })
       : undefined,
-<<<<<<< HEAD
-    afterDeliverPayload: outbound.afterDeliverPayload
-=======
     afterDeliverPayload: outbound?.afterDeliverPayload
->>>>>>> upstream/main
       ? async ({ target, payload, results }) =>
           outbound.afterDeliverPayload!({
             cfg: params.cfg,
@@ -487,17 +424,10 @@ function createPluginHandler(
             results,
           })
       : undefined,
-<<<<<<< HEAD
-    shouldSkipPlainTextSanitization: outbound.shouldSkipPlainTextSanitization
-      ? (payload) => outbound.shouldSkipPlainTextSanitization!({ payload })
-      : undefined,
-    resolveEffectiveTextChunkLimit: outbound.resolveEffectiveTextChunkLimit
-=======
     shouldSkipPlainTextSanitization: outbound?.shouldSkipPlainTextSanitization
       ? (payload) => outbound.shouldSkipPlainTextSanitization!({ payload })
       : undefined,
     resolveEffectiveTextChunkLimit: outbound?.resolveEffectiveTextChunkLimit
->>>>>>> upstream/main
       ? (fallbackLimit) =>
           outbound.resolveEffectiveTextChunkLimit!({
             cfg: params.cfg,
@@ -505,50 +435,6 @@ function createPluginHandler(
             fallbackLimit,
           })
       : undefined,
-<<<<<<< HEAD
-    sendPayload: outbound.sendPayload
-      ? async (payload, overrides) =>
-          outbound.sendPayload!({
-            ...resolveCtx(overrides),
-            text: payload.text ?? "",
-            mediaUrl: payload.mediaUrl,
-            payload,
-          })
-      : undefined,
-    sendFormattedText: outbound.sendFormattedText
-      ? async (text, overrides) =>
-          outbound.sendFormattedText!({
-            ...resolveCtx(overrides),
-            text,
-          })
-      : undefined,
-    sendFormattedMedia: outbound.sendFormattedMedia
-      ? async (caption, mediaUrl, overrides) =>
-          outbound.sendFormattedMedia!({
-            ...resolveCtx(overrides),
-            text: caption,
-            mediaUrl,
-          })
-      : undefined,
-    sendText: async (text, overrides) =>
-      sendText({
-        ...resolveCtx(overrides),
-        text,
-      }),
-    buildTargetRef,
-    sendMedia: async (caption, mediaUrl, overrides) => {
-      if (sendMedia) {
-        return sendMedia({
-          ...resolveCtx(overrides),
-          text: caption,
-          mediaUrl,
-        });
-      }
-      return sendText({
-        ...resolveCtx(overrides),
-        text: caption,
-      });
-=======
     sendPayload:
       messagePayload || outbound?.sendPayload
         ? async (payload, overrides) => {
@@ -647,13 +533,10 @@ function createPluginHandler(
       }
       await params.onPlatformSendStart?.();
       return sendText!(mediaCtx);
->>>>>>> upstream/main
     },
   };
 }
 
-<<<<<<< HEAD
-=======
 function normalizeChannelMessageSendResult(
   channel: Exclude<OutboundChannel, "none">,
   result: ChannelMessageSendResult,
@@ -671,7 +554,6 @@ function normalizeChannelMessageSendResult(
   };
 }
 
->>>>>>> upstream/main
 function createChannelOutboundContextBase(
   params: ChannelHandlerParams,
 ): Omit<ChannelOutboundContext, "text" | "mediaUrl"> {
@@ -697,8 +579,11 @@ function createChannelOutboundContextBase(
 
 const isAbortError = (err: unknown): boolean => err instanceof Error && err.name === "AbortError";
 
-<<<<<<< HEAD
-=======
+const isDeliveryAbortError = (err: unknown): boolean =>
+  isAbortError(err) ||
+  (err instanceof OutboundDeliveryError &&
+    isAbortError((err as Error & { cause?: unknown }).cause));
+
 async function markQueuedPlatformSendAttemptStarted(params: {
   queueId: string;
   queuePolicy: OutboundDeliveryQueuePolicy;
@@ -733,7 +618,6 @@ async function markQueuedPlatformOutcomeUnknown(params: {
   }
 }
 
->>>>>>> upstream/main
 type DeliverOutboundPayloadsCoreParams = {
   cfg: OpenClawConfig;
   channel: Exclude<OutboundChannel, "none">;
@@ -753,6 +637,7 @@ type DeliverOutboundPayloadsCoreParams = {
   bestEffort?: boolean;
   onError?: (err: unknown, payload: NormalizedOutboundPayload) => void;
   onPayload?: (payload: NormalizedOutboundPayload) => void;
+  onPayloadDeliveryOutcome?: (outcome: OutboundPayloadDeliveryOutcome) => void;
   /** Session/agent context used for hooks and media local-root scoping. */
   session?: OutboundSessionContext;
   mirror?: DeliveryMirror;
@@ -760,28 +645,29 @@ type DeliverOutboundPayloadsCoreParams = {
   gatewayClientScopes?: readonly string[];
 };
 
-<<<<<<< HEAD
-=======
 type DeliverOutboundPayloadsCoreRuntimeParams = DeliverOutboundPayloadsCoreParams & {
   onPlatformSendStart?: () => Promise<void>;
 };
 
->>>>>>> upstream/main
 function collectPayloadMediaSources(plan: readonly OutboundPayloadPlan[]): string[] {
   return plan.flatMap((entry) => entry.parts.mediaUrls);
 }
 
+/**
+ * @deprecated Direct outbound delivery is compatibility/runtime substrate.
+ * New message lifecycle code should use `sendDurableMessageBatch` from
+ * `src/channels/message/send.ts` or `deliverInboundReplyWithMessageSendContext`
+ * from `src/channels/turn/durable-delivery.ts`. Keep direct use only for
+ * outbound substrate, recovery, and compatibility paths.
+ */
 export type DeliverOutboundPayloadsParams = DeliverOutboundPayloadsCoreParams & {
   /** @internal Skip write-ahead queue (used by crash-recovery to avoid re-enqueueing). */
   skipQueue?: boolean;
-<<<<<<< HEAD
-=======
   /** @internal Let recovery run commit hooks after it has acked the recovered queue entry. */
   deferCommitHooks?: boolean;
   queuePolicy?: OutboundDeliveryQueuePolicy;
   renderedBatchPlan?: QueuedRenderedMessageBatchPlan;
   onDeliveryIntent?: (intent: OutboundDeliveryIntent) => void;
->>>>>>> upstream/main
 };
 
 type MessageSentEvent = {
@@ -874,13 +760,18 @@ function normalizeEmptyPayloadForDelivery(payload: ReplyPayload): ReplyPayload |
   return payload;
 }
 
+type NormalizedPayloadForChannelDelivery = {
+  index: number;
+  payload: ReplyPayload;
+};
+
 function normalizePayloadsForChannelDelivery(
   plan: readonly OutboundPayloadPlan[],
   handler: ChannelHandler,
-): ReplyPayload[] {
-  const normalizedPayloads: ReplyPayload[] = [];
-  for (const payload of projectOutboundPayloadPlanForDelivery(plan)) {
-    let sanitizedPayload = stripInternalRuntimeScaffoldingFromPayload(payload);
+): NormalizedPayloadForChannelDelivery[] {
+  const normalizedPayloads: NormalizedPayloadForChannelDelivery[] = [];
+  for (const entry of plan) {
+    let sanitizedPayload = stripInternalRuntimeScaffoldingFromPayload(entry.payload);
     if (handler.sanitizeText && sanitizedPayload.text) {
       if (!handler.shouldSkipPlainTextSanitization?.(sanitizedPayload)) {
         sanitizedPayload = {
@@ -898,7 +789,7 @@ function normalizePayloadsForChannelDelivery(
         )
       : null;
     if (normalized) {
-      normalizedPayloads.push(normalized);
+      normalizedPayloads.push({ index: entry.sourceIndex, payload: normalized });
     }
   }
   return normalizedPayloads;
@@ -1146,12 +1037,16 @@ async function applyMessageSendingHook(params: {
   threadId?: string | number | null;
 }): Promise<{
   cancelled: boolean;
+  cancelReason?: string;
+  hookMetadata?: Record<string, unknown>;
+  contentRewritten: boolean;
   payload: ReplyPayload;
   payloadSummary: NormalizedOutboundPayload;
 }> {
   if (!params.enabled) {
     return {
       cancelled: false,
+      contentRewritten: false,
       payload: params.payload,
       payloadSummary: params.payloadSummary,
     };
@@ -1178,6 +1073,9 @@ async function applyMessageSendingHook(params: {
     if (sendingResult?.cancel) {
       return {
         cancelled: true,
+        ...(sendingResult.cancelReason ? { cancelReason: sendingResult.cancelReason } : {}),
+        ...(sendingResult.metadata ? { hookMetadata: sendingResult.metadata } : {}),
+        contentRewritten: false,
         payload: params.payload,
         payloadSummary: params.payloadSummary,
       };
@@ -1185,6 +1083,7 @@ async function applyMessageSendingHook(params: {
     if (sendingResult?.content == null) {
       return {
         cancelled: false,
+        contentRewritten: false,
         payload: params.payload,
         payloadSummary: params.payloadSummary,
       };
@@ -1193,6 +1092,7 @@ async function applyMessageSendingHook(params: {
       const spokenText = sendingResult.content;
       return {
         cancelled: false,
+        contentRewritten: true,
         payload: {
           ...params.payload,
           spokenText,
@@ -1209,6 +1109,7 @@ async function applyMessageSendingHook(params: {
     };
     return {
       cancelled: false,
+      contentRewritten: true,
       payload,
       payloadSummary: {
         ...params.payloadSummary,
@@ -1219,22 +1120,71 @@ async function applyMessageSendingHook(params: {
     // Don't block delivery on hook failure.
     return {
       cancelled: false,
+      contentRewritten: false,
       payload: params.payload,
       payloadSummary: params.payloadSummary,
     };
   }
 }
 
+function toOutboundDeliveryError(params: {
+  error: unknown;
+  results: readonly OutboundDeliveryResult[];
+  payloadOutcomes: readonly OutboundPayloadDeliveryOutcome[];
+  stage: OutboundDeliveryFailureStage;
+}): OutboundDeliveryError {
+  if (params.error instanceof OutboundDeliveryError) {
+    return params.error;
+  }
+  return new OutboundDeliveryError(formatErrorMessage(params.error), {
+    cause: params.error,
+    results: params.results,
+    payloadOutcomes: params.payloadOutcomes,
+    stage: params.stage,
+  });
+}
+
+function suppressedPayloadOutcome(params: {
+  index: number;
+  reason: OutboundPayloadDeliverySuppressionReason;
+  hookEffect?: {
+    cancelReason?: string;
+    metadata?: Record<string, unknown>;
+  };
+}): OutboundPayloadDeliveryOutcome {
+  return {
+    index: params.index,
+    status: "suppressed",
+    reason: params.reason,
+    ...(params.hookEffect ? { hookEffect: params.hookEffect } : {}),
+  };
+}
+
+/**
+ * @deprecated Direct outbound delivery is compatibility/runtime substrate.
+ * New message lifecycle code should use `sendDurableMessageBatch` from
+ * `src/channels/message/send.ts` or `deliverInboundReplyWithMessageSendContext`
+ * from `src/channels/turn/durable-delivery.ts`. Keep direct use only for
+ * outbound substrate, recovery, and compatibility paths.
+ */
 export async function deliverOutboundPayloads(
   params: DeliverOutboundPayloadsParams,
 ): Promise<OutboundDeliveryResult[]> {
+  return await deliverOutboundPayloadsInternal(params);
+}
+
+export async function deliverOutboundPayloadsInternal(
+  params: DeliverOutboundPayloadsParams,
+): Promise<OutboundDeliveryResult[]> {
   const { channel, to, payloads } = params;
-<<<<<<< HEAD
-=======
   const queuePolicy = params.queuePolicy ?? "best_effort";
+  const queuePayloads = payloads.map(stripInternalRuntimeScaffoldingFromPayload);
+  const queuePayloadsChanged = queuePayloads.some((payload, index) => payload !== payloads[index]);
   const renderedBatchPlan =
     params.renderedBatchPlan ?? createRenderedMessageBatchPlan(params.payloads);
->>>>>>> upstream/main
+  const queueRenderedBatchPlan = queuePayloadsChanged
+    ? createRenderedMessageBatchPlan(queuePayloads)
+    : renderedBatchPlan;
 
   // Write-ahead delivery queue: persist before sending, remove after success.
   const queueId = params.skipQueue
@@ -1243,19 +1193,13 @@ export async function deliverOutboundPayloads(
         channel,
         to,
         accountId: params.accountId,
-        payloads,
-<<<<<<< HEAD
-=======
-        renderedBatchPlan,
->>>>>>> upstream/main
+        payloads: queuePayloads,
+        renderedBatchPlan: queueRenderedBatchPlan,
         threadId: params.threadId,
         replyToId: params.replyToId,
         replyToMode: params.replyToMode,
         formatting: params.formatting,
-<<<<<<< HEAD
-=======
         identity: params.identity,
->>>>>>> upstream/main
         bestEffort: params.bestEffort,
         gifPlayback: params.gifPlayback,
         forceDocument: params.forceDocument,
@@ -1263,9 +1207,6 @@ export async function deliverOutboundPayloads(
         mirror: params.mirror,
         session: params.session,
         gatewayClientScopes: params.gatewayClientScopes,
-<<<<<<< HEAD
-      }).catch(() => null); // Best-effort — don't block delivery if queue write fails.
-=======
       }).catch((err: unknown) => {
         if (queuePolicy === "required") {
           throw err;
@@ -1282,7 +1223,6 @@ export async function deliverOutboundPayloads(
       queuePolicy,
     });
   }
->>>>>>> upstream/main
 
   if (!queueId) {
     return await deliverOutboundPayloadsWithQueueCleanup(params, null);
@@ -1308,20 +1248,6 @@ async function deliverOutboundPayloadsWithQueueCleanup(
   // without throwing — so the outer try/catch never fires. We track whether any
   // payload failed so we can call failDelivery instead of ackDelivery.
   let hadPartialFailure = false;
-<<<<<<< HEAD
-  const wrappedParams = params.onError
-    ? {
-        ...params,
-        onError: (err: unknown, payload: NormalizedOutboundPayload) => {
-          hadPartialFailure = true;
-          params.onError!(err, payload);
-        },
-      }
-    : params;
-
-  try {
-    const results = await deliverOutboundPayloadsCore(wrappedParams);
-=======
   const wrappedParams = {
     ...params,
     onError: (err: unknown, payload: NormalizedOutboundPayload) => {
@@ -1357,14 +1283,10 @@ async function deliverOutboundPayloadsWithQueueCleanup(
       }
       return results;
     }
->>>>>>> upstream/main
     if (queueId) {
       if (hadPartialFailure) {
         await failDelivery(queueId, "partial delivery failure (bestEffort)").catch(() => {});
       } else {
-<<<<<<< HEAD
-        await ackDelivery(queueId).catch(() => {}); // Best-effort cleanup.
-=======
         if (platformSendStarted) {
           await markQueuedPlatformOutcomeUnknown({
             queueId,
@@ -1385,19 +1307,14 @@ async function deliverOutboundPayloadsWithQueueCleanup(
         if (acked) {
           await runOutboundDeliveryCommitHooks(results);
         }
->>>>>>> upstream/main
       }
     }
     return results;
   } catch (err) {
     if (queueId) {
-      if (isAbortError(err)) {
+      if (isDeliveryAbortError(err)) {
         await ackDelivery(queueId).catch(() => {});
-<<<<<<< HEAD
-      } else {
-=======
       } else if (!platformResultsReturned) {
->>>>>>> upstream/main
         await failDelivery(queueId, formatErrorMessage(err)).catch(() => {});
       }
     }
@@ -1407,11 +1324,7 @@ async function deliverOutboundPayloadsWithQueueCleanup(
 
 /** Core delivery logic (extracted for queue wrapper). */
 async function deliverOutboundPayloadsCore(
-<<<<<<< HEAD
-  params: DeliverOutboundPayloadsCoreParams,
-=======
   params: DeliverOutboundPayloadsCoreRuntimeParams,
->>>>>>> upstream/main
 ): Promise<OutboundDeliveryResult[]> {
   const { cfg, channel, to, payloads } = params;
   const directiveOptions = await resolveChannelOutboundDirectiveOptions({ cfg, channel });
@@ -1459,10 +1372,7 @@ async function deliverOutboundPayloadsCore(
     silent: params.silent,
     mediaAccess,
     gatewayClientScopes: params.gatewayClientScopes,
-<<<<<<< HEAD
-=======
     ...(params.onPlatformSendStart ? { onPlatformSendStart: params.onPlatformSendStart } : {}),
->>>>>>> upstream/main
   });
   const configuredTextLimit = handler.chunker
     ? resolveTextChunkLimit(cfg, channel, accountId, {
@@ -1488,6 +1398,7 @@ async function deliverOutboundPayloadsCore(
       overrides,
       chunker: handler.chunker,
       chunkerMode: handler.chunkerMode,
+      chunkedTextFormatting: handler.chunkedTextFormatting,
       textLimit,
       chunkMode,
       formatting: params.formatting,
@@ -1505,6 +1416,16 @@ async function deliverOutboundPayloadsCore(
     }
   };
   const normalizedPayloads = normalizePayloadsForChannelDelivery(outboundPayloadPlan, handler);
+  const payloadOutcomes: OutboundPayloadDeliveryOutcome[] = [];
+  const recordPayloadOutcome = (outcome: OutboundPayloadDeliveryOutcome): void => {
+    payloadOutcomes.push(outcome);
+    params.onPayloadDeliveryOutcome?.(outcome);
+  };
+  if (normalizedPayloads.length === 0 && payloads.length > 0) {
+    payloads.forEach((_payload, index) => {
+      recordPayloadOutcome(suppressedPayloadOutcome({ index, reason: "no_visible_payload" }));
+    });
+  }
   const hookRunner = getGlobalHookRunner();
   const sessionKeyForInternalHooks = params.mirror?.sessionKey ?? params.session?.key;
   const mirrorIsGroup = params.mirror?.isGroup;
@@ -1530,7 +1451,7 @@ async function deliverOutboundPayloadsCore(
       },
     );
   }
-  for (const payload of normalizedPayloads) {
+  for (const { index: payloadIndex, payload } of normalizedPayloads) {
     let payloadSummary = buildPayloadSummary(payload);
     let deliveryKind: DiagnosticMessageDeliveryKind = "other";
     let deliveryStartedAt = 0;
@@ -1589,6 +1510,20 @@ async function deliverOutboundPayloadsCore(
         threadId: params.threadId,
       });
       if (hookResult.cancelled) {
+        const hookEffect =
+          hookResult.cancelReason || hookResult.hookMetadata
+            ? {
+                ...(hookResult.cancelReason ? { cancelReason: hookResult.cancelReason } : {}),
+                ...(hookResult.hookMetadata ? { metadata: hookResult.hookMetadata } : {}),
+              }
+            : undefined;
+        recordPayloadOutcome(
+          suppressedPayloadOutcome({
+            index: payloadIndex,
+            reason: "cancelled_by_message_sending_hook",
+            ...(hookEffect ? { hookEffect } : {}),
+          }),
+        );
         continue;
       }
       const renderedPayload = stripInternalRuntimeScaffoldingFromPayload(
@@ -1603,6 +1538,14 @@ async function deliverOutboundPayloadsCore(
           )
         : null;
       if (!effectivePayload) {
+        recordPayloadOutcome(
+          suppressedPayloadOutcome({
+            index: payloadIndex,
+            reason: hookResult.contentRewritten
+              ? "empty_after_message_sending_hook"
+              : "no_visible_payload",
+          }),
+        );
         continue;
       }
       payloadSummary = buildPayloadSummary(effectivePayload);
@@ -1640,9 +1583,16 @@ async function deliverOutboundPayloadsCore(
         );
         if (!hasDeliveryResultIdentity(delivery)) {
           completeDeliveryDiagnostics(0);
+          recordPayloadOutcome(
+            suppressedPayloadOutcome({
+              index: payloadIndex,
+              reason: "adapter_returned_no_identity",
+            }),
+          );
           continue;
         }
         results.push(delivery);
+        recordPayloadOutcome({ index: payloadIndex, status: "sent", results: [delivery] });
         await maybePinDeliveredMessage({
           handler,
           payload: effectivePayload,
@@ -1676,6 +1626,20 @@ async function deliverOutboundPayloadsCore(
           await sendTextChunks(payloadSummary.text, sendOverrides);
         }
         const deliveredResults = results.slice(beforeCount);
+        if (deliveredResults.length > 0) {
+          recordPayloadOutcome({
+            index: payloadIndex,
+            status: "sent",
+            results: deliveredResults,
+          });
+        } else {
+          recordPayloadOutcome(
+            suppressedPayloadOutcome({
+              index: payloadIndex,
+              reason: "adapter_returned_no_identity",
+            }),
+          );
+        }
         const messageId = results.at(-1)?.messageId;
         const pinMessageId = deliveredResults.find((entry) => entry.messageId)?.messageId;
         await maybePinDeliveredMessage({
@@ -1717,6 +1681,20 @@ async function deliverOutboundPayloadsCore(
         const beforeCount = results.length;
         await sendTextChunks(fallbackText, sendOverrides);
         const deliveredResults = results.slice(beforeCount);
+        if (deliveredResults.length > 0) {
+          recordPayloadOutcome({
+            index: payloadIndex,
+            status: "sent",
+            results: deliveredResults,
+          });
+        } else {
+          recordPayloadOutcome(
+            suppressedPayloadOutcome({
+              index: payloadIndex,
+              reason: "adapter_returned_no_identity",
+            }),
+          );
+        }
         const messageId = results.at(-1)?.messageId;
         const pinMessageId = deliveredResults.find((entry) => entry.messageId)?.messageId;
         await maybePinDeliveredMessage({
@@ -1773,6 +1751,21 @@ async function deliverOutboundPayloadsCore(
         target: deliveryTarget,
         results: results.slice(beforeCount),
       });
+      const deliveredResults = results.slice(beforeCount);
+      if (deliveredResults.length > 0) {
+        recordPayloadOutcome({
+          index: payloadIndex,
+          status: "sent",
+          results: deliveredResults,
+        });
+      } else {
+        recordPayloadOutcome(
+          suppressedPayloadOutcome({
+            index: payloadIndex,
+            reason: "adapter_returned_no_identity",
+          }),
+        );
+      }
       completeDeliveryDiagnostics(results.length - beforeCount);
       emitMessageSent({
         success: true,
@@ -1780,6 +1773,13 @@ async function deliverOutboundPayloadsCore(
         messageId: lastMessageId,
       });
     } catch (err) {
+      recordPayloadOutcome({
+        index: payloadIndex,
+        status: "failed",
+        error: err,
+        sentBeforeError: results.length > 0,
+        stage: "platform_send",
+      });
       errorDeliveryDiagnostics(err);
       emitMessageSent({
         success: false,
@@ -1787,7 +1787,12 @@ async function deliverOutboundPayloadsCore(
         error: formatErrorMessage(err),
       });
       if (!params.bestEffort) {
-        throw err;
+        throw toOutboundDeliveryError({
+          error: err,
+          results,
+          payloadOutcomes,
+          stage: "platform_send",
+        });
       }
       params.onError?.(err, payloadSummary);
     }

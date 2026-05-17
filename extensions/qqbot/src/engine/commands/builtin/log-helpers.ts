@@ -1,9 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-<<<<<<< HEAD
-=======
 import { loadJsonFile } from "openclaw/plugin-sdk/json-store";
->>>>>>> upstream/main
 import { getHomeDir, getQQBotDataDir, isWindows } from "../../utils/platform.js";
 import type { SlashCommandResult } from "../slash-commands.js";
 
@@ -14,14 +11,7 @@ function getConfiguredLogFiles(): string[] {
   for (const cli of ["openclaw", "clawdbot", "moltbot"]) {
     try {
       const cfgPath = path.join(homeDir, `.${cli}`, `${cli}.json`);
-<<<<<<< HEAD
-      if (!fs.existsSync(cfgPath)) {
-        continue;
-      }
-      const cfg = JSON.parse(fs.readFileSync(cfgPath, "utf8"));
-=======
       const cfg = loadJsonFile<{ logging?: { file?: unknown } }>(cfgPath);
->>>>>>> upstream/main
       const logFile = cfg?.logging?.file;
       if (logFile && typeof logFile === "string") {
         files.push(path.resolve(logFile));

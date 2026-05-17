@@ -3,10 +3,7 @@ import { repoInstallSpec } from "openclaw/plugin-sdk/test-fixtures";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { loggingState } from "../../logging/state.js";
 import { setCommandJsonMode } from "./json-mode.js";
-<<<<<<< HEAD
-=======
 import { applyParentDefaultHelpAction } from "./parent-default-help.js";
->>>>>>> upstream/main
 
 const DISCORD_REPO_INSTALL_SPEC = repoInstallSpec("discord");
 
@@ -153,10 +150,7 @@ describe("registerPreActionHooks", () => {
       .command("send")
       .option("--json")
       .action(() => {});
-<<<<<<< HEAD
-=======
     applyParentDefaultHelpAction(channels);
->>>>>>> upstream/main
     program
       .command("plugins")
       .command("install")
@@ -297,8 +291,6 @@ describe("registerPreActionHooks", () => {
     expect(ensurePluginRegistryLoadedMock).not.toHaveBeenCalled();
   });
 
-<<<<<<< HEAD
-=======
   it("skips startup bootstrap for parent default help actions", async () => {
     await runPreAction({
       parseArgv: ["channels"],
@@ -311,7 +303,6 @@ describe("registerPreActionHooks", () => {
     expect(ensurePluginRegistryLoadedMock).not.toHaveBeenCalled();
   });
 
->>>>>>> upstream/main
   it("lets configure own config validation and plugin loading", async () => {
     await runPreAction({
       parseArgv: ["configure"],

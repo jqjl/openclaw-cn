@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   gracefulStopSlackApp,
   publishSlackConnectedStatus,
@@ -35,29 +35,42 @@ class FakeEmitter {
   }
 }
 
+function statusCallAt(setStatus: ReturnType<typeof vi.fn>, index: number): Record<string, unknown> {
+  const call = setStatus.mock.calls[index];
+  if (!call) {
+    throw new Error(`expected status call ${index}`);
+  }
+  const [status] = call;
+  if (!status || typeof status !== "object" || Array.isArray(status)) {
+    throw new Error(`expected status call ${index} payload`);
+  }
+  return status as Record<string, unknown>;
+}
+
 describe("slack socket reconnect helpers", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it("marks socket mode healthy without seeding event liveness on connect", () => {
     const setStatus = vi.fn();
+    vi.spyOn(Date, "now").mockReturnValue(1_711_406_400_000);
 
     publishSlackConnectedStatus(setStatus);
 
     expect(setStatus).toHaveBeenCalledTimes(1);
-    expect(setStatus).toHaveBeenCalledWith(
-      expect.objectContaining({
-        connected: true,
-        lastConnectedAt: expect.any(Number),
-        healthState: "healthy",
-        lastError: null,
-      }),
-    );
-    expect(setStatus).not.toHaveBeenCalledWith(
-      expect.objectContaining({ lastEventAt: expect.any(Number) }),
-    );
+    const status = statusCallAt(setStatus, 0);
+    expect(status?.connected).toBe(true);
+    expect(status?.lastConnectedAt).toBe(1_711_406_400_000);
+    expect(status?.healthState).toBe("healthy");
+    expect(status?.lastError).toBeNull();
+    expect(status).not.toHaveProperty("lastEventAt");
   });
 
   it("marks socket mode disconnected when an error closes the socket", () => {
     const setStatus = vi.fn();
     const err = new Error("dns down");
+    vi.spyOn(Date, "now").mockReturnValue(1_711_406_401_000);
 
     publishSlackDisconnectedStatus(setStatus, err);
 
@@ -66,7 +79,7 @@ describe("slack socket reconnect helpers", () => {
       connected: false,
       healthState: "disconnected",
       lastDisconnect: {
-        at: expect.any(Number),
+        at: 1_711_406_401_000,
         error: "dns down",
       },
       lastError: "dns down",
@@ -75,6 +88,7 @@ describe("slack socket reconnect helpers", () => {
 
   it("marks socket mode disconnected without error when the socket closes cleanly", () => {
     const setStatus = vi.fn();
+    vi.spyOn(Date, "now").mockReturnValue(1_711_406_402_000);
 
     publishSlackDisconnectedStatus(setStatus);
 
@@ -83,7 +97,7 @@ describe("slack socket reconnect helpers", () => {
       connected: false,
       healthState: "disconnected",
       lastDisconnect: {
-        at: expect.any(Number),
+        at: 1_711_406_402_000,
       },
       lastError: null,
     });
@@ -104,13 +118,6 @@ describe("slack socket reconnect helpers", () => {
     const circular: Record<string, unknown> = {};
     circular.self = circular;
 
-<<<<<<< HEAD
-    expect(formatUnknownError(undefined)).toBe("unknown error");
-    expect(formatUnknownError(null)).toBe("unknown error");
-    expect(formatUnknownError("")).toBe("unknown error");
-    expect(formatUnknownError(new Error(""))).toBe("Error");
-    expect(formatUnknownError(circular)).toBe("unknown error");
-=======
     expect(formatUnknownError(undefined)).toBe("no error detail");
     expect(formatUnknownError(null)).toBe("no error detail");
     expect(formatUnknownError("")).toBe("no error detail");
@@ -133,7 +140,6 @@ describe("slack socket reconnect helpers", () => {
     ).toBe(
       "code: slack_webapi_platform_error; slack error: missing_scope; needed: connections:write; slack message: [ERROR] missing required scope",
     );
->>>>>>> upstream/main
   });
 
   it("formats socket start retries with an explicit reason field", () => {
@@ -144,9 +150,6 @@ describe("slack socket reconnect helpers", () => {
         delayMs: 2_340,
         error: undefined,
       }),
-<<<<<<< HEAD
-    ).toBe('slack socket mode failed to start; retry 1/12 in 2s reason="unknown error"');
-=======
     ).toBe(
       'slack socket mode failed to start; retry 1/12 in 2s reason="Slack Socket Mode start failed without error detail"',
     );
@@ -164,7 +167,6 @@ describe("slack socket reconnect helpers", () => {
     ).toBe(
       'slack socket mode failed to start; retry 1/12 in 2s reason="Slack Socket Mode start failed without error detail; last SDK log: socket-mode:SlackWebSocket:1 Failed to retrieve WSS URL"',
     );
->>>>>>> upstream/main
   });
 
   it("resolves disconnect waiter on socket disconnect event", async () => {
@@ -245,8 +247,6 @@ describe("slack socket reconnect helpers", () => {
     });
   });
 
-<<<<<<< HEAD
-=======
   it("uses socket start event error when Bolt rejects without detail", async () => {
     const client = new FakeEmitter();
     const err = new Error("missing_scope");
@@ -267,7 +267,6 @@ describe("slack socket reconnect helpers", () => {
     expect(client.listenerCount("error")).toBe(0);
   });
 
->>>>>>> upstream/main
   it("marks the socket client as shutting down before stop runs", async () => {
     const app = {
       receiver: { client: { shuttingDown: false } },

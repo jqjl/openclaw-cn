@@ -1,12 +1,9 @@
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   type MessageReceipt,
   type MessageReceiptPartKind,
 } from "openclaw/plugin-sdk/channel-message";
 
->>>>>>> upstream/main
 type FeishuMessageApiResponse = {
   code?: number;
   msg?: string;
@@ -15,8 +12,6 @@ type FeishuMessageApiResponse = {
   };
 };
 
-<<<<<<< HEAD
-=======
 export function resolveFeishuReceiptKind(msgType?: string): MessageReceiptPartKind {
   switch (msgType) {
     case "audio":
@@ -58,7 +53,6 @@ export function createFeishuSendReceipt(params: {
   });
 }
 
->>>>>>> upstream/main
 export function assertFeishuMessageApiSuccess(
   response: FeishuMessageApiResponse,
   errorPrefix: string,
@@ -71,15 +65,6 @@ export function assertFeishuMessageApiSuccess(
 export function toFeishuSendResult(
   response: FeishuMessageApiResponse,
   chatId: string,
-<<<<<<< HEAD
-): {
-  messageId: string;
-  chatId: string;
-} {
-  return {
-    messageId: response.data?.message_id ?? "unknown",
-    chatId,
-=======
   kind?: MessageReceiptPartKind,
 ): {
   messageId: string;
@@ -91,6 +76,5 @@ export function toFeishuSendResult(
     messageId,
     chatId,
     receipt: createFeishuSendReceipt({ messageId, chatId, kind }),
->>>>>>> upstream/main
   };
 }

@@ -8,7 +8,7 @@ import {
 } from "openclaw/plugin-sdk/allow-from";
 import { CHANNEL_APPROVAL_NATIVE_RUNTIME_CONTEXT_CAPABILITY } from "openclaw/plugin-sdk/approval-handler-adapter-runtime";
 import { registerChannelRuntimeContext } from "openclaw/plugin-sdk/channel-runtime-context";
-import type { SessionScope } from "openclaw/plugin-sdk/config-types";
+import type { SessionScope } from "openclaw/plugin-sdk/config-contracts";
 import { resolveTextChunkLimit } from "openclaw/plugin-sdk/reply-chunking";
 import { DEFAULT_GROUP_HISTORY_LIMIT } from "openclaw/plugin-sdk/reply-history";
 import { normalizeMainKey } from "openclaw/plugin-sdk/routing";
@@ -20,7 +20,7 @@ import {
   type RuntimeEnv,
 } from "openclaw/plugin-sdk/runtime-env";
 import { normalizeResolvedSecretInputString } from "openclaw/plugin-sdk/secret-input";
-import { normalizeStringEntries } from "openclaw/plugin-sdk/text-runtime";
+import { normalizeStringEntries } from "openclaw/plugin-sdk/string-coerce-runtime";
 import { installRequestBodyLimitGuard } from "openclaw/plugin-sdk/webhook-request-guards";
 import {
   resolveSlackAccount,
@@ -32,11 +32,7 @@ import { isSlackExecApprovalClientEnabled } from "../exec-approvals.js";
 import { normalizeSlackWebhookPath, registerSlackHttpHandler } from "../http/index.js";
 import { SLACK_TEXT_LIMIT } from "../limits.js";
 import { resolveSlackChannelAllowlist } from "../resolve-channels.js";
-<<<<<<< HEAD
-import { resolveSlackUserAllowlist } from "../resolve-users.js";
-=======
 import { resolveSlackUserAllowlist, type SlackUserResolution } from "../resolve-users.js";
->>>>>>> upstream/main
 import { resolveSlackAppToken, resolveSlackBotToken } from "../token.js";
 import { normalizeAllowList } from "./allow-list.js";
 import { resolveSlackSlashCommandConfig } from "./commands.js";
@@ -89,8 +85,6 @@ async function getSlackBoltInterop(): Promise<SlackBoltResolvedExports> {
 const SLACK_WEBHOOK_MAX_BODY_BYTES = 1024 * 1024;
 const SLACK_WEBHOOK_BODY_TIMEOUT_MS = 30_000;
 
-<<<<<<< HEAD
-=======
 function resolveStableSlackUserIdEntry(raw: string): string | undefined {
   const trimmed = raw.trim();
   if (!trimmed) {
@@ -118,7 +112,6 @@ function resolveStableSlackUserAllowlistEntries(entries: string[]): SlackUserRes
   return resolved;
 }
 
->>>>>>> upstream/main
 export function formatSlackSocketReconnectMessage(params: {
   event: string;
   attempt: number;
@@ -136,11 +129,6 @@ export function formatSlackSocketStartRetryMessage(params: {
   maxAttempts: number;
   delayMs: number;
   error: unknown;
-<<<<<<< HEAD
-}) {
-  const maxAttempts = params.maxAttempts > 0 ? String(params.maxAttempts) : "∞";
-  return `slack socket mode failed to start; retry ${params.attempt}/${maxAttempts} in ${Math.round(params.delayMs / 1000)}s reason="${formatUnknownError(params.error)}"`;
-=======
   sdkContext?: string;
 }) {
   const maxAttempts = params.maxAttempts > 0 ? String(params.maxAttempts) : "∞";
@@ -150,7 +138,6 @@ export function formatSlackSocketStartRetryMessage(params: {
   );
   const sdkContext = params.sdkContext?.trim() ? `; last SDK log: ${params.sdkContext.trim()}` : "";
   return `slack socket mode failed to start; retry ${params.attempt}/${maxAttempts} in ${Math.round(params.delayMs / 1000)}s reason="${reason}${sdkContext}"`;
->>>>>>> upstream/main
 }
 
 function parseApiAppIdFromAppToken(raw?: string) {
@@ -249,10 +236,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
   const threadInheritParent = slackCfg.thread?.inheritParent ?? false;
   const threadRequireExplicitMention = slackCfg.thread?.requireExplicitMention ?? false;
   const slashCommand = resolveSlackSlashCommandConfig(opts.slashCommand ?? slackCfg.slashCommand);
-<<<<<<< HEAD
-=======
   const allowNameMatching = isDangerousNameMatchingEnabled(slackCfg);
->>>>>>> upstream/main
   const textLimit = resolveTextChunkLimit(cfg, "slack", account.accountId, {
     fallbackLimit: SLACK_TEXT_LIMIT,
   });
@@ -261,11 +245,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
   const mediaMaxBytes = (opts.mediaMaxMb ?? slackCfg.mediaMaxMb ?? 20) * 1024 * 1024;
   const removeAckAfterReply = cfg.messages?.removeAckAfterReply ?? false;
   const clientOptions = resolveSlackWebClientOptions();
-<<<<<<< HEAD
-  const { app, receiver } = createSlackBoltApp({
-=======
   const { app, receiver, socketModeLogger } = createSlackBoltApp({
->>>>>>> upstream/main
     interop: await getSlackBoltInterop(),
     slackMode,
     botToken,
@@ -349,11 +329,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
     dmEnabled,
     dmPolicy,
     allowFrom,
-<<<<<<< HEAD
-    allowNameMatching: isDangerousNameMatchingEnabled(slackCfg),
-=======
     allowNameMatching,
->>>>>>> upstream/main
     groupDmEnabled,
     groupDmChannels,
     defaultRequireMention: slackCfg.requireMention,
@@ -456,26 +432,6 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
 
       const allowEntries = normalizeStringEntries(allowFrom).filter((entry) => entry !== "*");
       if (allowEntries.length > 0) {
-<<<<<<< HEAD
-        try {
-          const resolvedUsers = await resolveSlackUserAllowlist({
-            token: resolveToken,
-            entries: allowEntries,
-          });
-          const { mapping, unresolved, additions } = buildAllowlistResolutionSummary(
-            resolvedUsers,
-            {
-              formatResolved: formatSlackUserResolved,
-            },
-          );
-          allowFrom = mergeAllowlist({ existing: allowFrom, additions });
-          ctx.allowFrom = normalizeAllowList(allowFrom);
-          summarizeMapping("slack users", mapping, unresolved, runtime);
-        } catch (err) {
-          runtime.log?.(
-            `slack user resolve failed; using config entries. ${formatUnknownError(err)}`,
-          );
-=======
         const stableResolvedUsers = resolveStableSlackUserAllowlistEntries(allowEntries);
         if (stableResolvedUsers.length > 0) {
           const { mapping, additions } = buildAllowlistResolutionSummary(stableResolvedUsers, {
@@ -506,7 +462,6 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
               `slack user resolve failed; using config entries. ${formatUnknownError(err)}`,
             );
           }
->>>>>>> upstream/main
         }
       }
 
@@ -517,20 +472,6 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
         }
 
         if (userEntries.size > 0) {
-<<<<<<< HEAD
-          try {
-            const resolvedUsers = await resolveSlackUserAllowlist({
-              token: resolveToken,
-              entries: Array.from(userEntries),
-            });
-            const { resolvedMap, mapping, unresolved } = buildAllowlistResolutionSummary(
-              resolvedUsers,
-              {
-                formatResolved: formatSlackUserResolved,
-              },
-            );
-
-=======
           const stableResolvedUsers = resolveStableSlackUserAllowlistEntries(
             Array.from(userEntries),
           );
@@ -538,20 +479,12 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
             const { resolvedMap, mapping } = buildAllowlistResolutionSummary(stableResolvedUsers, {
               formatResolved: formatSlackUserResolved,
             });
->>>>>>> upstream/main
             const nextChannels = patchAllowlistUsersInConfigEntries({
               entries: channelsConfig,
               resolvedMap,
             });
             channelsConfig = nextChannels;
             ctx.channelsConfig = nextChannels;
-<<<<<<< HEAD
-            summarizeMapping("slack channel users", mapping, unresolved, runtime);
-          } catch (err) {
-            runtime.log?.(
-              `slack channel user resolve failed; using config entries. ${formatUnknownError(err)}`,
-            );
-=======
             summarizeMapping("slack channel users", mapping, [], runtime);
           }
 
@@ -580,7 +513,6 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
                 `slack channel user resolve failed; using config entries. ${formatUnknownError(err)}`,
               );
             }
->>>>>>> upstream/main
           }
         }
       }
@@ -681,10 +613,7 @@ export async function monitorSlackProvider(opts: MonitorSlackOpts = {}) {
               maxAttempts: SLACK_SOCKET_RECONNECT_POLICY.maxAttempts,
               delayMs,
               error: err,
-<<<<<<< HEAD
-=======
               sdkContext: socketModeLogger.getLastMessage(),
->>>>>>> upstream/main
             }),
           );
           try {

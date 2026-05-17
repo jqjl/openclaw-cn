@@ -33,11 +33,7 @@ browser UI where humans can visually confirm what the transport showed.
 - Post concise status to an operator Discord channel when the run is blocked,
   needs manual VNC help, or finishes.
 
-<<<<<<< HEAD
-## Non Goals
-=======
 ## Non goals
->>>>>>> upstream/main
 
 - Mantis is not a replacement for unit tests. A Mantis run should usually become
   a smaller regression test after the fix is understood.
@@ -66,11 +62,7 @@ Mantis lives in the OpenClaw QA stack.
 This boundary keeps transport knowledge in OpenClaw, machine scheduling in
 Crabbox, and maintainer workflow glue in ClawSweeper.
 
-<<<<<<< HEAD
-## Command Shape
-=======
 ## Command shape
->>>>>>> upstream/main
 
 The first local command verifies the Discord bot, guild, channel, message send,
 reaction send, and artifact path:
@@ -97,8 +89,6 @@ directory, installs dependencies, builds each ref, runs the scenario with
 and `mantis-report.md`. For the first Discord scenario, a successful verification
 means baseline status is `fail` and candidate status is `pass`.
 
-<<<<<<< HEAD
-=======
 The second Discord before/after probe targets thread attachments:
 
 ```bash
@@ -116,7 +106,6 @@ thread, calls OpenClaw's `message.thread-reply` action with a repo-local
 baseline screenshot shows the reply with no attachment; the candidate screenshot
 shows the expected `mantis-thread-report.md` attachment.
 
->>>>>>> upstream/main
 The first VM/browser primitive is the desktop smoke:
 
 ```bash
@@ -136,11 +125,6 @@ Useful desktop smoke flags:
 - `--lease-id <cbx_...>` or `OPENCLAW_MANTIS_CRABBOX_LEASE_ID` reuses a warmed desktop.
 - `--browser-url <url>` changes the page opened in the visible browser.
 - `--html-file <path>` renders a repo-local HTML artifact in the visible browser. Mantis uses this to capture the generated Discord status-reaction timeline through a real Crabbox desktop.
-<<<<<<< HEAD
-- `--keep-lease` or `OPENCLAW_MANTIS_KEEP_VM=1` keeps a newly created passing lease open for VNC inspection. Failed runs keep the lease by default when one was created so an operator can reconnect.
-- `--class`, `--idle-timeout`, and `--ttl` tune machine size and lease lifetime.
-
-=======
 - `--browser-profile-dir <remote-path>` reuses a remote Chrome user-data-dir so a persistent Mantis desktop can stay logged in between runs. Use this for the long-lived Discord Web viewer profile.
 - `--browser-profile-archive-env <name>` restores a base64 `.tgz` Chrome user-data-dir archive from the named environment variable before launching the browser. Use this for logged-in witnesses such as Discord Web. The default env var is `OPENCLAW_MANTIS_BROWSER_PROFILE_TGZ_B64`.
 - `--video-duration <seconds>` controls the MP4 capture length. Use a longer duration for slow logged-in web apps that need time to settle.
@@ -166,7 +150,6 @@ configured, the workflow still publishes the deterministic baseline/candidate
 attachment screenshots and logs a notice that the logged-in Discord Web witness
 was skipped.
 
->>>>>>> upstream/main
 The first full desktop transport primitive is the Slack desktop smoke:
 
 ```bash
@@ -256,6 +239,55 @@ operators can switch to Hetzner when AWS capacity is slow or unavailable. Use
 this lane when you want "a Linux desktop with Slack and a claw running" instead
 of only a bot-to-bot Slack transcript.
 
+`Mantis Telegram Live` wraps the existing Telegram live QA lane in the same PR
+evidence pipeline. It checks out the trusted candidate ref in a separate
+worktree, runs `pnpm openclaw qa telegram --credential-source convex
+--credential-role ci`, writes a `mantis-evidence.json` manifest from the
+Telegram QA summary and observed-message artifact, renders the redacted
+transcript HTML through a Crabbox desktop browser, generates a motion-trimmed GIF
+with `crabbox media preview`, and posts the inline PR evidence comment when a PR
+number is available. This lane is transcript-visual rather than logged-in
+Telegram Web proof: the Telegram Bot API gives stable live message evidence, but
+Telegram Web login state is not required for normal Mantis automation.
+
+`Mantis Telegram Desktop Proof` is the agentic native Telegram Desktop
+before/after wrapper. A maintainer can trigger it from a PR comment with
+`@Mantis telegram desktop proof`, from the Actions UI with freeform
+instructions, or through the generic `Mantis Scenario` dispatcher. The workflow
+hands the PR, baseline ref, candidate ref, and maintainer instructions to Codex.
+The agent reads the PR, decides what Telegram-visible behavior proves the
+change, runs the real-user Crabbox Telegram Desktop proof lane for baseline and
+candidate, iterates until the native GIFs are useful, writes paired
+`motionPreview` artifacts into `mantis-evidence.json`, uploads the bundle, and
+posts a 2-column PR evidence table when a PR number is available.
+
+For human-in-the-loop Telegram desktop setup, use the scenario builder:
+
+```bash
+pnpm openclaw qa mantis telegram-desktop-builder \
+  --credential-source convex \
+  --credential-role maintainer \
+  --keep-lease
+```
+
+The builder leases or reuses a Crabbox desktop, installs the native Linux
+Telegram Desktop binary, optionally restores a user-session archive, configures
+OpenClaw with the leased Telegram SUT bot token, starts `openclaw gateway run`
+on port `38974`, posts a driver-bot readiness message to the leased private
+group, then captures a screenshot and MP4 from the visible VNC desktop. A bot
+token never logs Telegram Desktop in; it only configures OpenClaw. The desktop
+viewer is a separate Telegram user session restored from
+`--telegram-profile-archive-env <name>` or created manually through VNC and kept
+alive with `--keep-lease`.
+
+Useful Telegram desktop builder flags:
+
+- `--lease-id <cbx_...>` reruns against a VM where an operator already logged in to Telegram Desktop.
+- `--telegram-profile-archive-env <name>` reads a base64 `.tgz` Telegram Desktop profile archive from that env var and restores it before launch.
+- `--telegram-profile-dir <remote-path>` controls the remote Telegram Desktop profile directory. The default is `$HOME/.local/share/TelegramDesktop`.
+- `--no-gateway-setup` installs and opens Telegram Desktop without configuring OpenClaw.
+- `--credential-source convex --credential-role ci` uses the shared credential broker instead of direct Telegram env tokens.
+
 Every PR-publishing scenario writes `mantis-evidence.json` next to its report.
 This schema is the handoff between scenario code and GitHub comments:
 
@@ -323,6 +355,19 @@ ref:
 @Mantis discord status reactions baseline=origin/main candidate=HEAD
 ```
 
+Telegram live QA can also be triggered from a PR comment:
+
+```text
+@Mantis telegram
+@Mantis telegram scenario=telegram-status-command
+@Mantis telegram scenarios=telegram-status-command,telegram-mentioned-message-reply
+```
+
+By default it uses the current PR head SHA as the candidate and runs
+`telegram-status-command`. Maintainers can override `candidate=...`,
+`provider=aws|hetzner`, and `lease=<cbx_...>` when they need a specific ref or a
+pre-warmed Crabbox desktop.
+
 ClawSweeper command examples:
 
 ```text
@@ -334,11 +379,7 @@ The first command is explicit and scenario-focused. The second can later map a P
 or issue to recommended Mantis scenarios from labels, changed files, and
 ClawSweeper review findings.
 
-<<<<<<< HEAD
-## Run Lifecycle
-=======
 ## Run lifecycle
->>>>>>> upstream/main
 
 1. Acquire credentials.
 2. Allocate or reuse a VM.
@@ -433,11 +474,7 @@ polls the real Discord triggering message and expects the observed sequence
 `discord-status-reactions-tool-only-timeline.html`, and
 `discord-status-reactions-tool-only-timeline.png`.
 
-<<<<<<< HEAD
-## Existing QA Pieces
-=======
 ## Existing QA pieces
->>>>>>> upstream/main
 
 Mantis should build on the existing private QA stack instead of starting from
 zero:
@@ -455,11 +492,7 @@ zero:
 The first Mantis implementation can be a thin before/after runner over these
 pieces, plus one visual evidence layer.
 
-<<<<<<< HEAD
-## Evidence Model
-=======
 ## Evidence model
->>>>>>> upstream/main
 
 Every run writes a stable artifact directory:
 
@@ -502,11 +535,7 @@ private channel names, user names, or message content may appear. For public PRs
 prefer GitHub Actions artifact links over inline images until the redaction story
 is stronger.
 
-<<<<<<< HEAD
-## Browser And VNC
-=======
 ## Browser and VNC
->>>>>>> upstream/main
 
 The browser lane has two modes:
 
@@ -594,11 +623,7 @@ guild, channel, and message ids. The GitHub smoke workflow enables
 If a token is accidentally pasted into an issue, PR, chat, or log, rotate it
 after the new secret has been stored.
 
-<<<<<<< HEAD
-## GitHub Artifacts And PR Comments
-=======
 ## GitHub artifacts and PR comments
->>>>>>> upstream/main
 
 Mantis workflows should upload the full evidence bundle as a short-lived Actions
 artifact. When the workflow is run for a bug report or fix PR, it should also
@@ -637,11 +662,7 @@ candidate showed the expected queued -> thinking -> done sequence.
 When the run fails because the harness failed, the comment must say that instead
 of implying the candidate failed.
 
-<<<<<<< HEAD
-## Private Deployment Notes
-=======
 ## Private deployment notes
->>>>>>> upstream/main
 
 A private deployment may already have a Mantis Discord application. Reuse that
 application instead of creating another app when it has the right bot
@@ -655,11 +676,7 @@ Do not put guild ids, channel ids, bot tokens, browser cookies, or VNC passwords
 in this document. Store them in GitHub secrets, the credential broker, or the
 operator's local secret store.
 
-<<<<<<< HEAD
-## Adding A Scenario
-=======
 ## Adding a scenario
->>>>>>> upstream/main
 
 A Mantis scenario should declare:
 
@@ -688,11 +705,7 @@ Scenarios should prefer small, typed oracles:
 Vision checks should be additive. If a platform API can prove the bug, use the
 API as the pass/fail oracle and keep screenshots for human confidence.
 
-<<<<<<< HEAD
-## Provider Expansion
-=======
 ## Provider expansion
->>>>>>> upstream/main
 
 After Discord, the same runner can add:
 
@@ -706,11 +719,7 @@ After Discord, the same runner can add:
 Each transport should have one cheap smoke scenario and one or more bug-class
 scenarios. Expensive visual scenarios should stay opt-in.
 
-<<<<<<< HEAD
-## Open Questions
-=======
 ## Open questions
->>>>>>> upstream/main
 
 - Which Discord bot should be the driver, and which should be the SUT, when the
   existing Mantis bot is reused?

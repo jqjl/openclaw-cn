@@ -49,9 +49,6 @@ describe("Slack live QA runtime helpers", () => {
   });
 
   it("reports standard live transport scenario coverage", () => {
-<<<<<<< HEAD
-    expect(__testing.SLACK_QA_STANDARD_SCENARIO_IDS).toEqual(["canary", "mention-gating"]);
-=======
     expect(__testing.SLACK_QA_STANDARD_SCENARIO_IDS).toEqual([
       "canary",
       "mention-gating",
@@ -61,7 +58,6 @@ describe("Slack live QA runtime helpers", () => {
       "thread-follow-up",
       "thread-isolation",
     ]);
->>>>>>> upstream/main
   });
 
   it("selects Slack scenarios by id", () => {
@@ -97,14 +93,17 @@ describe("Slack live QA runtime helpers", () => {
         timeoutMs: 1_000,
       }),
     ).rejects.toThrow("unexpected Slack SUT reply observed");
-    expect(observedMessages).toMatchObject([
-      {
-        matchedScenario: false,
-        text: "I should not have replied",
-        ts: "2.000000",
-        userId: "U999999999",
-      },
-    ]);
+    const typedObservedMessages = observedMessages as Array<{
+      matchedScenario?: boolean;
+      text?: string;
+      ts?: string;
+      userId?: string;
+    }>;
+    expect(typedObservedMessages).toHaveLength(1);
+    expect(typedObservedMessages[0]?.matchedScenario).toBe(false);
+    expect(typedObservedMessages[0]?.text).toBe("I should not have replied");
+    expect(typedObservedMessages[0]?.ts).toBe("2.000000");
+    expect(typedObservedMessages[0]?.userId).toBe("U999999999");
   });
 
   it("writes artifacts when Convex credential acquisition fails", async () => {
@@ -115,16 +114,11 @@ describe("Slack live QA runtime helpers", () => {
       outputDir,
     });
 
-    expect(result.scenarios).toMatchObject([
-      {
-        id: "slack-canary",
-        status: "fail",
-      },
-    ]);
+    expect(result.scenarios).toHaveLength(1);
+    expect(result.scenarios[0]?.id).toBe("slack-canary");
+    expect(result.scenarios[0]?.status).toBe("fail");
     expect(result.scenarios[0]?.details).toContain("Missing OPENCLAW_QA_CONVEX_SITE_URL");
-    await expect(fs.stat(result.reportPath)).resolves.toMatchObject({
-      isFile: expect.any(Function),
-    });
+    await expect(fs.stat(result.reportPath).then((stats) => stats.isFile())).resolves.toBe(true);
     const summary = JSON.parse(await fs.readFile(result.summaryPath, "utf8")) as {
       channelId: string;
       credentials: { kind: string; role?: string; source: string };

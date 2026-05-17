@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-=======
 import {
   createMessageReceiptFromOutboundResults,
   defineChannelMessageAdapter,
   type ChannelMessageSendResult,
 } from "openclaw/plugin-sdk/channel-message";
->>>>>>> upstream/main
 import { chunkText } from "openclaw/plugin-sdk/reply-chunking";
 import { createWhatsAppOutboundBase } from "./outbound-base.js";
 import { normalizeWhatsAppPayloadTextPreservingIndentation } from "./outbound-media-contract.js";
@@ -42,8 +39,6 @@ export const whatsappChannelOutbound = {
     text: normalizeWhatsAppChannelPayloadText(payload.text),
   }),
 };
-<<<<<<< HEAD
-=======
 
 function toWhatsAppMessageSendResult(
   result: Awaited<ReturnType<NonNullable<typeof whatsappChannelOutbound.sendText>>>,
@@ -90,4 +85,3 @@ export const whatsappMessageAdapter = defineChannelMessageAdapter({
       ),
   },
 });
->>>>>>> upstream/main

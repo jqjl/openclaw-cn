@@ -104,15 +104,15 @@ describe("send", () => {
 
       expect(result.ok).toBe(true);
       expect(result.messageId).toBe("twitch-msg-123");
-<<<<<<< HEAD
-=======
-      expect(result.receipt).toMatchObject({
+      expect(typeof result.receipt.sentAt).toBe("number");
+      expect({ ...result.receipt, sentAt: 0 }).toEqual({
         primaryPlatformMessageId: "twitch-msg-123",
         platformMessageIds: ["twitch-msg-123"],
         parts: [
           {
             platformMessageId: "twitch-msg-123",
             kind: "text",
+            index: 0,
             raw: {
               channel: "twitch",
               conversationId: "testchannel",
@@ -120,8 +120,15 @@ describe("send", () => {
             },
           },
         ],
+        raw: [
+          {
+            channel: "twitch",
+            conversationId: "testchannel",
+            messageId: "twitch-msg-123",
+          },
+        ],
+        sentAt: 0,
       });
->>>>>>> upstream/main
     });
 
     it("should strip markdown when enabled", async () => {
@@ -210,11 +217,8 @@ describe("send", () => {
 
       expect(result.ok).toBe(true);
       expect(result.messageId).toBe("skipped");
-<<<<<<< HEAD
-=======
-      expect(result.receipt.platformMessageIds).toEqual([]);
-      expect(result.receipt.parts).toEqual([]);
->>>>>>> upstream/main
+      expect(result.receipt.platformMessageIds).toStrictEqual([]);
+      expect(result.receipt.parts).toStrictEqual([]);
     });
 
     it("should return error when client manager not found", async () => {
@@ -324,7 +328,13 @@ describe("send", () => {
         secondaryAccount,
         "secondary-channel",
         "Hello!",
-        expect.any(Object),
+        {
+          channels: {
+            twitch: {
+              defaultAccount: "secondary",
+            },
+          },
+        },
         "secondary",
       );
     });

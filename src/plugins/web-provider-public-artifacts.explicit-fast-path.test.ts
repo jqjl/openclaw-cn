@@ -6,8 +6,6 @@ const { loadPluginManifestRegistryMock } = vi.hoisted(() => ({
   }),
 }));
 
-<<<<<<< HEAD
-=======
 const { loadBundledPluginPublicArtifactModuleSyncMock } = vi.hoisted(() => {
   const providerBase = {
     label: "Fixture",
@@ -57,7 +55,6 @@ const { loadBundledPluginPublicArtifactModuleSyncMock } = vi.hoisted(() => {
   };
 });
 
->>>>>>> upstream/main
 vi.mock("./manifest-registry.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./manifest-registry.js")>();
   return {
@@ -66,8 +63,6 @@ vi.mock("./manifest-registry.js", async (importOriginal) => {
   };
 });
 
-<<<<<<< HEAD
-=======
 vi.mock("./public-surface-loader.js", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./public-surface-loader.js")>();
   return {
@@ -76,72 +71,77 @@ vi.mock("./public-surface-loader.js", async (importOriginal) => {
   };
 });
 
->>>>>>> upstream/main
 import { resolveBundledExplicitRuntimeWebSearchProvidersFromPublicArtifacts as resolveExplicitRuntimeWebSearchProviders } from "./web-provider-public-artifacts.explicit.js";
 import {
   resolveBundledWebFetchProvidersFromPublicArtifacts,
   resolveBundledWebSearchProvidersFromPublicArtifacts,
 } from "./web-provider-public-artifacts.js";
 
+function expectSingleProvider<T>(providers: T[] | null | undefined): T {
+  expect(providers).toHaveLength(1);
+  const provider = providers?.[0];
+  if (provider === undefined) {
+    throw new Error("Expected one web provider");
+  }
+  return provider;
+}
+
 describe("web provider public artifacts explicit fast path", () => {
   beforeEach(() => {
     loadPluginManifestRegistryMock.mockClear();
-<<<<<<< HEAD
-=======
     loadBundledPluginPublicArtifactModuleSyncMock.mockClear();
->>>>>>> upstream/main
   });
 
   it("resolves bundled web search providers by explicit plugin id without manifest scans", () => {
-    const provider = resolveBundledWebSearchProvidersFromPublicArtifacts({
-      bundledAllowlistCompat: true,
-      onlyPluginIds: ["brave"],
-    })?.[0];
+    const provider = expectSingleProvider(
+      resolveBundledWebSearchProvidersFromPublicArtifacts({
+        bundledAllowlistCompat: true,
+        onlyPluginIds: ["brave"],
+      }),
+    );
 
-    expect(provider?.pluginId).toBe("brave");
-    expect(provider?.createTool({ config: {} as never })).toBeNull();
-<<<<<<< HEAD
-=======
+    expect(provider.pluginId).toBe("brave");
+    expect(provider.createTool({ config: {} as never })).toBeNull();
     expect(loadBundledPluginPublicArtifactModuleSyncMock).toHaveBeenCalledWith({
       dirName: "brave",
       artifactBasename: "web-search-contract-api.js",
     });
->>>>>>> upstream/main
     expect(loadPluginManifestRegistryMock).not.toHaveBeenCalled();
   });
 
   it("resolves bundled runtime web search providers by explicit plugin id", () => {
-    const provider = resolveExplicitRuntimeWebSearchProviders({
-      onlyPluginIds: ["google"],
-    })?.[0];
+    const provider = expectSingleProvider(
+      resolveExplicitRuntimeWebSearchProviders({
+        onlyPluginIds: ["google"],
+      }),
+    );
 
-    expect(provider?.pluginId).toBe("google");
-    expect(provider?.createTool({ config: {} as never })).not.toBeNull();
-<<<<<<< HEAD
-=======
+    expect(provider.pluginId).toBe("google");
+    expect(provider.createTool({ config: {} as never })).toEqual({
+      description: "fixture",
+      parameters: {},
+    });
     expect(loadBundledPluginPublicArtifactModuleSyncMock).toHaveBeenCalledWith({
       dirName: "google",
       artifactBasename: "web-search-provider.js",
     });
->>>>>>> upstream/main
     expect(loadPluginManifestRegistryMock).not.toHaveBeenCalled();
   });
 
   it("resolves bundled web fetch providers by explicit plugin id without manifest scans", () => {
-    const provider = resolveBundledWebFetchProvidersFromPublicArtifacts({
-      bundledAllowlistCompat: true,
-      onlyPluginIds: ["firecrawl"],
-    })?.[0];
+    const provider = expectSingleProvider(
+      resolveBundledWebFetchProvidersFromPublicArtifacts({
+        bundledAllowlistCompat: true,
+        onlyPluginIds: ["firecrawl"],
+      }),
+    );
 
-    expect(provider?.pluginId).toBe("firecrawl");
-    expect(provider?.createTool({ config: {} as never })).toBeNull();
-<<<<<<< HEAD
-=======
+    expect(provider.pluginId).toBe("firecrawl");
+    expect(provider.createTool({ config: {} as never })).toBeNull();
     expect(loadBundledPluginPublicArtifactModuleSyncMock).toHaveBeenCalledWith({
       dirName: "firecrawl",
       artifactBasename: "web-fetch-contract-api.js",
     });
->>>>>>> upstream/main
     expect(loadPluginManifestRegistryMock).not.toHaveBeenCalled();
   });
 });

@@ -116,10 +116,7 @@ const baseStatusSummary = {
         updatedAt: 1,
         age: 5_000,
         model: "gpt-5.5",
-<<<<<<< HEAD
-=======
         runtime: "OpenClaw Pi Default",
->>>>>>> upstream/main
         totalTokens: 12_000,
         totalTokensFresh: true,
         remainingTokens: 4_000,

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { resolveAgentRuntimeMetadata } from "../agents/agent-runtime-metadata.js";
+import { resolveModelAgentRuntimeMetadata } from "../agents/agent-runtime-metadata.js";
 import {
   listAgentIds,
   resolveAgentConfig,
@@ -56,11 +56,7 @@ import {
   type SessionScope,
 } from "../config/sessions.js";
 import type { OpenClawConfig } from "../config/types.openclaw.js";
-<<<<<<< HEAD
-import { openBoundaryFileSync } from "../infra/boundary-file-read.js";
-=======
 import { openRootFileSync } from "../infra/boundary-file-read.js";
->>>>>>> upstream/main
 import { projectPluginSessionExtensionsSync } from "../plugins/host-hook-state.js";
 import {
   DEFAULT_AGENT_ID,
@@ -83,9 +79,9 @@ import {
   normalizeOptionalLowercaseString,
 } from "../shared/string-coerce.js";
 import { normalizeSessionDeliveryFields } from "../utils/delivery-context.shared.js";
+import type { ModelCostConfig } from "../utils/usage-format.js";
 import { estimateUsageCost, resolveModelCostConfig } from "../utils/usage-format.js";
 import {
-  canonicalizeSpawnedByForAgent,
   resolveSessionStoreAgentId,
   resolveSessionStoreKey,
   resolveStoredSessionKeyForAgentStore,
@@ -172,11 +168,7 @@ function resolveIdentityAvatarUrl(
     return undefined;
   }
   try {
-<<<<<<< HEAD
-    const opened = openBoundaryFileSync({
-=======
     const opened = openRootFileSync({
->>>>>>> upstream/main
       absolutePath: resolvedCandidate,
       rootPath: workspaceRoot,
       rootRealPath: workspaceRoot,
@@ -303,6 +295,24 @@ function buildCompactionCheckpointPreview(
   };
 }
 
+function resolveModelCostConfigCached(
+  provider: string | undefined,
+  model: string | undefined,
+  cfg: OpenClawConfig,
+  rowContext?: SessionListRowContext,
+): ModelCostConfig | undefined {
+  if (!rowContext) {
+    return resolveModelCostConfig({ provider, model, config: cfg });
+  }
+  const key = createSessionRowModelCacheKey(provider, model);
+  if (rowContext.modelCostConfigByModelRef.has(key)) {
+    return rowContext.modelCostConfigByModelRef.get(key);
+  }
+  const value = resolveModelCostConfig({ provider, model, config: cfg });
+  rowContext.modelCostConfigByModelRef.set(key, value);
+  return value;
+}
+
 function resolveEstimatedSessionCostUsd(params: {
   cfg: OpenClawConfig;
   provider?: string;
@@ -312,6 +322,7 @@ function resolveEstimatedSessionCostUsd(params: {
     "estimatedCostUsd" | "inputTokens" | "outputTokens" | "cacheRead" | "cacheWrite"
   >;
   explicitCostUsd?: number;
+  rowContext?: SessionListRowContext;
 }): number | undefined {
   const explicitCostUsd = resolveNonNegativeNumber(
     params.explicitCostUsd ?? params.entry?.estimatedCostUsd,
@@ -331,11 +342,12 @@ function resolveEstimatedSessionCostUsd(params: {
   ) {
     return undefined;
   }
-  const cost = resolveModelCostConfig({
-    provider: params.provider,
-    model: params.model,
-    config: params.cfg,
-  });
+  const cost = resolveModelCostConfigCached(
+    params.provider,
+    params.model,
+    params.cfg,
+    params.rowContext,
+  );
   if (!cost) {
     return undefined;
   }
@@ -381,9 +393,10 @@ type SessionListRowContext = {
   subagentRuns: ReturnType<typeof buildSubagentRunReadIndex>;
   storeChildSessionsByKey: Map<string, string[]>;
   selectedModelByOverrideRef: Map<string, ReturnType<typeof resolveSessionModelRef>>;
-<<<<<<< HEAD
-  thinkingLevelsByModelRef: Map<string, ReturnType<typeof listThinkingLevelOptions>>;
-=======
+  // Per-list memoization for deterministic resolvers that scale linearly with
+  // session count but only depend on (provider, model[, agentId]). Sessions
+  // in a single list typically share a small set of those tuples, so caching
+  // here collapses the work to O(unique tuples) per call.
   thinkingMetadataByModelRef: Map<
     string,
     {
@@ -391,7 +404,8 @@ type SessionListRowContext = {
       defaultLevel: ReturnType<typeof resolveGatewaySessionThinkingDefault>;
     }
   >;
->>>>>>> upstream/main
+  displayModelIdentityByKey: Map<string, { provider?: string; model?: string }>;
+  modelCostConfigByModelRef: Map<string, ModelCostConfig | undefined>;
 };
 
 function resolveRuntimeChildSessionKeys(
@@ -509,11 +523,9 @@ function buildSessionListRowContext(params: {
     subagentRuns,
     storeChildSessionsByKey: buildStoreChildSessionIndex(params.store, params.now, subagentRuns),
     selectedModelByOverrideRef: new Map(),
-<<<<<<< HEAD
-    thinkingLevelsByModelRef: new Map(),
-=======
     thinkingMetadataByModelRef: new Map(),
->>>>>>> upstream/main
+    displayModelIdentityByKey: new Map(),
+    modelCostConfigByModelRef: new Map(),
   };
 }
 
@@ -526,10 +538,7 @@ function resolveSessionSelectedModelRef(params: {
   entry?: SessionEntry;
   agentId: string;
   rowContext?: SessionListRowContext;
-<<<<<<< HEAD
-=======
   allowPluginNormalization?: boolean;
->>>>>>> upstream/main
 }): ReturnType<typeof resolveSessionModelRef> | null {
   const override = normalizeStoredOverrideModel({
     providerOverride: params.entry?.providerOverride,
@@ -539,13 +548,9 @@ function resolveSessionSelectedModelRef(params: {
     return null;
   }
   if (!params.rowContext) {
-<<<<<<< HEAD
-    return resolveSessionModelRef(params.cfg, params.entry, params.agentId);
-=======
     return resolveSessionModelRef(params.cfg, params.entry, params.agentId, {
       allowPluginNormalization: params.allowPluginNormalization,
     });
->>>>>>> upstream/main
   }
   const key = [
     normalizeAgentId(params.agentId),
@@ -556,42 +561,20 @@ function resolveSessionSelectedModelRef(params: {
   if (cached) {
     return cached;
   }
-<<<<<<< HEAD
-  const selected = resolveSessionModelRef(params.cfg, params.entry, params.agentId);
-=======
   const selected = resolveSessionModelRef(params.cfg, params.entry, params.agentId, {
     allowPluginNormalization: params.allowPluginNormalization,
   });
->>>>>>> upstream/main
   params.rowContext.selectedModelByOverrideRef.set(key, selected);
   return selected;
 }
 
-<<<<<<< HEAD
-function resolveSessionRowThinkingLevels(params: {
-=======
 function resolveSessionRowThinkingMetadata(params: {
   cfg: OpenClawConfig;
   agentId: string;
->>>>>>> upstream/main
   provider: string;
   model: string;
   modelCatalog?: ModelCatalogEntry[];
   rowContext?: SessionListRowContext;
-<<<<<<< HEAD
-}): ReturnType<typeof listThinkingLevelOptions> {
-  if (!params.rowContext) {
-    return listThinkingLevelOptions(params.provider, params.model, params.modelCatalog);
-  }
-  const key = createSessionRowModelCacheKey(params.provider, params.model);
-  const cached = params.rowContext.thinkingLevelsByModelRef.get(key);
-  if (cached) {
-    return cached;
-  }
-  const levels = listThinkingLevelOptions(params.provider, params.model, params.modelCatalog);
-  params.rowContext.thinkingLevelsByModelRef.set(key, levels);
-  return levels;
-=======
 }): {
   levels: ReturnType<typeof listThinkingLevelOptions>;
   defaultLevel: ReturnType<typeof resolveGatewaySessionThinkingDefault>;
@@ -628,7 +611,6 @@ function resolveSessionRowThinkingMetadata(params: {
   };
   params.rowContext.thinkingMetadataByModelRef.set(key, metadata);
   return metadata;
->>>>>>> upstream/main
 }
 
 function mergeChildSessionKeys(
@@ -669,6 +651,7 @@ function resolveTranscriptUsageFallback(params: {
   fallbackProvider?: string;
   fallbackModel?: string;
   maxTranscriptBytes?: number;
+  rowContext?: SessionListRowContext;
 }): {
   estimatedCostUsd?: number;
   totalTokens?: number;
@@ -715,6 +698,7 @@ function resolveTranscriptUsageFallback(params: {
       cacheRead: snapshot.cacheRead,
       cacheWrite: snapshot.cacheWrite,
     },
+    rowContext: params.rowContext,
   });
   return {
     modelProvider,
@@ -1058,13 +1042,21 @@ export function listAgentsForGateway(cfg: OpenClawConfig): {
   const agents = agentIds.map((id) => {
     const meta = configuredById.get(id);
     const model = resolveGatewayAgentModel(cfg, id);
+    const resolvedModel = resolveDefaultModelForAgent({ cfg, agentId: id });
     return Object.assign(
       {
         id,
         name: meta?.name,
         identity: meta?.identity,
         workspace: resolveAgentWorkspaceDir(cfg, id),
-        agentRuntime: resolveAgentRuntimeMetadata(cfg, id),
+        agentRuntime: resolveModelAgentRuntimeMetadata({
+          cfg,
+          agentId: id,
+          provider: resolvedModel.provider,
+          model: resolvedModel.model,
+          sessionKey: resolveAgentMainSessionKey({ cfg, agentId: id }),
+          acpRuntime: false,
+        }),
       },
       model ? { model } : {},
     );
@@ -1337,19 +1329,13 @@ export function resolveGatewaySessionThinkingDefault(params: {
 export function getSessionDefaults(
   cfg: OpenClawConfig,
   modelCatalog?: ModelCatalogEntry[],
-<<<<<<< HEAD
-=======
   options?: { allowPluginNormalization?: boolean },
->>>>>>> upstream/main
 ): GatewaySessionsDefaults {
   const resolved = resolveConfiguredModelRef({
     cfg,
     defaultProvider: DEFAULT_PROVIDER,
     defaultModel: DEFAULT_MODEL,
-<<<<<<< HEAD
-=======
     allowPluginNormalization: options?.allowPluginNormalization,
->>>>>>> upstream/main
   });
   const contextTokens =
     cfg.agents?.defaults?.contextTokens ??
@@ -1377,33 +1363,12 @@ export function resolveSessionModelRef(
     | SessionEntry
     | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
   agentId?: string,
-<<<<<<< HEAD
-): { provider: string; model: string } {
-  const resolved = agentId
-    ? resolveDefaultModelForAgent({ cfg, agentId })
-    : resolveConfiguredModelRef({
-        cfg,
-        defaultProvider: DEFAULT_PROVIDER,
-        defaultModel: DEFAULT_MODEL,
-      });
-
-=======
   options?: { allowPluginNormalization?: boolean },
 ): { provider: string; model: string } {
->>>>>>> upstream/main
   const normalizedOverride = normalizeStoredOverrideModel({
     providerOverride: entry?.providerOverride,
     modelOverride: entry?.modelOverride,
   });
-<<<<<<< HEAD
-
-  const persisted = resolvePersistedSelectedModelRef({
-    defaultProvider: resolved.provider || DEFAULT_PROVIDER,
-    runtimeProvider: entry?.modelProvider,
-    runtimeModel: entry?.model,
-    overrideProvider: normalizedOverride.providerOverride,
-    overrideModel: normalizedOverride.modelOverride,
-=======
   if (normalizedOverride.providerOverride && normalizedOverride.modelOverride) {
     return resolvePersistedSelectedModelRef({
       defaultProvider: normalizedOverride.providerOverride,
@@ -1438,7 +1403,6 @@ export function resolveSessionModelRef(
     overrideProvider: normalizedOverride.providerOverride,
     overrideModel: normalizedOverride.modelOverride,
     allowPluginNormalization: options?.allowPluginNormalization,
->>>>>>> upstream/main
   });
   if (persisted) {
     return persisted;
@@ -1526,10 +1490,7 @@ export function resolveSessionModelIdentityRef(
     | Pick<SessionEntry, "model" | "modelProvider" | "modelOverride" | "providerOverride">,
   agentId?: string,
   fallbackModelRef?: string,
-<<<<<<< HEAD
-=======
   options?: { allowPluginNormalization?: boolean },
->>>>>>> upstream/main
 ): { provider?: string; model: string } {
   const runtimeModel = entry?.model?.trim();
   const runtimeProvider = entry?.modelProvider?.trim();
@@ -1545,13 +1506,9 @@ export function resolveSessionModelIdentityRef(
       return { provider: inferredProvider, model: runtimeModel };
     }
     if (runtimeModel.includes("/")) {
-<<<<<<< HEAD
-      const parsedRuntime = parseModelRef(runtimeModel, DEFAULT_PROVIDER);
-=======
       const parsedRuntime = parseModelRef(runtimeModel, DEFAULT_PROVIDER, {
         allowPluginNormalization: options?.allowPluginNormalization,
       });
->>>>>>> upstream/main
       if (parsedRuntime) {
         return { provider: parsedRuntime.provider, model: parsedRuntime.model };
       }
@@ -1561,13 +1518,9 @@ export function resolveSessionModelIdentityRef(
   }
   const fallbackRef = fallbackModelRef?.trim();
   if (fallbackRef) {
-<<<<<<< HEAD
-    const parsedFallback = parseModelRef(fallbackRef, DEFAULT_PROVIDER);
-=======
     const parsedFallback = parseModelRef(fallbackRef, DEFAULT_PROVIDER, {
       allowPluginNormalization: options?.allowPluginNormalization,
     });
->>>>>>> upstream/main
     if (parsedFallback) {
       return { provider: parsedFallback.provider, model: parsedFallback.model };
     }
@@ -1580,14 +1533,34 @@ export function resolveSessionModelIdentityRef(
     }
     return { model: fallbackRef };
   }
-<<<<<<< HEAD
-  const resolved = resolveSessionModelRef(cfg, entry, agentId);
-=======
   const resolved = resolveSessionModelRef(cfg, entry, agentId, {
     allowPluginNormalization: options?.allowPluginNormalization,
   });
->>>>>>> upstream/main
   return { provider: resolved.provider, model: resolved.model };
+}
+
+function resolveSessionDisplayModelIdentityRefCached(params: {
+  cfg: OpenClawConfig;
+  agentId: string;
+  provider?: string;
+  model?: string;
+  rowContext?: SessionListRowContext;
+}): { provider?: string; model?: string } {
+  const ctx = params.rowContext;
+  if (!ctx) {
+    return resolveSessionDisplayModelIdentityRef(params);
+  }
+  const key = `${params.agentId}\u0000${createSessionRowModelCacheKey(
+    params.provider,
+    params.model,
+  )}`;
+  const cached = ctx.displayModelIdentityByKey.get(key);
+  if (cached) {
+    return cached;
+  }
+  const value = resolveSessionDisplayModelIdentityRef(params);
+  ctx.displayModelIdentityByKey.set(key, value);
+  return value;
 }
 
 export function resolveSessionDisplayModelIdentityRef(params: {
@@ -1732,20 +1705,14 @@ export function buildGatewaySessionRow(params: {
     entry,
     agentId: sessionAgentId,
     rowContext,
-<<<<<<< HEAD
-=======
     allowPluginNormalization: !lightweight,
->>>>>>> upstream/main
   });
   const resolvedModel = resolveSessionModelIdentityRef(
     cfg,
     entry,
     sessionAgentId,
     subagentRun?.model,
-<<<<<<< HEAD
-=======
     { allowPluginNormalization: !lightweight },
->>>>>>> upstream/main
   );
   const runtimeModelPresent =
     Boolean(entry?.model?.trim()) || Boolean(entry?.modelProvider?.trim());
@@ -1759,6 +1726,7 @@ export function buildGatewaySessionRow(params: {
       provider: resolvedModel.provider,
       model: resolvedModel.model ?? DEFAULT_MODEL,
       entry,
+      rowContext,
     }) === undefined;
   const transcriptUsage =
     !skipTranscriptUsage &&
@@ -1771,6 +1739,7 @@ export function buildGatewaySessionRow(params: {
           fallbackProvider: resolvedModel.provider,
           fallbackModel: resolvedModel.model ?? DEFAULT_MODEL,
           maxTranscriptBytes: params.transcriptUsageMaxBytes,
+          rowContext: params.rowContext,
         })
       : null;
   const preferLiveSubagentModelIdentity =
@@ -1806,19 +1775,28 @@ export function buildGatewaySessionRow(params: {
   const latestCompactionCheckpoint = buildCompactionCheckpointPreview(
     resolveLatestCompactionCheckpoint(entry),
   );
-  const agentRuntime = resolveAgentRuntimeMetadata(cfg, sessionAgentId);
   const selectedOrRuntimeModelProvider = selectedModel?.provider ?? modelProvider;
   const selectedOrRuntimeModel = selectedModel?.model ?? model;
   const rowModelIdentity = lightweight
     ? { provider: selectedOrRuntimeModelProvider, model: selectedOrRuntimeModel }
-    : resolveSessionDisplayModelIdentityRef({
+    : resolveSessionDisplayModelIdentityRefCached({
         cfg,
         agentId: sessionAgentId,
         provider: selectedOrRuntimeModelProvider,
         model: selectedOrRuntimeModel,
+        rowContext: params.rowContext,
       });
   const rowModelProvider = rowModelIdentity.provider;
   const rowModel = rowModelIdentity.model;
+  const agentRuntime = resolveModelAgentRuntimeMetadata({
+    cfg,
+    agentId: sessionAgentId,
+    provider: rowModelProvider,
+    model: rowModel,
+    sessionKey: key,
+    acpRuntime: entry?.acp != null,
+    acpBackend: entry?.acp?.backend,
+  });
   const estimatedCostUsd = lightweight
     ? resolveNonNegativeNumber(entry?.estimatedCostUsd)
     : (resolveEstimatedSessionCostUsd({
@@ -1826,6 +1804,7 @@ export function buildGatewaySessionRow(params: {
         provider: rowModelProvider,
         model: rowModel,
         entry,
+        rowContext: params.rowContext,
       }) ?? resolveNonNegativeNumber(transcriptUsage?.estimatedCostUsd));
   const contextTokens = lightweight
     ? resolvePositiveNumber(entry?.contextTokens)
@@ -1859,23 +1838,16 @@ export function buildGatewaySessionRow(params: {
 
   const thinkingProvider = rowModelProvider ?? DEFAULT_PROVIDER;
   const thinkingModel = rowModel ?? DEFAULT_MODEL;
-<<<<<<< HEAD
-  const thinkingLevels = resolveSessionRowThinkingLevels({
-=======
   const thinkingMetadata = resolveSessionRowThinkingMetadata({
     cfg,
     agentId: sessionAgentId,
->>>>>>> upstream/main
     provider: thinkingProvider,
     model: thinkingModel,
     modelCatalog: params.modelCatalog,
     rowContext,
   });
-<<<<<<< HEAD
-=======
   const thinkingLevels = thinkingMetadata.levels;
   const thinkingDefault = thinkingMetadata.defaultLevel;
->>>>>>> upstream/main
   const pluginExtensions =
     !lightweight && entry ? projectPluginSessionExtensionsSync({ sessionKey: key, entry }) : [];
 
@@ -1904,21 +1876,8 @@ export function buildGatewaySessionRow(params: {
     abortedLastRun: entry?.abortedLastRun,
     thinkingLevel: entry?.thinkingLevel,
     thinkingLevels,
-<<<<<<< HEAD
     thinkingOptions: thinkingLevels.map((level) => level.label),
-    thinkingDefault: lightweight
-      ? entry?.thinkingLevel
-      : resolveGatewaySessionThinkingDefault({
-          cfg,
-          provider: thinkingProvider,
-          model: thinkingModel,
-          agentId: sessionAgentId,
-          modelCatalog: params.modelCatalog,
-        }),
-=======
-    thinkingOptions: thinkingLevels?.map((level) => level.label),
     thinkingDefault,
->>>>>>> upstream/main
     fastMode: entry?.fastMode,
     verboseLevel: entry?.verboseLevel,
     traceLevel: entry?.traceLevel,
@@ -2245,11 +2204,7 @@ export function listSessionsFromStore(params: {
     totalCount,
     limitApplied,
     hasMore: sessions.length < totalCount,
-<<<<<<< HEAD
-    defaults: getSessionDefaults(cfg, params.modelCatalog),
-=======
     defaults: getSessionDefaults(cfg, params.modelCatalog, { allowPluginNormalization: false }),
->>>>>>> upstream/main
     sessions,
   };
 }
@@ -2350,11 +2305,7 @@ export async function listSessionsFromStoreAsync(params: {
     totalCount,
     limitApplied,
     hasMore: sessions.length < totalCount,
-<<<<<<< HEAD
-    defaults: getSessionDefaults(cfg, params.modelCatalog),
-=======
     defaults: getSessionDefaults(cfg, params.modelCatalog, { allowPluginNormalization: false }),
->>>>>>> upstream/main
     sessions,
   };
 }

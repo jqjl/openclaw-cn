@@ -1,13 +1,9 @@
-<<<<<<< HEAD
-import { buildChannelConfigSchema } from "openclaw/plugin-sdk/channel-config-schema";
-=======
 import {
   buildChannelConfigSchema,
   requireOpenAllowFrom,
 } from "openclaw/plugin-sdk/channel-config-schema";
 import { requireChannelOpenAllowFrom } from "openclaw/plugin-sdk/extension-shared";
->>>>>>> upstream/main
-import { z } from "openclaw/plugin-sdk/zod";
+import { z } from "zod";
 
 const DmPolicySchema = z.enum(["open", "allowlist", "pairing", "disabled"]);
 const GroupPolicySchema = z.enum(["open", "allowlist", "disabled"]);
@@ -23,11 +19,7 @@ const ThreadBindingsSchema = z
   })
   .strict();
 
-<<<<<<< HEAD
-const LineCommonConfigSchema = z.object({
-=======
 const LineCommonConfigSchemaBase = z.object({
->>>>>>> upstream/main
   enabled: z.boolean().optional(),
   channelAccessToken: z.string().optional(),
   channelSecret: z.string().optional(),
@@ -54,17 +46,6 @@ const LineGroupConfigSchema = z
   })
   .strict();
 
-<<<<<<< HEAD
-const LineAccountConfigSchema = LineCommonConfigSchema.extend({
-  groups: z.record(z.string(), LineGroupConfigSchema.optional()).optional(),
-}).strict();
-
-export const LineConfigSchema = LineCommonConfigSchema.extend({
-  accounts: z.record(z.string(), LineAccountConfigSchema.optional()).optional(),
-  defaultAccount: z.string().optional(),
-  groups: z.record(z.string(), LineGroupConfigSchema.optional()).optional(),
-}).strict();
-=======
 const LineAccountConfigSchema = LineCommonConfigSchemaBase.extend({
   groups: z.record(z.string(), LineGroupConfigSchema.optional()).optional(),
 })
@@ -94,7 +75,6 @@ export const LineConfigSchema = LineCommonConfigSchemaBase.extend({
       requireOpenAllowFrom,
     });
   });
->>>>>>> upstream/main
 
 export const LineChannelConfigSchema = buildChannelConfigSchema(LineConfigSchema);
 

@@ -70,6 +70,14 @@ function shouldResolveWhenPluginsAreGloballyDisabled(key: CapabilityProviderRegi
   return key === "speechProviders";
 }
 
+function shouldMergeManifestProvidersWhenActive(key: CapabilityProviderRegistryKey): boolean {
+  return (
+    key === "imageGenerationProviders" ||
+    key === "videoGenerationProviders" ||
+    key === "musicGenerationProviders"
+  );
+}
+
 function shouldSkipCapabilityResolution(params: {
   key: CapabilityProviderRegistryKey;
   cfg?: OpenClawConfig;
@@ -361,16 +369,12 @@ function filterLoadedProvidersForRequestedConfig<K extends CapabilityProviderReg
   requested: Set<string>;
   entries: PluginRegistry[K];
 }): PluginRegistry[K] {
-<<<<<<< HEAD
-  if (params.key !== "speechProviders" && params.key !== "mediaUnderstandingProviders") {
-=======
   if (
     params.key !== "speechProviders" &&
     params.key !== "realtimeTranscriptionProviders" &&
     params.key !== "realtimeVoiceProviders" &&
     params.key !== "mediaUnderstandingProviders"
   ) {
->>>>>>> upstream/main
     return [] as unknown as PluginRegistry[K];
   }
   if (params.requested.size === 0) {
@@ -395,11 +399,7 @@ function resolveRequestedCapabilityPluginIds(params: {
   cfg?: OpenClawConfig;
   requested?: Set<string>;
 }): CapabilityPluginResolution | undefined {
-<<<<<<< HEAD
-  if (params.key !== "speechProviders" || !params.requested || params.requested.size === 0) {
-=======
   if (!params.requested || params.requested.size === 0) {
->>>>>>> upstream/main
     return undefined;
   }
   const runtimePluginIds = new Set<string>();
@@ -449,13 +449,7 @@ function loadCapabilityProviderEntries<K extends CapabilityProviderRegistryKey>(
         ? loadedEntries
         : coldEntries;
   const missingRequested =
-<<<<<<< HEAD
-    params.key === "speechProviders" && params.requested && params.requested.size > 0
-      ? new Set(params.requested)
-      : undefined;
-=======
     params.requested && params.requested.size > 0 ? new Set(params.requested) : undefined;
->>>>>>> upstream/main
   if (missingRequested) {
     removeActiveProviderIds(missingRequested, entries);
   }
@@ -560,21 +554,16 @@ export function resolvePluginCapabilityProviders<K extends CapabilityProviderReg
       ? collectRequestedCapabilityProviderIds({ key: params.key, cfg: params.cfg })
       : undefined;
   if (activeProviders.length > 0 && params.key !== "memoryEmbeddingProviders") {
-    if (!missingRequestedProviders) {
+    if (!missingRequestedProviders && !shouldMergeManifestProvidersWhenActive(params.key)) {
       return activeProviders.map((entry) => entry.provider) as CapabilityProviderForKey<K>[];
     }
-    removeActiveProviderIds(missingRequestedProviders, activeProviders);
-    if (missingRequestedProviders.size === 0) {
-      return activeProviders.map((entry) => entry.provider) as CapabilityProviderForKey<K>[];
+    if (missingRequestedProviders) {
+      removeActiveProviderIds(missingRequestedProviders, activeProviders);
+      if (missingRequestedProviders.size === 0) {
+        return activeProviders.map((entry) => entry.provider) as CapabilityProviderForKey<K>[];
+      }
     }
   }
-<<<<<<< HEAD
-  let requestedSpeechProviders: Set<string> | undefined;
-  if (params.key === "speechProviders") {
-    requestedSpeechProviders =
-      missingRequestedProviders ??
-      (activeProviders.length === 0 ? collectRequestedSpeechProviderIds(params.cfg) : undefined);
-=======
   let requestedProviders: Set<string> | undefined;
   if (params.key === "speechProviders") {
     requestedProviders =
@@ -582,17 +571,12 @@ export function resolvePluginCapabilityProviders<K extends CapabilityProviderReg
       (activeProviders.length === 0
         ? collectRequestedCapabilityProviderIds({ key: params.key, cfg: params.cfg })
         : undefined);
->>>>>>> upstream/main
   }
   const pluginIds =
     resolveRequestedCapabilityPluginIds({
       key: params.key,
       cfg: params.cfg,
-<<<<<<< HEAD
-      requested: requestedSpeechProviders,
-=======
       requested: requestedProviders,
->>>>>>> upstream/main
     }) ??
     resolveCapabilityPluginIds({
       key: params.key,
@@ -612,18 +596,14 @@ export function resolvePluginCapabilityProviders<K extends CapabilityProviderReg
     cfg: params.cfg,
     bundledCompatPluginIds: pluginIds.bundledCompatPluginIds,
     loadOptions,
-<<<<<<< HEAD
-    requested: requestedSpeechProviders,
-=======
     requested: requestedProviders,
->>>>>>> upstream/main
   });
   if (params.key !== "memoryEmbeddingProviders") {
     const mergeLoadedProviders =
-      activeProviders.length > 0
+      activeProviders.length > 0 && missingRequestedProviders
         ? filterLoadedProvidersForRequestedConfig({
             key: params.key,
-            requested: missingRequestedProviders ?? new Set(),
+            requested: missingRequestedProviders,
             entries: loadedProviders,
           })
         : loadedProviders;

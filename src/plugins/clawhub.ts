@@ -749,11 +749,7 @@ async function verifyClawHubArchiveFiles(params: {
       extractedBytes += bytes;
       return extractedBytes <= DEFAULT_MAX_EXTRACTED_BYTES;
     };
-<<<<<<< HEAD
-    for (const entry of Object.values(zip.files)) {
-=======
     for (const entry of Object.values(zip.files as Record<string, JSZip.JSZipObject>)) {
->>>>>>> upstream/main
       entryCount += 1;
       if (entryCount > DEFAULT_MAX_ENTRIES) {
         return buildClawHubInstallFailure(
@@ -815,7 +811,12 @@ async function verifyClawHubArchiveFiles(params: {
       }
       actualFiles.delete(file.path);
     }
-    const unexpectedFile = [...actualFiles.keys()].toSorted()[0];
+    let unexpectedFile: string | undefined;
+    for (const file of actualFiles.keys()) {
+      if (unexpectedFile === undefined || file < unexpectedFile) {
+        unexpectedFile = file;
+      }
+    }
     if (unexpectedFile) {
       return buildClawHubInstallFailure(
         `ClawHub archive contents do not match files[] metadata for "${params.packageName}@${params.packageVersion}": unexpected file "${unexpectedFile}".`,

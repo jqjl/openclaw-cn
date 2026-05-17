@@ -1,6 +1,10 @@
 import { isHeartbeatOkResponse, isHeartbeatUserMessage } from "../auto-reply/heartbeat-filter.js";
 import { HEARTBEAT_PROMPT } from "../auto-reply/heartbeat.js";
 import {
+  INTER_SESSION_PROMPT_PREFIX_BASE,
+  normalizeInputProvenance,
+} from "../sessions/input-provenance.js";
+import {
   parseAssistantTextSignature,
   resolveAssistantMessagePhase,
 } from "../shared/chat-message-content.js";
@@ -163,8 +167,6 @@ function sanitizeAssistantPhasedContentBlocks(content: unknown[]): {
   };
 }
 
-<<<<<<< HEAD
-=======
 function projectAssistantTextFromMixedToolContent(
   content: unknown[],
   maxChars: number,
@@ -198,7 +200,6 @@ function projectAssistantTextFromMixedToolContent(
   return textBlocks.length > 0 ? { content: textBlocks, changed: true } : null;
 }
 
->>>>>>> upstream/main
 function toFiniteNumber(x: unknown): number | undefined {
   return typeof x === "number" && Number.isFinite(x) ? x : undefined;
 }
@@ -321,12 +322,6 @@ function sanitizeChatHistoryMessage(
       changed = true;
     }
     if (entry.role === "assistant" && Array.isArray(entry.content)) {
-<<<<<<< HEAD
-      const sanitizedPhases = sanitizeAssistantPhasedContentBlocks(entry.content);
-      if (sanitizedPhases.changed) {
-        entry.content = sanitizedPhases.content;
-        changed = true;
-=======
       const mixedToolText = projectAssistantTextFromMixedToolContent(entry.content, maxChars);
       if (mixedToolText) {
         entry.content = mixedToolText.content;
@@ -340,7 +335,6 @@ function sanitizeChatHistoryMessage(
           entry.content = sanitizedPhases.content;
           changed = true;
         }
->>>>>>> upstream/main
       }
     }
   }
@@ -405,8 +399,6 @@ function hasAssistantNonTextContent(message: unknown): boolean {
   );
 }
 
-<<<<<<< HEAD
-=======
 function hasAssistantMixedToolVisibleText(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
@@ -432,7 +424,6 @@ function hasAssistantMixedToolVisibleText(message: unknown): boolean {
   return hasToolHistoryBlock && hasText;
 }
 
->>>>>>> upstream/main
 function shouldDropAssistantHistoryMessage(message: unknown): boolean {
   if (!message || typeof message !== "object") {
     return false;
@@ -442,11 +433,7 @@ function shouldDropAssistantHistoryMessage(message: unknown): boolean {
     return false;
   }
   if (resolveAssistantMessagePhase(message) === "commentary") {
-<<<<<<< HEAD
-    return true;
-=======
     return !hasAssistantMixedToolVisibleText(message);
->>>>>>> upstream/main
   }
   const text = extractAssistantTextForSilentCheck(message);
   if (text === undefined || !isSuppressedControlReplyText(text)) {
@@ -522,10 +509,44 @@ function isEmptyTextOnlyContent(content: unknown): boolean {
   return sawText;
 }
 
+function extractProjectedText(content: unknown): string {
+  if (typeof content === "string") {
+    return content;
+  }
+  if (!Array.isArray(content)) {
+    return "";
+  }
+  const parts: string[] = [];
+  for (const block of content) {
+    if (!block || typeof block !== "object") {
+      continue;
+    }
+    const text = (block as { text?: unknown }).text;
+    if (typeof text === "string") {
+      parts.push(text);
+    }
+  }
+  return parts.join("\n");
+}
+
+function isSubagentAnnounceInterSessionUserMessage(message: Record<string, unknown>): boolean {
+  const provenance = normalizeInputProvenance(message.provenance);
+  if (provenance?.kind === "inter_session" && provenance.sourceTool === "subagent_announce") {
+    return true;
+  }
+  const text = extractProjectedText(message.content ?? message.text);
+  return (
+    text.includes(INTER_SESSION_PROMPT_PREFIX_BASE) && text.includes("sourceTool=subagent_announce")
+  );
+}
+
 function shouldHideProjectedHistoryMessage(message: Record<string, unknown>): boolean {
   const roleContent = asRoleContentMessage(message);
   if (!roleContent) {
     return false;
+  }
+  if (roleContent.role === "user" && isSubagentAnnounceInterSessionUserMessage(message)) {
+    return true;
   }
   if (roleContent.role === "user" && isEmptyTextOnlyContent(message.content ?? message.text)) {
     return true;

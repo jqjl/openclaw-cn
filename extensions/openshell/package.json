@@ -1,15 +1,15 @@
 {
   "name": "@openclaw/openshell-sandbox",
-<<<<<<< HEAD
-  "version": "2026.5.4",
-=======
-  "version": "2026.5.6",
->>>>>>> upstream/main
-  "private": true,
+  "version": "2026.5.12-beta.1",
   "description": "OpenClaw OpenShell sandbox backend",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/openclaw/openclaw"
+  },
   "type": "module",
   "dependencies": {
-    "openshell": "0.1.0"
+    "openshell": "0.1.0",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@openclaw/plugin-sdk": "workspace:*"
@@ -17,6 +17,21 @@
   "openclaw": {
     "extensions": [
       "./index.ts"
-    ]
+    ],
+    "install": {
+      "npmSpec": "@openclaw/openshell-sandbox",
+      "defaultChoice": "npm",
+      "minHostVersion": ">=2026.5.12-beta.1"
+    },
+    "compat": {
+      "pluginApi": ">=2026.5.12-beta.1"
+    },
+    "build": {
+      "openclawVersion": "2026.5.12-beta.1"
+    },
+    "release": {
+      "publishToClawHub": true,
+      "publishToNpm": true
+    }
   }
 }

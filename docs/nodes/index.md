@@ -12,11 +12,7 @@ A **node** is a companion device (macOS/iOS/Android/headless) that connects to t
 Legacy transport: [Bridge protocol](/gateway/bridge-protocol) (TCP JSONL;
 historical only for current nodes).
 
-<<<<<<< HEAD
-macOS can also run in **node mode**: the menubar app connects to the Gateway’s
-=======
 macOS can also run in **node mode**: the menubar app connects to the Gateway's
->>>>>>> upstream/main
 WS server and exposes its local canvas/camera commands as a node (so
 `openclaw nodes …` works against this Mac). In remote gateway mode, browser
 automation is handled by the CLI node host (`openclaw node run` or the
@@ -24,11 +20,7 @@ installed node service), not by the native app node.
 
 Notes:
 
-<<<<<<< HEAD
-- Nodes are **peripherals**, not gateways. They don’t run the gateway service.
-=======
 - Nodes are **peripherals**, not gateways. They don't run the gateway service.
->>>>>>> upstream/main
 - Telegram/WhatsApp/etc. messages land on the **gateway**, not on nodes.
 - Troubleshooting runbook: [/nodes/troubleshooting](/nodes/troubleshooting)
 
@@ -194,11 +186,7 @@ Low-level (raw RPC):
 openclaw nodes invoke --node <idOrNameOrIp> --command canvas.eval --params '{"javaScript":"location.href"}'
 ```
 
-<<<<<<< HEAD
-Higher-level helpers exist for the common “give the agent a MEDIA attachment” workflows.
-=======
 Higher-level helpers exist for the common "give the agent a MEDIA attachment" workflows.
->>>>>>> upstream/main
 
 ## Command policy
 
@@ -209,12 +197,9 @@ Node commands must pass two gates before they can be invoked:
 
 Windows and macOS companion nodes allow safe declared commands such as
 `canvas.*`, `camera.list`, `location.get`, and `screen.snapshot` by default.
-<<<<<<< HEAD
-=======
 Trusted nodes that advertise the `talk` capability or declare `talk.*` commands
 also allow declared push-to-talk commands (`talk.ptt.start`, `talk.ptt.stop`,
 `talk.ptt.cancel`, `talk.ptt.once`) by default, independent of platform label.
->>>>>>> upstream/main
 Dangerous or privacy-heavy commands such as `camera.snap`, `camera.clip`, and
 `screen.record` still require explicit opt-in with
 `gateway.nodes.allowCommands`. `gateway.nodes.denyCommands` always wins over
@@ -319,11 +304,7 @@ openclaw nodes location get --node <idOrNameOrIp> --accuracy precise --max-age 1
 Notes:
 
 - Location is **off by default**.
-<<<<<<< HEAD
-- “Always” requires system permission; background fetch is best-effort.
-=======
 - "Always" requires system permission; background fetch is best-effort.
->>>>>>> upstream/main
 - The response includes lat/lon, accuracy (meters), and timestamp.
 
 ## SMS (Android nodes)

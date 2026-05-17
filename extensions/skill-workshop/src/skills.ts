@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
-=======
 import fs from "node:fs/promises";
 import path from "node:path";
 import {
@@ -10,7 +5,6 @@ import {
   replaceFileAtomic,
   resolvePathWithinRoot,
 } from "openclaw/plugin-sdk/security-runtime";
->>>>>>> upstream/main
 import { bumpSkillsSnapshotVersion } from "../api.js";
 import { assertSkillContentSafe, scanSkillContent } from "./scanner.js";
 import type { SkillProposal, SkillScanFinding } from "./types.js";
@@ -48,13 +42,6 @@ function assertValidSection(section: string): string {
 function skillDir(workspaceDir: string, skillName: string): string {
   const safeName = assertValidSkillName(skillName);
   const root = path.resolve(workspaceDir, "skills");
-<<<<<<< HEAD
-  const dir = path.resolve(root, safeName);
-  if (!dir.startsWith(`${root}${path.sep}`)) {
-    throw new Error("skill path escapes workspace skills directory");
-  }
-  return dir;
-=======
   const dir = resolvePathWithinRoot({
     rootDir: root,
     requestedPath: safeName,
@@ -64,36 +51,18 @@ function skillDir(workspaceDir: string, skillName: string): string {
     throw new Error("skill path escapes workspace skills directory");
   }
   return dir.path;
->>>>>>> upstream/main
 }
 
 function skillPath(workspaceDir: string, skillName: string): string {
   return path.join(skillDir(workspaceDir, skillName), "SKILL.md");
 }
 
-<<<<<<< HEAD
-async function pathExists(filePath: string): Promise<boolean> {
-  try {
-    await fs.access(filePath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function atomicWrite(filePath: string, content: string): Promise<void> {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  const tempPath = `${filePath}.tmp-${process.pid}-${Date.now().toString(36)}-${randomUUID()}`;
-  await fs.writeFile(tempPath, content, "utf8");
-  await fs.rename(tempPath, filePath);
-=======
 async function atomicWrite(filePath: string, content: string): Promise<void> {
   await replaceFileAtomic({
     filePath,
     content,
     tempPrefix: ".skill-workshop",
   });
->>>>>>> upstream/main
 }
 
 function formatSkillMarkdown(params: { name: string; description: string; body: string }): string {
@@ -204,14 +173,6 @@ export async function writeSupportFile(params: {
   }
   assertSkillContentSafe(params.content);
   const root = skillDir(params.workspaceDir, name);
-<<<<<<< HEAD
-  const target = path.resolve(root, ...parts);
-  if (!target.startsWith(`${root}${path.sep}`)) {
-    throw new Error("support file path escapes skill directory");
-  }
-  await atomicWrite(target, `${params.content.trimEnd()}\n`);
-  return target;
-=======
   const target = resolvePathWithinRoot({
     rootDir: root,
     requestedPath: path.join(...parts),
@@ -222,5 +183,4 @@ export async function writeSupportFile(params: {
   }
   await atomicWrite(target.path, `${params.content.trimEnd()}\n`);
   return target.path;
->>>>>>> upstream/main
 }

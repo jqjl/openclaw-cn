@@ -1,10 +1,7 @@
 import fs from "node:fs";
 import { createRequire } from "node:module";
-<<<<<<< HEAD
-=======
 import path from "node:path";
 import { pathToFileURL } from "node:url";
->>>>>>> upstream/main
 import type { createJiti } from "jiti";
 import { toSafeImportPath } from "../shared/import-specifier.js";
 import { tryNativeRequireJavaScriptModule } from "./native-module-require.js";
@@ -52,7 +49,6 @@ export type PluginModuleLoaderStatsSnapshot = {
 
 const DEFAULT_PLUGIN_MODULE_LOADER_CACHE_ENTRIES = 128;
 const MAX_TRACKED_SOURCE_TRANSFORM_TARGETS = 24;
-const JITI_FACTORY_OVERRIDE_KEY = Symbol.for("openclaw.pluginModuleLoaderJitiFactoryOverride");
 const PLUGIN_SDK_IMPORT_SPECIFIER_PATTERN =
   /(?:\bfrom\s*["']|\bimport\s*\(\s*["']|\brequire\s*\(\s*["'])(?:openclaw|@openclaw)\/plugin-sdk(?:\/[^"']*)?["']/u;
 const requireForJiti = createRequire(import.meta.url);
@@ -109,14 +105,6 @@ export function resetPluginModuleLoaderStatsForTest(): void {
 }
 
 function loadCreateJitiLoaderFactory(): PluginModuleLoaderFactory {
-  const override = (
-    globalThis as typeof globalThis & {
-      [JITI_FACTORY_OVERRIDE_KEY]?: PluginModuleLoaderFactory;
-    }
-  )[JITI_FACTORY_OVERRIDE_KEY];
-  if (override) {
-    return override;
-  }
   if (createJitiLoaderFactory) {
     return createJitiLoaderFactory;
   }
@@ -134,8 +122,6 @@ export function createPluginModuleLoaderCache(
   return new PluginLruCache<PluginModuleLoader>(maxEntries);
 }
 
-<<<<<<< HEAD
-=======
 function toSourceTransformImportPath(specifier: string): string {
   if (process.platform === "win32" && path.isAbsolute(specifier)) {
     return pathToFileURL(specifier).href;
@@ -143,7 +129,6 @@ function toSourceTransformImportPath(specifier: string): string {
   return toSafeImportPath(specifier);
 }
 
->>>>>>> upstream/main
 function resolveDefaultPluginModuleLoaderConfig(
   params: ResolvePluginModuleLoaderCacheEntryParams,
 ): ReturnType<typeof resolvePluginLoaderModuleConfig> {
@@ -200,11 +185,7 @@ export function resolvePluginModuleLoaderCacheEntry(
 function createLazySourceTransformLoader(params: {
   loaderFilename: string;
   aliasMap: Record<string, string>;
-<<<<<<< HEAD
-  tryNative: boolean;
-=======
   sourceTransformTryNative: boolean;
->>>>>>> upstream/main
   createLoader?: PluginModuleLoaderFactory;
 }): () => PluginModuleLoader {
   let loadWithSourceTransform: PluginModuleLoader | undefined;
@@ -216,11 +197,7 @@ function createLazySourceTransformLoader(params: {
       params.loaderFilename,
       {
         ...buildPluginLoaderJitiOptions(params.aliasMap),
-<<<<<<< HEAD
-        tryNative: params.tryNative,
-=======
         tryNative: params.sourceTransformTryNative,
->>>>>>> upstream/main
       },
     );
     loadWithSourceTransform = new Proxy(jitiLoader, {
@@ -228,11 +205,7 @@ function createLazySourceTransformLoader(params: {
         const [first, ...rest] = argArray as [unknown, ...unknown[]];
         if (typeof first === "string") {
           return Reflect.apply(target, thisArg, [
-<<<<<<< HEAD
-            toSafeImportPath(first),
-=======
             toSourceTransformImportPath(first),
->>>>>>> upstream/main
             ...rest,
           ] as never) as never;
         }
@@ -272,14 +245,10 @@ function createPluginModuleLoader(params: {
   tryNative: boolean;
   createLoader?: PluginModuleLoaderFactory;
 }): PluginModuleLoader {
-<<<<<<< HEAD
-  const getLoadWithSourceTransform = createLazySourceTransformLoader(params);
-=======
   const getLoadWithSourceTransform = createLazySourceTransformLoader({
     ...params,
     sourceTransformTryNative: params.tryNative,
   });
->>>>>>> upstream/main
   // When the caller has explicitly opted out of native loading (for example
   // `bundled-capability-runtime` in Vitest+dist mode, which depends on
   // jiti's alias rewriting to surface a narrow SDK slice), route every
@@ -304,11 +273,7 @@ function createPluginModuleLoader(params: {
   // handle.
   const getLoadWithAliasTransform = createLazySourceTransformLoader({
     ...params,
-<<<<<<< HEAD
-    tryNative: false,
-=======
     sourceTransformTryNative: false,
->>>>>>> upstream/main
   });
   return ((target: string, ...rest: unknown[]) => {
     pluginModuleLoaderStats.calls += 1;
@@ -322,12 +287,9 @@ function createPluginModuleLoader(params: {
     }
     const native = tryNativeRequireJavaScriptModule(target, {
       allowWindows: true,
-<<<<<<< HEAD
-=======
       aliasMap: params.aliasMap,
       fallbackOnMissingDependency: true,
       fallbackOnNativeError: true,
->>>>>>> upstream/main
     });
     if (native.ok) {
       pluginModuleLoaderStats.nativeHits += 1;

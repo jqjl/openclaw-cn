@@ -88,19 +88,13 @@ describe("pairing setup code", () => {
     }
     expect(resolved.authLabel).toBe(params.authLabel);
     expect(resolved.payload.bootstrapToken).toBe("bootstrap-123");
-    expect(issueDeviceBootstrapTokenMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        profile: {
-          roles: ["node", "operator"],
-          scopes: [
-            "operator.approvals",
-            "operator.read",
-            "operator.talk.secrets",
-            "operator.write",
-          ],
-        },
-      }),
-    );
+    expect(issueDeviceBootstrapTokenMock).toHaveBeenCalledWith({
+      baseDir: undefined,
+      profile: {
+        roles: ["node"],
+        scopes: [],
+      },
+    });
     if (params.url) {
       expect(resolved.payload.url).toBe(params.url);
     }
@@ -468,8 +462,6 @@ describe("pairing setup code", () => {
       },
     },
     {
-<<<<<<< HEAD
-=======
       name: "allows mdns cleartext setup urls",
       config: {
         gateway: {
@@ -485,7 +477,6 @@ describe("pairing setup code", () => {
       },
     },
     {
->>>>>>> upstream/main
       name: "allows lan ip cleartext setup urls",
       config: {
         gateway: {
@@ -521,20 +512,6 @@ describe("pairing setup code", () => {
       expectedError: "Tailscale and public mobile pairing require a secure gateway URL",
     },
     {
-<<<<<<< HEAD
-      name: "rejects mdns hostname cleartext setup urls",
-      config: {
-        gateway: {
-          bind: "custom",
-          customBindHost: "gateway.local",
-          auth: { mode: "token", token: "tok_123" },
-        },
-      } satisfies ResolveSetupConfig,
-      expectedError: "private LAN IP address",
-    },
-    {
-=======
->>>>>>> upstream/main
       name: "rejects tailnet bind remote ws setup urls for mobile pairing",
       config: {
         gateway: {
