@@ -2,126 +2,125 @@
 
 Docs: https://docs.openclaw.ai
 
-## 🚀 Unreleased（官方 2026-05-20 更新）
+## 🚀 Unreleased（官方 2026-05-22 更新）
 
 > ⚠️ 此为开发中版本，以下内容基于上游 CHANGELOG.md Unreleased 整理。
 
 ### ✨ 新增功能（Highlights）
 
-- **Codex harness**：捆绑的 Codex harness 升级至 `@openai/codex` `0.132.0`，并刷新 app-server 模型列表文档。
-- **Agent 配置**：`agents.list[].experimental.localModelLean` 现已允许对单个已配置 agent 启用 lean local-model 模式，无需全局开启。
-- **Providers/xAI**：新增 device-code OAuth 登录，使远程和无头设置可在没有 localhost 浏览器回调的情况下授权 xAI。（#84005）感谢 @fuller-stack-dev。
+- **维护者技能（Maintainer skills）**：新增 `openclaw-landable-bug-sweep`，可从 issue/PR 中自动生成 5 个小型、已审核、CI 通过的 OpenClaw bugfix PR。
+- **Control UI/聊天**：在聊天会话选择器中新增搜索和"加载更多"分页功能，在保持初始会话加载有界的同时，使旧对话也可访问。（#85237）感谢 @amknight。
+- **Discord**：支持配置有界的 `agentComponents.ttlMs` 回调注册表生命周期，用于长时间运行的组件工作流，支持按账户覆盖，上限 24 小时。（#84189）感谢 @100menotu001。
+- **xAI/Grok**：复用 xAI OAuth 认证配置用于 Grok `web_search`，通过 Web 搜索线程化活动 agent 认证，添加 Grok 模型别名，并允许媒体 providers 声明默认操作超时。（#85182）感谢 @fuller-stack-dev。
+- **Plugin SDK**：新增行级会话工作流辅助函数，并弃用 `loadSessionStore`，使插件可以读取和修补会话而无需依赖遗留的整库形状。（#84693）感谢 @efpiva。
+- **Gateway/插件**：在调度期间复用兼容的 Gateway 启动插件注册表，使安全插件调度避免冗余注册表加载。（#84324）感谢 @ai-hpc。
+- **插件/SDK**：新增通用 `embeddingProviders` 能力合约和注册 API，使 embeddings 可成为插件接口之外的可重用 provider 层。
+- **依赖更新**：刷新 provider、插件、UI 和工具链包，将 `protobufjs` 更新至 8.4.0 以清除当前 npm advisory，并将 Claude ACP completion patch 延续到 `@agentclientprotocol/claude-agent-acp` 0.36.1。
+- **Agent/工具**：移除旧的发件人-所有者工具门控路径，使已配置工具对可信会话保持可见，同时命令和通道操作认证仍携带真实发件人身份。
+- **QA-Lab**：新增精选的模拟 JSONL 回放 fixtures 和首次漂移报告，用于运行时一致性审计。（#80323, refs #80176）感谢 @100yenadmin。
+- **QA-Lab**：在种子场景提示中用具体观察到的 QA 行为替换通用证据框架。
+- **QA-Lab**：在 release-soak artifacts 中包含可选的 100 轮运行时一致性浸泡，使长时间运行的 Codex/Pi transcript 漂移在默认门控之外仍然可见。（#80395）感谢 @100yenadmin。
+- **QA-Lab**：新增仅实时的长上下文进度看门狗场景，用于 Codex app-server 超时和停滞运行哨兵。（#80323）感谢 @100yenadmin。
+- **QA-Lab**：将 Gateway 重启恢复和流式最终完整性场景标记为仅实时的运行时一致性通道。（#80323）感谢 @100yenadmin。
+- **QA-Lab**：新增个人 agent 故障恢复场景，检查诚实的部分状态、重试边界和本地恢复 artifacts。（#83872）感谢 @iFiras-Max1。
+- **QA-Lab**：包含可选的 `update.run` 包自我升级哨兵，用于破坏性 latest-package 恢复检查。
+- **QA-Lab**：新增 Codex 插件生命周期和 auth-profile fixture 覆盖，涵盖缺失安装、版本漂移、首次调用安装顺序和 doctor 迁移安全性。（#80323, refs #80174）感谢 @100yenadmin。
+- **模型/性能**：在 Gateway 启动时预热 provider auth-state map，使 `/models` 和每次模型列表调用在热路径上绕过 per-provider 插件/外部 CLI 发现。每次调用成本从约 20s 降至约 5ms（约 4,100×）；一次性的启动预热在热重载后重置和重新预热。（#84816）感谢 @sjf。
+- **测试/性能**：将 doctor 核心健康检查单元覆盖率与真实 skills/workspace 发现隔离，使 `doctor-core-checks` 不再主导单元性能，同时保持一个真实的 skills-readiness smoke。（#84493）感谢 @frankekn。
 
 ### 🐛 问题修复（Fixes）
 
-- **Mattermost**：通道类型缺失时 fail closed，防止安全绕过。（#84091）感谢 @pgondhi987。
-- **system.run argv**：重新检查重建后的 system.run argv。（#84090）感谢 @pgondhi987。
-- **CLI/cron**：`openclaw cron show` 任务查找分页现设上界，非推进或无界 `cron.list` 响应不再挂起命令。修复 #83856。（#83989）
-- **Agent/消息**：在 source-channel `message` 发送成功后停止 message-tool-only turns，同时保持 transcript mirrors 在会话写锁下。（#84289）
-- **Agent**：将静默 heartbeat response-tool transcript artifacts 过滤掉，避免污染后续用户 turns。（#83477）感谢 @fuller-stack-dev。
-- **Agent/OpenAI**：严格 tool-schema 降级诊断每次 provider/model/tool 签名只记录一次，减少重复调试噪音，同时保留 `strict=false` 回退行为。修复 #82930。（#82933）感谢 @galiniliev。
-- **Agent/code mode**：在模型可见的 schema 文本中明确说明 `exec` 工具的 JavaScript/TypeScript、无 Node 模块和 catalog-bridge 约束，使 agent 无需试错即可使用已启用工具。（#84269）感谢 @Kaspre。
-- **Codex**：`image_generate` 动态工具调用现默认 120s 看门狗（无每调用或配置超时），不再回退到通用 30s 桥接超时。（#84254）感谢 @moritzmmayerhofer。
-- **Codex**：避免大型诊断积压排出期间重复动态工具终端诊断，防止阻塞工具响应。（#82937）感谢 @galiniliev。
-- **CLI/消息**：`openclaw message --json` 输出现包含稳定的顶级 `messageId`。（#84191）感谢 @100menotu001。
-- **Cron**：加载或添加定时任务时保留 legacy 顶级数组 `jobs.json` 存储，升级期间不再将旧 cron 任务视为空存储。修复 #60799。（#84433）感谢 @IWhatsskill。
-- **Gateway/agents**：已配置 agent 的 `identity.name` 现用于 Gateway agent 摘要，使配置的 agent 标签在客户端中仍可见。（#84355；关联 #57835）感谢 @luoyanglang。
-- **Channels/replies**：保持 `/verbose` 失败工具进度在 message-tool replies 中保持紧凑，防止后期纯文本工具输出出现在最终答案之后。（#84303）感谢 @VACInc。
-- **Plugins/hooks**：`before_compaction` 和 `after_compaction` hooks 现默认 30 秒超时，防止挂起的插件处理程序阻塞 compaction 完成。（#84153）
-- **Discord**：禁用演示按钮时保留，并在适配和渲染 Discord 消息控件时保留。（#84188）感谢 @100menotu001。
-- **Twitch**：新增测试专用的 client-manager 注册表重置助手，使非隔离 Twitch 测试可以清除缓存的 manager。（#83887）修复。（#84244）感谢 @hclsys。
-- **Cron**：在 cron 拥有的 wake lane 上运行主会话定时工作，同时保留回复投递上下文，使后台 cron turns 不再阻塞人类主会话聊天。修复 #82766。（#82767）感谢 @galiniliev。
-- **Cron**：为隔离定时任务使用结构化的嵌入式运行拒绝元数据，使被阻止的 exec 请求使任务失败，不将普通 assistant prose 视为拒绝。（#84067）感谢 @abnershang。
-- **Cron**：为成功的定时运行保留 recovery tool warnings 诊断，使最终 cron 输出被投递而非被后处理警告替换。（#84045）感谢 @abnershang。
-- **Plugins/perf**：通过 `loadBundledCapabilityRuntimeRegistry`、`resolveBundledPluginSources` 和 `listChannelCatalogEntries` 传递显式插件发现结果，使已持有发现结果的调用方跳过冗余文件系统遍历。感谢 @SebTardif。
-- **harden update restart script**：加固更新重启脚本创建。（#84088）感谢 @pgondhi987。
-- **Docker**：在官方发布镜像保留列表中保留捆绑的 Codex 插件，使 Docker 修剪后默认 OpenAI agent harness 仍然可用。修复 #83613。（#83626）感谢 @YuanHanzhong。
-- **CLI/channels**：`openclaw channels logs` 首行输出现与 `readLogSlice` 行为一致，在滚尾窗口刚好从行边界开始时保留首行。
-- **Control UI**：将终端会话状态视为权威，覆盖陈旧 active-run 标志，使已完成终端 runs 停止显示 abort/live UI。（#84057）
-- **CLI**：保留内联根选项值中的嵌入式等号，不再在第二个分隔符处截断。（#83995）感谢 @ThiagoCAltoe。
-- **Matrix/config**：接受 `messages.queue.byChannel.matrix` 队列覆盖，并保持 Matrix、Google Chat 和 Mattermost 的队列 provider schema/type 键对齐。感谢 @bdjben。
-- **CLI**：通过共享错误格式化器格式化 `openclaw acp client` 失败，使对象形状错误保持可读，而非打印 `[object Object]`。修复 #83904。（#84080）
-- **Providers/Ollama**：将未知能力的模型默认为 tool-capable，使发现的原生 Ollama 模型在 `/api/show` 省略能力时仍可使用工具。（#84055）感谢 @dutifulbob。
-- **Installer/Windows**：将 `install.ps1` onboarding 作为附加子进程启动，使原生 Windows 安装不再在 `Starting setup...` 处可见冻结或损坏 wizard 终端渲染。
-- **CLI/update**：跨单版本 CLI/Gateway 协议偏斜保持重启健康检查，并在所有后续命令中使用托管 Gateway service Node，即使包根未更改，使 `openclaw update` 不再在存在多个 Node 安装时静默切换到不同 Node 二进制。感谢 @amknight。
-- **CLI/gateway**：`gateway status` JSON 输出现包含运行 Gateway 版本，保留现有服务器元数据，同时回退到 status RPC 数据用于读取探针。修复 #56222。感谢 @galiniliev。
-- **Memory/search**：在 active-memory 搜索超时时关闭本地 embedding providers，中止并释放待处理的本地模型加载和 embedding 上下文。（#83858）感谢 @brokemac79。
-- **CLI/nodes**：在 `openclaw nodes approve` 前请求待处理节点 surface approval scopes，使 exec-capable 节点 approval 可使用 admin-scoped Gateway 凭证，而非因 `missing scope: operator.admin` 失败。（#84392）感谢 @joshavant。
-- **Agents**：在 `pi-trajectory-flush` 超时警告中包含有界 trajectory queued-writer 诊断，使 flush 停滞显示待处理写入、排队字节和追加状态。修复 #82961。（#82962）感谢 @galiniliev。
-- **Agents/子代理**：通过在不等待 transcript 的情况下重试不支持的 transcript-wait wakes 来恢复陈旧的完成 announce，并在 requester run 已陈旧时强制 message-tool 切换。修复 #83699。（#83700）感谢 @galiniliev。
-- **Agents/子代理**：将通配符子代理目标 allowlist 约束为已配置 agents，同时保留明确列出的兼容性目标。修复 #84040。（#84357）感谢 @joshavant。
-- **Providers/Anthropic**：通过 Claude CLI runtime 路由使用 Claude CLI auth 所选 Anthropic 模型引用，使 `anthropic/opus-4.7` 等简写引用不再回退到嵌入式 Anthropic billing。修复 #84222。（#84374）感谢 @joshavant。
-- **Agents**：为云和自托管 providers 遵守高于默认 idle 看门狗的显式 `models.providers.<id>.timeoutSeconds` 值，使长首 token 等待不再在大约 120s 时回退（当 provider 超时更高时）。（#83979）感谢 @yujiawei。
-- **Agents/Codex**：保持加密 Responses reasoning replay provenance-bound，使陈旧镜像 Codex transcripts 在请求组装前丢弃无效加密内容，同时保留匹配的同会话 replay。修复 #83836。（#84367）感谢 @joshavant。
-- **Agents/子代理**：跳过休眠完成请求者的陈旧嵌入式运行 wake probes，使后期子代理完成直接进入 requester-agent/direct 切换，而非产生 `reason=no_active_run` 队列噪音。（#82964）感谢 @galiniliev。
-- **CLI**：在瞬态失败后重试配置快照读取，防止一次被拒绝的读取毒害同一过程中的后续命令。（#83931）感谢 @honor2030。
-- **Media**：在使用前解码 URL 路径基名，使 `My%20Report.pdf` 等文件显示为 `My Report.pdf`。修复 #84050。（#84052）感谢 @jbetala7。
-- **WhatsApp**：澄清入站群组诊断，使观察到但未注册的群组指向 `channels.whatsapp.groups`，不改变路由或发送者授权。（#83846）感谢 @neeravmakwana。
-- **WhatsApp**：在重连处理程序基础上增加 30s 定期计时器排出待处理出站投递，使提供程序已连接时排队的消息不再等待下次重连发送。（#79083）感谢 @Oviemudiaga。
-- **CLI/TUI**：在 TUI 自动补全中包含 gateway 插件斜杠命令，使连接会话可建议运行 Gateway 公开的插件拥有命令。（#83640）感谢 @se7en-agent。
-- **Gateway/移动**：为 iOS 和 Android onboarding 恢复 QR setup-code bounded operator tokens handover，同时保持 admin 和 pairing scopes 在引导之外。（#83684）感谢 @ngutman。
-- **iOS**：修复 TestFlight 构建的 Release archive 编译。（#84255）感谢 @ngutman。
-- **Agent/compaction**：用主机安全超时绑定插件拥有的 CLI transcript compaction，防止挂起的上下文引擎不再阻塞 turn 后清理。（#84083）感谢 @100yenadmin。
-- **Control UI/usage**：在悬停时保留完整名称，同时在 usage panel 中截断长上下文 skill、tool 和文件名。（#42197）感谢 @Rain120。
-
-### Android v2 大改（官方 2026-05-20 前已完成）
-
-> 以下为 Android v2 全面重构的更新条目，涵盖 navigation、voice、cron editor、image attachments、onboarding、health logs、dreaming settings、channels、providers、model catalog 等：
-
-- **fix(android)**：解决 overhaul review 发现的问题。
-- **refactor(android)**：使 overhaul UI 成为规范样式。
-- **test(android)**：更新 gateway hello callback fixtures。
-- **refactor(android)**：集中化 v2 分离列表行。
-- **fix(android)**：扩大 v2 设置开关点击区域。
-- **fix(android)**：澄清 v2 语音设置操作。
-- **fix(android)**：为 v2 cron 任务保存操作设置门控。
-- **fix(android)**：请求 v2 capability permissions。
-- **feat(android)**：连接 v2 聊天图片附件。
-- **fix(android)**：收紧 v2 导航可发现性。
-- **fix(android)**：扩大 v2 模型目录组。
-- **fix(android)**：对齐 v2 控制可发现性。
-- **fix(android)**：移除已死亡的 v2 聊天控件。
-- **feat(android)**：连接 v2 onboarding 操作。
-- **feat(android)**：连接 v2 导航控件。
-- **feat(android)**：完善 v2 语音界面。
-- **feat(android)**：新增 v2 聊天 starters。
-- **fix(android)**：防止 provider 设置按钮重叠。
-- **feat(android)**：完善 v2 provider 设置。
-- **feat(android)**：完善 v2 overview 导航。
-- **style(android)**：优化 v2 触摸节奏。
-- **feat(android)**：新增 v2 cron 任务编辑器。
-- **refactor(android)**：重用 v2 列表原语。
-- **feat(android)**：新增 v2 关于更新状态。
-- **feat(android)**：新增 v2 健康日志。
-- **feat(android)**：新增 v2 梦境设置。
-- **feat(android)**：新增 v2 channels 设置。
-- **feat(android)**：新增 v2 canvas 设置。
-- **feat(android)**：新增 v2 nodes devices 设置。
-- **feat(android)**：新增 v2 skills 设置。
-- **feat(android)**：新增 v2 usage 设置。
-- **feat(android)**：新增 v2 cron jobs 设置。
-- **feat(android)**：新增 v2 approvals 设置。
-- **feat(android)**：新增 v2 agents 设置。
-- **refactor(android)**：拆分 v2 shell 屏幕。
-- **feat(android)**：新增 v2 设置详情屏幕。
-- **feat(android)**：新增 v2 命令面板。
-- **feat(android)**：恢复可读的 v2 排版。
-- **feat(android)**：紧凑化语音转录卡片。
-- **feat(android)**：使 overview 模块保持准确。
-- **feat(android)**：提高听写保真度。
-- **feat(android)**：提高 talk session 保真度。
-- **feat(android)**：提高设置保真度。
-- **feat(android)**：提高 provider model 保真度。
-- **feat(android)**：提高语音 mockup 保真度。
-- **feat(android)**：提高聊天 mockup 保真度。
-- **feat(android)**：提高 overview 密度。
-- **feat(android)**：提高 sessions 密度。
-- **feat(android)**：提高 voice hub 密度。
-- **feat(android)**：提高聊天密度。
-- **feat(android)**：新增 providers models 界面。
-- **feat(android)**：提高设置屏幕密度。
-- **feat(android)**：提高聊天界面密度。
-- **feat(android)**：新增专注听写。
+- **CLI/agents**：在回退到嵌入式 `openclaw agent` 执行之前重试瞬态正常关闭的 Gateway 握手。
+- **Providers/Gemini**：从 Web 搜索时间范围过滤器中剥离小数秒，使 Gemini 接受 freshness-bound 搜索请求。（#85071）感谢 @Noerr。
+- **OpenAI Codex**：为稀疏的 `openai-codex/gpt-5.5` 目录行保留图像输入支持。（#85095）感谢 @sercada。
+- **插件/发现**：在派生插件 ID 提示时剥离 `-plugin` 包后缀，使包名与清单 ID 对齐。（#85170）感谢 @JulyanXu。
+- **Telegram**：通过 Markdown 渲染保留围栏代码块语言，使 Telegram 接收 `language-*` 代码类。（#85209）感谢 @leno23。
+- **fix(integrations)**：强制执行通道读取目标允许列表 [AI]。（#84982）感谢 @pgondhi987。
+- **Agents/心跳**：将单所有者 `session.dmScope=main` 直接消息 exec 和 cron 事件唤醒路由回 agent 主会话，使异步完成不再将上下文搁浅在孤儿的直接 DM 队列中。修复 #71581。（#83743）感谢 @Kaspre。
+- **Agents/code-mode**：通过 `toolKind`/`toolInputKind` 判别器通过 `command` hook 别名暴露外层 code-mode `exec` 源，使 exec 形策略可以区分 code-mode 单元格。（#83483）感谢 @Kaspre。
+- **Agents/code mode**：为已知的工作器故障返回结构化超时和运行时不可用错误代码。修复 #83389。（#83444）感谢 @Kaspre。
+- **QA-Lab**：在场景需要启动配置补丁时隔离多场景套件工作器，防止消息路由配置泄漏到无关场景中。
+- **QA-Lab**：使承诺的心跳目标无场景请求立即心跳，而不是等待下次预定心跳。
+- **Gateway CLI**：立即暴露本地 post-challenge 连接组装失败，而不是等待包装器超时。修复 #68944。（#85253）感谢 @samzong。
+- **Agents/exec**：将拒绝的 exec 批准视为终止，而不是将其反馈到 agent 后续工作中，并在中止处理中识别中文停止短语。修复 #69386。（#85194）感谢 @samzong。
+- **CLI/agents**：在 SIGINT/SIGTERM 上中止已接受的 Gateway 支持的 `openclaw agent` 运行，使 cron 和 supervisor 超时不会留下远程 agent 工作。修复 #71710。（#84381）感谢 @Kaspre。
+- **Codex app-server**：使用结构化失败元数据重试一次 replay-safe stdio 客户端关闭轮次，同时暴露空闲 `turn/completed` 超时，而不是盲目重放活动共享服务器轮次。感谢 @VACInc。
+- **Codex app-server**：拒绝嵌入 Node 或包管理器参数的命令覆盖，并将用户指向 `appServer.args`，使 Windows 启动避免 shell 解析失败。（#84417）感谢 @TurboTheTurtle。
+- **Agents/Copilot**：在发送前丢弃不安全的 GitHub Copilot Responses reasoning replay 项，使 Telegram 直接会话不再因过长的 replay IDs 失败。修复 #85197。（#85198）感谢 @galiniliev。
+- **UI**：在顶栏颜色模式按钮上添加无障碍工具提示，使系统、浅色和深色选择在悬停和焦点时都有标签。（#85227）感谢 @amknight。
+- **fix**：约束 Windows 任务脚本名称 [AI]。（#85064）感谢 @pgondhi987。
+- **Control UI**：在保留有界配置 agent 刷新的同时，防止聊天会话选择器隐藏较旧或跨 agent 配置的对话。（#85211）感谢 @amknight。
+- **Agents/Anthropic**：在流式 Anthropic tool-use JSON 中保留不安全的整数工具调用输入值，防止 Discord 风格 IDs 在分派前被舍入。修复 #47229。（#83063）感谢 @leno23。
+- **Agents/hooks**：在进程清理前等待本地一次性 CLI 和 Codex `agent_end` plugin hooks，使终端可观测性可靠刷新。（#85007）
+- **CLI/agents**：允许 `openclaw agent --session-key` 以明确会话密钥为目标，包括 agent 作用域的旧密钥。（#85121）感谢 @Kaspre。
+- **自动回复/ACP**：在开始工具工作前等待同通道阻止回复投递，同时仍尊重 ACP 调度中止，使停止的轮次不在慢通道发送上等待。（#83722）感谢 @IWhatsskill。
+- **Codex/ACP**：将仅报告进度、缺少最终交付物或请求者投递失败的必需子运行完成标记为阻止，同时保留真实最终报告。（#85110）感谢 @IWhatsskill。
+- **通道**：在入站去偏路径中，将裸中止消息如 `stop`、`abort` 和 `wait` 视为即时控制命令，使停止请求不再延迟到待处理消息合并之后。（#83348）感谢 @IWhatsskill。
+- **通道/消息工具**：在 agent 内通道选择期间解析配置的外部通道插件，使 `openclaw agent --local` 消息工具发送不再将可用通道报告为不可用。（#85022）感谢 @Kaspre。
+- **Agents/子代理**：将阻止的子运行完成作为错误而不是成功的子代理完成来呈现。（#80886）感谢 @TurboTheTurtle。
+- **Agents/Pi**：将已接受的嵌入式 `sessions_spawn` 子会话交接视为终止进度，使父轮次不再报告虚假的不可投递失败。（#85054）感谢 @samzong。
+- **CLI/模型**：从运行时配置解析 `openclaw models set` 别名，同时保持创作别名优先于运行时默认别名。（#83262）感谢 @IWhatsskill。
+- **WhatsApp**：将 Baileys 更新至 `7.0.0-rc13`，并删除废弃的 logger 类型补丁。
+- **安装/更新**：提前拒绝 OpenClaw GitHub 源包目标，并将 moving-main 用户指向 dev/git 安装路径，而不是破损的 npm 源安装流程。
+- **Gateway**：将成功的同源消息工具发送镜像到会话 transcripts 中，使投递的回复保留在后续历史/上下文中。（#84837）感谢 @iFiras-Max1。
+- **媒体生成**：在生成媒体通过活动会话回复完成时，保持图像、音乐和视频完成投递不重复或不丢失任务所有权。（#84006）感谢 @fuller-stack-dev。
+- **Infra/json**：在加载 JSON 状态时重试瞬态"读取期间文件已更改"竞争，使配置和状态读取恢复而不是导致轮次失败。（#84285）
+- **插件/providers**：在设置模式发现期间对工作区 provider 插件失败关闭，除非明确信任，防止不受信任的工作区插件代码在 provider 设置期间运行。（#81069）感谢 @mmaps。
+- **Providers/Ollama**：将配置的 Ollama Cloud `OLLAMA_API_KEY` 标记解析为真实发现密钥，使云 provider 条目保持经过身份验证的模型目录访问。（#85037）
+- **Discord**：通过运行时日志转发结构化错误和原因元数据，保持持久组件注册表回退警告可操作。修复 #84185。（#84190）感谢 @100menotu001。
+- **Gateway/会话**：在同一 provider 内切换模型时保留兼容的会话 auth profile 覆盖，包括 provider-auth 别名。修复 #81837。（#81886）感谢 @TurboTheTurtle。
+- **Gateway/status**：在 `openclaw status --all` 中显示入站投递遥测计数器和传输活跃性警告。修复 #49577。（#72724）
+- **Docker**：清除包排除的插件源工作区和依赖闭包，使运行时镜像不再为未选择加入的插件保留包。
+- **Providers/Ollama**：将 Docker/OrbStack 主机别名视为本地 Ollama 端点，使 `ollama-local` 标记认证在 OpenClaw 在 VM/容器内运行而 Ollama 在主机上运行时正常工作。修复 #84875。
+- **QA-Lab**：将明确可搜索/延迟的 OpenClaw 动态工具行默认保留为仅报告，使工具覆盖门控不会将模拟发现差距视为硬产品故障。（#80319）感谢 @100yenadmin。
+- **Agents/配置**：防止非 Google provider 模型引用被 Google Gemini preview-id 规范化重写。（#84762）感谢 @zhangguiping-xydt。
+- **安装程序**：在启动 onboarding 前要求真实控制终端，使无头 `curl | bash` 安装在安装 CLI 后干净完成。
+- **Agents/Codex**：当提示超时时让 Codex app-server 完成竞争已完成最终助手响应，而不是返回空超时信封。参考 #84516。
+- **Codex app-server**：使中断的轮次状态不再仅凭自身被视为 OpenClaw aborts，使纯工具轮次保持无可见答案恢复的资格。修复 #84492。
+- **Agents**：当运行时模型元数据不可用时，通过存储的会话窗口限制心跳模型出血上下文提示，使溢出恢复建议不再建议大于活动会话实际拥有的窗口。
+- **Control UI/Web Push**：使用 `https://openclaw.ai` 作为生成的默认 VAPID subject，而不是旧的 localhost 邮箱，使 iOS PWA 推送设置在 `OPENCLAW_VAPID_SUBJECT` 未设置时使用 Apple 可接受的 subject。修复 #83134。（#83317）感谢 @IWhatsskill。
+- **Control UI**：将继承的 thinking-off 设置与明确的关闭选择区分开来，使思考选择器不再显示两个相同的关闭行。（#85223）感谢 @amknight。
+- **Agents/Pi**：在打包的 npm onboarding agent 轮次后，使嵌入式会话 transcript 写入不再触发误报接管检测。
+- **Codex/TUI**：呈现 Codex 原生轮次后压缩失败而不是继续未压缩，并在本地空闲/下一轮处理之前保持成功的原生压缩序列化。修复 #84305。（#85160）感谢 @joshavant。
+- **内存/搜索**：当 `dreaming.enabled=false` 时，停止 recall tracking 写入做梦副作用 artifacts，同时保留正常搜索结果。修复 #84436。（#84444）感谢 @NianJiuZst。
+- **差异**：从封闭的图标名 map 而非 HTML 字符串渲染差异查看器工具栏图标，消除工具栏图标 XSS sink。（#83955）感谢 @tanshanshan。
+- **QA**：使 `pnpm qa:e2e` 自检运行保持在私有 QA 运行时信封内，即使继承的 shell 环境禁用打包插件。
+- **fix(config)**：验证浏览器沙箱绑定源 [AI]。（#84799）感谢 @pgondhi987。
+- **doctor**：约束遗留插件清理路径 [AI]。（#84801）感谢 @pgondhi987。
+- **Update/doctor**：清除指向旧编译打包输出的陈旧本地打包插件安装记录，使当前打包插件 schema 在升级后胜出。（#84863）感谢 @fuller-stack-dev。
+- **Providers/Ollama**：跨 assistant replay 保留原生 Ollama 工具调用 IDs，使 Gemini over Ollama Cloud 可以保留其隐藏的 function-call thought-signature 句柄。
+- **Discord**：在源调度通道上保持会话恢复和 `/stop` abort 所有权，同时绑定 ACP 轮次继续路由到其目标会话，使停滞的预运行工作和后期回复被清除而不是在停止后泄漏。修复 #84477。（#85100）感谢 @joshavant。
+- **Codex app-server**：在观察到执行后标记缺失的轮次完成为 replay-unsafe 并释放会话，使后续轮次可以运行。修复 #84076。（#85107）感谢 @joshavant。
+- **Codex app-server**：为可见的 `message` 动态工具发送提供更长的超时预算，使慢通道投递可以返回自己的结果或错误，而不是触发 30 秒 Codex 包装器。（#85216）感谢 @amknight。
+- **Codex app-server**：添加专用工具后原始助手完成空闲超时配置，使受信任的重轮次在工具交接后可以等待更长时间，而不会削弱最终助手发布。
+- **Matrix**：在陈旧 `m.direct` 或严格双成员 DM 回退绕过提及门控之前，保持明确配置的双人房间在房间路由上。修复 #85017。（#85137）感谢 @joshavant。
+- **Agents/子代理**：要求明确的子代理允许列表目标为已配置的 agents，使陈旧删除的 agent ids 从 `agents_list` 中省略并被 `sessions_spawn` 拒绝。修复 #84811。（#85154）感谢 @joshavant。
+- **PDF 工具**：在 120 秒后对空闲远程 PDF body 读取超时，使停滞的远程文档返回错误而不是卡住会话。修复 #68649。（#84768）感谢 @luoyanglang。
+- **诊断/OpenTelemetry 插件**：在 collector 关闭时抑制已处理的 OTLP exporter promise 拒绝，使 Gateway 不再崩溃。（#81085）感谢 @luoyanglang。
+- **Agents/exec**：在拒绝 exec 失败日志中省略原始命令文本和环境值，同时保留安全关联元数据。修复 #85049。（#85140）感谢 @joshavant。
+- **媒体/音频**：跳过空的 sherpa-onnx 转录结构化数据，而不是将原始 JSON payload 视为口语。（#84667）感谢 @TurboTheTurtle。
+- **Agents/exec**：为子进程保留继承的 XDG 基础目录环境值，同时仍然拒绝 agent 提供的 XDG 覆盖。修复 #84854。（#85139）感谢 @medns。
+- **Node/Linux**：通过将 node service token 值写入节点特定的 env 文件，使 `OPENCLAW_GATEWAY_TOKEN` 不进入生成的 systemd 单元文件。（#84408）
+- **Memory-core/dreaming**：每个工作区和阶段重用稳定的叙述性子代理会话密钥，同时保持每次运行的幂等性和有界清理，使陈旧的 `dreaming-narrative-*` 会话不会积累。修复 #68252、#69187 和 #70402。（#70464）感谢 @chiyouYCH。
+- **轨迹/支持**：在构建支持元数据时容忍部分 skill snapshot 条目，使被拒绝的 skill 路径扫描不再中止轨迹捕获。（#71185）感谢 @lukeboyett。
+- **TUI**：将重复的空闲 Esc abort 通知合并为单个 `no active run xN` 系统行，而不是追加重复行。
+- **Telegram**：在默认隔离轮询路径中尊重 `channels.telegram.pollingStallThresholdMs`，重启沉默的工作器而不是让入站更新卡住。修复 #83950。（#84861）感谢 @joshavant。
+- **Telegram**：通过 Telegram chat/message 标识去重重放消息调度，使隔离入口重放不会触发重复模型调度。修复 #84886。（#85208）感谢 @joshavant。
+- **Slack**：在回复投递和调度统计之前抑制 reasoning payloads，使 Slack monitor、斜杠命令、回退和直接回复路径不泄漏模型 reasoning。修复 #84319。（#84322）感谢 @ffluk3 和 @joshavant。
+- **Slack**：当 Slack 原生批准启用时，投递原生插件批准提示和更新，同时将插件批准授权与 exec 批准者分开。
+- **Slack**：在实时 Slack 轮次源为 `D...` 对话时，将原生插件批准提示保留在原始应用程序对话线程中。
+- **Agents/Pi**：禁用嵌入式 pi-coding-agent 运行时自动重试，使 OpenClaw 自己的重试和故障转移循环不再通过嵌套 SDK 重试重放失败的工具调用。修复 #73781。（#74434）感谢 @yelog。
+- **CLI/性能**：将 `setup --help`、`onboard --help` 和 `configure --help` 保持在预计算帮助路径上，而 `agents --help` 等保持在预计算帮助路径上，使父帮助避免加载全 CLI 程序构建。（#84488）感谢 @frankekn。
+- **CLI/性能**：保持 `secrets --help` 和 `nodes --help` 在预计算帮助路径上，使父帮助避免加载动作繁重的命令运行时模块。（#84818）感谢 @frankekn。
+- **CLI/性能**：从启动元数据提供 `doctor`、`gateway`、`models` 和 `plugins` 父帮助，使常见子命令帮助避免完整的 CLI 程序构建。（#84786）感谢 @frankekn。
+- **Codex/Lossless**：当 Telegram DM 使用每个对等体运行时策略密钥时，保持上下文引擎历史在规范运行会话上。修复 #84936。（#84954）感谢 @neeravmakwana。
+- **Auth/OAuth**：当存储的 OAuth 凭据没有刷新令牌时跳过刷新适配器，使 agent 轮次在缺少密钥时快速失败，而不是等待 120s 刷新超时。感谢 @romneyda。
+- **Auth/Codex**：在嵌入式运行器的 secrets-runtime auth 加载器中加载旧版 OAuth sidecar 凭据，使 Telegram 回复、cron 触发的轮次和其他隔离子代理通道可以访问现有的 #83312 刷新和重写迁移，而不是在用户运行 `openclaw doctor` 之前因 `No API key found for provider "openai-codex"` 失败。感谢 @Totalsolutionsync 和 @romneyda。
+- **Codex/故障转移**：将 `deactivated_workspace` 分类为永久认证失败，使配置的回退模型可以在 Codex 工作区停用时继续前进。（#55893）感谢 @litang9。
+- **Exec**：在 POSIX Gateway 运行时保持配置的 `tools.exec.pathPrepend` 条目在用户 shell 启动 PATH 更改之前。（#81403）感谢 @medns。
+- **Gateway/会话**：允许共享密钥 bearer 调用方在无需显式 scope 头部的情况下读取和流式传输会话历史。（#81815）感谢 @medns。
+- **Agents/嵌入式运行器**：将 HTML auth provider 响应分类为 `auth_html`，并返回重新认证提示，而不是 `upstream_html` 返回的 CDN 阻止副本。Cloudflare Access 登录页面、nginx 基本认证挑战和 Gateway 登录墙都会产生 HTML auth body，之前被误诊为瞬态 CDN 阻止。（#79900）感谢 @martingarramon。
+- **Agents/Pi**：在嵌入式提示为模型 I/O 发布时容忍 OpenClaw 拥有的会话 transcript 写入，使长时间运行的飞书、Slack、Telegram 和 cron 轮次不会因虚假的会话接管错误而失败。修复 #84059。（#84250）感谢 @tianxiaochannel-oss88。
 
 
 ## 2026.5.9
