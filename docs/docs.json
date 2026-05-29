@@ -1200,6 +1200,7 @@
                   "plugins/codex-harness",
                   "plugins/codex-computer-use",
                   "plugins/google-meet",
+                  "plugins/workboard",,
                   "plugins/webhooks",
                   "plugins/voice-call",
                   "plugins/memory-wiki",
