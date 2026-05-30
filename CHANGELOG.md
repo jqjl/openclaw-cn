@@ -1,10 +1,44 @@
 # Changelog
 
 Docs: https://docs.openclaw.ai
+## 2026.5.30
+
+> 📌 本版基于上游 2026.05.30 正式发布
+
+### Highlights
+
+- Agents 和 CLI 后端运行时更稳定：从中断的工具调用、过期会话绑定、压缩交接和媒体传递重试中更干净地恢复。 (#88129, #88136, #88141, #88162, #88182)
+- 渠道和移动端传递更稳定，覆盖 Telegram、WhatsApp、iMessage、Slack、Discord、Microsoft Teams、Google Chat、Google Meet 和 iOS 实时 Talk。 (#88096, #88105, #88183, #88231)
+- Provider 和插件请求现在限制更多定时器、重试、OAuth/设备码生命周期、媒体下载、本地服务探针和生成内容轮询路径，防止它们挂起运行。
+- Skills、会话元数据、Gateway 运行时状态、插件元数据和存储写入在热路径上减少重复工作，同时保持配置和调度行为稳定。
+- Workboard、SecretRef 插件清单、托管 iOS 推送中继和外部 Copilot/Tokenjuice 打包提供更广泛的编排、集成和插件传递界面。 (#82326, #87469, #87796, #88107, #88117)
+- Release、CI、Docker、E2E 和诊断通道现在限制更多日志、响应体、就绪探针、工件检查和状态轮询，使失败产生有界限的证据而不是停滞。
+
+### Changes
+
+- 插件：将 Tokenjuice 作为官方 `@openclaw/tokenjuice` 插件外部化，提供 npm 和 ClawHub 发布元数据。
+- 插件：将 GitHub Copilot agent runtime 作为官方 `@openclaw/copilot` 插件外部化，提供 npm 和 ClawHub 发布元数据。
+- iOS：添加托管推送中继默认值、实时 Talk 回放和保护性 WebSocket ping 路径，以获得更可靠的移动会话。 (#88096, #88105, #88231)
+- Workboard：添加编排原语和多 agent 规划与运行跟踪的协调工具。 (#87469)
+- 插件：添加 SecretRef provider 集成清单契约，并为 provider/插件重用提取共享 LLM 核心包。 (#82326, #88117)
+- Skills：添加核心 skills 索引并集中 skills 运行时加载、状态、过滤和 prompt 格式化。
+
+### Fixes
+
+- 插件：使 PixVerse external-plugin ClawHub 元数据明确，并将其排除在捆绑 dist 构建之外。
+- Providers：限制 OpenAI、Runway、xAI、MiniMax、BytePlus、DashScope-compatible、FAL、OpenRouter、Google、Vydra 和 Comfy provider 的生成媒体下载。
+- Providers：在创建中止信号之前限制 GitHub Copilot OAuth 请求超时。
+- Cron：在等待下一个调度槽之前，在瞬态模型速率限制后重试循环作业。
+- Agents/Codex：在清理期间保持实时会话锁，恢复中断的 CLI 工具记录，保留 Codex 认证和压缩会话身份，清除孤儿工具状态，限制 app-server 空闲定时器，并使媒体完成传递可重试。 (#88129, #88136, #88141, #88162, #88182)
+- 渠道：限制 Telegram、Discord、WhatsApp、Signal、飞书、Google Chat、Microsoft Teams、QQBot、Nostr、Zalo、Zalouser 和 Nextcloud 风格请求/重试定时器；保留 SMS 批准回复路由；重试 WhatsApp QR 登录 408 超时。 (#88183)
+- 安全/配置解析：拒绝不安全的 OAuth/令牌生命周期、重试后延迟、入站时间戳、响应体大小、命令超时配置、沙盒观察者令牌 TTL 和关闭后的 Gateway WebSocket 调用。
+- Providers/媒体：限制托管和本地 provider 的本地服务、模型、使用、队列、生成媒体、TTS、音乐、工作流轮询和 provider OAuth 请求定时器。
+- Release/CI/E2E：限制发布候选读取、beta smoke REST 调用、changelog 恢复、kitchen-sink 和捆绑插件就绪探针、secret-provider 探针、Vitest 路由和主线测试 flakiness。 (#88127, #88137, #88155, #88160)
+- 性能：重用准备好的 provider 句柄、严格工具模式、Gateway 运行时元数据、会话维护配置、插件元数据、捆绑 skill 允许列表、包本地插件工件和单条目存储写入。
+
+
+
 ## 2026.5.28
-
-> 📌 本版基于上游 2026.05.28 正式发布
-
 
 ### Highlights
 
@@ -35,9 +69,6 @@ Docs: https://docs.openclaw.ai
 
 ## 2026.5.27
 
-> 📌 本版基于上游 2026.05.27 正式发布
-
-
 ### Highlights
 
 - Safer local/runtime boundaries: OpenClaw now rejects unsafe command wrappers, malformed CLI numeric options, unsafe Node runtime env overrides, no-auth Tailscale exposure, and non-admin device-role pairing approvals before they can affect live runs. (#87308, #87305, #87292, #87146)
@@ -65,13 +96,6 @@ Docs: https://docs.openclaw.ai
 - Codex/Auth: bound ChatGPT OAuth token exchange and refresh requests, and honor cancellation across Codex and Anthropic OAuth login flows.
 - QA/E2E/CI: bound Telegram, kitchen-sink, Open WebUI, ClawHub, MCP, Discord, realtime, labeler, and GitHub API waits; fail empty explicit test, live-media, gateway CPU, startup benchmark, plugin gauntlet, and beta-smoke runs instead of false-greening.
 - Agents/Codex: keep spawned agent bootstrap files rooted in the agent workspace while running task commands, transcripts, and compaction from the requested cwd. (#87218) Thanks @mbelinky.
-
-## 🚀 Unreleased（官方 2026-05-29 更新）
-
-### Fixes
-
-- Providers: bound generated video downloads from OpenAI, Runway, xAI, MiniMax, BytePlus, and DashScope-compatible providers.
-- Cron: retry recurring jobs after transient model rate limits before waiting for the next scheduled slot.
 
 ## 2026.5.26
 
