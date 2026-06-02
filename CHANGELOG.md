@@ -1,6 +1,120 @@
 # Changelog
 
 Docs: https://docs.openclaw.ai
+## 2026.6.2
+
+> 📌 本版基于上游 2026.06.02 正式发布
+
+### Highlights
+
+- Agents 和 CLI 后端运行时更稳定：从中断的工具调用、过期会话绑定、压缩交接和媒体传递重试中更干净地恢复。 (#88129, #88136, #88141, #88162, #88182)
+- 渠道和移动端传递更稳定，覆盖 Telegram、WhatsApp、iMessage、Slack、Discord、Microsoft Teams、Google Chat、Google Meet 和 iOS 实时 Talk。 (#88096, #88105, #88183, #88231)
+- Provider 和插件请求现在限制更多定时器、重试、OAuth/设备码生命周期、媒体下载、本地服务探针和生成内容轮询路径，防止它们挂起运行。
+- Skills、会话元数据、Gateway 运行时状态、插件元数据和存储写入在热路径上减少重复工作，同时保持配置和调度行为稳定。
+- Skills 和插件加载现在更清晰地处理过期的禁用快照和加载器失败，使渠道回合避免使用被禁用的 SecretRef，并为运维人员提供更明确的恢复指导。 (#79072, #79173) 感谢 @zeus1959。
+- Workboard、SecretRef 插件清单、托管 iOS 推送中继和外部 Copilot/Tokenjuice 打包提供更广泛的编排、集成和插件传递界面。 (#82326, #87469, #87796, #88107, #88117)
+- Skill Workshop 现在提供更完整的 Control UI 流程，包含提案列表、今日动作、修订交接、可搜索文件预览、审核状态、locale 覆盖和可复用会话路由。
+- 聊天和 Control UI 启动路径在历史加载期间保持发送可用，按增量流式传输分片、流式传输时跳过 markdown 处理、键入时保持草稿本地、追踪首输出延迟，并暴露更平静的编辑器控件。 (#88772, #88825, #88998) 感谢 @vincentkoc。
+- Provider 覆盖和模型元数据现在包括 MiniMax M3、账号 OAuth 端点、Google/Vertex 目录修复、OpenRouter SQLite 模型缓存、Copilot Claude 1M 能力、Foundry 推理对齐和 OpenAI response 重放保护。 (#88480, #88512, #88851, #88860)
+- iMessage 监听器状态、入站队列和插件安装账本迁移到 SQLite 后端存储，使重启和本地监听器能在更少的文件系统扫描中恢复。 (#88794, #88797)
+- Release、CI、Docker、E2E、插件安装和诊断通道现在限制更多日志、响应体、就绪探针、工件检查、状态轮询和回滚快照，使失败产生有界限的证据而不是停滞。
+
+### Changes
+
+- 文档：新增专门的 Skill Workshop 指南，涵盖受管 skill 创建、可审核提案、CLI、Gateway、agent 工具行为、审批策略、支持文件和恢复。 感谢 @shakkernerd。
+- Skills：让 `skill_workshop` agent 工具通过受保护的审核流程应用、拒绝和隔离显式提案。 感谢 @shakkernerd。
+- Skills：让提案在标准 skill 文件夹下携带已批准的支持文件，并提供扫描器、哈希和回滚安全措施。 感谢 @shakkernerd。
+- Skills：让待处理提案可在审批前就地修订，使用带版本号和日期的提案 frontmatter。 感谢 @shakkernerd。
+- Skills：新增 Skill Workshop，包含待处理提案、CLI/Gateway 审核动作、回滚元数据和 `skill_workshop` agent 工具。 感谢 @shakkernerd。
+- Skill Workshop：新增 Control UI 导航、样式化仪表板、提案今日视图、修订对话框、文件预览模态、可搜索预览文件、可复用会话交接和本地化字符串。
+- 插件：将 Tokenjuice 作为官方 `@openclaw/tokenjuice` 插件外部化，提供 npm 和 ClawHub 发布元数据。
+- 插件：将 GitHub Copilot agent runtime 作为官方 `@openclaw/copilot` 插件外部化，提供 npm 和 ClawHub 发布元数据。
+- iOS：添加托管推送中继默认值、实时 Talk 回放和保护性 WebSocket ping 路径，以获得更可靠的移动会话。 (#88096, #88105, #88231)
+- iOS：支持原生 iPad 显示布局。
+- Workboard：添加编排原语和多 agent 规划与运行跟踪的协调工具。 (#87469)
+- Workboard：连接任务支持的看板运行，并在编辑模态中显示任务评论。
+- Code mode：新增用于作用域 agent/全局会话的内部命名空间和精确命名空间工具调度。 (#88043)
+- Code mode：新增 MCP API 文件和 code-mode 集成的文档。
+- Control UI：新增 Dreaming 标签 agent 选择器，并通过 Dreaming 状态、日记和日记动作传播所选 agent。 (#78748) 感谢 @stevenepalmer。
+- Control UI：新增更平静的聊天编辑器控件、本地草稿键入状态和活动聊天条目的首输出延迟埋点。 (#88772, #88998) 感谢 @vincentkoc。
+- 插件：新增 SecretRef provider 集成清单契约，并为 provider/插件重用提取共享 LLM 核心包。 (#82326, #88117)
+- 插件：将插件安装索引持久化到 SQLite，使已安装包查找能在更少的文件系统扫描下在重新加载后存活。 (#88794)
+- Providers：新增 MiniMax M3 模型支持。 (#88860)
+- Doctor：新增磁盘空间健康检查，并稳定升级后的 JSON 探针。
+- Channels：将入站队列存储在 SQLite，并将 iMessage 监听器状态迁移到 SQLite 后端跟踪。 (#88797)
+- Skills：新增核心 skills 索引并集中 skills 运行时加载、状态、过滤和 prompt 格式化。
+
+### Fixes
+
+- Release/CI/E2E：当 Crabbox sparse-sync 完整 checkout 没有足够本地磁盘时提前失败，并提供移动 sync 根目录的指导。
+- Build：并发渲染独立的 CLI 启动元数据帮助快照，以缩短冷启动 build-all 元数据时间。
+- 插件：按进程组停止超时的包边界准备步骤，使下层 TypeScript/辅助进程不会在本地 checkout 清理中存活。
+- Control UI：在安全打开检查后异步提供静态资源，使大型 UI 文件不会阻塞 Gateway 请求处理。
+- Scripts/UI：将直接包装器的 SIGHUP 关闭信号转发给子进程，使终端挂起不会让包装的开发命令保持运行。
+- Gateway：从节点 drain 返回过期后的待处理工作修订，使重连节点在过期项被修剪后不会观察到过时的队列修订。
+- Release/CI/E2E：在慢速 Crabbox 租约启动时保持临时完整 sync checkout 存活，使 sparse 工作树运行在文件列表生成之前不会丢失 sync 源。
+- Release/CI/E2E：在原始 AWS macOS Crabbox bootstrap 命令之前规范化继承的 Linux `C.UTF-8` locale 设置，避免包管理器水合期间的 macOS locale 警告。
+- Agents/providers：在 provider 发出有效的非对象 JSON（如 `null` 或数组）时，将流式工具调用参数解析保持为记录形。
+- Release/CI/E2E：在被监视的日志文件在不收缩的情况下轮转时重置增量日志读取器，使相同大小的替换不会隐藏新的就绪或 RPC 行。
+- Talk：在控制器创建的回合和输出音频生命周期事件上保留显式 `null` 负载。
+- Agents/TUI：在插件被禁用时，防止本地自定义 provider 运行加载插件运行时和认证别名元数据。
+- Agents/TUI：恢复进行中的 TUI 运行切换行为，保持无策略原生 hook 后备可用，保护消失的工作区，并保持轻量级隔离子代理的轻量。
+- Agents/media：保持异步图像、音乐和视频生成的启动不会结束 Codex 回合，使混合请求可以在媒体后台渲染时继续摘要或其他工作。
+- Agents/Codex：防止公共 OpenAI API key 配置文件被当作原生 Codex app-server 身份验证，同时保留已持久化的 Codex OAuth 会话。
+- Agents/Codex：将 Codex app-server 最终答案部分流式传输到实时回复预览，在 SQLite 中保留 ACP 元数据，优先选择真实工具结果而非合成修复输出，防止中止的 app-server 回合句柄残留，迁移旧版 OpenAI Codex `lastGood` 认证状态，并通过 ACP 运行时重构保留工作区/会话元数据。 (#88405, #88724, #88730) 感谢 @vincentkoc。
+- Control UI：保持折叠的工具卡片以工具名称和动作而非通用输出文本标记。 感谢 @shakkernerd。
+- Agents/Codex：在 `skill_workshop` 可用时，在 Codex app-server prompt 中显示 Skill Workshop 指导。 感谢 @shakkernerd。
+- Agents/auth：原子写入认证配置文件，添加强制重新登录恢复，在仅状态卸载期间保留工作区，并在过大回合前压缩，使恢复路径避免部分状态。
+- Skills：从过期的持久化快照中跳过禁用的 skill 环境覆盖，使禁用的 skill `apiKey` SecretRef 无法中止嵌入或渠道回合。 (#79072, #79173) 感谢 @zeus1959。
+- Skill Workshop：从过滤后的导航状态渲染 Control UI 标签，并保持过滤后的回退路由稳定。
+- CLI：在 `openclaw agents add` 期间避免实时目录验证，使添加次要 agent 不再依赖 provider 目录可用性。 (#76284, #88314) 感谢 @zhangguiping-xydt。
+- CLI：保持 `plugins list --json` 走仅快照路径，使插件扫描避免加载完整运行时状态图。
+- CLI/desktop：通过 shell 桥接 WSL 剪贴板操作并识别手动更新的 launchd 作业。 (#88764)
+- 插件：使 PixVerse 外部插件 ClawHub 元数据明确，并将其排除在捆绑 dist 构建之外。
+- 插件：澄清插件加载器失败指导，使缺失或不兼容的插件包指向运维人员正确的修复路径。
+- 插件：在被阻止的安装后保留 npm 插件根，在回滚快照期间跳过插件本地 `openclaw` peer 符号链接，在恢复后重新链接这些 peer，隔离缓存的工具运行时兄弟，并隔离 web-provider 工厂失败，使一个坏插件不会毒害兄弟运行时路径。 (#77237, #88807)
+- Cron：使 SQLite cron 迁移与旧版运行日志表、归档作业存储、诊断 cron 名称和旧版一次性 delete-after-run 行为保持兼容。 (#88285)
+- Cron：保持更新交付验证在范围内，强化重启状态，并在隔离 cron 清理时停用 MCP 运行时。
+- Memory：按存储序列化 QMD 更新/嵌入写入，在读取错误时保留阶段信号，强化信封元数据清理，并在滚动时重写生成的 transcript 路径，使 memory/search 状态在并发 gateway 和 CLI 活动下存活。 (#66339, #85931) 感谢 @openperf 和 @amittell。
+- Providers：限制 OpenAI、Runway、xAI、MiniMax、BytePlus、DashScope-compatible、FAL、OpenRouter、Google、Vydra 和 Comfy provider 的生成媒体下载。
+- Providers：将 Google 默认解析为 `google-generative-ai`，注册 Vertex 静态目录行，对齐 Foundry 推理元数据，在 Foundry 回退时跳过 DeepSeek V4 thinking 参数，使用 MiniMax 账号 OAuth 端点，保留 Copilot Claude 1M 能力，抑制禁用的 Ollama 推理输出，保留 OpenAI stop-finished 工具调用，并在 Responses 存储被禁用时避免重放 id。 (#88480, #88512)
+- Providers：在创建中止信号之前限制 GitHub Copilot OAuth 请求超时。
+- Cron：在等待下一个调度槽之前，在瞬态模型速率限制后重试循环作业。
+- Agents/Codex：在清理期间保持实时会话锁，恢复中断的 CLI 工具记录，保留 Codex 认证和压缩会话身份，清除孤儿工具状态，限制 app-server 空闲定时器，并使媒体完成传递可重试。 (#88129, #88136, #88141, #88162, #88182)
+- Chat/UI：在 Control UI 中将 Gateway 聊天失败显示为可见的助手消息，而不仅仅是设置不可见的错误状态。
+- 渠道：限制 Telegram、Discord、WhatsApp、Signal、飞书、Google Chat、Microsoft Teams、QQBot、Nostr、Zalo、Zalouser 和 Nextcloud 风格请求/重试定时器；保留 SMS 批准回复路由；重试 WhatsApp QR 登录 408 超时。 (#88183)
+- 安全/配置解析：拒绝不安全的 OAuth/令牌生命周期、重试后延迟、入站时间戳、响应体大小、命令超时配置、沙盒观察者令牌 TTL 和关闭后的 Gateway WebSocket 调用。
+- Providers/媒体：限制托管和本地 provider 的本地服务、模型、使用、队列、生成媒体、TTS、音乐、工作流轮询和 provider OAuth 请求定时器。
+- Release/CI/E2E：限制发布候选读取、beta smoke REST 调用、插件 npm 验证命令、changelog 恢复、跨操作系统进程组、kitchen-sink 和捆绑插件就绪探针、secret-provider 探针、Telegram 凭据超时、Control UI i18n 和 CLI 启动元数据生成、Vitest 路由和主线测试 flakiness。 (#88127, #88137, #88155, #88160)
+- Release/CI/E2E：保持 Kitchen Sink 实时插件 MCP 探针解析源 checkout 工作区包，并将实时 gauntlet 与当前 Kitchen Sink 诊断对齐。
+- Release/CI/E2E：通过仓库 pnpm runner 运行 secret-provider 集成验证，使原生 macOS 和 Windows 验证使用水合的包管理器垫片。
+- Release/CI/E2E：通过仓库 pnpm runner 运行 Telegram 桌面验证 gateway，使原生 macOS 验证使用水合的包管理器垫片。
+- Docs/CI：通过仓库 pnpm runner 运行 Mintlify 锚点检查，使在 pnpm 仅通过水合的包管理器垫片可用时文档链接验证工作。
+- Agents：保持配置的备用模型元数据有类型，使 provider 参数、上下文 token 上限和媒体输入限制不会破坏 changed-gate 类型检查。
+- Agents：在验证前接受隐藏的 `sessions_send` body 别名，同时保持面向模型的 `message` 模式规范化。 (#88229) 感谢 @zhangguiping-xydt。
+- Chat/UI：在历史加载期间保留启动聊天发送，解除初始 Control UI 聊天发送阻止，按增量流式聊天分片，在流式传输时跳过 markdown 解析，在键入时保持草稿本地，保护编辑器重新渲染，遵守 Chromium 可执行覆盖，并为 E2E 检测系统 Chromium。 (#88998) 感谢 @vincentkoc。
+- 渠道：保留长飞书流式回复，在已接受飞书回合不产生最终回复时发送可见回退，容忍 iMessage 自聊天时间戳偏差，在提及解析中保留冒号前缀斜杠命令，正确解码 Nostr `npub` 允许列表，并在渠道传递期间抑制原始 provider 错误。 (#87896)
+- Config/status/doctor：跳过 state-dir dotenv 文件中未解析的 shell 引用，在深度状态审计期间解析 gateway 身份验证密钥，遵守显式 PI 运行时策略，报告运行时工具模式错误，并保持升级后 JSON 稳定。 (#88288)
+- Gateway/会话状态：从 Gateway 插件注册表列出命令，强化 MCP loopback 工具模式，从 `sessions.list` 隐藏幻影 agent-store 行，使任务持久化失败显式化，并在交互式调度事件上携带会话 UUID。
+- Gateway/插件：将插件查找记忆化缩小到稳定的插件/运行时输入，避免在没有混合禁用或过滤的插件状态的情况下重复查找工作。
+- OpenAI/TTS：处理 OpenAI TTS 语音的速度指令。 (#74089)
+- CI/Crabbox：在 Azure 信用支持按需 D4 通道上使用 Azure SSH 端口和独立于 Git 的完整检查作业保持默认 runner 容量，使广泛验证避免低优先级 spot 配额停滞、端口不匹配、非 Git 水合工作区和过期 AWS 区域提示。
+- CI/Crabbox：将 Crabbox 包装器和 Testbox 工作流编辑路由到其回归测试，使 changed-test 门不会静默运行零规范。
+- CI/工作流：将工作流健全性辅助编辑路由到其保护测试，并覆盖复合动作输入插值检查。
+- CI/工具：将 CI 范围、依赖、changelog 和文档辅助编辑路由到其所有者测试，而不是静默跳过 changed-test 覆盖率。
+- CI/工具：将包、发布和安装辅助编辑路由到其所有者测试，使 changed-test 门覆盖发布和安装程序脚本更改。
+- CI/工具：将共享脚本库编辑通过其所有者测试路由，使锁、进程、安全和扫描辅助不会跳过 changed-test 覆盖率。
+- CI/工具：在已变更 diff 已需要广泛回退时跳过昂贵的导入图扫描，使本地 changed-test 规划保持快速，同时仍收集显式所有者测试。
+- CI/工具：在匹配的 `test/scripts` 或 `src/scripts` 覆盖率已存在时，将脚本编辑通过常规所有者测试路由。
+- CI/工具：在 memory FD 重现脚本中遵守选项终止符，使后续参数不会被重新解析。
+- Release/CI/E2E：断言插件生命周期运行时检查输出，而不仅仅是捕获它。
+- Release/CI/E2E：使 gateway-network 证明所宣传的健康 RPC 并重试早期 WebSocket 关闭，而不消耗完整打开超时。
+- Release/CI/E2E：在发布、Parallels smoke、插件 gauntlet 和扩展内存脚本中遵守选项终止符。
+- Release/CI/E2E：在请求的套件摘要缺失或无效时使插件 gateway gauntlet QA 块失败。
+- 性能：使用生成的插件资产但不包含 CLI 启动元数据预构建 QA 运行时探针。
+- 性能：为仅运行时 CLI 启动和 gateway watch 构建配置文件跳过声明捆绑。
+- 性能：重用准备好的 provider 句柄、严格工具模式、Gateway 运行时元数据、会话维护配置、插件元数据、捆绑 skill 允许列表、包本地插件工件、单条目存储写入和已验证/序列化的会话 prompt blob。
+
 ## 2026.5.30
 
 > 📌 本版基于上游 2026.05.30 正式发布
