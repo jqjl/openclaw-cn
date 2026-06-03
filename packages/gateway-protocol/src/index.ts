@@ -126,6 +126,10 @@ import {
   type ChatEvent,
   ChatEventSchema,
   ChatHistoryParamsSchema,
+  type ChatMetadataParams,
+  ChatMetadataParamsSchema,
+  ChatMessageGetResultSchema,
+  ChatMessageGetParamsSchema,
   type ChatInjectParams,
   ChatInjectParamsSchema,
   ChatSendParamsSchema,
@@ -367,6 +371,26 @@ import {
   SkillsDetailResultSchema,
   type SkillsInstallParams,
   SkillsInstallParamsSchema,
+  type SkillsProposalActionParams,
+  SkillsProposalActionParamsSchema,
+  type SkillsProposalApplyResult,
+  SkillsProposalApplyResultSchema,
+  type SkillsProposalCreateParams,
+  SkillsProposalCreateParamsSchema,
+  type SkillsProposalInspectParams,
+  SkillsProposalInspectParamsSchema,
+  type SkillsProposalInspectResult,
+  SkillsProposalInspectResultSchema,
+  type SkillsProposalRecordResult,
+  SkillsProposalRecordResultSchema,
+  type SkillsProposalReviseParams,
+  SkillsProposalReviseParamsSchema,
+  type SkillsProposalUpdateParams,
+  SkillsProposalUpdateParamsSchema,
+  type SkillsProposalsListParams,
+  SkillsProposalsListParamsSchema,
+  type SkillsProposalsListResult,
+  SkillsProposalsListResultSchema,
   type SkillsSearchParams,
   SkillsSearchParamsSchema,
   type SkillsSearchResult,
@@ -736,6 +760,24 @@ export const validateSkillsUploadCommitParams = lazyCompile<SkillsUploadCommitPa
 export const validateSkillsUpdateParams = lazyCompile<SkillsUpdateParams>(SkillsUpdateParamsSchema);
 export const validateSkillsSearchParams = lazyCompile<SkillsSearchParams>(SkillsSearchParamsSchema);
 export const validateSkillsDetailParams = lazyCompile<SkillsDetailParams>(SkillsDetailParamsSchema);
+export const validateSkillsProposalsListParams = lazyCompile<SkillsProposalsListParams>(
+  SkillsProposalsListParamsSchema,
+);
+export const validateSkillsProposalInspectParams = lazyCompile<SkillsProposalInspectParams>(
+  SkillsProposalInspectParamsSchema,
+);
+export const validateSkillsProposalCreateParams = lazyCompile<SkillsProposalCreateParams>(
+  SkillsProposalCreateParamsSchema,
+);
+export const validateSkillsProposalUpdateParams = lazyCompile<SkillsProposalUpdateParams>(
+  SkillsProposalUpdateParamsSchema,
+);
+export const validateSkillsProposalReviseParams = lazyCompile<SkillsProposalReviseParams>(
+  SkillsProposalReviseParamsSchema,
+);
+export const validateSkillsProposalActionParams = lazyCompile<SkillsProposalActionParams>(
+  SkillsProposalActionParamsSchema,
+);
 export const validateSkillsSecurityVerdictsParams = lazyCompile<SkillsSecurityVerdictsParams>(
   SkillsSecurityVerdictsParamsSchema,
 );
@@ -806,10 +848,13 @@ export const validateExecApprovalsNodeSetParams = lazyCompile<ExecApprovalsNodeS
 );
 export const validateLogsTailParams = lazyCompile<LogsTailParams>(LogsTailParamsSchema);
 export const validateChatHistoryParams = lazyCompile(ChatHistoryParamsSchema);
+export const validateChatMetadataParams = lazyCompile<ChatMetadataParams>(ChatMetadataParamsSchema);
+export const validateChatMessageGetParams = lazyCompile(ChatMessageGetParamsSchema);
 export const validateChatSendParams = lazyCompile(ChatSendParamsSchema);
 export const validateChatAbortParams = lazyCompile<ChatAbortParams>(ChatAbortParamsSchema);
 export const validateChatInjectParams = lazyCompile<ChatInjectParams>(ChatInjectParamsSchema);
 export const validateChatEvent = lazyCompile(ChatEventSchema);
+export const validateChatMessageGetResult = lazyCompile(ChatMessageGetResultSchema);
 export const validateUpdateStatusParams = lazyCompile<UpdateStatusParams>(UpdateStatusParamsSchema);
 export const validateUpdateRunParams = lazyCompile<UpdateRunParams>(UpdateRunParamsSchema);
 export const validateWebLoginStartParams =
@@ -1038,6 +1083,16 @@ export {
   SkillsSearchResultSchema,
   SkillsDetailParamsSchema,
   SkillsDetailResultSchema,
+  SkillsProposalsListParamsSchema,
+  SkillsProposalsListResultSchema,
+  SkillsProposalInspectParamsSchema,
+  SkillsProposalInspectResultSchema,
+  SkillsProposalCreateParamsSchema,
+  SkillsProposalUpdateParamsSchema,
+  SkillsProposalReviseParamsSchema,
+  SkillsProposalActionParamsSchema,
+  SkillsProposalApplyResultSchema,
+  SkillsProposalRecordResultSchema,
   SkillsSecurityVerdictsParamsSchema,
   SkillsSecurityVerdictsResultSchema,
   SkillsSkillCardParamsSchema,
@@ -1063,6 +1118,7 @@ export {
   ExecApprovalRequestParamsSchema,
   ExecApprovalResolveParamsSchema,
   ChatHistoryParamsSchema,
+  ChatMetadataParamsSchema,
   ChatSendParamsSchema,
   ChatInjectParamsSchema,
   UpdateRunParamsSchema,
@@ -1171,6 +1227,7 @@ export type {
   ArtifactsDownloadResult,
   AgentsListParams,
   AgentsListResult,
+  ChatMetadataParams,
   CommandsListParams,
   CommandsListResult,
   CommandEntry,
@@ -1189,6 +1246,16 @@ export type {
   SkillsSearchResult,
   SkillsDetailParams,
   SkillsDetailResult,
+  SkillsProposalsListParams,
+  SkillsProposalsListResult,
+  SkillsProposalInspectParams,
+  SkillsProposalInspectResult,
+  SkillsProposalCreateParams,
+  SkillsProposalUpdateParams,
+  SkillsProposalReviseParams,
+  SkillsProposalActionParams,
+  SkillsProposalApplyResult,
+  SkillsProposalRecordResult,
   SkillsSecurityVerdictsParams,
   SkillsSecurityVerdictsResult,
   SkillsSkillCardParams,

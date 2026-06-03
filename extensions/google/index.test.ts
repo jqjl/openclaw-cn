@@ -1,4 +1,4 @@
-import type { Context, Model } from "@earendil-works/pi-ai";
+import type { Context, Model } from "openclaw/plugin-sdk/llm";
 import type {
   ProviderReplaySessionEntry,
   ProviderSanitizeReplayHistoryContext,
@@ -10,7 +10,7 @@ import {
 } from "openclaw/plugin-sdk/plugin-test-runtime";
 import { createCapturedThinkingConfigStream } from "openclaw/plugin-sdk/provider-test-contracts";
 import type { RealtimeVoiceProviderPlugin } from "openclaw/plugin-sdk/realtime-voice";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { registerGoogleGeminiCliProvider } from "./gemini-cli-provider.js";
 import googlePlugin from "./index.js";
 import { registerGoogleProvider } from "./provider-registration.js";
@@ -21,6 +21,12 @@ const googleProviderPlugin = {
     registerGoogleGeminiCliProvider(api);
   },
 };
+
+const refreshGeminiCliOAuthTokenMock = vi.hoisted(() => vi.fn());
+
+vi.mock("./oauth.runtime.js", () => ({
+  refreshGeminiCliOAuthToken: refreshGeminiCliOAuthTokenMock,
+}));
 
 describe("google provider plugin hooks", () => {
   it("owns replay policy and reasoning mode for the direct Gemini provider", async () => {
@@ -59,7 +65,13 @@ describe("google provider plugin hooks", () => {
         modelApi: "google-generative-ai",
         modelId: "gemini-3.1-pro-preview",
       } as never),
-    ).toBe("tagged");
+    ).toBe("native");
+    expect(
+      provider.resolveReasoningOutputMode?.({
+        provider: "google",
+        modelId: "gemini-3.1-pro-preview",
+      } as never),
+    ).toBe("native");
 
     const sanitized = await Promise.resolve(
       provider.sanitizeReplayHistory?.({
@@ -94,6 +106,60 @@ describe("google provider plugin hooks", () => {
     });
     expect(customEntries).toHaveLength(1);
     expect(customEntries[0]?.customType).toBe("google-turn-ordering-bootstrap");
+  });
+
+  it("keeps google-gemini-cli on tagged reasoning mode", async () => {
+    const { providers } = await registerProviderPlugin({
+      plugin: googleProviderPlugin,
+      id: "google",
+      name: "Google Provider",
+    });
+    const cliProvider = requireRegisteredProvider(providers, "google-gemini-cli");
+    expect(
+      cliProvider.resolveReasoningOutputMode?.({
+        provider: "google-gemini-cli",
+        modelApi: "google-gemini-cli",
+        modelId: "gemini-2.5-pro",
+      } as never),
+    ).toBe("tagged");
+  });
+
+  it("keeps google-antigravity hook aliases on tagged reasoning mode", async () => {
+    const { providers } = await registerProviderPlugin({
+      plugin: googleProviderPlugin,
+      id: "google",
+      name: "Google Provider",
+    });
+    const provider = requireRegisteredProvider(providers, "google-antigravity");
+    expect(
+      provider.resolveReasoningOutputMode?.({
+        provider: "google-antigravity",
+        modelApi: "openai-completions",
+        modelId: "gemini-3-pro-low",
+      } as never),
+    ).toBe("tagged");
+  });
+
+  it("keeps google-vertex hook aliases on native reasoning mode", async () => {
+    const { providers } = await registerProviderPlugin({
+      plugin: googleProviderPlugin,
+      id: "google",
+      name: "Google Provider",
+    });
+    const provider = requireRegisteredProvider(providers, "google-vertex");
+    expect(
+      provider.resolveReasoningOutputMode?.({
+        provider: "google-vertex",
+        modelApi: "google-vertex",
+        modelId: "gemini-3.1-pro-preview",
+      } as never),
+    ).toBe("native");
+    expect(
+      provider.resolveReasoningOutputMode?.({
+        provider: "google-vertex",
+        modelId: "gemini-3.1-pro-preview",
+      } as never),
+    ).toBe("native");
   });
 
   it("owns Gemini tool schema normalization for direct and CLI providers", async () => {
@@ -193,6 +259,25 @@ describe("google provider plugin hooks", () => {
     runCase(cliProvider, "google-gemini-cli");
   });
 
+  it("wires Vertex transport before request-time metadata ADC detection", async () => {
+    const { providers } = await registerProviderPlugin({
+      plugin: googleProviderPlugin,
+      id: "google",
+      name: "Google Provider",
+    });
+    const provider = requireRegisteredProvider(providers, "google");
+
+    expect(
+      provider.createStreamFn?.({
+        model: {
+          api: "google-vertex",
+          provider: "google",
+          id: "gemini-2.5-pro",
+        },
+      } as never),
+    ).toEqual(expect.any(Function));
+  });
+
   it("advertises adaptive thinking for Gemini dynamic thinking", async () => {
     const { providers } = await registerProviderPlugin({
       plugin: googleProviderPlugin,
@@ -264,5 +349,41 @@ describe("google provider plugin hooks", () => {
     expect(bridge.sendAudio(Buffer.alloc(160))).toBeUndefined();
     expect(bridge.setMediaTimestamp(20)).toBeUndefined();
     expect(bridge.sendUserMessage?.("hello")).toBeUndefined();
+  });
+
+  it("refreshes Gemini CLI OAuth through the provider-owned refresh hook", async () => {
+    refreshGeminiCliOAuthTokenMock.mockResolvedValueOnce({
+      type: "oauth",
+      provider: "google-gemini-cli",
+      access: "fresh-access",
+      refresh: "fresh-refresh",
+      expires: Date.now() + 60_000,
+      email: "user@example.com",
+      projectId: "project-1",
+    });
+
+    const { providers } = await registerProviderPlugin({
+      plugin: googleProviderPlugin,
+      id: "google",
+      name: "Google Provider",
+    });
+    const provider = requireRegisteredProvider(providers, "google-gemini-cli");
+    const credential = {
+      type: "oauth" as const,
+      provider: "google-gemini-cli",
+      access: "stale-access",
+      refresh: "stale-refresh",
+      expires: Date.now() - 60_000,
+      email: "user@example.com",
+      projectId: "project-1",
+    };
+
+    await expect(provider.refreshOAuth?.(credential)).resolves.toMatchObject({
+      access: "fresh-access",
+      refresh: "fresh-refresh",
+      email: "user@example.com",
+      projectId: "project-1",
+    });
+    expect(refreshGeminiCliOAuthTokenMock).toHaveBeenCalledWith(credential);
   });
 });
